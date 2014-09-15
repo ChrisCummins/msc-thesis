@@ -53,3 +53,70 @@ Deadline 22/9/14, although choices are "not binding at this stage".
  * [Parallel Design Patterns](http://www.epcc.ed.ac.uk/education-training/training/course-portfolio/parallel-design-patterns)
 
  * [Advanced Parallel Programming](http://www.epcc.ed.ac.uk/education-training/training/course-portfolio/advanced-parallel-programming)
+
+
+## Monday 15th
+
+Could we perform static analysis in JIT runtime?
+[Relevant discussion](https://www.usenix.org/legacy/event/jvm02/yu/yu_html/node3.html).
+
+**Persistent data structure:** a data structure that always preserves
+the previous version of itself when modified. Thus effectively
+immutable, as operations do not update the structure in-place, but
+yield a new updated structure.
+
+### TODO:
+
+1. Decide on courses
+1. Investigate MSc project options
+1. Read [Hacker's guide to LLVM](http://www.aosabook.org/en/llvm.html)
+1. Work through machine learning maths preliminaries
+1. Work through a practical MPI tutorial
+1. Read up on C++ templating
+1. Concurrent programming pattern: Actor
+1. Become familiar with Haskell, Scala, and Erlang
+1. Take out relevant library books:
+   * Mathematics for Engineers - Croft and Davison
+   * Data Mining: Practical Machine Learning Tools and Techniques
+
+### Notes from meeting with Pavlos & Hugh
+
+Google hangout 9pm
+
+ * The HOF component of Skeletons becomes less interesting/relevant as
+   the complexity of skeletons grow. So something simple like divide
+   and conquer could be implemented in a small amount of code, but
+   complexity comes from the mechanics of parallelising, adding
+   robustness, coordinating heterogeneous devices etc.
+
+ * It may be more difficult to get work published for "non-standard"
+   languages:
+   * E.g. If the majority of published work is in C++, then an
+     implementation in Clojure would be compare unfavourably in terms
+     of performance.
+
+ * Get organised about making notes on papers when reading them. There
+   will be a *lot* of reading, so a good database of notes is
+   essential. There are applications to help manage these.
+
+ * It's important to get an understanding of the conferences and
+   competitors in your field, so as to know *who* and *what* to keep
+   an eye on.
+
+ * **TODO:** In 2 months, create a spreadsheet of relevant competitors
+   and conferences. Include paper submission deadlines, dates for
+   publishing proceedings, etc.
+
+ * **TODO:** Re-implement the memory read/write instrumentation from
+   the programming assessment for LLVM, or implement something of
+   comparable interest.
+
+ * **TODO:** Implement a simple sequential divide and conquer skeleton
+   in C++.
+
+ * The reading club will restart at some point. Non-mandatory since
+   MSc but relevant/useful.
+
+ * **TODO:** At some point, I should pick a paper to critically
+   analyse for Pavlos and Hugh. Same as reading club but on one-to-one
+   basis.
