@@ -120,3 +120,151 @@ Google hangout 9pm
  * **TODO:** At some point, I should pick a paper to critically
    analyse for Pavlos and Hugh. Same as reading club but on one-to-one
    basis.
+
+
+## Tuesday 16th
+
+Reference management software to test:
+
+ * Mendeley 7
+ * Zotero 6
+ * Jabref 4
+ * BibDesk 3 (only runs on Mac)
+ * Endnote 1
+ * Refworks 1
+
+TODO:
+
+ [x] Read The Researcher's Bible
+ [x] Find one relevant conference / competitor and note details
+ [ ] Follow a practical tutorial on MP
+ [ ] Find an up-to-date paper on Skeletons
+ [x] Begin working through MLPR background maths sheet
+
+### Notes on "[Learning from Data: Supplementary Mathematics](http://www.inf.ed.ac.uk/teaching/courses/mlpr/notes/mlpr-supplementary-maths.pdf)" (D Barber)
+
+Scalar - a quantitity which "has magnitude but which is not related to
+any definite direction in space."
+
+Vectors - "It has magnitude and is also related to a definite
+direction in space." When representing vectors as letters, they are
+often underlined. In print, the are represented using either boldface
+or a directional arrow above the letter.
+
+Norm - another term for the length/magnitude of a vector.
+
+Vector addition - using parallelogram law. Commutative and
+associative.
+
+Coplanar - in the same plane.
+
+Position vectors - "The point *P* can be represented by the position
+vector **p**, which is a vector whose initial point is the origin of
+the coordinate system."
+
+Unit vectors along the direction of the coodinate axes *X, Y, Z* are
+commonly denoted as * **i** = (1, 0, 0), **j** = (0, 1, 0), **k** =
+(0, 0, 1)*.
+
+There's a bunch of mathematical symbols (esp. regarding set theory)
+which I'm unfamiliar with. Should be sure to work through
+[the list](http://en.wikipedia.org/wiki/List_of_mathematical_symbols).
+
+
+### Notes on [The Researcher's Bible](http://homepages.inf.ed.ac.uk/bundy/how-tos/resbible.html)
+
+ * The thesis + viva is to prove:
+> that the student is capable of pursuing original research making a
+> significant contribution to knowledge or understanding in the field
+> of study, relating particular research projects to the general body
+> of knowledge in the field, and presenting the results of the
+> research in a critical and scholarly way.
+> ([regulation 40](http://www.drps.ed.ac.uk/14-15/regulations/postgrad.php#Grounds))
+ * American PhD students spend 5/6 years studying.
+ * Read the literature and talk to fellow workers to find out what the
+   state of the art is. In particular, check the further work section
+   of papers for ideas for research.
+ * After choosing a topic:
+   * Read the literature.
+   * Talk to people.
+   * Tackle a simplified version of the problem.
+   * Write down ideas in a working paper.
+   * Give a talk to a small group.
+ * "Your program must be explainable at a higher level than code, for
+   it to make a real contribution to knowledge. Try to plan your
+   program theoretically before going to the terminal."
+ * Set aside a part of the week for reading reviews and abstracts and
+   skimming papers.
+ * Pick a "non-threatening, attractive task" to start each day with.
+ * Do not underestimate the importance of being enthusiastic about
+   your research topic.
+ * "Beginning sutdents tend to underestimate the worthiness and
+   overestimate the doability of projects".
+ * Do not focus on implementation and performance at the expense of
+   vauge assumptions and principles.
+ * Make writing a regular part of your life. Document:
+   * Ideas you have
+   * Documentation of programs
+   * Lecture notes
+   * Notes on papers
+ * [Edinburgh publications](http://www.ed.ac.uk/schools-departments/informatics/research/publications/)
+ * Advice for writing: 
+   * A paper should have a clear message that you understand and is
+     repeated in the title, abstract, introduction, conclusion, and
+     structure.
+   * Think of your audience as intelligent, but (a) ignorant and (b)
+     given to wilful misunderstanding.
+   * A reader should get the main idea of the paper from the first
+     page. Long rambling introductions should be pruned ruthlessly.
+   * The basic framework for a scientific paper is: what
+     claim/hypothesis am I making and what is the evidence for this
+     claim.
+   * Have a particular reader in mind to keep the technical standard
+     of the paper uniform.
+   * Clearly state what is new or better about what you have done.
+   * A bi-directional combination of top down and bottom up writings
+     styles is the most successful.
+ * Advice for reading:
+   * Think of the work of others as arranged in concentric circles
+     around your own.
+   * Outer circle - skim papers and abstracts to achieve appropriate
+     level of familliarity with this circle. Set aside an hour each
+     week to skim the latest arrivals.
+   * Middle circle - Read some papers right through and discuss with
+     others. Write a paragraph on each paper as you read it.
+   * Inner circle - deep understanding, requiring several reads of a
+     paper. Work through examples. Talk to the author about it. Write
+     to them with a list of queries and/or criticisms. Teach it to
+     others.
+  * Have a succinct answer prepared for the question "what do you
+    consider to be the key contributions in your thesis?"
+
+
+### Notes from Ppar Lecture
+
+3:10pm Murray Cole
+
+Lecture Notes: http://www.inf.ed.ac.uk/teaching/courses/ppar/
+
+ * Read ahead lecture material and course texts.
+ * **14/9/14** - I give Davide Pinato's presentation about 2
+     scientific papers.
+ * **21/10/14** - Martin Ruefenacht presents my material about 2
+     scientific papers.
+ * You should aim to read 10-20 papers per week
+   (abstract+conclusions).
+ * **TODO:** Read through miscellaneous resources section of lecture
+     slides.
+ * **TODO:** Pick 2 interesting papers within the "inner circle" and
+   discuss with Pavlos.
+ * Read project proposals, in order to learn how to write better
+   project proposals.
+
+First presentation content:
+
+ * Context
+ * Key contribution
+ * Impact
+ * Critical reflection
+
+Today's relevant conference was PLDI (see google doc).
