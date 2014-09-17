@@ -23,18 +23,13 @@ int main(int argc, char *argv[]) {
     no_of_processes = MPI::COMM_WORLD.Get_size();
     process_id = MPI::COMM_WORLD.Get_rank();
 
-    while (1) {
+    while (no_of_intervals) {
 
-        // Controller process
-        if (MASTER_PROCESS) {
+        // Bump number of intervals:
+        if (MASTER_PROCESS)
             no_of_intervals = no_of_intervals * 10 % 1000000000;
-        }
 
         MPI::COMM_WORLD.Bcast(&no_of_intervals, 1, MPI::INT, 0);
-
-        // Quit if we've got no intervals
-        if (no_of_intervals == 0)
-            break;
 
         h = 1.0 / (double)no_of_intervals;
         sum = 0.0;
@@ -48,10 +43,10 @@ int main(int argc, char *argv[]) {
 
         MPI::COMM_WORLD.Reduce(&result, &pi, 1, MPI::DOUBLE, MPI::SUM, 0);
 
-        // Print result:
-        if (MASTER_PROCESS) {
+        if (MASTER_PROCESS && no_of_intervals) {
             error = fabs(pi - PI);
 
+            // Print results:
             std::cout << "With " << no_of_intervals << " intervals, "
                       << "pi is approximately " << pi << ", "
                       << "error is " << error << "\n";
