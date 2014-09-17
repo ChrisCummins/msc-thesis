@@ -249,7 +249,7 @@ which I'm unfamiliar with. Should be sure to work through
 Lecture Notes: http://www.inf.ed.ac.uk/teaching/courses/ppar/
 
  * Read ahead lecture material and course texts.
- * **14/9/14** - I give Davide Pinato's presentation about 2
+ * **14/10/14** - I give Davide Pinato's presentation about 2
      scientific papers.
  * **21/10/14** - Martin Ruefenacht presents my material about 2
      scientific papers.
@@ -303,3 +303,51 @@ Pavlos' advice on finding relevant literature:
    Murray.
 
 Pavlos is away from 2-12th October, so must organise around that.
+
+For the machine learning courses, it may not be required to go into a
+deep mathematical understanding for most uses, although it would
+obviously help when things go wrong. A important field of maths is
+statistics for researchers.
+
+[Confidence interval](http://en.wikipedia.org/wiki/Confidence_interval)
+- a measure of reliability of an estimate. If confidence intervals are
+  constructed across many separate data analyses of repeated
+  experiments, the proportion of such intervals that contain the true
+  value of the parameter will match the confidence level.
+
+### Notes on [What is a Literature Review](https://www.wiki.ed.ac.uk/pages/viewpage.action?title=What+is+a+Literature+Review&spaceKey=irrirpwiki)
+
+> a summary and critical evaluation of all the knowledge pertaining to
+> a specific research question, which has already been established by
+> other researchers.
+
+ * Identifies gaps in the field
+ * Critically comments on the methods of the previous research
+ * May group the research into themes or topics.
+ * Start out broad, then become more specific (inverted pyramid).
+
+```
+-----------------------------
+ \                         /      Broad issues
+  \                       /
+   \---------------------/
+    \                   /         Studies which overlap
+     \                 /          with your research
+      \               /
+       \-------------/
+        \           /             Studies that are directly
+         \         /              related to your investigation
+          \       /
+           \     /
+            \   /
+             \ /
+              X
+```
+
+ * First briefly explain the broad issues.
+ * Then narrow the focus to deal with the studies related to the
+   subject area of your question.
+ * Finally, hone in on research which is directly related to the
+   specific research question.
+
+[Further reading](http://www.ais.up.ac.za/med/tnm800/tnmwritingliteraturereviewlie.htm).
