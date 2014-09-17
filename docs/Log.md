@@ -200,7 +200,7 @@ which I'm unfamiliar with. Should be sure to work through
  * Pick a "non-threatening, attractive task" to start each day with.
  * Do not underestimate the importance of being enthusiastic about
    your research topic.
- * "Beginning sutdents tend to underestimate the worthiness and
+ * "Beginning students tend to underestimate the worthiness and
    overestimate the doability of projects".
  * Do not focus on implementation and performance at the expense of
    vauge assumptions and principles.
