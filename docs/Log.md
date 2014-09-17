@@ -135,11 +135,11 @@ Reference management software to test:
 
 TODO:
 
- [x] Read The Researcher's Bible
- [x] Find one relevant conference / competitor and note details
- [ ] Follow a practical tutorial on MP
- [ ] Find an up-to-date paper on Skeletons
- [x] Begin working through MLPR background maths sheet
+ * Read The Researcher's Bible - DONE
+ * Find one relevant conference / competitor and note details - DONE
+ * Follow a practical tutorial on MPI
+ * Find an up-to-date paper on Skeletons - DONE
+ * Begin working through MLPR background maths sheet - DONE
 
 ### Notes on "[Learning from Data: Supplementary Mathematics](http://www.inf.ed.ac.uk/teaching/courses/mlpr/notes/mlpr-supplementary-maths.pdf)" (D Barber)
 
@@ -163,8 +163,8 @@ vector **p**, which is a vector whose initial point is the origin of
 the coordinate system."
 
 Unit vectors along the direction of the coodinate axes *X, Y, Z* are
-commonly denoted as * **i** = (1, 0, 0), **j** = (0, 1, 0), **k** =
-(0, 0, 1)*.
+commonly denoted as **i** = (1, 0, 0), **j** = (0, 1, 0), **k** = (0,
+0, 1).
 
 There's a bunch of mathematical symbols (esp. regarding set theory)
 which I'm unfamiliar with. Should be sure to work through
@@ -174,12 +174,14 @@ which I'm unfamiliar with. Should be sure to work through
 ### Notes on [The Researcher's Bible](http://homepages.inf.ed.ac.uk/bundy/how-tos/resbible.html)
 
  * The thesis + viva is to prove:
+
 > that the student is capable of pursuing original research making a
 > significant contribution to knowledge or understanding in the field
 > of study, relating particular research projects to the general body
 > of knowledge in the field, and presenting the results of the
 > research in a critical and scholarly way.
 > ([regulation 40](http://www.drps.ed.ac.uk/14-15/regulations/postgrad.php#Grounds))
+
  * American PhD students spend 5/6 years studying.
  * Read the literature and talk to fellow workers to find out what the
    state of the art is. In particular, check the further work section
@@ -208,7 +210,7 @@ which I'm unfamiliar with. Should be sure to work through
    * Lecture notes
    * Notes on papers
  * [Edinburgh publications](http://www.ed.ac.uk/schools-departments/informatics/research/publications/)
- * Advice for writing: 
+ * Advice for writing:
    * A paper should have a clear message that you understand and is
      repeated in the title, abstract, introduction, conclusion, and
      structure.
