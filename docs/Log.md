@@ -268,3 +268,36 @@ First presentation content:
  * Critical reflection
 
 Today's relevant conference was PLDI (see google doc).
+
+
+## Wednesday 17th
+
+Have set up Mendeley account to use for tracking notes on acadaemic
+papers.
+
+Skeletons:
+
+> structured parallel programming abstraction that provide programmers
+> with a predefined set of algorithmic templates that can be combined,
+> nest and parameterized with sequential code to produce complex
+> programs.
+> ([Reference](http://homepages.inf.ed.ac.uk/hleather/publications/2012_autotuneparallelskeletons_ppl.pdf))
+
+[Monte Carlo methods](http://en.wikipedia.org/wiki/Monte_Carlo) -
+class of algorithms that rely on repeated random sampling to obtain
+numerical results. Often used when it is difficult or impossible to
+obtain a closed-form expression, or unfeasible to apply a
+deterministic algorithm.
+
+### Second Ppar lunch
+
+Pavlos' advice on finding relevant literature:
+
+ * Start with google scholar searches.
+ * Search by keyword, rank by number of citations.
+ * Once you find relevant papers, look at related reading.
+ * If you have an important paper, look for other papers which cite
+   it. E.g. for algorithmic skeletons, almost every paper cites
+   Murray.
+
+Pavlos is away from 2-12th October, so must organise around that.
