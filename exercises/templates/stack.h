@@ -58,6 +58,7 @@ class Stack {
     const int length() {
         if (this->cache.size_dirty) {
             this->cache.size = stack.size();
+            this->cache.empty = stack.empty();
             this->cache.size_dirty = false;
         }
 
@@ -65,6 +66,12 @@ class Stack {
     };
 
     const bool empty() {
+        if (this->cache.size_dirty) {
+            this->cache.size = stack.size();
+            this->cache.empty = stack.empty();
+            this->cache.size_dirty = false;
+        }
+
         return stack.empty();
     };
 
@@ -80,6 +87,7 @@ class Stack {
     struct {
         bool size_dirty;
         int size;
+        bool empty;
 
         bool head_dirty;
         T head;
