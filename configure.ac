@@ -133,6 +133,7 @@ AC_CONFIG_FILES([
         Makefile
         exercises/Makefile
         exercises/mpi/Makefile
+        exercises/templates/Makefile
         proposal/Makefile
 ])
 
