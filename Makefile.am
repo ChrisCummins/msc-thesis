@@ -1,1 +1,4 @@
-SUBDIRS = proposal
+SUBDIRS = \
+	exercises \
+	proposal \
+	$(NULL)

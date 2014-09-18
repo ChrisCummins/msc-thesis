@@ -51,6 +51,34 @@ AC_CHECK_PROG([BIBTEX],[bibtex],[bibtex])
 
 
 dnl ================================================================
+dnl Do we have MPI tools?
+dnl ================================================================
+AC_CHECK_PROG([MPICPP],[mpic++],[mpic++])
+AS_IF([test "x$MPICPP" != x],
+      [HAVE_MPICPP=yes],
+      [HAVE_MPICPP=no])
+AC_SUBST([HAVE_MPICPP],[$HAVE_MPICPP])
+AM_CONDITIONAL([HAVE_MPICPP],[test "x$HAVE_MPICPP" = xyes])
+
+
+AC_CHECK_PROG([MPIRUN],[mpirun],[mpirun])
+AS_IF([test "x$MPIRUN" != x],
+      [HAVE_MPIRUN=yes],
+      [HAVE_MPIRUN=no])
+AC_SUBST([HAVE_MPIRUN],[$HAVE_MPIRUN])
+AM_CONDITIONAL([HAVE_MPIRUN],[test "x$HAVE_MPIRUN" = xyes])
+
+
+AS_IF([test "x$HAVE_MPIRUN" = xyes && \
+       test "x$HAVE_MPICPP" = xyes],
+      [HAVE_MPI_TOOLS=yes],
+      [HAVE_MPI_TOOLS=no
+       AC_MSG_WARN([Unable to build and execute MPI programs.])])
+AC_SUBST([HAVE_MPI_TOOLS],[$HAVE_MPI_TOOLS])
+AM_CONDITIONAL([HAVE_MPI_TOOLS],[test "x$HAVE_MPI_TOOLS" = xyes])
+
+
+dnl ================================================================
 dnl Should xdg-open be used to open PDFs?
 dnl ================================================================
 AC_CHECK_PROG([XDG_OPEN],[xdg-open],[xdg-open])
@@ -103,6 +131,8 @@ dnl Generate files
 dnl ================================================================
 AC_CONFIG_FILES([
         Makefile
+        exercises/Makefile
+        exercises/mpi/Makefile
         proposal/Makefile
 ])
 
