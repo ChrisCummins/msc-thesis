@@ -351,3 +351,28 @@ statistics for researchers.
    specific research question.
 
 [Further reading](http://www.ais.up.ac.za/med/tnm800/tnmwritingliteraturereviewlie.htm).
+
+
+## Thursday 18th
+
+ * Added skeleton LaTeX files for project proposal, based on pip-db
+   report.
+ * Started working through C++ template and MPI examples and programs,
+   staring simple while gaining familiarity with syntax/paradigms
+   (what happened to all the pointers??).
+
+### Differences between C++ Templating engine and C pre-processor
+
+ * There are superficial similarities between the goals of C++
+   templates and some C libraries (E.g. GLib).
+ * The major difference between the two is that templates are a
+   *compile time* feature, whereas the pre-processor is purely textual
+   substitution.
+ * This means that Templates are type aware, and (to a greater or
+   lesser extent) capable of performing more advanced optimisation and
+   verification than would be possible purely with the
+   pre-processor. E.g. "If a function is passed in as a template
+   parameter, you can't tell how complex it is or transform it in any
+   white box way."
+
+Today's relevant conference was HiPEAC (see google doc).
