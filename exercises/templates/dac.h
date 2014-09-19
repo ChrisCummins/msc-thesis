@@ -91,7 +91,6 @@ List MergeSort::merge(Lists lists) {
     List left = lists[0];
     List right = lists[1];
     List sorted;
-    int i;
 
     while (left.size() || right.size()) {
         if (left.size() && right.size()) {
