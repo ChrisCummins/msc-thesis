@@ -11,11 +11,11 @@
 
 /*
  * A generic Stack type, implemented using a vector.
- * 
+ *
  * Oh yeah, and ridiculous caching of values, cos why not.
  * Note: no actual performance gains under most circumstances.
  */
-template<class T> 
+template<class T>
 class Stack {
 
  public:
@@ -24,7 +24,7 @@ class Stack {
         this->cache.size_dirty = true;
         this->cache.head_dirty = true;
     }
-    
+
     void push(const T elem) {
         this->cache.size_dirty = true;
         this->cache.head = elem;
@@ -104,7 +104,7 @@ std::string Stack<int>::toString() {
 
     fmt << this << " Stack<int>[" << this->length() << "] = { ";
 
-    for(std::vector<int>::size_type i = this->length() - 1; 
+    for(std::vector<int>::size_type i = this->length() - 1;
         i != (std::vector<int>::size_type) - 1; i--) {
         fmt << stack[i] << " ";
     }
