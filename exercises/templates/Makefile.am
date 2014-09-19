@@ -1,9 +1,9 @@
-BIN := $(basename $(wildcard *.cpp))
+BIN := $(basename $(wildcard *.cc))
 
 CLEANFILES = $(BIN:=.out)
 
 # Compilation target for C++ programs:
-%: %.cpp
+%: %.cc
 	g++ $< -o $@.out
 
 all: $(BIN)
