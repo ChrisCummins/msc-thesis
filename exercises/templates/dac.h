@@ -9,14 +9,24 @@
 #include <stdexcept>
 #include <sstream>
 
+/*
+ * A divide and conquer template, in the style of an algorithmic
+ * skeleton. The template defines a number of functions which are used
+ * to implement divide and conquer behaviour. Individual template
+ * specialisations can flesh out these "muscle" functions in order to
+ * provide application specific logic.
+ */
 template<class T>
 class DaC {
 
  public:
-    DaC(T data) {
-        this->data_ready = false;
-        this->data = _process(data);
-        this->data_ready = true;
+    DaC(T data, bool lazy_eval = false) {
+        this->data = data;
+
+        if (lazy_eval)
+            this->data_status = IDLE;
+        else
+            _run();
     };
 
     bool isIndivisible(T);
@@ -30,29 +40,44 @@ class DaC {
     T merge(std::vector<T>);
 
     T get() {
-        while (!this->data_ready)
+        _run();
+
+        while (this->data_status != READY)
             ;
         return this->data;
     };
 
  private:
-    bool data_ready;
     T data;
+    enum {
+        IDLE,
+        PROCESSING,
+        READY
+    } data_status;
 
-    T _process(T data) {
+    T _dac(T data) {
         if (isIndivisible(data))
             return process(data);
         else {
             std::vector<T> split_data = split(data);
 
             for (std::vector<int>::size_type i = 0; i < split_data.size(); i++)
-                split_data[i] = _process(split_data[i]);
+                split_data[i] = _dac(split_data[i]);
 
             return merge(split_data);
         }
 
         return data;
     };
+
+    void _run() {
+        if (this->data_status == READY)
+            return;
+
+        this->data_status = PROCESSING;
+        this->data = _dac(this->data);
+        this->data_status = READY;
+    }
 };
 
 
@@ -67,7 +92,6 @@ template<>
 bool MergeSort::isIndivisible(List list) {
     return list.size() <= 1;
 }
-
 
 template<>
 Lists MergeSort::split(List list) {
