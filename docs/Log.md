@@ -376,3 +376,90 @@ statistics for researchers.
    white box way."
 
 Today's relevant conference was HiPEAC (see google doc).
+
+
+## Friday 19th
+
+## Notes on [Statistics Tutorial](https://explorable.com/statistics-tutorial)
+
+```
+statistical_methods(raw_data) = data_set
+```
+
+Calculations of central tendency (mean - arithmetic or geometric,
+media, or mode) assume normal distribution of data.
+
+Statistics for research involves understanding:
+
+1. the relationship between probability and statistics.
+1. the two major branches of statistics: descriptive statistics and
+   inferential statistics.
+1. how statistics relates to the scientific method.
+
+[Reentrant](http://en.wikipedia.org/wiki/Reentrancy_(computing)) - A
+subroutine is reentrant if it can be interrupted during its execution
+and then safely called again before its previous invocations complete
+execution. E.g.
+
+[Simulated annealing](http://en.wikipedia.org/wiki/Simulated_annealing) -
+A generic probabilistic metaheuristic for the global optimization
+problem of locating a good approximation to the global optimum of a
+given function in a large search space.
+
+
+### Notes on Divide and Conquer skeleton
+
+Some early thoughts on how I think a generic divide and conquer
+template would behave:
+
+```
+User defined functions:
+
+   bool  Dac::isIndivisble(T)  - Determine whether to split "T" or solve
+   T ... DaC::split(T)         - Split a "T" into 2 or more "T" subcomponents
+   T     DaC::process(T)       - The "solution" function (e.g. in merge sort,
+                                 return the single element sorted list)
+   T     DaC::merge(T, T, ...) - Combine 2 or more "T"s into a single T
+```
+
+The constructor for the skeleton would accept these functions as
+arguments, as well as a dataset. There would need to be a getter
+function for returning the processed (divided and conquered) data:
+
+```
+   DaC(isIndivisible, split, process, merge, data)
+   Dac::get()
+```
+
+The getter could behave in one of two ways, depending on when we start
+to process the data:
+
+ * If the skeleton were to begin processing the data *immediately*
+   upon construction, then the getter would simply return the
+   processed data (if available), else block.
+ * If the skeleton deferred processing of the data until the data is
+   requested, then invoking the getter method would begin this
+   process, and block until completion.
+
+The former method seems much more intuitive, although it would be
+simple enough to add a flag to the constructor which enabled the lazy
+evaluation of data if the user desired.
+
+
+### Notes from Ppar Lecture
+
+3:10pm Hugh - How to give a conference presentation
+
+ * Conference presentation comes *after* paper is published, but
+   shouldn't be derivative of.
+ * Presentation is advert for paper.
+ * complicated != smart.
+ * Memorise speech for first few slides and stick to a slow tempo.
+ * Lead with important message, but intro sets context and should get
+   audience thinking about problem.
+ * Ask Murray about joining CArD mailing list.
+
+
+I've implemented a simple Divide and Conquer template skeleton in C++,
+will make a couple of specialisations for it on Monday (I've only got
+MergeSort atm) and have a play around with it.
