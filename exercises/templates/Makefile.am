@@ -5,10 +5,11 @@ CLEANFILES = $(BIN:=.out)
 GCC_FLAGS = -Wall -Wextra -Wzero-as-null-pointer-constant -Wno-unused-parameter
 
 # Compilation target for C++ programs:
-%: %.cc
-	g++ $(GCC_FLAGS) $< -o $@.out
+%.out: %.cc
+	@echo '  G++    $@'
+	@g++ $(GCC_FLAGS) $< -o $@
 
-all: $(BIN)
+all: $(BIN:=.out)
 
 # Execute all programs:
 run: all
