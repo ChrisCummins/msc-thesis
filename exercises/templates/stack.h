@@ -55,7 +55,7 @@ class Stack {
         return this->cache.head;
     };
 
-    const int length() {
+    int length() {
         if (this->cache.size_dirty) {
             this->cache.size = stack.size();
             this->cache.empty = stack.empty();
@@ -65,7 +65,7 @@ class Stack {
         return this->cache.size;
     };
 
-    const bool empty() {
+    bool empty() {
         if (this->cache.size_dirty) {
             this->cache.size = stack.size();
             this->cache.empty = stack.empty();
