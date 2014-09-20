@@ -91,9 +91,10 @@ T DC<T>::_dac(T data) {
     if (isIndivisible(data))
         return solve(data);
     else {
+        typename std::vector<T>::size_type i;
         std::vector<T> split_data = split(data);
 
-        for (std::vector<int>::size_type i = 0; i < split_data.size(); i++)
+        for (i = 0; i < split_data.size(); i++)
             split_data[i] = _dac(split_data[i]);
 
         return merge(split_data);
