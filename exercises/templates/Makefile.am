@@ -1,4 +1,11 @@
-AM_CXXFLAGS = -Wall -Wextra -Wno-unused-parameter -Wstrict-prototypes -O0 -g
+AM_CXXFLAGS = 				\
+	-std=c++11			\
+	-Wall 				\
+	-Wextra 			\
+	-Wno-unused-parameter 		\
+	-Wstrict-prototypes 		\
+	-O0 -g 				\
+	$(NULL)
 
 noinst_PROGRAMS    = stack dc-merge-sort fddc-merge-sort
 stack_SOURCES      = stack.cc
