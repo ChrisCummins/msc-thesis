@@ -1,4 +1,4 @@
-#include "merge-sort.h"
+#include "dc-merge-sort.h"
 
 int main(int argc, char *argv[]) {
     test_list_sort<MergeSort>();
