@@ -16,12 +16,12 @@
  *      T[]  split(T)         - Split single "T" into 2 or more "T"s
  */
 template<class T>
-class DaC {
+class DC {
 
  public:
     // Constructor. If "lazy_eval" is true, don't process data until
-    // DaC::get() is invoked.
-    DaC(T data, bool lazy_eval = false);
+    // DC::get() is invoked.
+    DC(T data, bool lazy_eval = false);
 
     // Return the processed data. Will block until data is ready.
     T get();
@@ -60,7 +60,7 @@ class DaC {
  * Constructor definition.
  */
 template<class T>
-DaC<T>::DaC(T data, bool lazy_eval) {
+DC<T>::DC(T data, bool lazy_eval) {
     this->data = data;
 
     if (lazy_eval)
@@ -73,7 +73,7 @@ DaC<T>::DaC(T data, bool lazy_eval) {
  * Return the processed data. Will block until data is ready.
  */
 template<class T>
-T DaC<T>::get() {
+T DC<T>::get() {
     if (this->data_status == IDLE)
         _run();
 
@@ -87,7 +87,7 @@ T DaC<T>::get() {
  * The divide and conquer algorithm definition.
  */
 template<class T>
-T DaC<T>::_dac(T data) {
+T DC<T>::_dac(T data) {
     if (isIndivisible(data))
         return solve(data);
     else {
@@ -107,7 +107,7 @@ T DaC<T>::_dac(T data) {
  * Run the divide and conquer algorithm.
  */
 template<class T>
-void DaC<T>::_run() {
+void DC<T>::_run() {
     this->data_status = PROCESSING;
     this->data = _dac(this->data);
     this->data_status = READY;
@@ -118,7 +118,7 @@ void DaC<T>::_run() {
  * Default solution implementation. Simply return data.
  */
 template<class T>
-T DaC<T>::solve(T data) {
+T DC<T>::solve(T data) {
     return data;
 }
 

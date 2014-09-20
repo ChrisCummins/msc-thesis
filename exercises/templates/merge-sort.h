@@ -1,13 +1,13 @@
 #ifndef MSC_THESIS_EXERCISES_TEMPLATES_MERGE_SORT_H_
 #define MSC_THESIS_EXERCISES_TEMPLATES_MERGE_SORT_H_
 
-#include "dac.h"
+#include "dc.h"
 #include "list.h"
 
 /*
  * Int vector data specialization
  */
-typedef DaC<List> MergeSort;
+typedef DC<List> MergeSort;
 
 template<>
 bool MergeSort::isIndivisible(List list) {
