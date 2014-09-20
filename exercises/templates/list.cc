@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 
+
 List get_rand_list(size_t size) {
     int a[size];
 
