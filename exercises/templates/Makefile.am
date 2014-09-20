@@ -1,19 +1,12 @@
-BIN := $(basename $(wildcard *.cc))
+AM_CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wstrict-prototypes -O0 -g
 
-CLEANFILES = $(BIN:=.out)
-
-GCC_FLAGS = -Wall -Wextra -Wzero-as-null-pointer-constant -Wno-unused-parameter
-
-# Compilation target for C++ programs:
-%.out: %.cc %.h
-	@echo '  G++    $@'
-	@g++ $(GCC_FLAGS) $< -o $@
-
-all: $(BIN:=.out)
+noinst_PROGRAMS = stack dac
+stack_SOURCES   = stack.cc
+dac_SOURCES     = dac.cc
 
 # Execute all programs:
 run: all
-	@for f in $(BIN:=.out); do \
+	@for f in $(noinst_PROGRAMS); do \
 		echo ./$$f; \
 		./$$f; \
 	done

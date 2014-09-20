@@ -41,13 +41,23 @@ AM_SILENT_RULES([yes])
 dnl ================================================================
 dnl Build requirements
 dnl ================================================================
+AC_HEADER_STDC
 AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_MKDIR_P
 AC_PROG_SED
 
 AC_CHECK_PROG([PDFLATEX],[pdflatex],[pdflatex])
 AC_CHECK_PROG([BIBTEX],[bibtex],[bibtex])
+
+
+dnl ================================================================
+dnl Build configuration
+dnl ================================================================
+AC_CONFIG_SRCDIR([exercises/templates/dac.h])
+AC_CONFIG_HEADERS([config.h])
 
 
 dnl ================================================================
