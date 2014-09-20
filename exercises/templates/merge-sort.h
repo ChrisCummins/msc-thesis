@@ -2,7 +2,6 @@
 #define MSC_THESIS_EXERCISES_TEMPLATES_MERGE_SORT_H_
 
 #include "dac.h"
-
 #include "list.h"
 
 /*
@@ -14,6 +13,7 @@ template<>
 bool MergeSort::isIndivisible(List list) {
     return list.size() <= 1;
 }
+
 
 template<>
 Lists MergeSort::split(List list) {
@@ -27,10 +27,12 @@ Lists MergeSort::split(List list) {
     return Lists(list_v, list_v + sizeof(list_v) / sizeof(List));
 }
 
+
 template<>
 List MergeSort::solve(List list) {
     return list;
 }
+
 
 template<>
 List MergeSort::merge(Lists lists) {
