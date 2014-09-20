@@ -31,13 +31,13 @@ class FDDC {
     // Determine whether "T" can be solved
     bool isIndivisible(T);
 
-    // Split "T" into 2 or more "T"s
+    // Split "T" into "k" "T"s
     T *split(T);
 
     // Solve "T", where "T" is indivisible
     T solve(T data);
 
-    // Merge multiple "T"s together
+    // Merge "k" lots of "T" together
     T merge(T *);
 
 
