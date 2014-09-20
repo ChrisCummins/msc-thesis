@@ -5,7 +5,7 @@
 List get_rand_list(size_t size) {
     int a[size];
 
-    for (int i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
         a[i] = rand() % size;
 
     return List(a, a + sizeof(a) / sizeof(int));
