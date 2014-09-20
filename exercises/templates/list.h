@@ -12,6 +12,10 @@ typedef std::vector<List> Lists;
 
 List get_rand_list(size_t size = DEFAULT_LIST_SIZE);
 
+// Same as get_rand_list(), but with the additional guarantee that the
+// list will *not* be sorted.
+List get_unsorted_list(size_t size = DEFAULT_LIST_SIZE);
+
 void print_list(List list, bool truncate = true);
 bool list_is_sorted(List list);
 

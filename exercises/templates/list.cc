@@ -12,6 +12,16 @@ List get_rand_list(size_t size) {
 }
 
 
+List get_unsorted_list(size_t size) {
+    List list = get_rand_list(size);
+
+    // Since we're populating the list with random values, there's a
+    // chance that the list may already be sorted. In which case, try
+    // again.
+    return list_is_sorted(list, true) ? get_unsorted_list(size) : list;
+}
+
+
 void print_list(List list, bool truncate) {
 
     List::size_type limit;
