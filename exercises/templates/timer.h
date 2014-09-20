@@ -6,8 +6,8 @@
 
 class Timer {
  public:
-     unsigned int us();
-     unsigned int ms();
+     long int us();
+     long int ms();
      void reset();
      Timer() { reset(); }
  private:

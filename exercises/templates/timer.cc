@@ -4,13 +4,14 @@ void Timer::reset() {
     gettimeofday(&this->start, NULL);
 }
 
-unsigned int Timer::us() {
+long int Timer::us() {
     struct timeval now;
     gettimeofday(&now, NULL);
 
-    return now.tv_usec - start.tv_usec;
+    return ((now.tv_sec * 1000000 + now.tv_usec) -
+            (start.tv_sec * 1000000 + start.tv_usec));
 };
 
-unsigned int Timer::ms() {
+long int Timer::ms() {
     return us() / 1000;
 };
