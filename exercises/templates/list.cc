@@ -28,11 +28,12 @@ void print_list(List list, bool truncate) {
 }
 
 
-bool list_is_sorted(List list) {
+bool list_is_sorted(List list, bool quiet) {
 
     for (List::size_type i = 1; i < list.size(); i++)
         if (list[i] < list[i - 1]) {
-            std::cout << "List item " << i << " is not sorted.\n";
+            if (!quiet)
+                std::cout << "List item " << i << " is not sorted.\n";
             return false;
         }
 
