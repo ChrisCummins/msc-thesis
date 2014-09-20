@@ -36,14 +36,44 @@ bool list_is_sorted(List list, bool quiet = false);
  * get() which returns a sorted list.
  */
 
+
 // Test a given list size, and print elapsed time.
 template<class T>
-void test_list_sort(size_t size) {
+void test_dc_list_sort(size_t size) {
+List list = get_unsorted_list(size);
+
+// Start of timed section
+ Timer timer;
+ T sort(list);
+ List sorted_list = sort.get();
+ unsigned int elapsed = timer.ms();
+ // End of timed section
+
+ assert(list_is_sorted(sorted_list));
+
+ printf("Time to sort %6lu integers: %4u ms\n", list.size(), elapsed);
+}
+
+
+// Test a range of list sizes, printing elapsed times.
+template<class T>
+void test_dc_list_sort() {
+    int i;
+    size_t j;
+
+    for (i = 0, j = 25000; i < 8; i++, j += 25000)
+        test_dc_list_sort<T>(j);
+}
+
+
+// Test a given list size, and print elapsed time.
+template<class T>
+void test_fddc_list_sort(size_t size, int k) {
     List list = get_unsorted_list(size);
 
     // Start of timed section
     Timer timer;
-    T sort(list);
+    T sort(list, k);
     List sorted_list = sort.get();
     unsigned int elapsed = timer.ms();
     // End of timed section
@@ -53,14 +83,16 @@ void test_list_sort(size_t size) {
     printf("Time to sort %6lu integers: %4u ms\n", list.size(), elapsed);
 }
 
+
 // Test a range of list sizes, printing elapsed times.
 template<class T>
-void test_list_sort() {
+void test_fddc_list_sort(int k) {
     int i;
     size_t j;
 
     for (i = 0, j = 25000; i < 8; i++, j += 25000)
-        test_list_sort<T>(j);
+        test_fddc_list_sort<T>(j, k);
 }
+
 
 #endif // MSC_THESIS_EXERCISES_TEMPLATES_LIST_H_
