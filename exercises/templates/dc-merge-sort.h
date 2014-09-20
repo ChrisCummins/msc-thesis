@@ -29,12 +29,6 @@ Lists MergeSort::split(List list) {
 
 
 template<>
-List MergeSort::solve(List list) {
-    return list;
-}
-
-
-template<>
 List MergeSort::merge(Lists lists) {
     List left = lists[0];
     List right = lists[1];
