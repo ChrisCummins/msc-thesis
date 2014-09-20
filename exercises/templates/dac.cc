@@ -1,27 +1,19 @@
 #include "dac.h"
 
-#define TEST_SIZE 20
+#include <assert.h>
 
-void print_list(List list) {
-    for(List::iterator it = list.begin(); it != list.end(); it++)
-        std::cout << *it << ", ";
-
-    std::cout << "\n";
-}
+#include "timer.h"
 
 int main(int argc, char *argv[]) {
-    int a[TEST_SIZE];
+    List list = get_rand_list();
 
-    for (int i = 0; i < TEST_SIZE; i++)
-        a[i] = rand() % TEST_SIZE;
+    Timer timer;
+    MergeSort m(list);
+    unsigned int elapsed = timer.ms();
 
-    List A(a, a + sizeof(a) / sizeof(int));
+    assert(list_is_sorted(m.get()));
 
-    print_list(A);
-
-    MergeSort m(A);
-
-    print_list(m.get());
+    std::cout << "Time to sort " << list.size() << " integers: " << elapsed << " mS\n";
 
     return 0;
 }

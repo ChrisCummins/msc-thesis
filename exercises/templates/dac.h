@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <sstream>
 
+#include "list.h"
+
 /*
  * A divide and conquer template, in the style of an algorithmic
  * skeleton. The template defines a number of functions which are used
@@ -33,7 +35,7 @@ class DaC {
 
     std::vector<T> split(T);
 
-    T process(T data) {
+    T solve(T data) {
         return data;
     };
 
@@ -48,16 +50,21 @@ class DaC {
     };
 
  private:
-    T data;
+
     enum {
         IDLE,
         PROCESSING,
         READY
     } data_status;
 
+    T data;
+
+    /*
+     * The divide and conquer implementation.
+     */
     T _dac(T data) {
         if (isIndivisible(data))
-            return process(data);
+            return solve(data);
         else {
             std::vector<T> split_data = split(data);
 
@@ -84,8 +91,6 @@ class DaC {
 /*
  * Int vector data specialization
  */
-typedef std::vector<int> List;
-typedef std::vector<List> Lists;
 typedef DaC<List> MergeSort;
 
 template<>
@@ -106,7 +111,7 @@ Lists MergeSort::split(List list) {
 }
 
 template<>
-List MergeSort::process(List list) {
+List MergeSort::solve(List list) {
     return list;
 }
 
