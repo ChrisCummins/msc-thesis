@@ -3,7 +3,6 @@ AM_CXXFLAGS = 				\
 	-Wall 				\
 	-Wextra 			\
 	-Wno-unused-parameter 		\
-	-Wstrict-prototypes 		\
 	-O0 -g 				\
 	$(NULL)
 
