@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <algorithm>
 
+#include "timer.h"
 
 template<class T>
 class vector {
@@ -102,12 +103,12 @@ void divide_and_conquer(data *const in, data *const out, const int depth = 0) {
         divide_and_conquer(in_left,  out_left,  next_depth);
         divide_and_conquer(in_right, out_right, next_depth);
         merge(*out_left, *out_right, out);
-        
+
         delete[] buf;
     }
 }
 
-#define TEST_SIZE 2100000
+#define TEST_SIZE 1000000
 
 int main(int argc, char *argv[]) {
     int nums[TEST_SIZE];
@@ -116,7 +117,9 @@ int main(int argc, char *argv[]) {
         nums[i] = rand() % TEST_SIZE;
 
     // TODO: compare against:
+    Timer t0;
     //std::sort(nums, nums+TEST_SIZE);
+    std::cout << "Elapsed time: " << t0.ms() << "\n";
 
     data *const a = new data;
     data *const b = new data;
@@ -125,7 +128,9 @@ int main(int argc, char *argv[]) {
     a->length = sizeof(nums) / sizeof(nums[0]);
 
     print_vector(*a);
+    Timer t;
     divide_and_conquer(a, b);
+    std::cout << "Elapsed time: " << t.ms() << "\n";
     print_vector(*b);
 
     delete b;
