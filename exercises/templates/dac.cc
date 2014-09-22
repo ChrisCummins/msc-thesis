@@ -108,18 +108,11 @@ void divide_and_conquer(data *const in, data *const out, const int depth = 0) {
     }
 }
 
-#define TEST_SIZE 1000000
+void test_dac_sort(const size_t size) {
+    int nums[size];
 
-int main(int argc, char *argv[]) {
-    int nums[TEST_SIZE];
-
-    for (int i = 0; i < TEST_SIZE; i++)
-        nums[i] = rand() % TEST_SIZE;
-
-    // TODO: compare against:
-    //Timer t0;
-    //std::sort(nums, nums+TEST_SIZE);
-    //std::cout << "Elapsed time: " << t0.ms() << "\n";
+    for (size_t i = 0; i < size; i++)
+        nums[i] = rand() % size;
 
     data *const a = new data;
     data *const b = new data;
@@ -127,13 +120,17 @@ int main(int argc, char *argv[]) {
     a->data   = &nums[0];
     a->length = sizeof(nums) / sizeof(nums[0]);
 
-    //print_vector(*a);
     Timer t;
     divide_and_conquer(a, b);
-    printf("Time to sort %7d integers: %4ld ms\n", TEST_SIZE, t.ms());
-    //print_vector(*b);
+    printf("Time to sort %7lu integers: %4ld ms\n", size, t.ms());
 
     delete b;
+}
+
+int main(int argc, char *argv[]) {
+
+    for (int i = 0, j = 200000; i < 10; i++, j += 200000)
+        test_dac_sort(j);
 
     return 0;
 }
