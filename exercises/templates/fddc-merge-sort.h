@@ -35,30 +35,26 @@ template<>
 List MergeSort::merge(List *lists) {
     List left = lists[0];
     List right = lists[1];
-    List sorted;
+    List sorted = List(left.size() + right.size());
 
-    while (left.size() || right.size()) {
-        if (left.size() && right.size()) {
-            if (right.front() < left.front()) {
-                sorted.push_back(right.front());
-                right.erase(right.begin());
-            } else {
-                sorted.push_back(left.front());
-                left.erase(left.begin());
-            }
-        } else {
+    const List::size_type left_size  = left.size();
+    const List::size_type right_size = right.size();
 
-            while (right.size()) {
-                sorted.push_back(right.front());
-                right.erase(right.begin());
-            }
+    // Iterators:
+    List::size_type l = 0, r = 0, i = 0;
 
-            while (left.size()) {
-                sorted.push_back(left.front());
-                left.erase(left.begin());
-            }
-        }
+    while (l < left_size && r < right_size) {
+        if (right[r] < left[l])
+            sorted[i++] = right[r++];
+        else
+            sorted[i++] = left[l++];
     }
+
+    while (r < right_size)
+        sorted[i++] = right[r++];
+
+    while (l < left_size)
+        sorted[i++] = left[l++];
 
     return sorted;
 }
