@@ -1,9 +1,14 @@
 AM_CXXFLAGS = 				\
 	-std=c++11			\
+	-pthread 			\
 	-Wall 				\
 	-Wextra 			\
 	-Wno-unused-parameter 		\
 	-O0 -g 				\
+	$(NULL)
+
+AM_LDFLAGS = 				\
+	-pthread			\
 	$(NULL)
 
 noinst_PROGRAMS    = stack dc-merge-sort fddc-merge-sort
