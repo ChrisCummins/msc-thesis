@@ -40,18 +40,18 @@ bool list_is_sorted(List list, bool quiet = false);
 // Test a given list size, and print elapsed time.
 template<class T>
 void test_dc_list_sort(size_t size) {
-List list = get_unsorted_list(size);
+    List list = get_unsorted_list(size);
 
-// Start of timed section
- Timer timer;
- T sort(list);
- List sorted_list = sort.get();
- unsigned int elapsed = timer.ms();
- // End of timed section
+    // Start of timed section
+    Timer timer;
+    T sort(list);
+    List *const sorted_list = sort.get();
+    unsigned int elapsed = timer.ms();
+    // End of timed section
 
- assert(list_is_sorted(sorted_list));
+    assert(list_is_sorted(*sorted_list));
 
- printf("Time to sort %6lu integers: %4u ms\n", list.size(), elapsed);
+    printf("Time to sort %7lu integers: %4u ms\n", list.size(), elapsed);
 }
 
 
@@ -61,7 +61,7 @@ void test_dc_list_sort() {
     int i;
     size_t j;
 
-    for (i = 0, j = 25000; i < 8; i++, j += 25000)
+    for (i = 0, j = 200000; i < 10; i++, j += 200000)
         test_dc_list_sort<T>(j);
 }
 
@@ -80,7 +80,7 @@ void test_fddc_list_sort(size_t size, int k) {
 
     assert(list_is_sorted(sorted_list));
 
-    printf("Time to sort %6lu integers: %4u ms\n", list.size(), elapsed);
+    printf("Time to sort %7lu integers: %4u ms\n", list.size(), elapsed);
 }
 
 

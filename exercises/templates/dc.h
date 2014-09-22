@@ -24,7 +24,7 @@ class DC {
     DC(T data, bool lazy_eval = false);
 
     // Return the processed data. Will block until data is ready.
-    T get();
+    T *get();
 
     /*
      * Muscle functions:
@@ -73,13 +73,13 @@ DC<T>::DC(T data, bool lazy_eval) {
  * Return the processed data. Will block until data is ready.
  */
 template<class T>
-T DC<T>::get() {
+T *DC<T>::get() {
     if (this->data_status == IDLE)
         _run();
 
     while (this->data_status != READY)
         ;
-    return this->data;
+    return &this->data;
 }
 
 
