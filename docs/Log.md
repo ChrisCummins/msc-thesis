@@ -124,6 +124,10 @@ Google hangout 9pm
 
 ## Tuesday 16th
 
+There are weekly lectures for Pervasive Parallelism module on Tuesdays
+and Thursdays, 15:10-16:00 in the Faculty Room South, David Hume
+Tower.
+
 Reference management software to test:
 
  * Mendeley 7
