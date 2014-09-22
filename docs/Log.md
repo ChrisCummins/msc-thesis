@@ -581,3 +581,114 @@ $ nm -CSr --size-sort a.out
 0000000000400f2d 00000000000000ef T main
 ...
 ```
+
+Testing the new dac implementation, sorting 1,000,000 integers:
+
+```
+$ valgrind --max-stackframe=4000040 ./dac
+...
+==544== HEAP SUMMARY:
+==544==     in use at exit: 16 bytes in 1 blocks
+==544==   total heap usage: 4,999,998 allocs, 4,999,997 frees, 235,611,352 bytes allocated
+==544==
+==544== LEAK SUMMARY:
+==544==    definitely lost: 16 bytes in 1 blocks
+==544==    indirectly lost: 0 bytes in 0 blocks
+==544==      possibly lost: 0 bytes in 0 blocks
+==544==    still reachable: 0 bytes in 0 blocks
+==544==         suppressed: 0 bytes in 0 blocks
+```
+
+And the DC template implementation:
+
+```
+$ valgrind --max-stackframe=4000040 ./dc-merge-sort
+...
+==599== HEAP SUMMARY:
+==599==     in use at exit: 0 bytes in 0 blocks
+==599==   total heap usage: 2,131,044 allocs, 2,131,044 frees, 83,934,244 bytes allocated
+==599==
+==599== All heap blocks were freed -- no leaks are possible
+```
+
+Time comparison:
+
+```
+./dac
+Time to sort  100000 integers:   34 ms
+./dc-merge-sort
+Time to sort  100000 integers:  606 ms
+./fddc-merge-sort
+Time to sort  100000 integers:  636 ms
+```
+
+DC merge sort after optimising the vector usage in `merge()`:
+
+```
+$ valgrind --max-stackframe=4000040 ./dc-merge-sort
+...
+==1690== HEAP SUMMARY:
+==1690==     in use at exit: 0 bytes in 0 blocks
+==1690==   total heap usage: 1,899,990 allocs, 1,899,990 frees, 73,281,312 bytes allocated
+==1690==
+==1690== All heap blocks were freed -- no leaks are possible
+```
+
+Comparison of timings as of commit 03f2b01:
+
+```
+./dac
+Time to sort  200000 integers:   58 ms
+Time to sort  400000 integers:   97 ms
+Time to sort  600000 integers:  145 ms
+Time to sort  800000 integers:  197 ms
+Time to sort 1000000 integers:  268 ms
+Time to sort 1200000 integers:  297 ms
+Time to sort 1400000 integers:  363 ms
+Time to sort 1600000 integers:  401 ms
+Time to sort 1800000 integers:  505 ms
+Time to sort 2000000 integers:  515 ms
+./dc-merge-sort
+Time to sort  200000 integers:  144 ms
+Time to sort  400000 integers:  284 ms
+Time to sort  600000 integers:  421 ms
+Time to sort  800000 integers:  555 ms
+Time to sort 1000000 integers:  706 ms
+Time to sort 1200000 integers:  855 ms
+Time to sort 1400000 integers:  989 ms
+Time to sort 1600000 integers: 1197 ms
+Time to sort 1800000 integers: 1308 ms
+Time to sort 2000000 integers: 1443 ms
+./fddc-merge-sort
+Time to sort   25000 integers:   12 ms
+Time to sort   50000 integers:   31 ms
+Time to sort   75000 integers:   42 ms
+Time to sort  100000 integers:   57 ms
+Time to sort  125000 integers:   70 ms
+Time to sort  150000 integers:   84 ms
+Time to sort  175000 integers:   90 ms
+Time to sort  200000 integers:  105 ms
+./lib-sort
+std::sort:
+Time to sort  200000 integers:    8 ms
+Time to sort  400000 integers:   19 ms
+Time to sort  600000 integers:   30 ms
+Time to sort  800000 integers:   45 ms
+Time to sort 1000000 integers:   54 ms
+Time to sort 1200000 integers:   61 ms
+Time to sort 1400000 integers:   74 ms
+Time to sort 1600000 integers:   86 ms
+Time to sort 1800000 integers:   97 ms
+Time to sort 2000000 integers:  107 ms
+std::sort_stable:
+Time to sort  200000 integers:   11 ms
+Time to sort  400000 integers:   22 ms
+Time to sort  600000 integers:   47 ms
+Time to sort  800000 integers:   57 ms
+Time to sort 1000000 integers:   63 ms
+Time to sort 1200000 integers:   75 ms
+Time to sort 1400000 integers:   89 ms
+Time to sort 1600000 integers:  103 ms
+Time to sort 1800000 integers:  117 ms
+Time to sort 2000000 integers:  136 ms
+```
