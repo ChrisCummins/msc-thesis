@@ -463,3 +463,117 @@ evaluation of data if the user desired.
 I've implemented a simple Divide and Conquer template skeleton in C++,
 will make a couple of specialisations for it on Monday (I've only got
 MergeSort atm) and have a play around with it.
+
+
+## Monday 22nd
+
+I spent a little bit of time at the weekend (too eager) adapting the
+divide and conquer template to a fixed depth (FDDC) design.
+
+I need to critically consider memory allocation before going any
+further, since the hacked-together implementation from Friday no-doubt
+leaks memory like a sieve. Should the muscle functions be responsible
+for allocating data? Possibilities include:
+
+ * Muscle functions are responsible for allocating new memory when
+   processing data, and releasing old data.
+ * The skeleton is responsible for allocating *all* memory, and the
+   muscle functions accept out parameters and write to them (not
+   possible for `split()` unless the skeleton knows the size of the
+   split data ahead of time).
+ * Muscle functions operating *in-place* where possible (not possible
+   for something like `split()`.
+
+### First attempt at designing a DC skeleton
+
+Here's the basic skeleton template (just the muscle function
+declarations):
+
+```
+DC<T> {
+    bool isIndivisible(T)
+    T[]  split(T)
+    T    solve(T)
+    T    merge(T[])
+}
+```
+
+And here's pseudo-code for the `divide_and_conquer()` function, which
+does the actual work:
+
+```
+divide_and_conquer(T) {
+    if isIndivisible(T):
+        return solve(T)
+    else:
+        return merge(map(divide_and_conquer, split(T)))
+}
+```
+
+Note that we can use the C++
+[transform](http://www.cplusplus.com/reference/algorithm/transform/)
+function to perform the `map(divide_and_conquer, split(T))`
+transformation.
+
+
+### Questions and thoughts on DaC
+
+ * Could a `split()` operation ever produce *more* data than goes into
+   it? For a merge sort, it simply splits a list in two.
+ * Could a divide and conquer algorithm ever transform the *type* of
+   data? For merge sort, it's `merge_sort(list<A>) : list<A>`. Could
+   there be a DaC algorithm where the `solve()` function had a
+   different data type for its input and output?
+ * Is there a divide and conquer algorithm which *can't* be expressed
+   using a fixed depth? E.g. for merge sort, `split()` always returns
+   2 lists. Could there be a `split()` which returns *n* lists, where
+   the value of *n* is dependent on the input data?
+ * Similarly, is there any divide and conquer algorithm for which the
+   `split()` function *doesn't* perform an even split? E.g. in merge
+   sort, a split operation on a list of 100 items will return two
+   lists, each containing 50 items. Are there split operations that
+   would return lists of different length? (excluding of course when
+   the input size is odd).
+ * Is there a divide and conquer algorithm for which the input *T*
+   *can't* be expressed using vectors? E.g. for merge sort, we use
+   list<A>. Does any DaC algorithm *not* perform on
+   lists/arrays/vectors?
+ * Would it be useful to augment the `divide_and_conquer()` function
+   with a parameter which indicates it's *depth*? E.g. adding a
+   integer `depth` parameter:
+
+```
+divide_and_conquer(T, depth) {
+    if isIndivisible(T):
+        return solve(T)
+    else:
+        return merge(map(divide_and_conquer, split(T), depth++))
+}
+```
+
+```
+struct data {
+    void  *data;
+    size_t element_size;
+    int    length;
+};
+
+FDDC<T> {
+    bool isIndivisible(T*)
+    T**  split(T*)
+    T*   solve(T*)
+    T*   merge(T**)
+}
+```
+
+To see examine the size of individual functions in a C++ executable:
+
+```
+$ nm -CSr --size-sort a.out
+0000000000400c35 00000000000001c8 T merge(vector<int>*, vector<int>*, vector<int>*)
+0000000000400dfd 0000000000000130 T divide_and_conquer(vector<int>*, vector<int>*, int)
+0000000000400a9f 0000000000000115 T split(vector<int>*, vector<int>*, vector<int>*)
+00000000006016c0 0000000000000110 B std::cout@@GLIBCXX_3.4
+0000000000400f2d 00000000000000ef T main
+...
+```
