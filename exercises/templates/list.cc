@@ -43,8 +43,10 @@ bool list_is_sorted(List list, bool quiet) {
 
     for (List::size_type i = 1; i < list.size(); i++)
         if (list[i] < list[i - 1]) {
-            if (!quiet)
-                std::cout << "List item " << i << " is not sorted.\n";
+            if (!quiet) {
+                print_list(list);
+                std::cout << "List item " << i << " is not sorted\n";
+            }
             return false;
         }
 
