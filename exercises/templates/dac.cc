@@ -117,9 +117,9 @@ int main(int argc, char *argv[]) {
         nums[i] = rand() % TEST_SIZE;
 
     // TODO: compare against:
-    Timer t0;
+    //Timer t0;
     //std::sort(nums, nums+TEST_SIZE);
-    std::cout << "Elapsed time: " << t0.ms() << "\n";
+    //std::cout << "Elapsed time: " << t0.ms() << "\n";
 
     data *const a = new data;
     data *const b = new data;
@@ -127,11 +127,11 @@ int main(int argc, char *argv[]) {
     a->data   = &nums[0];
     a->length = sizeof(nums) / sizeof(nums[0]);
 
-    print_vector(*a);
+    //print_vector(*a);
     Timer t;
     divide_and_conquer(a, b);
-    std::cout << "Elapsed time: " << t.ms() << "\n";
-    print_vector(*b);
+    printf("Time to sort %7d integers: %4ld ms\n", TEST_SIZE, t.ms());
+    //print_vector(*b);
 
     delete b;
 
