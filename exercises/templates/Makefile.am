@@ -4,7 +4,7 @@ AM_CXXFLAGS = 				\
 	-Wall 				\
 	-Wextra 			\
 	-Wno-unused-parameter 		\
-	-O0 -g 				\
+	-O0 -pg 			\
 	$(NULL)
 
 AM_LDFLAGS = 				\
