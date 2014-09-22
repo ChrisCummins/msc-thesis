@@ -56,7 +56,7 @@ AC_CHECK_PROG([BIBTEX],[bibtex],[bibtex])
 dnl ================================================================
 dnl Build configuration
 dnl ================================================================
-AC_CONFIG_SRCDIR([exercises/templates/dac.h])
+AC_CONFIG_SRCDIR([exercises/templates/dc.h])
 AC_CONFIG_HEADERS([config.h])
 
 
