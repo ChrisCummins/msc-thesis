@@ -5,18 +5,18 @@
 #include "list.h"
 
 /*
- * Int vector data specialization
+ * List specialization
  */
-typedef FDDC<List> MergeSort;
+typedef FDDC<List> FDDCMergeSort;
 
 template<>
-bool MergeSort::isIndivisible(List list) {
+bool FDDCMergeSort::isIndivisible(List list) {
     return list.size() <= 1;
 }
 
 
 template<>
-List *MergeSort::split(List list) {
+List *FDDCMergeSort::split(List list) {
     size_t pivot = list.size() / 2;
 
     // Split array in half
@@ -32,7 +32,7 @@ List *MergeSort::split(List list) {
 
 
 template<>
-List MergeSort::merge(List *lists) {
+List FDDCMergeSort::merge(List *lists) {
     List left = lists[0];
     List right = lists[1];
     List sorted = List(left.size() + right.size());
