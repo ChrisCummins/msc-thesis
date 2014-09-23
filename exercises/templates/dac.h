@@ -162,22 +162,27 @@ void DC<T>::merge(vector *const in, vector *const out) {
 }
 
 template<class T>
-void DC<T>::divide_and_conquer(vector *const in, vector *const out, const int depth) {
+void DC<T>::divide_and_conquer(vector *const in, vector *const out,
+                               const int depth) {
 
     if (isIndivisible(*in)) {
+
         solve(in, out);
+
     } else {
         const int next_depth = depth + 1;
+        const unsigned int k = this->k;
 
-        // Allocate data structures on heap:
-        vector *const buf       = new vector[4];
-        vector *const in_left   = &buf[0];
-        vector *const in_right  = &buf[1];
-        vector *const out_left  = &buf[2];
-        vector *const out_right = &buf[3];
+        /*
+         * Allocate a contiguous block of vectors for processing. This
+         * size of the block is 2*k, and is divided into pre/post
+         * recursion pairs such that each pair has the indexes buf[n],
+         * buf[n+k].
+         */
+        vector *const buf = new vector[k * 2];
 
         // Split, recurse, and merge:
-        split(in, in_left);
+        split(in, buf);
 
         /*
          * If the depth is less than some arbitrary value, then we
@@ -186,24 +191,29 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out, const int de
          */
         if (depth < FORK_DEPTH) {
 
-            // Concurrent:
-            std::thread left(&DC<T>::divide_and_conquer, this,
-                             in_left, out_left, next_depth);
-            std::thread right(&DC<T>::divide_and_conquer, this,
-                              in_right, out_right, next_depth);
-            left.join();
-            right.join();
+            // Multi-threaded:
+            std::thread threads[k];
+
+            for (unsigned int i = 0; i < k; i++)
+                threads[i] = std::thread(&DC<T>::divide_and_conquer, this,
+                                         &buf[i], &buf[i+k], next_depth);
+
+            for (unsigned int i = 0; i < k; i++)
+                threads[i].join();
 
         } else {
 
             // Sequential:
-            divide_and_conquer(in_left,  out_left,  next_depth);
-            divide_and_conquer(in_right, out_right, next_depth);
+            for (unsigned int i = 0; i < k; i++)
+                divide_and_conquer(&buf[i], &buf[i+k], next_depth);
 
         }
 
-        merge(out_left, out);
+        merge(&buf[k], out);
 
+        /*
+         * Free vector buffer:
+         */
         delete[] buf;
     }
 }
