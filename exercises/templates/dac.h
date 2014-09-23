@@ -35,13 +35,14 @@ class DC {
 
     vector *get();
     bool isIndivisible(const vector &);
-    void split(vector *const in, vector *const left, vector *const right);
+    void split(vector *const in, vector *const out);
     void solve(vector *const in, vector *const out);
     void merge(const vector &left, const vector &right, vector *const out);
 
  private:
     void divide_and_conquer(vector *const in, vector *const out, const int depth = 0);
     vector *data;
+    unsigned int k;
 };
 
 
@@ -89,17 +90,25 @@ bool DC<T>::isIndivisible(const vector &d) {
 }
 
 template<class T>
-void DC<T>::split(vector *const in, vector *const left, vector *const right) {
-    const int right_len  = in->length / 2;
-    const int left_len = in->length - right_len;
+void DC<T>::split(vector *const in, vector *const out) {
+    const typename vector::size_t split_size = in->length / this->k;
 
-    left->data = new int[left_len];
-    memcpy(left->data, in->data, left_len * sizeof(*in->data));
-    left->length = left_len;
+    // Split "in" into "k" vectors, starting at address "out".
+    for (unsigned int i = 0; i < this->k; i++) {
+        const unsigned int offset = i * split_size;
+        typename vector::size_t length = split_size;
 
-    right->data = new int[right_len];
-    memcpy(right->data, in->data + left_len, right_len * sizeof(*in->data));
-    right->length = right_len;
+        // Add on remainder if not an even split:
+        if (i == this->k - 1 && in->length % split_size)
+            length += in->length % split_size;
+
+        const size_t size = length * sizeof(*in->data);
+
+        // Copy memory from one vector to another:
+        out[i].data = new T[length];
+        memcpy(out[i].data, in->data + offset, size);
+        out[i].length = length;
+    }
 }
 
 template<class T>
@@ -149,7 +158,7 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out, const int de
         vector *const out_right = &buf[3];
 
         // Split, recurse, and merge:
-        split(in, in_left, in_right);
+        split(in, in_left);
 
         /*
          * If the depth is less than some arbitrary value, then we
@@ -183,5 +192,7 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out, const int de
 template<class T>
 DC<T>::DC(vector *const in) {
     this->data = new vector;
+    // TODO: Assign as a constructor parameter
+    this->k = 2;
     divide_and_conquer(in, this->data);
 }
