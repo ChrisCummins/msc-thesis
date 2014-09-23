@@ -20,8 +20,7 @@ echo "Testing std::stable_sort..."
 echo "N std::stable_sort" > .tmp.log0
 cat std-stable-sort-vector-int.log >> .tmp.log0
 
-for (( i=1; i <= $test_limit; i++ ))
-do
+for (( i=1; i <= $test_limit; i++ )); do
     echo "Testing dac, fork_depth = $i..."
     ./dac-int $i | tail -n+2 | awk '{print 4, $6};' > dac-int.log
 
