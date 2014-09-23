@@ -764,3 +764,10 @@ To recurse using a separate thread (C++ thread lib):
 ```
 std::thread left(&DC<T>::divide_and_conquer, this, in_left, out_left, next_depth);
 ```
+
+Number of nodes (*N*) in tree of depth *d*:
+
+```
+N = 1 + 1^2 + 2^2 ... d^2
+```
+
