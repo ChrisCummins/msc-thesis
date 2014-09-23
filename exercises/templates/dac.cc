@@ -94,10 +94,32 @@ void test_dac_sort(const size_t size) {
     delete b;
 }
 
+void test_dac_skeleton_sort(const size_t size) {
+    int nums[size];
+
+    for (size_t i = 0; i < size; i++)
+        nums[i] = rand() % size;
+
+    data *const a = new data;
+
+    a->data   = &nums[0];
+    a->length = sizeof(nums) / sizeof(nums[0]);
+
+    Timer t;
+    DC<int> dc(a);
+    printf("Time to sort %7lu integers: %4ld ms\n", size, t.ms());
+
+}
+
 int main(int argc, char *argv[]) {
 
+    std::cout << "dac\n";
     for (int i = 0, j = 200000; i < 10; i++, j += 200000)
         test_dac_sort(j);
+
+    std::cout << "DC<int>\n";
+    for (int i = 0, j = 200000; i < 10; i++, j += 200000)
+        test_dac_skeleton_sort(j);
 
     return 0;
 }

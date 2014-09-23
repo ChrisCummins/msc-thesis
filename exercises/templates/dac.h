@@ -13,6 +13,7 @@ class _vector {
 
     _vector() {};
     _vector(const size_t length);
+    _vector(T *const data, const size_t length);
     ~_vector();
 
     T     *data;
@@ -30,14 +31,14 @@ class DC {
     DC(vector *const);
 
     vector *get();
-    bool isIndivisible(vector *const);
+    bool isIndivisible(const vector &);
     void split(vector *const in, vector *const left, vector *const right);
     void solve(vector *const in, vector *const out);
-    void merge(vector *const left, vector *const right, vector *const out);
+    void merge(const vector &left, const vector &right, vector *const out);
 
  private:
     void divide_and_conquer(vector *const in, vector *const out, const int depth = 0);
-    vector *const data;
+    vector *data;
 };
 
 
@@ -50,6 +51,12 @@ _vector<T>::_vector(const size_t length) {
     this->data = new T[length];
     this->length = length;
 };
+
+template<class T>
+_vector<T>::_vector(T *const data, const size_t length) {
+    this->data = data;
+    this->length = length;
+}
 
 template<class T>
 _vector<T>::~_vector() {
@@ -74,6 +81,11 @@ void _vector<T>::print() {
 };
 
 template<class T>
+bool DC<T>::isIndivisible(const vector &d) {
+    return d.length <= 1;
+}
+
+template<class T>
 void DC<T>::split(vector *const in, vector *const left, vector *const right) {
     const int right_len  = in->length / 2;
     const int left_len = in->length - right_len;
@@ -95,7 +107,7 @@ void DC<T>::solve(vector *const in, vector *const out) {
 }
 
 template<class T>
-void DC<T>::merge(vector *const left, vector *const right, vector *const out) {
+void DC<T>::merge(const vector &left, const vector &right, vector *const out) {
     const int length = left.length + right.length;
 
     out->data = new int[length];
@@ -121,7 +133,7 @@ void DC<T>::merge(vector *const left, vector *const right, vector *const out) {
 template<class T>
 void DC<T>::divide_and_conquer(vector *const in, vector *const out, const int depth) {
 
-    if (isIndivisible(in)) {
+    if (isIndivisible(*in)) {
         solve(in, out);
     } else {
         const int next_depth = depth + 1;
