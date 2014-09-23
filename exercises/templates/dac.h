@@ -1,3 +1,6 @@
+#ifndef MSC_THESIS_EXERCISES_TEMPLATES_DAC_H_
+#define MSC_THESIS_EXERCISES_TEMPLATES_DAC_H_
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -229,3 +232,5 @@ DC<T>::DC(vector *const in) {
     this->k = 2;
     divide_and_conquer(in, this->data);
 }
+
+#endif // MSC_THESIS_EXERCISES_TEMPLATES_DAC_H_
