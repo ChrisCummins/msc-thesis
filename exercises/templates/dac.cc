@@ -108,7 +108,7 @@ void test_dac_skeleton_sort(const size_t size) {
     Timer t;
     DC<int> dc(a);
     printf("Time to sort %7lu integers: %4ld ms\n", size, t.ms());
-
+    dc.get()->isSorted();
 }
 
 int main(int argc, char *argv[]) {

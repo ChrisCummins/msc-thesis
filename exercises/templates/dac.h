@@ -23,6 +23,7 @@ class _vector {
     size_t length;
 
     void print();
+    bool isSorted(bool quiet = false);
 };
 
 
@@ -82,7 +83,23 @@ void _vector<T>::print() {
         std::cout << "}";
 
     std::cout << "\n";
-};
+}
+
+template<class T>
+bool _vector<T>::isSorted(bool quiet) {
+
+    for (size_t i = 1; i < this->length; i++) {
+        if (this->data[i] < this->data[i - 1]) {
+            if (!quiet) {
+                this->print();
+                std::cout << "List item " << i << " is not sorted\n";
+            }
+            return false;
+        }
+    }
+
+    return true;
+}
 
 template<class T>
 bool DC<T>::isIndivisible(const vector &d) {
@@ -187,6 +204,11 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out, const int de
 
         delete[] buf;
     }
+}
+
+template<class T>
+_vector<T> *DC<T>::get() {
+    return this->data;
 }
 
 template<class T>
