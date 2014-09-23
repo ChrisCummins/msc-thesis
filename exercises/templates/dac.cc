@@ -1,6 +1,7 @@
 #include "dac.h"
 
-typedef _vector<int> data;
+typedef DC<int>      MergeSort;
+typedef vector<int>  vector_t;
 
 bool isIndivisible(data *const d) {
     return d->length <= 1;
@@ -94,32 +95,27 @@ void test_dac_sort(const size_t size) {
     delete b;
 }
 
-void test_dac_skeleton_sort(const size_t size) {
+void test_sort(const size_t size) {
     int nums[size];
 
     for (size_t i = 0; i < size; i++)
         nums[i] = rand() % size;
 
-    data *const a = new data;
+    vector_t *const a = new vector_t;
 
     a->data   = &nums[0];
     a->length = sizeof(nums) / sizeof(nums[0]);
 
     Timer t;
-    DC<int> dc(a);
+    MergeSort sort(a);
     printf("Time to sort %7lu integers: %4ld ms\n", size, t.ms());
-    dc.get()->isSorted();
+    sort.get()->isSorted();
 }
 
 int main(int argc, char *argv[]) {
 
-    std::cout << "DC<int>\n";
-    for (int i = 0, j = 200000; i < 10; i++, j += 200000)
-        test_dac_skeleton_sort(j);
-
-    std::cout << "dac\n";
-    for (int i = 0, j = 200000; i < 10; i++, j += 200000)
-        test_dac_sort(j);
+    for (unsigned long i = 0, j = 200000; i < 10; i++, j += 200000)
+        test_sort(j);
 
     return 0;
 }

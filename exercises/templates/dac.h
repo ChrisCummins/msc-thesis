@@ -23,22 +23,22 @@
 template<class T>
 class DC {
  public:
-    typedef _vector<T> vector;
+    typedef vector<T> vector_t;
 
-    DC(vector *const data);
+    DC(vector_t *const data);
 
-    vector *get();
+    vector_t *get();
 
     // "Muscle" functions:
-    bool isIndivisible(const vector &);               // T   -> bool
-    void solve(vector *const in, vector *const out);  // T   -> T
-    void split(vector *const in, vector *const out);  // T   -> T[]
-    void merge(vector *const in, vector *const out);  // T[] -> T
+    bool isIndivisible(const vector_t &);                 // T   -> bool
+    void solve(vector_t *const in, vector_t *const out);  // T   -> T
+    void split(vector_t *const in, vector_t *const out);  // T   -> T[]
+    void merge(vector_t *const in, vector_t *const out);  // T[] -> T
 
  private:
-    void divide_and_conquer(vector *const in, vector *const out,
+    void divide_and_conquer(vector_t *const in, vector_t *const out,
                             const int depth = 0);
-    vector *data;
+    vector_t *data;
     unsigned int k;
 };
 
@@ -48,26 +48,26 @@ class DC {
 /*******************************************/
 
 template<class T>
-bool DC<T>::isIndivisible(const vector &d) {
+bool DC<T>::isIndivisible(const vector_t &d) {
     return d.length <= 1;
 }
 
 
 template<class T>
-void DC<T>::solve(vector *const in, vector *const out) {
+void DC<T>::solve(vector_t *const in, vector_t *const out) {
     // Copy vector contents:
     out->copy(in);
 }
 
 
 template<class T>
-void DC<T>::split(vector *const in, vector *const out) {
-    const typename vector::size_t split_size = in->length / this->k;
+void DC<T>::split(vector_t *const in, vector_t *const out) {
+    const typename vector_t::size_t split_size = in->length / this->k;
 
     // Split "in" into "k" vectors, starting at address "out".
     for (unsigned int i = 0; i < this->k; i++) {
         const unsigned int offset = i * split_size;
-        typename vector::size_t length = split_size;
+        typename vector_t::size_t length = split_size;
 
         // Add on remainder if not an even split:
         if (i == this->k - 1 && in->length % split_size)
@@ -79,7 +79,7 @@ void DC<T>::split(vector *const in, vector *const out) {
 }
 
 template<class T>
-void DC<T>::divide_and_conquer(vector *const in, vector *const out,
+void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
                                const int depth) {
 
     if (isIndivisible(*in)) {
@@ -96,7 +96,7 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out,
          * recursion pairs such that each pair has the indexes buf[n],
          * buf[n+k].
          */
-        vector *const buf = new vector[k * 2];
+        vector_t *const buf = new vector_t[k * 2];
 
 
         // Split, recurse, and merge:
@@ -109,15 +109,16 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out,
          */
         if (depth < FORK_DEPTH) {
 
-            // Multi-threaded:
             std::thread threads[k];
 
+            // Create threads:
             for (unsigned int i = 0; i < k; i++)
                 threads[i] = std::thread(&DC<T>::divide_and_conquer, this,
                                          &buf[i], &buf[i+k], next_depth);
 
-            for (unsigned int i = 0; i < k; i++)
-                threads[i].join();
+            // Block until threads complete:
+            for (auto &thread : threads)
+                thread.join();
 
         } else {
 
@@ -136,14 +137,14 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out,
 
 
 template<class T>
-_vector<T> *DC<T>::get() {
+vector<T> *DC<T>::get() {
     return this->data;
 }
 
 
 template<class T>
-DC<T>::DC(vector *const in) {
-    this->data = new vector;
+DC<T>::DC(vector_t *const in) {
+    this->data = new vector_t;
     // TODO: Assign as a constructor parameter
     this->k = 2;
     divide_and_conquer(in, this->data);
@@ -155,10 +156,10 @@ DC<T>::DC(vector *const in) {
 /*****************************/
 
 template<class T>
-void DC<T>::merge(vector *const in, vector *const out) {
-    vector *const left = &in[0];
-    vector *const right = &in[1];
-    const typename vector::size_t length = left->length + right->length;
+void DC<T>::merge(vector_t *const in, vector_t *const out) {
+    vector_t *const left = &in[0];
+    vector_t *const right = &in[1];
+    const typename vector_t::size_t length = left->length + right->length;
 
     out->data = new int[length];
 
