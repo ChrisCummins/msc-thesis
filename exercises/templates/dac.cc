@@ -22,6 +22,7 @@ void test_sort(const size_t size) {
 
 int main(int argc, char *argv[]) {
 
+    std::cout << "DC<int>\n";
     for (unsigned long i = 0, j = 200000; i < 10; i++, j += 200000)
         test_sort(j);
 
