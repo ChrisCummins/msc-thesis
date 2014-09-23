@@ -8,105 +8,57 @@
 #include <thread>
 
 #include "timer.h"
+#include "vector.h"
 
+// Maximum depth at which each recursion spawns a new thread. Higher
+// values means more concurrent execution, lower values means more
+// sequential. A value of 1 means no currency:
 #define FORK_DEPTH 4
 
-template<class T>
-class _vector {
- public:
-    typedef unsigned int size_t;
 
-    _vector() {};
-    _vector(const size_t length);
-    _vector(T *const data, const size_t length);
-    ~_vector();
-
-    T     *data;
-    size_t length;
-
-    void print();
-    bool isSorted(bool quiet = false);
-};
-
+/*******************************************/
+/* Fixed depth Divide and Conquer skeleton */
+/*******************************************/
 
 template<class T>
 class DC {
  public:
     typedef _vector<T> vector;
 
-    DC(vector *const);
+    DC(vector *const data);
 
     vector *get();
-    bool isIndivisible(const vector &);
-    void split(vector *const in, vector *const out);
-    void solve(vector *const in, vector *const out);
-    void merge(vector *const in, vector *const out);
+
+    // "Muscle" functions:
+    bool isIndivisible(const vector &);               // T   -> bool
+    void solve(vector *const in, vector *const out);  // T   -> T
+    void split(vector *const in, vector *const out);  // T   -> T[]
+    void merge(vector *const in, vector *const out);  // T[] -> T
 
  private:
-    void divide_and_conquer(vector *const in, vector *const out, const int depth = 0);
+    void divide_and_conquer(vector *const in, vector *const out,
+                            const int depth = 0);
     vector *data;
     unsigned int k;
 };
 
 
-/************************/
-/* Template definitions */
-/************************/
-
-template<class T>
-_vector<T>::_vector(const size_t length) {
-    this->data = new T[length];
-    this->length = length;
-};
-
-template<class T>
-_vector<T>::_vector(T *const data, const size_t length) {
-    this->data = data;
-    this->length = length;
-}
-
-template<class T>
-_vector<T>::~_vector() {
-    delete[] this->data;
-}
-
-template<class T>
-void _vector<T>::print() {
-    std::printf("%14p length: %2d, data: { ", this->data, this->length);
-
-    const unsigned int max = this->length < 10 ? this->length : 10;
-
-    for (unsigned int i = 0; i < max; i++)
-        std::cout << this->data[i] << " ";
-
-    if (this->length > max)
-        std::cout << "...";
-    else
-        std::cout << "}";
-
-    std::cout << "\n";
-}
-
-template<class T>
-bool _vector<T>::isSorted(bool quiet) {
-
-    for (size_t i = 1; i < this->length; i++) {
-        if (this->data[i] < this->data[i - 1]) {
-            if (!quiet) {
-                this->print();
-                std::cout << "List item " << i << " is not sorted\n";
-            }
-            return false;
-        }
-    }
-
-    return true;
-}
+/*******************************************/
+/* Divide and conquer skeleton definitions */
+/*******************************************/
 
 template<class T>
 bool DC<T>::isIndivisible(const vector &d) {
     return d.length <= 1;
 }
+
+
+template<class T>
+void DC<T>::solve(vector *const in, vector *const out) {
+    // Copy vector contents:
+    out->copy(in);
+}
+
 
 template<class T>
 void DC<T>::split(vector *const in, vector *const out) {
@@ -121,46 +73,9 @@ void DC<T>::split(vector *const in, vector *const out) {
         if (i == this->k - 1 && in->length % split_size)
             length += in->length % split_size;
 
-        const typename vector::size_t size = length * sizeof(*in->data);
-
         // Copy memory from one vector to another:
-        out[i].data = new T[length];
-        memcpy(out[i].data, in->data + offset, size);
-        out[i].length = length;
+        out[i].copy(in, offset, length);
     }
-}
-
-template<class T>
-void DC<T>::solve(vector *const in, vector *const out) {
-    out->data = new int[in->length];
-    memcpy(out->data, in->data, in->length * sizeof(*in->data));
-    out->length = in->length;
-}
-
-template<class T>
-void DC<T>::merge(vector *const in, vector *const out) {
-    vector *const left = &in[0];
-    vector *const right = &in[1];
-    const typename vector::size_t length = left->length + right->length;
-
-    out->data = new int[length];
-
-    unsigned int l = 0, r = 0, i = 0;
-
-    while (l < left->length && r < right->length) {
-        if (right->data[r] < left->data[l])
-            out->data[i++] = right->data[r++];
-        else
-            out->data[i++] = left->data[l++];
-    }
-
-    while (r < right->length)
-        out->data[i++] = right->data[r++];
-
-    while (l < left->length)
-        out->data[i++] = left->data[l++];
-
-    out->length = length;
 }
 
 template<class T>
@@ -182,6 +97,7 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out,
          * buf[n+k].
          */
         vector *const buf = new vector[k * 2];
+
 
         // Split, recurse, and merge:
         split(in, buf);
@@ -213,17 +129,17 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out,
 
         merge(&buf[k], out);
 
-        /*
-         * Free vector buffer:
-         */
+        // Free heap memory:
         delete[] buf;
     }
 }
+
 
 template<class T>
 _vector<T> *DC<T>::get() {
     return this->data;
 }
+
 
 template<class T>
 DC<T>::DC(vector *const in) {
@@ -231,6 +147,37 @@ DC<T>::DC(vector *const in) {
     // TODO: Assign as a constructor parameter
     this->k = 2;
     divide_and_conquer(in, this->data);
+}
+
+
+/*****************************/
+/* MergeSort specialisations */
+/*****************************/
+
+template<class T>
+void DC<T>::merge(vector *const in, vector *const out) {
+    vector *const left = &in[0];
+    vector *const right = &in[1];
+    const typename vector::size_t length = left->length + right->length;
+
+    out->data = new int[length];
+
+    unsigned int l = 0, r = 0, i = 0;
+
+    while (l < left->length && r < right->length) {
+        if (right->data[r] < left->data[l])
+            out->data[i++] = right->data[r++];
+        else
+            out->data[i++] = left->data[l++];
+    }
+
+    while (r < right->length)
+        out->data[i++] = right->data[r++];
+
+    while (l < left->length)
+        out->data[i++] = left->data[l++];
+
+    out->length = length;
 }
 
 #endif // MSC_THESIS_EXERCISES_TEMPLATES_DAC_H_
