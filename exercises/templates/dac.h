@@ -10,12 +10,6 @@
 #include "timer.h"
 #include "vector.h"
 
-// Maximum depth at which each recursion spawns a new thread. Higher
-// values means more concurrent execution, lower values means more
-// sequential. A value of 1 means no currency:
-#define FORK_DEPTH 4
-
-
 /*******************************************/
 /* Fixed depth Divide and Conquer skeleton */
 /*******************************************/
@@ -25,7 +19,21 @@ class DC {
  public:
     typedef vector<T> vector_t;
 
-    DC(vector_t *const data);
+    /*
+     * @k:
+     *
+     *   The fixed depth value, i.e. the number of components that the
+     *   split() operation returns.
+     *
+     * @fork_depth:
+     *
+     *   Maximum depth at which each recursion spawns a new
+     *   thread. Higher values means more concurrent execution, lower
+     *   values means more sequential. A value of 1 means no currency:
+     */
+    DC(vector_t *const data,
+       const unsigned int k = 2,
+       const unsigned int fork_depth = 1);
 
     vector_t *get();
 
@@ -37,9 +45,10 @@ class DC {
 
  private:
     void divide_and_conquer(vector_t *const in, vector_t *const out,
-                            const int depth = 0);
-    vector_t *data;
-    unsigned int k;
+                            const unsigned int depth = 0);
+    vector_t *const data;
+    const unsigned int k;
+    const unsigned int fork_depth;
 };
 
 
@@ -80,7 +89,7 @@ void DC<T>::split(vector_t *const in, vector_t *const out) {
 
 template<class T>
 void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
-                               const int depth) {
+                               const unsigned int depth) {
 
     if (isIndivisible(*in)) {
 
@@ -107,7 +116,7 @@ void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
          * create a new thread to perform the recursion in. Otherwise,
          * we recurse sequentially.
          */
-        if (depth < FORK_DEPTH) {
+        if (depth < this->fork_depth) {
 
             std::thread threads[k];
 
@@ -143,10 +152,10 @@ vector<T> *DC<T>::get() {
 
 
 template<class T>
-DC<T>::DC(vector_t *const in) {
-    this->data = new vector_t;
-    // TODO: Assign as a constructor parameter
-    this->k = 2;
+DC<T>::DC(vector_t *const in,
+          const unsigned int k,
+          const unsigned int fork_depth)
+: data(new vector_t), k(k), fork_depth(fork_depth) {
     divide_and_conquer(in, this->data);
 }
 
