@@ -90,7 +90,7 @@ void test_fddc_list_sort(int k) {
     int i;
     size_t j;
 
-    for (i = 0, j = 25000; i < 8; i++, j += 25000)
+    for (i = 0, j = 200000; i < 10; i++, j += 200000)
         test_fddc_list_sort<T>(j, k);
 }
 
