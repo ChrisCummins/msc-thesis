@@ -1,8 +1,7 @@
-#include <cstdlib>
-#include <iostream>
-#include <cstring>
 #include <cstdio>
-#include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
 #include <thread>
 
 #include "timer.h"
