@@ -2,7 +2,7 @@
 
 set -e
 
-cpu_mult=4
+cpu_mult=2
 
 echo -n "Determining number of processing units (n)... "
 no_of_processors=$(nproc)
