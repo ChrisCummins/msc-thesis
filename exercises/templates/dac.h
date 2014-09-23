@@ -3,8 +3,11 @@
 #include <cstring>
 #include <cstdio>
 #include <algorithm>
+#include <thread>
 
 #include "timer.h"
+
+#define FORK_DEPTH 4
 
 template<class T>
 class _vector {
@@ -147,8 +150,30 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out, const int de
 
         // Split, recurse, and merge:
         split(in, in_left, in_right);
-        divide_and_conquer(in_left,  out_left,  next_depth);
-        divide_and_conquer(in_right, out_right, next_depth);
+
+        /*
+         * If the depth is less than some arbitrary value, then we
+         * create a new thread to perform the recursion in. Otherwise,
+         * we recurse sequentially.
+         */
+        if (depth < FORK_DEPTH) {
+
+            // Concurrent:
+            std::thread left(&DC<T>::divide_and_conquer, this,
+                             in_left, out_left, next_depth);
+            std::thread right(&DC<T>::divide_and_conquer, this,
+                              in_right, out_right, next_depth);
+            left.join();
+            right.join();
+
+        } else {
+
+            // Sequential:
+            divide_and_conquer(in_left,  out_left,  next_depth);
+            divide_and_conquer(in_right, out_right, next_depth);
+
+        }
+
         merge(*out_left, *out_right, out);
 
         delete[] buf;
