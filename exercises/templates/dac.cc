@@ -1,39 +1,6 @@
-#include <cstdlib>
-#include <iostream>
-#include <cstring>
-#include <cstdio>
-#include <algorithm>
+#include "dac.h"
 
-#include "timer.h"
-
-template<class T>
-class vector {
-public:
-    T *data;
-    unsigned int length;
-
-    ~vector() {
-        delete[] this->data;
-    }
-};
-
-typedef vector<int> data;
-
-void print_vector(const data &d) {
-    std::printf("%14p length: %2d, data: { ", d.data, d.length);
-
-    const unsigned int max = d.length < 10 ? d.length : 10;
-
-    for (unsigned int i = 0; i < max; i++)
-        std::cout << d.data[i] << " ";
-
-    if (d.length > max)
-        std::cout << "...";
-    else
-        std::cout << "}";
-
-    std::cout << "\n";
-}
+typedef _vector<int> data;
 
 bool isIndivisible(data *const d) {
     return d->length <= 1;
@@ -82,7 +49,7 @@ void merge(const data &left, const data &right, data *const out) {
         out->data[i++] = left.data[l++];
 
     out->length = length;
-};
+}
 
 void divide_and_conquer(data *const in, data *const out, const int depth = 0) {
 
