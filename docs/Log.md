@@ -692,3 +692,75 @@ Time to sort 1600000 integers:  103 ms
 Time to sort 1800000 integers:  117 ms
 Time to sort 2000000 integers:  136 ms
 ```
+
+
+## Tuesday 23rd
+
+Comparing profiles of `dac` with `dc-merge-sort`:
+
+```
+$ gprof dac gmon.out | less
+...
+ %   cumulative   self              self     total
+ time   seconds   seconds    calls  ms/call  ms/call  name
+ 79.23      0.98     0.98 10999990     0.00     0.00  merge(vector<int> const&, vector<int> const&, vector<int>*)
+  8.89      1.09     0.11                             test_dac_sort(unsigned long)
+  6.47      1.17     0.08       10     8.02   112.78  divide_and_conquer(vector<int>*, vector<int>*, int)
+  4.45      1.23     0.06 10999990     0.00     0.00  split(vector<int>*, vector<int>*, vector<int>*)
+  0.81      1.24     0.01 11000000     0.00     0.00  solve(vector<int>*, vector<int>*)
+  0.40      1.24     0.01                             isIndivisible(vector<int>*)
+...
+$ gprof dc-merge-sort gmon.out | less
+...
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  ms/call  ms/call  name
+ 38.59      1.33     1.33       10   133.14   325.35  DC<std::vector<int, std::allocator<int> > >::_dac(std::vector<int, std::allocator<int> >)
+ 34.82      2.53     1.20 10999990     0.00     0.00  DC<std::vector<int, std::allocator<int> > >::merge(std::vector<std::vector<int, std::allocator<int> >, std::allocator<std::vector<int, std::allocator<int> > >
+ 20.89      3.25     0.72 10999990     0.00     0.00  DC<std::vector<int, std::allocator<int> > >::split(std::vector<int, std::allocator<int> >)
+```
+
+Wheres the `dac` implementation spends most of it's time in the
+(understandably) expensive `merge()` operation, the DC skeleton
+implementation has a much more even distribution of execution times
+across the merge, split, and recursive functions. Possible reasons for
+this:
+
+ * The DC skeleton uses `sdt::vector<int>` objects instead of a custom
+   vector class, and copying operations are more expensive.
+ * Values are passed and returned by value, rather than out
+   parameters. This could be cause for lot of additional memory
+   copying.
+
+Interestingly, a refactoring the `dac` implementation into a
+skeleton-style template class provided a modest speedup:
+
+```
+dac
+Time to sort  200000 integers:   62 ms
+Time to sort  400000 integers:  111 ms
+Time to sort  600000 integers:  163 ms
+Time to sort  800000 integers:  220 ms
+Time to sort 1000000 integers:  278 ms
+Time to sort 1200000 integers:  332 ms
+Time to sort 1400000 integers:  391 ms
+Time to sort 1600000 integers:  441 ms
+Time to sort 1800000 integers:  499 ms
+Time to sort 2000000 integers:  569 ms
+DC<int>
+Time to sort  200000 integers:   58 ms
+Time to sort  400000 integers:   96 ms
+Time to sort  600000 integers:  150 ms
+Time to sort  800000 integers:  217 ms
+Time to sort 1000000 integers:  259 ms
+Time to sort 1200000 integers:  306 ms
+Time to sort 1400000 integers:  352 ms
+Time to sort 1600000 integers:  411 ms
+Time to sort 1800000 integers:  532 ms
+Time to sort 2000000 integers:  514 ms
+```
+
+To recurse using a separate thread (C++ thread lib):
+
+```
+std::thread left(&DC<T>::divide_and_conquer, this, in_left, out_left, next_depth);
+```
