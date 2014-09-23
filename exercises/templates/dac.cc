@@ -113,13 +113,13 @@ void test_dac_skeleton_sort(const size_t size) {
 
 int main(int argc, char *argv[]) {
 
-    std::cout << "dac\n";
-    for (int i = 0, j = 200000; i < 10; i++, j += 200000)
-        test_dac_sort(j);
-
     std::cout << "DC<int>\n";
     for (int i = 0, j = 200000; i < 10; i++, j += 200000)
         test_dac_skeleton_sort(j);
+
+    std::cout << "dac\n";
+    for (int i = 0, j = 200000; i < 10; i++, j += 200000)
+        test_dac_sort(j);
 
     return 0;
 }
