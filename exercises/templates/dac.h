@@ -161,7 +161,7 @@ void DC<T>::merge(vector_t *const in, vector_t *const out) {
     vector_t *const right = &in[1];
     const typename vector_t::size_t length = left->length + right->length;
 
-    out->data = new int[length];
+    out->data = new T[length];
 
     unsigned int l = 0, r = 0, i = 0;
 
