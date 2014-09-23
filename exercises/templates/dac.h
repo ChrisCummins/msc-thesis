@@ -38,7 +38,7 @@ class DC {
     bool isIndivisible(const vector &);
     void split(vector *const in, vector *const out);
     void solve(vector *const in, vector *const out);
-    void merge(const vector &left, const vector &right, vector *const out);
+    void merge(vector *const in, vector *const out);
 
  private:
     void divide_and_conquer(vector *const in, vector *const out, const int depth = 0);
@@ -119,7 +119,7 @@ void DC<T>::split(vector *const in, vector *const out) {
         if (i == this->k - 1 && in->length % split_size)
             length += in->length % split_size;
 
-        const size_t size = length * sizeof(*in->data);
+        const typename vector::size_t size = length * sizeof(*in->data);
 
         // Copy memory from one vector to another:
         out[i].data = new T[length];
@@ -136,25 +136,27 @@ void DC<T>::solve(vector *const in, vector *const out) {
 }
 
 template<class T>
-void DC<T>::merge(const vector &left, const vector &right, vector *const out) {
-    const int length = left.length + right.length;
+void DC<T>::merge(vector *const in, vector *const out) {
+    vector *const left = &in[0];
+    vector *const right = &in[1];
+    const typename vector::size_t length = left->length + right->length;
 
     out->data = new int[length];
 
     unsigned int l = 0, r = 0, i = 0;
 
-    while (l < left.length && r < right.length) {
-        if (right.data[r] < left.data[l])
-            out->data[i++] = right.data[r++];
+    while (l < left->length && r < right->length) {
+        if (right->data[r] < left->data[l])
+            out->data[i++] = right->data[r++];
         else
-            out->data[i++] = left.data[l++];
+            out->data[i++] = left->data[l++];
     }
 
-    while (r < right.length)
-        out->data[i++] = right.data[r++];
+    while (r < right->length)
+        out->data[i++] = right->data[r++];
 
-    while (l < left.length)
-        out->data[i++] = left.data[l++];
+    while (l < left->length)
+        out->data[i++] = left->data[l++];
 
     out->length = length;
 }
@@ -200,7 +202,7 @@ void DC<T>::divide_and_conquer(vector *const in, vector *const out, const int de
 
         }
 
-        merge(*out_left, *out_right, out);
+        merge(out_left, out);
 
         delete[] buf;
     }
