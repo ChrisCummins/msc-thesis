@@ -5,18 +5,18 @@
 #include "list.h"
 
 /*
- * Int vector data specialization
+ * List specialization
  */
-typedef DC<List> MergeSort;
+typedef DC<List> DCMergeSort;
 
 template<>
-bool MergeSort::isIndivisible(List list) {
+bool DCMergeSort::isIndivisible(List list) {
     return list.size() <= 1;
 }
 
 
 template<>
-Lists MergeSort::split(List list) {
+Lists DCMergeSort::split(List list) {
     size_t pivot = list.size() / 2;
 
     // Split array in half
@@ -29,7 +29,7 @@ Lists MergeSort::split(List list) {
 
 
 template<>
-List MergeSort::merge(Lists lists) {
+List DCMergeSort::merge(Lists lists) {
     List left = lists[0];
     List right = lists[1];
     List sorted = List(left.size() + right.size());
