@@ -12,9 +12,15 @@ void test_int_sort(const size_t size,
     a->data   = &nums[0];
     a->length = sizeof(nums) / sizeof(nums[0]);
 
+    DC<int> sort(a);
+    sort.set_split_degree(2);
+    sort.set_parallelisation_depth(fork_depth);
+
+    // Timed section
     Timer t;
-    DC<int> sort(a, 2, fork_depth);
+    sort.run();
     printf("Time to sort %7lu integers: %4ld ms\n", size, t.ms());
+
     sort.get()->isSorted();
 }
 

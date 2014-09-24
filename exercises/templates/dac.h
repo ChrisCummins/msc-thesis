@@ -19,26 +19,26 @@ class DC {
  public:
     typedef vector<T> vector_t;
 
-    /*
-     * @k:
-     *
-     *   The fixed depth value, i.e. the number of components that the
-     *   split() operation returns.
-     *
-     * @fork_depth:
-     *
-     *   Maximum depth at which each recursion spawns a new
-     *   thread. Higher values means more concurrent execution, lower
-     *   values means more sequential. A value of 1 means no currency:
-     */
-    DC(vector_t *const data,
-       const unsigned int k = 2,
-       const unsigned int fork_depth = 1);
+    // Constructor
+    DC(vector_t *const data_in);
 
+    // Configurable parameters:
+
+
+    // The fixed degree value, i.e. the number of sub-problems created
+    // by a split() operation.
+    void set_split_degree(const unsigned int n);
+
+    // Maximum depth at which each recursion spawns a new
+    // thread. Higher values means more concurrent execution, lower
+    // values means more sequential. A value of 1 means no currency.
+    void set_parallelisation_depth(const unsigned int n);
+
+    void run();
     vector_t *get();
 
     // "Muscle" functions:
-    bool isIndivisible(const vector_t &);                 // T   -> bool
+    bool isIndivisible(const vector_t &t);                // T   -> bool
     void solve(vector_t *const in, vector_t *const out);  // T   -> T
     void split(vector_t *const in, vector_t *const out);  // T   -> T[]
     void merge(vector_t *const in, vector_t *const out);  // T[] -> T
@@ -46,9 +46,10 @@ class DC {
  private:
     void divide_and_conquer(vector_t *const in, vector_t *const out,
                             const unsigned int depth = 0);
-    vector_t *const data;
-    const unsigned int k;
-    const unsigned int fork_depth;
+    vector_t *const data_in;
+    vector_t *const data_out;
+    unsigned int split_degree;
+    unsigned int parallelisation_depth;
 };
 
 
@@ -71,15 +72,15 @@ void DC<T>::solve(vector_t *const in, vector_t *const out) {
 
 template<class T>
 void DC<T>::split(vector_t *const in, vector_t *const out) {
-    const typename vector_t::size_t split_size = in->length / this->k;
+    const typename vector_t::size_t split_size = in->length / this->split_degree;
 
     // Split "in" into "k" vectors, starting at address "out".
-    for (unsigned int i = 0; i < this->k; i++) {
+    for (unsigned int i = 0; i < this->split_degree; i++) {
         const unsigned int offset = i * split_size;
         typename vector_t::size_t length = split_size;
 
         // Add on remainder if not an even split:
-        if (i == this->k - 1 && in->length % split_size)
+        if (i == this->split_degree - 1 && in->length % split_size)
             length += in->length % split_size;
 
         // Copy memory from one vector to another:
@@ -97,7 +98,7 @@ void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
 
     } else {
         const int next_depth = depth + 1;
-        const unsigned int k = this->k;
+        const unsigned int k = this->split_degree;
 
         /*
          * Allocate a contiguous block of vectors for processing. This
@@ -116,18 +117,19 @@ void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
          * create a new thread to perform the recursion in. Otherwise,
          * we recurse sequentially.
          */
-        if (depth < this->fork_depth) {
-
+        if (depth < this->parallelisation_depth) {
             std::thread threads[k];
 
             // Create threads:
-            for (unsigned int i = 0; i < k; i++)
+            for (unsigned int i = 0; i < k; i++) {
                 threads[i] = std::thread(&DC<T>::divide_and_conquer, this,
                                          &buf[i], &buf[i+k], next_depth);
+            }
 
             // Block until threads complete:
-            for (auto &thread : threads)
+            for (auto &thread : threads) {
                 thread.join();
+            }
 
         } else {
 
@@ -144,19 +146,34 @@ void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
     }
 }
 
+template<class T>
+void DC<T>::set_split_degree(const unsigned int n) {
+    this->split_degree = n;
+}
+
+template<class T>
+void DC<T>::set_parallelisation_depth(const unsigned int n) {
+    this->parallelisation_depth = n;
+}
 
 template<class T>
 vector<T> *DC<T>::get() {
-    return this->data;
+    return this->data_out;
 }
 
 
 template<class T>
-DC<T>::DC(vector_t *const in,
-          const unsigned int k,
-          const unsigned int fork_depth)
-: data(new vector_t), k(k), fork_depth(fork_depth) {
-    divide_and_conquer(in, this->data);
+void DC<T>::run() {
+    divide_and_conquer(this->data_in, this->data_out);
+}
+
+
+// Constructor (just an initializer list)
+template<class T>
+DC<T>::DC(vector_t *const in)
+: data_in(in), data_out(new vector_t) {
+    split_degree = 0;
+    parallelisation_depth = 0;
 }
 
 
