@@ -13,23 +13,19 @@
 #include "vector.h"
 
 
-/********************************************/
-/* Fixed degree Divide and Conquer skeleton */
-/********************************************/
+/*****************************************************/
+/* Abstract Fixed degree Divide and Conquer skeleton */
+/*****************************************************/
 
 template<class T>
-class DC {
+class FDDC {
  public:
     typedef vector<T> vector_t;
 
     // Constructor
-    DC(vector_t *const data_in);
+    FDDC(vector_t *const data_in, const unsigned int degree);
 
     // Configurable parameters:
-
-    // The fixed degree value, i.e. the number of sub-problems created
-    // by a split() operation.
-    void set_split_degree(const unsigned int n);
 
     // Maximum depth at which each recursion spawns a new
     // thread. Higher values means more concurrent execution, lower
@@ -41,13 +37,13 @@ class DC {
 
 
     // "Muscle" functions:
-    bool isIndivisible(const vector_t &t);                // T   -> bool
-    void solve(vector_t *const in, vector_t *const out);  // T   -> T
-    void split(vector_t *const in, vector_t *const out);  // T   -> T[]
-    void merge(vector_t *const in, vector_t *const out);  // T[] -> T
+    virtual bool isIndivisible(const vector_t &t);                   // T   -> bool
+    virtual void solve(vector_t *const in, vector_t *const out);     // T   -> T
+    virtual void split(vector_t *const in, vector_t *const out);     // T   -> T[]
+    virtual void merge(vector_t *const in, vector_t *const out) = 0; // T[] -> T
 
 
- private:
+ protected:
     void divide_and_conquer(vector_t *const in, vector_t *const out,
                             const unsigned int depth = 0);
     vector_t *const data_in;
@@ -67,20 +63,20 @@ class DC {
 /*******************************************/
 
 template<class T>
-bool DC<T>::isIndivisible(const vector_t &d) {
+bool FDDC<T>::isIndivisible(const vector_t &d) {
     return d.length <= 1;
 }
 
 
 template<class T>
-void DC<T>::solve(vector_t *const in, vector_t *const out) {
+void FDDC<T>::solve(vector_t *const in, vector_t *const out) {
     // Copy vector contents:
     out->copy(in);
 }
 
 
 template<class T>
-void DC<T>::split(vector_t *const in, vector_t *const out) {
+void FDDC<T>::split(vector_t *const in, vector_t *const out) {
     const typename vector_t::size_t split_size = in->length / this->split_degree;
 
     // Split "in" into "k" vectors, starting at address "out".
@@ -97,8 +93,9 @@ void DC<T>::split(vector_t *const in, vector_t *const out) {
     }
 }
 
+
 template<class T>
-void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
+void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
                                const unsigned int depth) {
 
     if (isIndivisible(*in)) {
@@ -131,7 +128,7 @@ void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
 
             // Create threads:
             for (unsigned int i = 0; i < k; i++) {
-                threads[i] = std::thread(&DC<T>::divide_and_conquer, this,
+                threads[i] = std::thread(&FDDC<T>::divide_and_conquer, this,
                                          &buf[i], &buf[i+k], next_depth);
                 IF_DAC_DEBUG(this->thread_count++);
                 IF_DAC_DEBUG(this->active_thread_count++);
@@ -159,23 +156,18 @@ void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
 }
 
 template<class T>
-void DC<T>::set_split_degree(const unsigned int n) {
-    this->split_degree = n;
-}
-
-template<class T>
-void DC<T>::set_parallelisation_depth(const unsigned int n) {
+void FDDC<T>::set_parallelisation_depth(const unsigned int n) {
     this->parallelisation_depth = n;
 }
 
 template<class T>
-vector<T> *DC<T>::get() {
+vector<T> *FDDC<T>::get() {
     return this->data_out;
 }
 
 
 template<class T>
-void DC<T>::run() {
+void FDDC<T>::run() {
     DAC_ASSERT(this->active_thread_count == 1);
 
     divide_and_conquer(this->data_in, this->data_out);
@@ -187,9 +179,8 @@ void DC<T>::run() {
 
 // Constructor
 template<class T>
-DC<T>::DC(vector_t *const in)
-: data_in(in), data_out(new vector_t) {
-    split_degree = 0;
+FDDC<T>::FDDC(vector_t *const in, const unsigned int degree)
+: data_in(in), data_out(new vector_t), split_degree(degree) {
     parallelisation_depth = 0;
 
     IF_DAC_DEBUG(this->thread_count = 1);
@@ -197,12 +188,26 @@ DC<T>::DC(vector_t *const in)
 }
 
 
-/*****************************/
-/* MergeSort specialisations */
-/*****************************/
+/*******************/
+/* MergeSort class */
+/*******************/
 
 template<class T>
-void DC<T>::merge(vector_t *const in, vector_t *const out) {
+class MergeSort : public FDDC<T> {
+    using vector_t = typename FDDC<T>::vector_t;
+ public:
+    MergeSort(vector_t *const data_in);
+    void merge(vector_t *const in, vector_t *const out);
+};
+
+// Constructor. Call base skeleton with fixed degree
+template<class T>
+MergeSort<T>::MergeSort(vector_t *const data_in)
+: FDDC<T>(data_in, 2) {}
+
+
+template<class T>
+void MergeSort<T>::merge(vector_t *const in, vector_t *const out) {
     vector_t *const left = &in[0];
     vector_t *const right = &in[1];
     const typename vector_t::size_t length = left->length + right->length;

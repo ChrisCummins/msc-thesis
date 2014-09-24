@@ -12,8 +12,7 @@ void test_int_sort(const size_t size,
     a->data   = &nums[0];
     a->length = sizeof(nums) / sizeof(nums[0]);
 
-    DC<int> sort(a);
-    sort.set_split_degree(2);
+    MergeSort<int> sort(a);
     sort.set_parallelisation_depth(parallelisation_depth);
 
     // Timed section
