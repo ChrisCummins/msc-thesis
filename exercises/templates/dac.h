@@ -1,18 +1,21 @@
 #ifndef MSC_THESIS_EXERCISES_TEMPLATES_DAC_H_
 #define MSC_THESIS_EXERCISES_TEMPLATES_DAC_H_
 
+#include <atomic>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <thread>
 
+#include "debug.h"
 #include "timer.h"
 #include "vector.h"
 
-/*******************************************/
-/* Fixed depth Divide and Conquer skeleton */
-/*******************************************/
+
+/********************************************/
+/* Fixed degree Divide and Conquer skeleton */
+/********************************************/
 
 template<class T>
 class DC {
@@ -23,7 +26,6 @@ class DC {
     DC(vector_t *const data_in);
 
     // Configurable parameters:
-
 
     // The fixed degree value, i.e. the number of sub-problems created
     // by a split() operation.
@@ -37,11 +39,13 @@ class DC {
     void run();
     vector_t *get();
 
+
     // "Muscle" functions:
     bool isIndivisible(const vector_t &t);                // T   -> bool
     void solve(vector_t *const in, vector_t *const out);  // T   -> T
     void split(vector_t *const in, vector_t *const out);  // T   -> T[]
     void merge(vector_t *const in, vector_t *const out);  // T[] -> T
+
 
  private:
     void divide_and_conquer(vector_t *const in, vector_t *const out,
@@ -50,6 +54,11 @@ class DC {
     vector_t *const data_out;
     unsigned int split_degree;
     unsigned int parallelisation_depth;
+
+#ifdef DAC_DEBUG
+    std::atomic_uint thread_count;
+    std::atomic_uint active_thread_count;
+#endif
 };
 
 
@@ -124,11 +133,14 @@ void DC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
             for (unsigned int i = 0; i < k; i++) {
                 threads[i] = std::thread(&DC<T>::divide_and_conquer, this,
                                          &buf[i], &buf[i+k], next_depth);
+                IF_DAC_DEBUG(this->thread_count++);
+                IF_DAC_DEBUG(this->active_thread_count++);
             }
 
             // Block until threads complete:
             for (auto &thread : threads) {
                 thread.join();
+                IF_DAC_DEBUG(this->active_thread_count--);
             }
 
         } else {
@@ -164,16 +176,24 @@ vector<T> *DC<T>::get() {
 
 template<class T>
 void DC<T>::run() {
+    DAC_ASSERT(this->active_thread_count == 1);
+
     divide_and_conquer(this->data_in, this->data_out);
+
+    DAC_ASSERT(this->active_thread_count == 1);
+    DAC_DEBUG_PRINT("Number of threads created: " << this->thread_count);
 }
 
 
-// Constructor (just an initializer list)
+// Constructor
 template<class T>
 DC<T>::DC(vector_t *const in)
 : data_in(in), data_out(new vector_t) {
     split_degree = 0;
     parallelisation_depth = 0;
+
+    IF_DAC_DEBUG(this->thread_count = 1);
+    IF_DAC_DEBUG(this->active_thread_count = 1);
 }
 
 

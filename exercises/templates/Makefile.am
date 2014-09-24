@@ -5,6 +5,7 @@ AM_CXXFLAGS = 				\
 	-Wextra 			\
 	-Wno-unused-parameter 		\
 	-O0 -pg 			\
+	-DDAC_DEBUG_LEVEL=1		\
 	$(NULL)
 
 AM_LDFLAGS = 				\
