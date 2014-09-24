@@ -1,7 +1,7 @@
 #include "dac.h"
 
 void test_float_sort(const size_t size,
-                     const unsigned int fork_depth) {
+                     const unsigned int parallelisation_depth) {
     float nums[size];
 
     for (size_t i = 0; i < size; i++)
@@ -14,7 +14,7 @@ void test_float_sort(const size_t size,
 
     DC<float> sort(a);
     sort.set_split_degree(2);
-    sort.set_parallelisation_depth(fork_depth);
+    sort.set_parallelisation_depth(parallelisation_depth);
 
     // Timed section
     Timer t;
@@ -25,19 +25,19 @@ void test_float_sort(const size_t size,
 }
 
 int main(int argc, char *argv[]) {
-    unsigned int fork_depth = 1;
+    unsigned int parallelisation_depth = 0;
 
     if (argc == 2) {
         unsigned int i = atoi(argv[1]);
         if (i)
-            fork_depth = i;
+            parallelisation_depth = i;
         else
-            std::cout << "warning: <fork_depth> must be an integer. Ignoring argument\n";
+            std::cout << "warning: <parallelisation_depth> must be an integer. Ignoring argument\n";
     }
 
-    std::cout << "DC<float>, fork_depth = " << fork_depth << "\n";
+    std::cout << "DC<float>, parallelisation_depth = " << parallelisation_depth << "\n";
     for (unsigned long i = 0, j = 200000; i < 10; i++, j += 200000)
-        test_float_sort(j, fork_depth);
+        test_float_sort(j, parallelisation_depth);
 
     return 0;
 }

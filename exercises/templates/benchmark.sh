@@ -8,7 +8,7 @@ echo -n "Determining number of processing units (n)... "
 no_of_processors=$(nproc)
 echo "$no_of_processors"
 
-echo -n "Maximum fork_depth value ($cpu_mult*n)... "
+echo -n "Calculating maximum depth of parallelisation ($cpu_mult*n)... "
 test_limit=$((no_of_processors*cpu_mult))
 echo "$test_limit"
 
@@ -20,8 +20,8 @@ echo "Testing std::stable_sort..."
 echo "N std::stable_sort" > .tmp.log0
 cat std-stable-sort-vector-int.log >> .tmp.log0
 
-for (( i=1; i <= $test_limit; i++ )); do
-    echo "Testing dac, fork_depth = $i..."
+for (( i=0; i <= $test_limit; i++ )); do
+    echo "Testing dac, parallelisation_depth = $i..."
     ./dac-int $i | tail -n+2 | awk '{print 4, $6};' > dac-int.log
 
     echo "dac($i)" > .tmp.log1
