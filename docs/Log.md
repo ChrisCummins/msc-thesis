@@ -771,3 +771,42 @@ Number of nodes (*N*) in tree of depth *d*:
 N = 1 + 1^2 + 2^2 ... d^2
 ```
 
+
+## Wednesday 24th
+
+Advice from Pavlos on finding relevant conferences:
+
+ * There are websites which collate conferences and let you perform
+   key word searches on them.
+ * See where relevant researchers are publishing their work (e.g. look
+   up Hugh's publication list).
+ * Getting a reasonable list of relevant conferences shouldn't take
+   more than 3-4 hours.
+
+Weekly meetings with Pavlos organised for Friday 12pm.
+
+### Notes on dac parallelisation
+
+The number of threads spawned for each parallelisation depth:
+
+```
+parallelisation_depth  thread_count  (thread_count(d)-thread_count(d-1))
+0                      1
+1                      3             2
+2                      7             4
+3                      15            8
+4                      31            15  <---  (!? not a power of 2)
+5                      63            32
+6                      127           64
+7                      255           128
+8                      511           256
+```
+
+So the series is:
+
+```
+n = 1 + 1^2 + 2^2 + 3^2 + ... + d^2
+```
+
+Which means that for a 4 core machine, we'd expect the optimum
+parallelisation depth to be 2.
