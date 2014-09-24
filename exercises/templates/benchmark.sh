@@ -31,8 +31,10 @@ for (( i=1; i <= $test_limit; i++ )); do
     mv .tmp.log2 .tmp.log0
 done
 
-mv .tmp.log0 benchmark.log
+suffix=$(date '+%y.%m.%d-%H.%M.%S')
+
+mv .tmp.log0 benchmark.log.$suffix
 rm .tmp.log1
 
 echo
-column -t benchmark.log
+column -t benchmark.log.$suffix
