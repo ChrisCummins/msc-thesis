@@ -810,3 +810,25 @@ n = 1 + 1^2 + 2^2 + 3^2 + ... + d^2
 
 Which means that for a 4 core machine, we'd expect the optimum
 parallelisation depth to be 2.
+
+
+## Thursday 25th
+
+### Notes for meeting with Pavlos
+
+ * Skeleton implementation:
+   * Fixed degree divide and conquer skeleton using C++ templates.
+   * Muscle functions operate in-place (using out functions).
+      * Some memory allocated by "worker" function (lots of heap
+        thrashing).
+      * split() and merge() function actually do majority of the heavy
+        lifting, since we don't assume to know the size of the split /
+        merged data. (could we predict this?)
+   * Naive multi-threading using depth limit.
+      * Lock free since we allocate memory in the parent thread.
+   * Example merge sort implementation.
+      * Testing on example data set.
+      * Results of tests:
+         * Non-linear performance (why?).
+ * Next week: LLVM, and picking papers for Ppar presentation
+ * Is there a budget for text books?
