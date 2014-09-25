@@ -30,7 +30,7 @@ for (( i=0; i <= $test_limit; i++ )); do
     echo "done"
 
     echo "d$i" > .tmp.log1
-    awk '{print $2};' < $test.log >> .tmp.log1
+    awk '{print $2};' | tr -d ',' < $test.log >> .tmp.log1
 
     paste -d ' ' .tmp.log0 .tmp.log1 >> .tmp.log2
     mv .tmp.log2 .tmp.log0
