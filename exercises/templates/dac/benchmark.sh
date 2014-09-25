@@ -15,8 +15,9 @@ echo "$test_limit"
 echo
 
 stable_sort=std-stable-sort-int
-echo "Executing $stable_sort..."
+echo -n "Executing $stable_sort... "
 ./$stable_sort | tail -n+2 | awk '{print $2, $4};' > $stable_sort.log
+echo "done"
 
 echo "N $stable_sort" > .tmp.log0
 cat $stable_sort.log >> .tmp.log0
@@ -24,8 +25,9 @@ cat $stable_sort.log >> .tmp.log0
 for (( i=0; i <= $test_limit; i++ )); do
     test=merge-sort-int
 
-    echo "Executing $test [$i of $test_limit]..."
+    echo -n "Executing $test [$((i+1)) of $((test_limit+1))]... "
     ./$test $i | tail -n+2 | awk '{print $2, $4};' > $test.log
+    echo "done"
 
     echo "d$i" > .tmp.log1
     awk '{print $2};' < $test.log >> .tmp.log1
