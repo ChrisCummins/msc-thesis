@@ -144,6 +144,7 @@ AC_CONFIG_FILES([
         exercises/Makefile
         exercises/mpi/Makefile
         exercises/templates/Makefile
+        exercises/templates/dac/Makefile
         proposal/Makefile
 ])
 

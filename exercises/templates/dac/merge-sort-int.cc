@@ -1,4 +1,6 @@
-#include "dac.h"
+#include "merge-sort.h"
+
+#include "test.h"
 
 void test_int_sort(const size_t size,
                    const unsigned int parallelisation_depth) {
@@ -26,7 +28,7 @@ void test_int_sort(const size_t size,
 int main(int argc, char *argv[]) {
     unsigned int parallelisation_depth = argc == 2 ? atoi(argv[1]) : 0;
 
-    std::cout << "DC<int>, parallelisation_depth = " << parallelisation_depth << "\n";
+    std::cout << "MergeSort<int>, parallelisation_depth = " << parallelisation_depth << "\n";
     for (unsigned long i = 0, j = 200000; i < 10; i++, j += 200000)
         test_int_sort(j, parallelisation_depth);
 
