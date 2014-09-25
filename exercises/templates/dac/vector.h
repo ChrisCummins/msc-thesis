@@ -1,6 +1,9 @@
 #ifndef MSC_THESIS_EXERCISES_TEMPLATES_VECTOR_H_
 #define MSC_THESIS_EXERCISES_TEMPLATES_VECTOR_H_
 
+#include <iostream>
+#include <cstdio>
+
 /**************************/
 /* "Vector" storage class */
 /**************************/

@@ -18,7 +18,7 @@ noinst_PROGRAMS = 			\
 	std-stable-sort-int		\
 	$(NULL)
 
-test_SOURCES = timer.cc
+test_SOURCES = timer.cc test.cc
 
 merge_sort_float_SOURCES	= merge-sort-float.cc $(test_SOURCES)
 merge_sort_int_SOURCES		= merge-sort-int.cc $(test_SOURCES)
