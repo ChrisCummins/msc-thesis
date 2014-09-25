@@ -130,14 +130,21 @@ void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
             for (unsigned int i = 0; i < k; i++) {
                 threads[i] = std::thread(&FDDC<T>::divide_and_conquer, this,
                                          &buf[i], &buf[i+k], next_depth);
+                // Debugging analytics
                 IF_DAC_DEBUG(this->thread_count++);
                 IF_DAC_DEBUG(this->active_thread_count++);
+                DAC_DEBUG_PRINT(3, "Creating thread " << this->thread_count
+                                << " at depth " << depth
+                                << " (" << this->active_thread_count << " active)");
             }
 
             // Block until threads complete:
             for (auto &thread : threads) {
                 thread.join();
+                // Debugging analytics
                 IF_DAC_DEBUG(this->active_thread_count--);
+                DAC_DEBUG_PRINT(3, "Thread completed at depth " << depth <<
+                                " (" << this->active_thread_count << " still active)");
             }
 
         } else {
@@ -173,7 +180,7 @@ void FDDC<T>::run() {
     divide_and_conquer(this->data_in, this->data_out);
 
     DAC_ASSERT(this->active_thread_count == 1);
-    DAC_DEBUG_PRINT("Number of threads created: " << this->thread_count);
+    DAC_DEBUG_PRINT(2, "Number of threads created: " << this->thread_count);
 }
 
 
