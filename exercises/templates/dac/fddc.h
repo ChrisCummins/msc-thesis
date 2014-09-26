@@ -11,17 +11,21 @@
 #include "debug.h"
 #include "vector.h"
 
-
-/*****************************************************/
-/* Abstract Fixed degree Divide and Conquer skeleton */
-/*****************************************************/
+/*
+ * Abstract fixed degree Divide and Conquer skeleton.
+ *
+ * Provides a template for writing divide and conquer solutions with a
+ * fixed degree by overriding the 4 "muscle" functions. Solution
+ * classes must inherit from this base class and (at a minimum)
+ * specify a merge function (there are default implementations of
+ * solve, split, and isIndivisible).
+ */
 
 template<class T>
 class FDDC {
  public:
     typedef vector<T> vector_t;
 
-    // Constructor
     FDDC(vector_t *const data_in, const unsigned int degree);
 
     // Configurable parameters:
@@ -30,6 +34,7 @@ class FDDC {
     // thread. Higher values means more concurrent execution, lower
     // values means more sequential. A value of 1 means no currency.
     void set_parallelisation_depth(const unsigned int n);
+
 
     void run();
     vector_t *get();
@@ -69,7 +74,6 @@ bool FDDC<T>::isIndivisible(const vector_t &d) {
 
 template<class T>
 void FDDC<T>::solve(vector_t *const in, vector_t *const out) {
-    // Copy vector contents:
     out->copy(in);
 }
 
@@ -95,7 +99,7 @@ void FDDC<T>::split(vector_t *const in, vector_t *const out) {
 
 template<class T>
 void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
-                               const unsigned int depth) {
+                                 const unsigned int depth) {
 
     if (isIndivisible(*in)) {
 
@@ -108,17 +112,20 @@ void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
         /*
          * Allocate a contiguous block of vectors for processing. This
          * size of the block is 2*k, and is divided into pre/post
-         * recursion pairs such that each pair has the indexes buf[n],
-         * buf[n+k].
+         * recursion pairs such that each pair has the indexes:
+         *
+         *     buf[n], buf[n+k].
          */
         vector_t *const buf = new vector_t[k * 2];
 
-
-        // Split, recurse, and merge:
+        // Split "in" to vectors buf[0:k]
         split(in, buf);
 
         /*
-         * If the depth is less than some arbitrary value, then we
+         * Recurse and solve for buf[i], putting solution into
+         * buf[i+k].
+         *
+         * If the depth is less than "parallelisation_depth", then we
          * create a new thread to perform the recursion in. Otherwise,
          * we recurse sequentially.
          */
@@ -154,6 +161,7 @@ void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
 
         }
 
+        // Merge buffers buf[k:2k] into "out":
         merge(&buf[k], out);
 
         // Free heap memory:
@@ -161,10 +169,12 @@ void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
     }
 }
 
+
 template<class T>
 void FDDC<T>::set_parallelisation_depth(const unsigned int n) {
     this->parallelisation_depth = n;
 }
+
 
 template<class T>
 vector<T> *FDDC<T>::get() {

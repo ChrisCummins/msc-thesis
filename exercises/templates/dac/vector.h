@@ -4,25 +4,42 @@
 #include <iostream>
 #include <cstdio>
 
-/**************************/
-/* "Vector" storage class */
-/**************************/
+/*
+ * Generic homogeneous vector class, offering a more lightweight
+ * (read: unsafe) collection type than std::vector.
+ *
+ * A pointer to a contiguous array of data is stored in the "data"
+ * member, and the user _must_ ensure that "length" is set correctly
+ * every time they wish to add or remove elements.
+ */
 
 template<class T>
 class vector {
  public:
     typedef unsigned int size_t;
 
-    vector() {};
+    T *data;
+    vector<T>::size_t length;
+
+    // Constructors:
+
+    // Create an empty vector (no length, no data). User must allocate
+    // data memory and set length:
+    vector();
+
+    // Create a vector of size "length" and allocate memory for
+    // "data":
     vector(const vector<T>::size_t length);
+
+    // Create a vector of size "length" and set "data" to point to
+    // data:
     vector(T *const data, const vector<T>::size_t length);
     ~vector();
 
-    T     *data;
-    vector<T>::size_t length;
-
     void print();
     bool isSorted(bool quiet = false);
+
+    // Copy functions:
     void copy(vector<T> *const src);
     void copy(vector<T> *const src, size_t n);
     void copy(vector<T> *const src, size_t offset, size_t n);
@@ -32,6 +49,9 @@ class vector {
 /************************/
 /* Template definitions */
 /************************/
+
+template<class T>
+vector<T>::vector() {}
 
 template<class T>
 vector<T>::vector(const vector<T>::size_t length) {
