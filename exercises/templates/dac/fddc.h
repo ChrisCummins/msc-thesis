@@ -14,11 +14,35 @@
 /*
  * Abstract fixed degree Divide and Conquer skeleton.
  *
- * Provides a template for writing divide and conquer solutions with a
- * fixed degree by overriding the 4 "muscle" functions. Solution
- * classes must inherit from this base class and (at a minimum)
- * specify a merge function (there are default implementations of
- * solve, split, and isIndivisible).
+ * Provides a template for writing divide and conquer solutions by
+ * overriding the 4 "muscle" functions. Solution classes must inherit
+ * from this base class and (at a minimum) specify a merge function
+ * (there are default implementations of solve, split, and
+ * isIndivisible).
+ *
+ * divide_and_conquer() acts as the "worker" function, invoking the
+ * muscle functions as required. When invoked, it determines whether
+ * the size of the input is small enough to "solve" directly, and if
+ * not, it splits the problem and invokes itself recursively "k"
+ * times, where "k" is the number of sub-problems created by a split
+ * operation (aka. the degree).
+ *
+ * Primitive concurrency is provided by measuring the depth of
+ * recursion in the divide_and_conquer() function. If the depth is
+ * less than the configurable "parallelisation_depth" parameter, then
+ * recursion will occur in a new thread. This means that the maximum
+ * total number of threads created is determined by both the degree
+ * and the parallelisation depth. For a fixed degree of 2:
+ *
+ *             parallelisation_depth   max_no_of_threads
+ *                                 0   1
+ *                                 1   3
+ *                                 2   7
+ *                                 3   15
+ *                                 4   31
+ *
+ * Or, more generally: n^k + (n-1)^k + (n-2)^k + ... + 1
+ *
  */
 
 template<class T>

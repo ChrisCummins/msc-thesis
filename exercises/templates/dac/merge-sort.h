@@ -7,6 +7,9 @@
  * A concrete stable merge sort implementation, using the Divide and
  * Conquer skeleton.
  *
+ * The only muscle function we need to provide is merge(), since the
+ * defaults for the FDDC template are satisfactory.
+ *
  * MergeSort requires that the class "T" supports comparion and
  * equality operators.
  */
