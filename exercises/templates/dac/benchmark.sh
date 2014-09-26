@@ -16,7 +16,7 @@ echo
 
 stable_sort=std-stable-sort-int
 echo -n "Executing $stable_sort... "
-./$stable_sort | tail -n+2 | awk '{print $2, $4};' > $stable_sort.log
+./$stable_sort | tail -n+2 | awk '{print $2, $4};' | tr -d ',' > $stable_sort.log
 echo "done"
 
 echo "N $stable_sort" > .tmp.log0
@@ -30,7 +30,7 @@ for (( i=0; i <= $test_limit; i++ )); do
     echo "done"
 
     echo "d$i" > .tmp.log1
-    awk '{print $2};' | tr -d ',' < $test.log >> .tmp.log1
+    awk '{print $2};' < $test.log >> .tmp.log1
 
     paste -d ' ' .tmp.log0 .tmp.log1 >> .tmp.log2
     mv .tmp.log2 .tmp.log0
