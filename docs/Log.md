@@ -882,3 +882,48 @@ to O(n log n).
    the scope of people without compiler knowledge.
  * Pavlos will be out of contact from next Thursday, so I should chase
    up any questions before then.
+
+
+### Notes from meeting with Hugh and Pavlos
+
+ * In C++, virtual functions are stored in v tables, so when a class
+   is instantiated and a virtual function invoked, the program must
+   first dereference the vtable, look up the function pointer, then
+   dereference this in order to execute the function. C++ templates
+   support passing in functions as parameters, so it may be possible
+   to optimise out these layers of redirection and get rid of the need
+   for virtual muscle functions.
+ * When designing a skeleton, some things to consider:
+   1. How much can the compiler optimise.
+   1. Ease of use for the user/caller.
+   1. What do other skeleton implementations do? How does yours
+      compare against those?
+ * I should consider how to representation the skeleton abstraction to
+   the user. For ease of use, it would be better if the DaC skeleton
+   was a function call, so that the merge sort would have the same
+   usage as the stdlib sort functions.
+ * Merge sort should be in-place.
+
+TODO:
+
+ * Modify the backend of the skeleton so that it performs in-place.
+ * Redesign the front-end of the skeleton so that it is a simple
+   function call.
+
+Memory usage during test program for `std::stable_sort`:
+
+```
+==6177== HEAP SUMMARY:
+==6177==     in use at exit: 7,804 bytes in 1 blocks
+==6177==   total heap usage: 121 allocs, 120 frees, 328,008,444 bytes allocated
+```
+
+And the same test using my merge sort:
+
+```
+==6110== HEAP SUMMARY:
+==6110==     in use at exit: 6,740 bytes in 1 blocks
+==6110==   total heap usage: 168,500,601 allocs, 168,500,600 frees, 8,659,562,260 bytes allocated
+```
+
+So the bottleneck is pretty clear. Make the skeleton perform in-place.
