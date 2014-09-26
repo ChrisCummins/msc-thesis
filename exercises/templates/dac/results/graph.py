@@ -58,6 +58,7 @@ plt.legend(loc='upper left');
 ax1.set_xlim(min(n), max(n))
 ax1.set_ylim(0, 500)
 plt.yticks(range(0, 500, 100))
+plt.xticks(range(max(min(n), 100000), max(n), 100000))
 
 plt.tight_layout(pad=2.5)
 
