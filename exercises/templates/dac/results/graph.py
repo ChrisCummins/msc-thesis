@@ -59,8 +59,11 @@ ax1.set_xlim(min(n), max(n))
 ax1.set_ylim(0, 500)
 plt.yticks(range(0, 500, 100))
 
-plt.ylabel('Execution time (ms)')
-plt.xlabel('No of integers to sort')
-plt.show()
+plt.tight_layout(pad=2.5)
 
+plt.suptitle('Merge Sort with Divide and Conquer Skeleton', fontsize=16)
+plt.ylabel('Execution time (ms)')
+plt.xlabel('No of integers sorted')
+plt.savefig('plot.png')
+plt.show()
 
