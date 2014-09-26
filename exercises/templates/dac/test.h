@@ -31,7 +31,12 @@ void test_merge_sort(vector<T> *const in,
     sort.run();
     print_result<T>(in, &t);
 
-    assert(sort.get()->isSorted());
+    vector<T> *const results = sort.get();
+    assert(results->isSorted());
+
+    // Free test data:
+    delete in;
+    delete results;
 }
 
 template<class T>
@@ -43,6 +48,9 @@ void test_sort_func(vector<T> *const in,
     print_result<T>(in, &t);
 
     assert(in->isSorted());
+
+    // Free test data:
+    delete in;
 }
 
 #endif // MSC_THESIS_EXERCISES_TEMPLATES_TEST_H_
