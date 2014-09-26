@@ -832,3 +832,48 @@ parallelisation depth to be 2.
          * Non-linear performance (why?).
  * Next week: LLVM, and picking papers for Ppar presentation
  * Is there a budget for text books?
+
+
+## Friday 26th
+
+Cooley and Tukey's 1964 paper "An Algorithm for the Machine
+Calculation of Complex Fourier Series" introduced the Fast Fourier
+Transform. Improved discrete Fourier transform performance from O(n^2)
+to O(n log n).
+
+### Notes from meeting with Pavlos
+
+ * DaC skeleton:
+   * The skeleton provides an *interface* for the programmer to write
+     solutions, so it should allow enough flexibility for the user to
+     "do what they want" within the muscle functions, that includes:
+     * Transforming data types within `solve()`.
+     * Performing uneven `split()` operations, or even returning more
+       data than went in.
+     * Producing variable sized results for `split()` and `merge()`.
+   * "Optimising" a skeleton doesn't mean improving memory allocation,
+     so much as diving the job into work for different devices,
+     servers, cores, etc (perhaps using MPI).
+   * I should look at
+     [eSkel](http://homepages.inf.ed.ac.uk/mic/eSkel/) for a possible
+     "real" skeleton implementation to examine.
+   * We can assume that all DaC algorithms will operate on vectors.
+   * For this simple implementation exercise, the important thing
+     isn't to produce something *better* than the existing solutions,
+     but to understand the faults and be able to explain what
+     does/doesn't work from my own attempt, and *why*.
+   * gprof should provide a good starting point for profiling. The
+     three factors that will affect performance are:
+     1. The size of the input problem.
+     1. Allocating memory.
+     1. The cost of creating new threads.
+   * I should investigate the non-linear performance of my merge sort,
+     looking particularly at the points in which the gradient of the
+     execution time changes.
+ * There is budget for "small research related purchases". Pavlos is
+   going to ask Murray if that covers textbooks. I should make a list
+   of the books I need.
+ * Writing an LLVM phase should not take too long, and isn't beyond
+   the scope of people without compiler knowledge.
+ * Pavlos will be out of contact from next Thursday, so I should chase
+   up any questions before then.
