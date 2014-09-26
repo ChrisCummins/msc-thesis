@@ -846,30 +846,35 @@ to O(n log n).
  * DaC skeleton:
    * The skeleton provides an *interface* for the programmer to write
      solutions, so it should allow enough flexibility for the user to
-     "do what they want" within the muscle functions, that includes:
+     "do what they want" within the muscle functions, which could
+     include:
      * Transforming data types within `solve()`.
      * Performing uneven `split()` operations, or even returning more
        data than went in.
      * Producing variable sized results for `split()` and `merge()`.
    * "Optimising" a skeleton doesn't mean improving memory allocation,
-     so much as diving the job into work for different devices,
+     so much as dividing the job into work for different devices,
      servers, cores, etc (perhaps using MPI).
    * I should look at
      [eSkel](http://homepages.inf.ed.ac.uk/mic/eSkel/) for a possible
      "real" skeleton implementation to examine.
-   * We can assume that all DaC algorithms will operate on vectors.
+   * We can assume that all DaC algorithms operate on vectors.
    * For this simple implementation exercise, the important thing
      isn't to produce something *better* than the existing solutions,
      but to understand the faults and be able to explain what
      does/doesn't work from my own attempt, and *why*.
-   * gprof should provide a good starting point for profiling. The
-     three factors that will affect performance are:
+   * gprof provides a good starting point for profiling. The three
+     factors that will affect performance are:
      1. The size of the input problem.
      1. Allocating memory.
      1. The cost of creating new threads.
    * I should investigate the non-linear performance of my merge sort,
      looking particularly at the points in which the gradient of the
-     execution time changes.
+     execution time changes. This is a lot of heap thrashing, so we
+     can expect shifts in performance to occur around points at which
+     the system spends more time allocating memory (e.g. it may the
+     same amount of time to allocate 7Kb as 4Kb, but twice as long to
+     allocate 8Kb).
  * There is budget for "small research related purchases". Pavlos is
    going to ask Murray if that covers textbooks. I should make a list
    of the books I need.
