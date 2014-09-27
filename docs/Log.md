@@ -927,3 +927,39 @@ And the same test using my merge sort:
 ```
 
 So the bottleneck is pretty clear. Make the skeleton perform in-place.
+
+
+## Saturday 28th
+
+I've revisited "Introduction to Algorithms" sections 2.3.1 (merge
+sort) and 4 (Divide and conquer). Notes:
+
+ * Terminology: divide, conquer, combine (instead of split, solve,
+   merge).
+ * Merge sort using sentinels and array indices `left`, `mid`,
+   `right`:
+
+```
+Merge(A, left, mid, right):
+    n1 = mid - left + 1   // Length of left subarray
+    n2 = right - mid      // Length of right subarray
+
+    // Copy left subarray and append sentinel
+    L[] = new array(n1+1)
+    for (i = 0; i < n1; i++):
+        L[i] = A[left + i]
+    L[n1] = sentinel()
+
+    // Copy right subarray and append sentinel
+    R[] = new array(n2+1)
+    for (i = 0; i < n2; i++):
+        R[i] = A[right + i]
+    R[n2] = sentinel()
+
+    l = 0, r = 0
+    for (i = mid; i < right; i++):
+        if L[l] <= R[r]:
+            A[i] = L[l++]
+        else:
+            A[i] = R[r++]
+```
