@@ -40,6 +40,25 @@ namespace {
         while (l < n1)
             start[i++] = left[l++];
     }
+
+    template<class T>
+    void ita_insertion_sort(T *const start, T *const end) {
+        typedef unsigned long int index_t;
+        const index_t len = end - start;
+        T key;
+        index_t j;
+
+        for (index_t i = 1; i < len; i++) {
+            key = start[i];
+            j = i;
+
+            while (j > 0 && start[j-1] > key) {
+                start[j] = start[j-1];
+                j--;
+            }
+            start[j] = key;
+        }
+    }
 }
 
 template<class T>
