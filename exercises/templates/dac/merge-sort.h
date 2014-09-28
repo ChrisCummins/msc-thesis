@@ -32,34 +32,39 @@ MergeSort<T>::MergeSort(vector_t *const data_in)
 
 template<class T>
 void MergeSort<T>::merge(vector_t *const in, vector_t *const out) {
+    const typename vector_t::size_t n1 = in[0].length;
+    const typename vector_t::size_t n2 = in[1].length;
 
     // Make local copies of input vectors on stack:
-    const vector_t left = new vector_t(in[0]);
-    const vector_t right = new vector_t(in[1]);
+    T L[n1];
+    T R[n2];
+
+    std::copy(in[0].data, in[0].data + n1, &L[0]);
+    std::copy(in[1].data, in[1].data + n2, &R[0]);
 
     typename vector_t::size_t i = 0, l = 0, r = 0;
 
     // Setup output vector:
     out->data = in[0].data;
-    out->length = left.length + right.length;
+    out->length = n1 + n2;
 
     /*
      * Iterate through the "left" and "right" input vectors, sorting
      * them. Where two elements are of the same value, the "left"
      * element will be placed first (stable sort).
      */
-    while (l < left.length && r < right.length) {
-        if (right.data[r] < left.data[l])
-            out->data[i++] = right.data[r++];
+    while (l < n1 && r < n2) {
+        if (R[r] < L[l])
+            out->data[i++] = R[r++];
         else
-            out->data[i++] = left.data[l++];
+            out->data[i++] = L[l++];
     }
 
-    while (r < right.length)
-        out->data[i++] = right.data[r++];
+    while (r < n2)
+        out->data[i++] = R[r++];
 
-    while (l < left.length)
-        out->data[i++] = left.data[l++];
+    while (l < n1)
+        out->data[i++] = L[l++];
 }
 
 
