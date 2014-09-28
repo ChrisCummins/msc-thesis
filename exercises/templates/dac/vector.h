@@ -104,8 +104,8 @@ bool vector<T>::isSorted(bool quiet) {
     for (vector<T>::size_t i = 1; i < this->length; i++) {
         if (this->data[i] < this->data[i - 1]) {
             if (!quiet) {
-                this->print();
                 std::cout << "List item " << i << " is not sorted\n";
+                this->print();
             }
             return false;
         }
