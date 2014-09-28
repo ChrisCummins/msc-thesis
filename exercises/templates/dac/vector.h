@@ -34,6 +34,9 @@ class vector {
     // Create a vector of size "length" and set "data" to point to
     // data:
     vector(T *const data, const vector<T>::size_t length);
+
+    // Create a vector that is a copy of "src":
+    vector(vector<T> *const src);
     ~vector();
 
     void print();
@@ -68,9 +71,13 @@ vector<T>::vector(T *const data, const vector<T>::size_t length) {
 
 
 template<class T>
-vector<T>::~vector() {
-    delete[] this->data;
+vector<T>::vector(vector<T> *const src) {
+    copy(src);
 }
+
+
+template<class T>
+vector<T>::~vector() {}
 
 
 template<class T>
