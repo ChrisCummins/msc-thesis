@@ -5,12 +5,25 @@
 
 #include "vector.h"
 
+#define DEFAULT_BOTTOM_OUT_LENGTH 30
+
 /*
  * A stable merge sort function, based on the pseudo-code from section
  * 2.3.1 of Introduction to Algorithms (3rd edition).
  */
+template<class T>
+void ita_merge_sort(T *const start, T *const end);
+
+template<class T>
+void ita_merge_sort(T *const start, T *const end, unsigned int threshold);
+
+
+/****************************/
+/* Template implementations */
+/****************************/
 
 namespace {
+
     template<class T>
     void ita_merge(T *const start, T *const mid, T *const end) {
         typedef unsigned long int index_t;
@@ -61,15 +74,28 @@ namespace {
     }
 }
 
+
 template<class T>
 void ita_merge_sort(T *const start, T *const end) {
+    ita_merge_sort<T>(start, end, DEFAULT_BOTTOM_OUT_LENGTH);
+}
 
-    if (start < end - 1) {
+
+template<class T>
+void ita_merge_sort(T *const start, T *const end,
+                    const unsigned int threshold) {
+    const unsigned long int len = end - start;
+
+    if (len > threshold) {
+        // Recursion case:
         T *const mid = (T *const)(start + (end - start) / 2);
 
-        ita_merge_sort(start, mid);
-        ita_merge_sort(mid, end);
+        ita_merge_sort(start, mid, threshold);
+        ita_merge_sort(mid, end, threshold);
         ita_merge(start, mid, end);
+    } else {
+        // Base case:
+        ita_insertion_sort(start, end);
     }
 }
 
