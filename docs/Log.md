@@ -932,7 +932,7 @@ So the bottleneck is pretty clear. Make the skeleton perform in-place.
 ## Saturday 28th
 
 I've revisited "Introduction to Algorithms" sections 2.3.1 (merge
-sort) and 4 (Divide and conquer). Notes:
+sort):
 
  * Terminology: divide, conquer, combine (instead of split, solve,
    merge).
@@ -963,3 +963,11 @@ Merge(A, left, mid, right):
         else:
             A[i] = R[r++]
 ```
+
+ * Terminology: *recursion case* - when the problem can be divided and
+   conquered recursively, *base case* - when the problem can be solved
+   directly.
+ * It is often profitable to "bottom out" before the problem size
+   reaches 1, resorting to insertion sort for small enough
+   vectors. This could be an optimisation worth exploring in the merge
+   sort skeleton.
