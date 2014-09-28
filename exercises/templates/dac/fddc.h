@@ -66,16 +66,14 @@ class FDDC {
 
     // "Muscle" functions:
     virtual bool isIndivisible(const vector_t &t);                   // T   -> bool
-    virtual void solve(vector_t *const in, vector_t *const out);     // T   -> T
+    virtual void solve(vector_t *const in);                          // T   -> T
     virtual void split(vector_t *const in, vector_t *const out);     // T   -> T[]
     virtual void merge(vector_t *const in, vector_t *const out) = 0; // T[] -> T
 
 
  protected:
-    void divide_and_conquer(vector_t *const in, vector_t *const out,
-                            const unsigned int depth = 0);
-    vector_t *const data_in;
-    vector_t *const data_out;
+    void divide_and_conquer(vector_t *const in, const unsigned int depth = 0);
+    vector_t *const data;
     unsigned int split_degree;
     unsigned int parallelisation_depth;
 
@@ -97,37 +95,35 @@ bool FDDC<T>::isIndivisible(const vector_t &d) {
 
 
 template<class T>
-void FDDC<T>::solve(vector_t *const in, vector_t *const out) {
-    out->copy(in);
-}
+void FDDC<T>::solve(vector_t *const in) {}
 
 
 template<class T>
 void FDDC<T>::split(vector_t *const in, vector_t *const out) {
-    const typename vector_t::size_t split_size = in->length / this->split_degree;
+    const typename vector_t::size_t split_length
+        = in->length / this->split_degree;
+    const typename vector_t::size_t first_split_length
+        = in->length - (this->split_degree - 1) * split_length;
 
     // Split "in" into "k" vectors, starting at address "out".
-    for (unsigned int i = 0; i < this->split_degree; i++) {
-        const unsigned int offset = i * split_size;
-        typename vector_t::size_t length = split_size;
+    out[0].data = in->data;
+    out[0].length = first_split_length;
 
-        // Add on remainder if not an even split:
-        if (i == this->split_degree - 1 && in->length % split_size)
-            length += in->length % split_size;
+    for (unsigned int i = 1; i < this->split_degree; i++) {
+        const unsigned int offset = (i-1) * split_length + first_split_length;
 
-        // Copy memory from one vector to another:
-        out[i].copy(in, offset, length);
+        out[i].data = &in->data[offset];
+        out[i].length = split_length;
     }
 }
 
 
 template<class T>
-void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
+void FDDC<T>::divide_and_conquer(vector_t *const in,
                                  const unsigned int depth) {
-
     if (isIndivisible(*in)) {
 
-        solve(in, out);
+        solve(in);
 
     } else {
         const int next_depth = depth + 1;
@@ -140,14 +136,13 @@ void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
          *
          *     buf[n], buf[n+k].
          */
-        vector_t *const buf = new vector_t[k * 2];
+        vector_t *const buf = new vector_t[k];
 
         // Split "in" to vectors buf[0:k]
         split(in, buf);
 
         /*
-         * Recurse and solve for buf[i], putting solution into
-         * buf[i+k].
+         * Recurse and solve for all sub-problems created by split().
          *
          * If the depth is less than "parallelisation_depth", then we
          * create a new thread to perform the recursion in. Otherwise,
@@ -159,7 +154,7 @@ void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
             // Create threads:
             for (unsigned int i = 0; i < k; i++) {
                 threads[i] = std::thread(&FDDC<T>::divide_and_conquer, this,
-                                         &buf[i], &buf[i+k], next_depth);
+                                         &buf[i], next_depth);
                 // Debugging analytics
                 IF_DAC_DEBUG(this->thread_count++);
                 IF_DAC_DEBUG(this->active_thread_count++);
@@ -180,13 +175,14 @@ void FDDC<T>::divide_and_conquer(vector_t *const in, vector_t *const out,
         } else {
 
             // Sequential:
-            for (unsigned int i = 0; i < k; i++)
-                divide_and_conquer(&buf[i], &buf[i+k], next_depth);
+            for (unsigned int i = 0; i < k; i++) {
+                divide_and_conquer(&buf[i], next_depth);
+            }
 
         }
 
         // Merge buffers buf[k:2k] into "out":
-        merge(&buf[k], out);
+        merge(buf, in);
 
         // Free heap memory:
         delete[] buf;
@@ -202,7 +198,7 @@ void FDDC<T>::set_parallelisation_depth(const unsigned int n) {
 
 template<class T>
 vector<T> *FDDC<T>::get() {
-    return this->data_out;
+    return this->data;
 }
 
 
@@ -210,7 +206,7 @@ template<class T>
 void FDDC<T>::run() {
     DAC_ASSERT(this->active_thread_count == 1);
 
-    divide_and_conquer(this->data_in, this->data_out);
+    divide_and_conquer(this->data);
 
     DAC_ASSERT(this->active_thread_count == 1);
     DAC_DEBUG_PRINT(2, "Number of threads created: " << this->thread_count);
@@ -220,7 +216,7 @@ void FDDC<T>::run() {
 // Constructor
 template<class T>
 FDDC<T>::FDDC(vector_t *const in, const unsigned int degree)
-: data_in(in), data_out(new vector_t), split_degree(degree) {
+: data(in), split_degree(degree) {
     parallelisation_depth = 0;
 
     IF_DAC_DEBUG(this->thread_count = 1);

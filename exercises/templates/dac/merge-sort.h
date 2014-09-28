@@ -32,33 +32,35 @@ MergeSort<T>::MergeSort(vector_t *const data_in)
 
 template<class T>
 void MergeSort<T>::merge(vector_t *const in, vector_t *const out) {
-    vector_t *const left = &in[0];
-    vector_t *const right = &in[1];
-    const typename vector_t::size_t length = left->length + right->length;
 
-    // Allocate space for merged data:
-    out->data = new T[length];
-    out->length = length;
+    // Make local copies of input vectors on stack:
+    const vector_t left = new vector_t(in[0]);
+    const vector_t right = new vector_t(in[1]);
 
-    unsigned int l = 0, r = 0, i = 0;
+    typename vector_t::size_t i = 0, l = 0, r = 0;
+
+    // Setup output vector:
+    out->data = in[0].data;
+    out->length = left.length + right.length;
 
     /*
      * Iterate through the "left" and "right" input vectors, sorting
      * them. Where two elements are of the same value, the "left"
      * element will be placed first (stable sort).
      */
-    while (l < left->length && r < right->length) {
-        if (right->data[r] < left->data[l])
-            out->data[i++] = right->data[r++];
+    while (l < left.length && r < right.length) {
+        if (right.data[r] < left.data[l])
+            out->data[i++] = right.data[r++];
         else
-            out->data[i++] = left->data[l++];
+            out->data[i++] = left.data[l++];
     }
 
-    while (r < right->length)
-        out->data[i++] = right->data[r++];
+    while (r < right.length)
+        out->data[i++] = right.data[r++];
 
-    while (l < left->length)
-        out->data[i++] = left->data[l++];
+    while (l < left.length)
+        out->data[i++] = left.data[l++];
 }
+
 
 #endif // MSC_THESIS_EXERCISES_TEMPLATES_MERGE_SORT_H_

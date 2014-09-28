@@ -31,12 +31,10 @@ void test_merge_sort(vector<T> *const in,
     sort.run();
     print_result<T>(in, &t);
 
-    vector<T> *const results = sort.get();
-    assert(results->isSorted());
+    assert(in->isSorted());
 
     // Free test data:
     delete in;
-    delete results;
 }
 
 template<class T>
