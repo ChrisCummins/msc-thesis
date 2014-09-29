@@ -23,16 +23,23 @@ void test_merge_sort(vector<T> *const in,
                      const unsigned int parallelisation_depth,
                      const typename vector<T>::size_t split_threshold) {
 
-    // Setup skeleton:
+    /*
+     * "Standard" 4 phase skeleton procedure.
+     */
+
+    // Program definition:
     MergeSort<T> sort(in);
+
+    // Parameters:
     sort.set_parallelisation_depth(parallelisation_depth);
     sort.set_split_threshold(split_threshold);
 
-    // Timed section:
+    // Execution (blocking):
     Timer t;
     sort.run();
-    print_result<T>(in, &t);
 
+    // Results:
+    print_result<T>(in, &t);
     assert(in->isSorted());
 
     // Free test data:
