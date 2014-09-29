@@ -929,7 +929,7 @@ And the same test using my merge sort:
 So the bottleneck is pretty clear. Make the skeleton perform in-place.
 
 
-## Saturday 28th
+## Sunday 28th
 
 I've revisited "Introduction to Algorithms" sections 2.3.1 (merge
 sort):
@@ -971,3 +971,29 @@ Merge(A, left, mid, right):
    reaches 1, resorting to insertion sort for small enough
    vectors. This could be an optimisation worth exploring in the merge
    sort skeleton.
+
+
+## Monday 29th
+
+### Merge Sort Skeleton execution times
+
+#### 14.09.26-10.00.00 and 14.09.26-15.47.20
+
+ * Merge sort with lots of heap thrashing, no insertion sort
+   optimisation.
+
+![14.09.26-10.00.00](assets/14.09.26-10.00.00.png)
+![14.09.26-15.47.20](assets/14.09.26-15.47.20.png)
+
+#### 14.09.29-11.53.00
+
+ * In-place merge sort, no insertion sort optimisation.
+
+![14.09.29-11.53.00](assets/14.09.29-11.53.00.png)
+
+#### 14.09.29-13.07.59
+
+ * In-place merge sort, with insertion sort being used to sort lists
+   of 100 elements or less.
+
+![14.09.29-13.07.59](assets/14.09.29-13.07.59.png)
