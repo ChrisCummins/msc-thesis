@@ -20,11 +20,13 @@ namespace {
 
 template<class T>
 void test_merge_sort(vector<T> *const in,
-                     const unsigned int parallelisation_depth) {
+                     const unsigned int parallelisation_depth,
+                     const typename vector<T>::size_t split_threshold) {
 
     // Setup skeleton:
     MergeSort<T> sort(in);
     sort.set_parallelisation_depth(parallelisation_depth);
+    sort.set_split_threshold(split_threshold);
 
     // Timed section:
     Timer t;

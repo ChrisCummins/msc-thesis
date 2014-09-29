@@ -21,13 +21,47 @@ class MergeSort : public FDDC<T> {
  public:
 
     MergeSort(vector_t *const data_in);
+    bool isIndivisible(const vector_t &t);
+    void solve(vector_t *const in);
     void merge(vector_t *const in, vector_t *const out);
+
+    // The threshold at which vectors are sorted either by splitting
+    // and recursion, or by insertion sort.
+    void set_split_threshold(typename vector_t::size_t split_threshold);
+
+ protected:
+    typename vector_t::size_t split_threshold;
 };
 
 // Constructor. Call base skeleton with fixed degree
 template<class T>
 MergeSort<T>::MergeSort(vector_t *const data_in)
 : FDDC<T>(data_in, 2) {}
+
+
+template<class T>
+bool MergeSort<T>::isIndivisible(const vector_t &in) {
+    return in.length <= this->split_threshold;
+}
+
+
+// Perform insertion sort on vector "in"
+template<class T>
+void MergeSort<T>::solve(vector_t *const in) {
+    T key;
+    typename vector_t::size_t j;
+
+    for (typename vector_t::size_t i = 1; i < in->length; i++) {
+        key = in->data[i];
+        j = i;
+
+        while (j > 0 && in->data[j - 1] > key) {
+            in->data[j] = in->data[j - 1];
+            j--;
+        }
+        in->data[j] = key;
+    }
+}
 
 
 template<class T>
@@ -67,5 +101,10 @@ void MergeSort<T>::merge(vector_t *const in, vector_t *const out) {
         out->data[i++] = L[l++];
 }
 
+
+template<class T>
+void MergeSort<T>::set_split_threshold(typename vector_t::size_t split_threshold) {
+    this->split_threshold = split_threshold;
+}
 
 #endif // MSC_THESIS_EXERCISES_TEMPLATES_MERGE_SORT_H_
