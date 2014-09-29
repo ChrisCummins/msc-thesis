@@ -43,6 +43,7 @@ void test_merge_sort(vector<T> *const in,
     assert(in->isSorted());
 
     // Free test data:
+    delete[] in->data;
     delete in;
 }
 
@@ -57,6 +58,7 @@ void test_sort_func(vector<T> *const in,
     assert(in->isSorted());
 
     // Free test data:
+    delete[] in->data;
     delete in;
 }
 
