@@ -55,10 +55,13 @@ for series, color in zip(r.dtype.names[1:7], colors):
 plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
 plt.legend(loc='upper left');
 
-ax1.set_xlim(min(n), max(n))
-ax1.set_ylim(0, 500)
-plt.yticks(range(0, 500, 100))
-plt.xticks(range(max(min(n), 100000), max(n), 100000))
+xlim=(min(n), max(n))
+ylim=(0, 200)
+
+ax1.set_xlim(xlim)
+ax1.set_ylim(ylim)
+plt.yticks(range(0, ylim[1], 50))
+plt.xticks(range(max(xlim[0], 100000), xlim[1], 100000))
 
 plt.tight_layout(pad=2.5)
 
