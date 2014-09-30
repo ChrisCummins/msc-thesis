@@ -997,3 +997,25 @@ Merge(A, left, mid, right):
    of 100 elements or less.
 
 ![14.09.29-13.07.59](assets/14.09.29-13.07.59.png)
+
+
+## Tuesday 30th
+
+Based on their functionality, skeletons can be categorised as:
+
+ * Data-parallel skeletons
+ * Task-parallel skeletons
+ * Resolution skeletons
+
+ASKF can be grouped according to the programming paradigm into:
+
+ * Coordination
+ * Functional
+ * Object-oriented
+ * Imperative
+
+TODO:
+
+ * Optimise `merge()` to use only n/2 memory allocations (only copy
+   left list to temporary memory).
+ * Look up ITA's parallel merge algorithm.
