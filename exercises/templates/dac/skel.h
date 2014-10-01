@@ -1,13 +1,16 @@
-#ifndef MSC_THESIS_EXERCISES_TEMPLATES_SKEL_H_
-#define MSC_THESIS_EXERCISES_TEMPLATES_SKEL_H_
+// Copyright 2014 Chris Cummins
 
+#ifndef EXERCISES_TEMPLATES_DAC_SKEL_H_
+#define EXERCISES_TEMPLATES_DAC_SKEL_H_
+
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
-#include <thread>
+#include <iostream>  // NOLINT(readability/streams)
+#include <thread>    // NOLINT(build/c++11)
 
-#include "debug.h"
+#include "./debug.h"
 
 namespace skel {
 
@@ -34,7 +37,7 @@ namespace skel {
  *    Solve an indivisible problem "in" directly, and in-place.
  *
  * void combine(T *const in, T *const out)
- * 
+ *
  *    Combines the array of sub-problems pointed to by "in" into the
  *    "out" parameter. The size of input array "in" is determined by
  *    the fixed degree value.
@@ -66,14 +69,14 @@ namespace skel {
  * Where "n" is the parallelisation depth, and "k" is the degree.
  */
 
-template<typename T,
-        const    uint degree,
-        const    uint parallelisation_depth,
-        bool     is_indivisible(T *const in),
-        T       *divide(T *const in),
-        void     conquer(T *const in),
-        void     combine(T *const in, T *const out)>
-void divide_and_conquer(T *const in, const uint depth);
+template<typename   ArrayType,
+         const int  degree,
+         const int  parallelisation_depth,
+         bool       is_indivisible(ArrayType *const in),
+         ArrayType *divide(ArrayType *const in),
+         void       conquer(ArrayType *const in),
+         void       combine(ArrayType *const in, ArrayType *const out)>
+         void       divide_and_conquer(ArrayType *const in, const int depth);
 
 
 /*
@@ -86,8 +89,8 @@ void divide_and_conquer(T *const in, const uint depth);
  * MergeSort requires that the class "T" supports comparion and
  * equality operators.
  */
-template<typename T>
-void merge_sort(T *const start, T *const end);
+template<typename ArrayType>
+void merge_sort(ArrayType *const left, ArrayType *const right);
 
 
 #define SKEL_MERGE_SORT_PARALLELISATION_DEPTH 2
@@ -95,16 +98,17 @@ void merge_sort(T *const start, T *const end);
 
 
 /*
- * Generic data type for storing pointers to contiguous arrays.
+ * Generic data type for representing ranges within contiguous arrays.
  */
-template<typename T>
-class list {
+template<typename ArrayType>
+class Range {
  public:
-    T *start;
-    T *end;
+  ArrayType *left_;
+  ArrayType *right_;
 
-    list() {};
-    list(T *const start, T *const end) : start(start), end(end) {};
+  Range() {}
+  Range(ArrayType *const left, ArrayType *const right)
+        : left_(left), right_(right) {}
 };
 
 
@@ -112,71 +116,68 @@ class list {
 /* Divide and Conquer Skeleton implementations */
 /***********************************************/
 
-template<typename T,
-         const    uint degree,
-         const    uint parallelisation_depth,
-         bool     is_indivisible(T *const in),
-         T       *divide(T *const in),
-         void     conquer(T *const in),
-         void     combine(T *const in, T *const out)>
-void divide_and_conquer(T *const in, const uint depth) {
-
+template<typename   ArrayType,
+         const int  degree,
+         const int  parallelisation_depth,
+         bool       is_indivisible(ArrayType *const in),
+         ArrayType *divide(ArrayType *const in),
+         void       conquer(ArrayType *const in),
+         void       combine(ArrayType *const in, ArrayType *const out)>
+         void divide_and_conquer(ArrayType *const in, const int depth) {
 // Since the template syntax has rendered the parameterised name of
 // this function unholy ugly, we'll do a cheeky macro def to keep
 // things looking pretty and consistent (don't worry ma, we'll tidy up
 // when we're done playing).
-#define template_params T, degree, parallelisation_depth, is_indivisible, divide, conquer, combine
+#define template_params ArrayType, degree, parallelisation_depth, \
+               is_indivisible, divide, conquer, combine
 #define self divide_and_conquer<template_params>
 
-    // Determine whether we're in a base case or recursion case:
-    if (is_indivisible(in)) {
+  // Determine whether we're in a base case or recursion case:
+  if (is_indivisible(in)) {
+    // If we can solve the problem directly, then do that:
+    conquer(in);
 
-        // If we can solve the problem directly, then do that:
-        conquer(in);
+  } else {
+    const int next_depth = depth + 1;
+
+    // Split our problem into "k" sub-problems:
+    ArrayType *const split = divide(in);
+
+    // Recurse and solve for all sub-problems created by divide(). If
+    // the depth is less than "parallelisation_depth", then we create
+    // a new thread to perform the recursion in. Otherwise, we recurse
+    // sequentially.
+    if (depth < parallelisation_depth) {
+      // Even though "degree" is a template parameter (and so should
+      // be determined and constant-ified at compile time), cpplint
+      // still thinks that this is a variable-length array
+      // declaration:
+      std::thread threads[degree];  // NOLINT(runtime/arrays)
+
+      // Create threads:
+      for (int i = 0; i < degree; i++) {
+        threads[i] = std::thread(self, &split[i], next_depth);
+        DAC_DEBUG_PRINT(3, "Creating thread at depth " << next_depth);
+      }
+
+      // Block until threads complete:
+      for (auto &thread : threads) {
+        thread.join();
+        DAC_DEBUG_PRINT(3, "Thread completed at depth " << next_depth);
+      }
 
     } else {
-
-        const unsigned int next_depth = depth + 1;
-
-        // Split our problem into "k" sub-problems:
-        T *const split = divide(in);
-
-        /*
-         * Recurse and solve for all sub-problems created by divide().
-         *
-         * If the depth is less than "parallelisation_depth", then we
-         * create a new thread to perform the recursion in. Otherwise,
-         * we recurse sequentially.
-         */
-        if (depth < parallelisation_depth) {
-            std::thread threads[degree];
-
-            // Create threads:
-            for (uint i = 0; i < degree; i++) {
-                threads[i] = std::thread(self, &split[i], next_depth);
-                DAC_DEBUG_PRINT(3, "Creating thread at depth " << next_depth);
-            }
-
-            // Block until threads complete:
-            for (auto &thread : threads) {
-                thread.join();
-                DAC_DEBUG_PRINT(3, "Thread completed at depth " << next_depth);
-            }
-
-        } else {
-
-            // Sequential (*yawn*):
-            for (uint i = 0; i < degree; i++)
-                self(&split[i], next_depth);
-
-        }
-
-        // Merge the conquered "k" sub-problems into a solution:
-        combine(split, in);
-
-        // Free heap memory:
-        delete[] split;
+      // Sequential execution (*yawn*):
+      for (int i = 0; i < degree; i++)
+        self(&split[i], next_depth);
     }
+
+    // Merge the conquered "k" sub-problems into a solution:
+    combine(split, in);
+
+    // Free heap memory:
+    delete[] split;
+  }
 
 #undef template_params
 #undef self
@@ -187,104 +188,105 @@ void divide_and_conquer(T *const in, const uint depth) {
 /* Merge sort skeleton implementations */
 /***************************************/
 
-template<typename T>
-bool is_indivisible(list<T> *const in) {
-    return (in->end - in->start) <= SKEL_MERGE_SORT_SPLIT_THRESHOLD;
+template<typename ArrayType>
+bool is_indivisible(Range<ArrayType> *const in) {
+  return (in->right_ - in->left_) <= SKEL_MERGE_SORT_SPLIT_THRESHOLD;
 }
 
 
-template<typename T, const unsigned int n>
-list<T> *divide(list<T> *const in) {
-    list<T> *const out = new list<T>[n];
+template<typename ArrayType, const int degree>
+Range<ArrayType> *divide(Range<ArrayType> *const in) {
+  Range<ArrayType> *const out = new Range<ArrayType>[degree];
 
-    const uint input_length = in->end - in->start;
-    const uint subproblem_length = input_length / n;
-    const uint first_subproblem_length = input_length - (n - 1) * subproblem_length;
+  const int input_length = in->right_ - in->left_;
+  const int subproblem_length = input_length / degree;
+  const int first_subproblem_length = input_length -
+      (degree - 1) * subproblem_length;
 
-    // Split "in" into "k" vectors, starting at address "out".
-    out[0].start = in->start;
-    out[0].end = in->start + first_subproblem_length;
+  // Split "in" into "k" vectors, starting at address "out".
+  out[0].left_ = in->left_;
+  out[0].right_ = in->left_ + first_subproblem_length;
 
-    for (uint i = 1; i < n; i++) {
-        const uint start = (i-1) * subproblem_length + first_subproblem_length;
+  for (int i = 1; i < degree; i++) {
+    const int left = (i-1) * subproblem_length + first_subproblem_length;
 
-        out[i].start = &in->start[start];
-        out[i].end = &in->start[start] + subproblem_length;
+    out[i].left_ = &in->left_[left];
+    out[i].right_ = &in->left_[left] + subproblem_length;
+  }
+
+  return out;
+}
+
+
+template<typename ArrayType>
+void insertion_sort(Range<ArrayType> *const in) {
+  ArrayType key;
+  int j;
+
+  for (int i = 1; i < in->right_ - in->left_; i++) {
+    key = in->left_[i];
+    j = i;
+
+    while (j > 0 && in->left_[j - 1] > key) {
+      in->left_[j] = in->left_[j - 1];
+      j--;
     }
-
-    return out;
+    in->left_[j] = key;
+  }
 }
 
 
-template<typename T>
-void insertion_sort(list<T> *const in) {
-    T key;
-    uint j;
+template<typename ArrayType>
+void merge_sort(Range<ArrayType> *const in, Range<ArrayType> *const out) {
+  const int n1 = in[0].right_ - in[0].left_;
+  const int n2 = in[1].right_ - in[1].left_;
 
-    for (uint i = 1; i < in->end - in->start; i++) {
-        key = in->start[i];
-        j = i;
+  ArrayType L[n1];
+  ArrayType R[n2];
 
-        while (j > 0 && in->start[j - 1] > key) {
-            in->start[j] = in->start[j - 1];
-            j--;
-        }
-        in->start[j] = key;
-    }
+  std::copy(in[0].left_, in[0].right_, &L[0]);
+  std::copy(in[1].left_, in[1].right_, &R[0]);
+
+  int i = 0, l = 0, r = 0;
+
+  out->left_ = in[0].left_;
+  out->right_ = in[1].right_;
+
+  // Merge-sort both lists together:
+  while (l < n1 && r < n2) {
+    if (R[r] < L[l])
+      out->left_[i++] = R[r++];
+    else
+      out->left_[i++] = L[l++];
+  }
+
+  const int l_rem = n1 - l;
+  const int r_rem = n2 - r;
+
+  // Copy any remaining Range elements:
+  std::copy(&L[l], &L[l+l_rem], &out->left_[i]);
+  std::copy(&R[r], &R[r+r_rem], &out->left_[i+l_rem]);
 }
 
 
-template<typename T>
-void merge_sort(list<T> *const in, list<T> *const out) {
-    const uint n1 = in[0].end - in[0].start;
-    const uint n2 = in[1].end - in[1].start;
-
-    T L[n1];
-    T R[n2];
-
-    std::copy(in[0].start, in[0].end, &L[0]);
-    std::copy(in[1].start, in[1].end, &R[0]);
-
-    uint i = 0, l = 0, r = 0;
-
-    out->start = in[0].start;
-    out->end = in[1].end;
-
-    // Merge-sort both lists together:
-    while (l < n1 && r < n2) {
-        if (R[r] < L[l])
-            out->start[i++] = R[r++];
-        else
-            out->start[i++] = L[l++];
-    }
-
-    const uint l_rem = n1 - l;
-    const uint r_rem = n2 - r;
-
-    // Copy any remaining list elements:
-    std::copy(&L[l], &L[l+l_rem], &out->start[i]);
-    std::copy(&R[r], &R[r+r_rem], &out->start[i+l_rem]);
-}
-
-
-template<typename T>
-void merge_sort(T *const start, T *const end) {
-    list<T> in(start, end);
+template<typename ArrayType>
+void merge_sort(ArrayType *const left, ArrayType *const right) {
+  Range<ArrayType> in(left, right);
 
 #define degree 2
-    divide_and_conquer<
-        list<T>,
-        degree,
-        SKEL_MERGE_SORT_PARALLELISATION_DEPTH,
-        // Our "muscle" functions:
-        is_indivisible<T>,
-        divide<T, degree>,
-        insertion_sort<T>,
-        merge_sort<T>>(&in, 0);
+  divide_and_conquer<
+      Range<ArrayType>,
+      degree,
+      SKEL_MERGE_SORT_PARALLELISATION_DEPTH,
+      // Our "muscle" functions:
+      is_indivisible<ArrayType>,
+      divide<ArrayType, degree>,
+      insertion_sort<ArrayType>,
+      merge_sort<ArrayType>>(&in, 0);
 
 #undef degree
 }
 
-} // skel
+}  // namespace skel
 
-#endif // MSC_THESIS_EXERCISES_TEMPLATES_SKEL_H_
+#endif  // EXERCISES_TEMPLATES_DAC_SKEL_H_
