@@ -17,10 +17,12 @@
 namespace skel {
 
 /*
- * Fixed Degree Divide and Conquer skeleton.
+ * Divide and Conquer skeleton.
+ *
+ * USAGE:
  *
  * Provides a template for writing divide and conquer solutions by
- * defining the 4 "muscle" functions:
+ * providing 4 "muscle" functions:
  *
  * bool is_indivisible(const T& problem)
  *
@@ -30,22 +32,19 @@ namespace skel {
  *
  * std::vector<T> divide(const T& problem);
  *
- *    Divides the input problem into a set of smaller sub-problems.
+ *    Divides the input problem into a set of smaller sub-problems
+ *    (when it can't be conquered directly).
  *
  * void conquer(const T& problem)
  *
- *    Solve an indivisible problem.
+ *    Solve an indivisible problem directly.
  *
  * void combine(std::vector<T> solutions, T *const out)
  *
- *    Combines the set of conquered problems ("solutions") into a
- *    single solution ("out").
+ *    Combines a set of conquered problems ("solutions") into a single
+ *    solution ("out").
  *
- * divide_and_conquer() acts as the "worker" function, invoking the
- * muscle functions as required. When invoked, it determines whether
- * the size of the input is small enough to "conquer" directly, and if
- * not, it uses the "divide" muscle function to split the problem into
- * "degree" sub-problems.
+ * IMPLEMENTATION DETAILS:
  *
  * Primitive concurrency is provided by measuring the depth of
  * recursion in the divide_and_conquer() function. If the depth is
@@ -67,12 +66,11 @@ namespace skel {
  *
  * Where "n" is the parallelisation depth, and "k" is the degree.
  */
-template<typename   ArrayType,
-    const int  degree,
-    bool       is_indivisible(const ArrayType& problem),
+template<typename ArrayType,
+    bool is_indivisible(const ArrayType& problem),
     std::vector<ArrayType> divide(const ArrayType& problem),
-    void       conquer(const ArrayType& problem),
-    void       combine(std::vector<ArrayType> solutions, ArrayType *const out)>
+    void conquer(const ArrayType& problem),
+    void combine(std::vector<ArrayType> solutions, ArrayType *const out)>
 void divide_and_conquer(ArrayType *const in, const int depth = 0);
 
 
@@ -80,8 +78,8 @@ void divide_and_conquer(ArrayType *const in, const int depth = 0);
 #define DAC_SKEL_PARALLELISATION_DEPTH 2
 
 // Shorthand because we're lazy:
-#define DAC_SKEL_TEMPLATE_PARAMETERS ArrayType, degree, \
-      is_indivisible, divide, conquer, combine
+#define DAC_SKEL_TEMPLATE_PARAMETERS \
+    ArrayType, is_indivisible, divide, conquer, combine
 
 
 /*
@@ -126,7 +124,6 @@ class Range {
 //
 
 template<typename   ArrayType,
-    const int  degree,
     bool       is_indivisible(const ArrayType& problem),
     std::vector<ArrayType> divide(const ArrayType& problem),
     void       conquer(const ArrayType& problem),
@@ -159,18 +156,14 @@ void divide_and_conquer(ArrayType *const problem, const int depth) {
     // a new thread to perform the recursion in. Otherwise, we recurse
     // sequentially.
     if (depth < DAC_SKEL_PARALLELISATION_DEPTH) {
-      // Even though "degree" is a template parameter (and so should
-      // be determined and constant-ified at compile time), cpplint
-      // still thinks that this is a variable-length array
-      // declaration:
-      std::thread threads[degree];  // NOLINT(runtime/arrays)
+      std::vector<std::thread> threads(sub_problems.size());
 
       // Create threads and block until completed:
-      for (int i = 0; i < degree; i++) {
+      for (size_t i = 0; i < sub_problems.size(); i++) {
         threads[i] = std::thread(self, &sub_problems[i], next_depth);
         DAC_DEBUG_PRINT(3, "Creating thread at depth " << next_depth);
       }
-      for (auto &thread : threads) {
+      for (auto& thread : threads) {
         thread.join();
         DAC_DEBUG_PRINT(3, "Thread completed at depth " << next_depth);
       }
@@ -196,22 +189,9 @@ void divide_and_conquer(ArrayType *const problem, const int depth) {
 }
 
 
-//
-// Merge sort skeleton implementation.
-////////////////////////////////////////////////////////////////////
-//
-
-// The "is_indivisble" muscle. Determine whether the list is small
-// enough to sort directly (insertion sort) or to keep dividing it.
-template<typename ArrayType>
-bool is_indivisible(const Range<ArrayType>& range) {
-  return (range.right_ - range.left_) <= SKEL_MERGE_SORT_SPLIT_THRESHOLD;
-}
-
-
-// The "divide" muscle. Takes a range and splits in half.
+// The "divide" muscle. Takes a range and splits into "degree" sections.
 template<typename ArrayType, const int degree>
-std::vector<Range<ArrayType>> divide(const Range<ArrayType>& range) {
+std::vector<Range<ArrayType>> divide_range(const Range<ArrayType>& range) {
   std::vector<Range<ArrayType>> out(degree);
 
   const int input_length = range.right_ - range.left_;
@@ -231,6 +211,19 @@ std::vector<Range<ArrayType>> divide(const Range<ArrayType>& range) {
   }
 
   return out;
+}
+
+
+//
+// Merge sort skeleton implementation.
+////////////////////////////////////////////////////////////////////
+//
+
+// The "is_indivisble" muscle. Determine whether the list is small
+// enough to sort directly (insertion sort) or to keep dividing it.
+template<typename ArrayType>
+bool is_indivisible(const Range<ArrayType>& range) {
+  return (range.right_ - range.left_) <= SKEL_MERGE_SORT_SPLIT_THRESHOLD;
 }
 
 
@@ -295,16 +288,13 @@ template<typename ArrayType>
 void merge_sort(ArrayType *const left, ArrayType *const right) {
   Range<ArrayType> range(left, right);
 
-#define degree 2
   divide_and_conquer<
-      Range<ArrayType>,           // Data type
-      degree,                     // Fixed degree
-      is_indivisible<ArrayType>,  // is_indivisible() muscle
-      divide<ArrayType, degree>,  // divide() muscle
-      insertion_sort<ArrayType>,  // conquer() muscle
-      merge<ArrayType>>           // combine() muscle
+      Range<ArrayType>,            // Data type
+      is_indivisible<ArrayType>,   // is_indivisible() muscle
+      divide_range<ArrayType, 2>,  // divide() muscle
+      insertion_sort<ArrayType>,   // conquer() muscle
+      merge<ArrayType>>            // combine() muscle
       (&range);
-#undef degree
 }
 
 #undef DAC_SKEL_TEMPLATE_PARAMETERS
