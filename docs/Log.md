@@ -1008,13 +1008,13 @@ Merge(A, left, mid, right):
 
 ## Tuesday 30th
 
-Based on their functionality, skeletons can be categorised as:
+Task classification of skeletons:
 
  * Data-parallel skeletons
  * Task-parallel skeletons
  * Resolution skeletons
 
-ASKF can be grouped according to the programming paradigm into:
+Functional classification of skeletons:
 
  * Coordination
  * Functional
@@ -1026,3 +1026,80 @@ TODO:
  * Optimise `merge()` to use only n/2 memory allocations (only copy
    left list to temporary memory).
  * Look up ITA's parallel merge algorithm.
+
+
+# October 2014
+
+## Wednesday 1st
+
+Adam sent me a link to a
+[parallel in-place merge sort](http://www.drdobbs.com/parallel/parallel-in-place-merge-sort/240169094)
+implementation in C++ which could be useful for comparing against my
+merge sort skeleton.
+
+Papers *about* Skeletons:
+
+ * Algorithmic Skeletons: Structured Management of Parallel Computation (Cole)
+ * Bringing skeletons out of the closet (Cole)
+ * A survey of algorithmic frameworks (Gonz)
+
+Papers *using* Skeletons:
+
+ * Auto-Tuning Parallel Skeletons (Collins)
+ * Parallel Programming Using Skeleton Functions (Darlington)
+
+Papers about Skeleton *implementations*:
+
+ * Skil: an imperative language with algorithmic skeletons (Botorog)
+ * Skandium: Multi-core Programming with Algorithmic Skeletons (Leyton)
+ * Prototyping a Library of Algorithmic Skeletons (Javed)
+ * HDC: a higher-order language for divide-and-conquer (Herrmann)
+ * Flexible Skeletal Programming with eSkel (Benoit)
+ * Shared Memory Multiprocessor Support for Functional Array Processing in SAC (Grelck)
+
+
+### Notes from meeting with Pavlos
+
+PPar presentation:
+ * A good portion of the 15 minutes will be spent providing background
+   to skeletons.
+ * Start by explaining the horrors of parallel programming on modern
+   hardware (heterogeneous, the requirement for both application and
+   systems programming skills, etc). Present some existing solutions
+   for this problem, and then introduce skeletons.
+ * A good choice of papers would be one which defines the theory of
+   skeletons, and one which describes a concrete
+   implementation/framework.
+
+Example usage of the STL sort function:
+
+```
+#define NUM_ELEMS 100000
+int *a = get_big_array(NUM_ELEMS);
+
+std::stable_sort(a, a + NUM_ELEMS);
+```
+
+Example usage of the Class based skeleton:
+
+```
+#define NUM_ELEMS 100000
+int *a = get_big_array(NUM_ELEMS);
+
+MergeSort<int> sort();
+
+sort.set_data(a, a + NUM_ELEMS);
+sort.set_parallelisation_depth(2);
+sort.set_split_threshold(100);
+
+sort.run();
+```
+
+Example usage of the skeleton function:
+
+```
+#define NUM_ELEMS 100000
+int *a = get_big_array(NUM_ELEMS);
+
+merge_sort(a, a + NUM_ELEMS);
+```
