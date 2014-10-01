@@ -254,11 +254,12 @@ void merge(std::vector<Range<ArrayType>> range,
   const int n1 = range[0].right_ - range[0].left_;
   const int n2 = range[1].right_ - range[1].left_;
 
+  // Make a copy of the left list on stack:
   ArrayType L[n1];
-  ArrayType R[n2];
-
   std::copy(range[0].left_, range[0].right_, &L[0]);
-  std::copy(range[1].left_, range[1].right_, &R[0]);
+
+  // Keep the right list in-place:
+  ArrayType *const R = range[1].left_;
 
   int i = 0, l = 0, r = 0;
 
@@ -273,11 +274,9 @@ void merge(std::vector<Range<ArrayType>> range,
   }
 
   const int l_rem = n1 - l;
-  const int r_rem = n2 - r;
 
-  // Copy any remaining Range elements:
+  // Copy any remaining range elements from left:
   std::copy(&L[l], &L[l+l_rem], &out->left_[i]);
-  std::copy(&R[r], &R[r+r_rem], &out->left_[i+l_rem]);
 }
 
 
