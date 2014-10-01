@@ -52,7 +52,6 @@ for series, color in zip(r.dtype.names[1:7], colors):
     for cap in caps:
         cap.set_markeredgewidth(line_width)
 
-plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
 plt.legend(loc='upper left');
 
 xlim=(min(n), max(n))
@@ -62,6 +61,7 @@ ax1.set_xlim(xlim)
 ax1.set_ylim(ylim)
 plt.yticks(range(0, ylim[1], 10))
 plt.xticks(range(max(xlim[0], 100000), xlim[1], 100000))
+plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 
 plt.tight_layout(pad=2.5)
 
