@@ -75,6 +75,9 @@ void divide_and_conquer(ArrayType *const in, const int depth = 0);
 // The maximum depth at which to recurse in a new thread:
 #define DAC_SKEL_PARALLELISATION_DEPTH 2
 
+// The minimum problem size:
+#define DAC_SKEL_PARALLELISATION_PROBLEM_SIZE 75000
+
 // Shorthand because we're lazy:
 #define DAC_SKEL_TEMPLATE_PARAMETERS \
     ArrayType, is_indivisible, divide, conquer, combine
@@ -140,6 +143,9 @@ void divide_and_conquer(ArrayType *const problem, const int depth) {
     // problem into multiple subproblems, and recurse on each of those
     // sub-problems, before
     const int next_depth = depth + 1;
+    // TODO: Find a way to obtain this *without* knowing the type of
+    //       "problem":
+    const int problem_size = problem->right_ - problem->left_;
 
     // Split our problem into "k" sub-problems:
     std::vector<ArrayType> sub_problems = divide(*problem);
@@ -155,7 +161,8 @@ void divide_and_conquer(ArrayType *const problem, const int depth) {
     // If the current recursion depth is less than the parallelisation
     // depth, we create a new thread to perform the recursion
     // in. Otherwise, recurse sequentially.
-    if (depth < DAC_SKEL_PARALLELISATION_DEPTH) {
+    if (depth < DAC_SKEL_PARALLELISATION_DEPTH &&
+        problem_size > DAC_SKEL_PARALLELISATION_PROBLEM_SIZE) {
       std::vector<std::thread> threads(sub_problems.size());
 
       // Parallelised section. Create threads and block until
