@@ -132,10 +132,13 @@ void divide_and_conquer(ArrayType *const problem, const int depth) {
 
   // Determine whether we're in a base case or recursion case:
   if (is_indivisible(*problem)) {
-    // If we can solve the problem directly, then do that:
+    // If we're in a base case, then we can solve the problem
+    // directly:
     conquer(*problem);
-
   } else {
+    // If we're in a recursion case, then we need to divide the
+    // problem into multiple subproblems, and recurse on each of those
+    // sub-problems, before
     const int next_depth = depth + 1;
 
     // Split our problem into "k" sub-problems:
@@ -149,14 +152,14 @@ void divide_and_conquer(ArrayType *const problem, const int depth) {
 // operating in parallel).
 #if DAC_SKEL_PARALLELISATION_DEPTH > 0
 
-    // Recurse and solve for all sub-problems created by divide(). If
-    // the depth is less than the parallelisation depth then we create
-    // a new thread to perform the recursion in. Otherwise, we recurse
-    // sequentially.
+    // If the current recursion depth is less than the parallelisation
+    // depth, we create a new thread to perform the recursion
+    // in. Otherwise, recurse sequentially.
     if (depth < DAC_SKEL_PARALLELISATION_DEPTH) {
       std::vector<std::thread> threads(sub_problems.size());
 
-      // Create threads and block until completed:
+      // Parallelised section. Create threads and block until
+      // completed:
       for (size_t i = 0; i < sub_problems.size(); i++) {
         threads[i] = std::thread(self, &sub_problems[i], next_depth);
         DAC_DEBUG_PRINT(3, "Creating thread at depth " << next_depth);
@@ -165,21 +168,20 @@ void divide_and_conquer(ArrayType *const problem, const int depth) {
         thread.join();
         DAC_DEBUG_PRINT(3, "Thread completed at depth " << next_depth);
       }
+
     } else {
+#endif  // DAC_SKEL_PARALLELISATION_DEPTH > 0
+
       // Sequential execution (*yawn*):
       for (auto sub_problem : sub_problems)
         self(&sub_problem, next_depth);
+
+#if DAC_SKEL_PARALLELISATION_DEPTH > 0
     }
+#endif  // DAC_SKEL_PARALLELISATION_DEPTH > 0
 
-#else  // DAC_SKEL_PARALLELISATION_DEPTH == 0
 
-    // Sequential recursion:
-    for (auto sub_problem : sub_problems)
-      self(&sub_problem, next_depth);
-
-#endif  // DAC_SKEL_PARALLELISATION_DEPTH
-
-    // Merge the conquered "k" sub-problems into a solution:
+    // Combine the conquered sub-problems into a solution:
     combine(sub_problems, problem);
   }
 
