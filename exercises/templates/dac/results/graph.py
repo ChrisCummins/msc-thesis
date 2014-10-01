@@ -56,16 +56,16 @@ plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
 plt.legend(loc='upper left');
 
 xlim=(min(n), max(n))
-ylim=(0, 200)
+ylim=(0, 150)
 
 ax1.set_xlim(xlim)
 ax1.set_ylim(ylim)
-plt.yticks(range(0, ylim[1], 50))
+plt.yticks(range(0, ylim[1], 10))
 plt.xticks(range(max(xlim[0], 100000), xlim[1], 100000))
 
 plt.tight_layout(pad=2.5)
 
-plt.suptitle('Merge Sort with Divide and Conquer Skeleton', fontsize=16)
+plt.suptitle('Merge Sort with Divide and Conquer Skeletons', fontsize=16)
 plt.ylabel('Execution time (ms)')
 plt.xlabel('No of integers sorted')
 plt.savefig('plot.png')

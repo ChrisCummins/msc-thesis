@@ -148,6 +148,13 @@ void divide_and_conquer(ArrayType *const in, const int depth) {
 
     // Split our problem into "k" sub-problems:
     std::vector<ArrayType> split = divide(*in);
+// If the parallelisation depth is set greater than 0, then it means
+// we are going to be recursing in parallel. Otherwise, we will
+// *always* recurse sequentially. We can use the pre-processor to
+// optimise for this case by only including the conditional logic in
+// the case where the condition is actually needed (i.e. when we're
+// operating in parallel).
+#if DAC_SKEL_PARALLELISATION_DEPTH > 0
 
     // Recurse and solve for all sub-problems created by divide(). If
     // the depth is less than "parallelisation_depth", then we create
@@ -174,9 +181,17 @@ void divide_and_conquer(ArrayType *const in, const int depth) {
 
     } else {
       // Sequential execution (*yawn*):
-      for (int i = 0; i < degree; i++)
-        self(&split[i], next_depth);
+      for (auto sub_problem : sub_problems)
+        self(&sub_problem, next_depth);
     }
+
+#else  // DAC_SKEL_PARALLELISATION_DEPTH == 0
+
+    // Sequential recursion:
+    for (auto sub_problem : sub_problems)
+      self(&sub_problem, next_depth);
+
+#endif  // DAC_SKEL_PARALLELISATION_DEPTH
 
     // Merge the conquered "k" sub-problems into a solution:
     combine(split, in);
