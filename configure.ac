@@ -49,8 +49,6 @@ AC_PROG_INSTALL
 AC_PROG_MKDIR_P
 AC_PROG_SED
 
-AC_CHECK_PROG([PDFLATEX],[pdflatex],[pdflatex])
-AC_CHECK_PROG([BIBTEX],[bibtex],[bibtex])
 
 
 dnl ================================================================
@@ -86,6 +84,18 @@ AS_IF([test "x$HAVE_MPIRUN" = xyes && \
        AC_MSG_WARN([Unable to build and execute MPI programs.])])
 AC_SUBST([HAVE_MPI_TOOLS],[$HAVE_MPI_TOOLS])
 AM_CONDITIONAL([HAVE_MPI_TOOLS],[test "x$HAVE_MPI_TOOLS" = xyes])
+
+
+dnl ================================================================
+dnl Do we have pdflatex installed?
+dnl ================================================================
+AC_CHECK_PROG([PDFLATEX],[pdflatex],[pdflatex])
+AS_IF([test "x$PDFLATEX" != x],
+      [HAVE_PDFLATEX=yes],
+      [HAVE_PDFLATEX=no
+       AC_MSG_WARN([Unable to build LaTeX documentation.])])
+AC_SUBST([HAVE_PDFLATEX],[$HAVE_PDFLATEX])
+AM_CONDITIONAL([HAVE_PDFLATEX],[test "x$HAVE_PDFLATEX" = xyes])
 
 
 dnl ================================================================
