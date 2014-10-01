@@ -998,6 +998,13 @@ Merge(A, left, mid, right):
 
 ![14.09.29-13.07.59](assets/14.09.29-13.07.59.png)
 
+### 14.09.29-16.24.00
+
+ * In-place merge sort using a *function template* skeleton, instead
+   of an object orientated class based skeleton.
+
+![14.09.29-16.24.00](docs/assets/14.09.29-16.24.00.png)
+
 
 ## Tuesday 30th
 
