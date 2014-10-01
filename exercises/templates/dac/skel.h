@@ -8,7 +8,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>  // NOLINT(readability/streams)
+#include <memory>
 #include <thread>    // NOLINT(build/c++11)
+#include <vector>
 
 #include "./debug.h"
 
@@ -20,23 +22,23 @@ namespace skel {
  * Provides a template for writing divide and conquer solutions by
  * defining the 4 "muscle" functions:
  *
- * bool is_indivisible(T *in)
+ * bool is_indivisible(const T& in)
  *
  *    Returns whether the problem "in" can be split into multiple
  *    sub-problems, or whether the problem should be conquered
  *    directly.
  *
- * T *divide(T *const in);
+ * std::vector<T> divide(const T& in);
  *
  *    Returns a pointer to an array of sub-problems that have are the
  *    result of dividing "in". This function is responsible for
  *    allocating the required memory on the heap.
  *
- * void conquer(T *const in)
+ * void conquer(const T& in)
  *
  *    Solve an indivisible problem "in" directly, and in-place.
  *
- * void combine(T *const in, T *const out)
+ * void combine(std::vector<T> in, T *const out)
  *
  *    Combines the array of sub-problems pointed to by "in" into the
  *    "out" parameter. The size of input array "in" is determined by
@@ -68,14 +70,13 @@ namespace skel {
  *
  * Where "n" is the parallelisation depth, and "k" is the degree.
  */
-
 template<typename   ArrayType,
          const int  degree,
          const int  parallelisation_depth,
-         bool       is_indivisible(ArrayType *const in),
-         ArrayType *divide(ArrayType *const in),
-         void       conquer(ArrayType *const in),
-         void       combine(ArrayType *const in, ArrayType *const out)>
+         bool       is_indivisible(const ArrayType& in),
+         std::vector<ArrayType> divide(const ArrayType& in),
+         void       conquer(const ArrayType& in),
+         void       combine(std::vector<ArrayType> in, ArrayType *const out)>
          void       divide_and_conquer(ArrayType *const in, const int depth);
 
 
@@ -119,10 +120,10 @@ class Range {
 template<typename   ArrayType,
          const int  degree,
          const int  parallelisation_depth,
-         bool       is_indivisible(ArrayType *const in),
-         ArrayType *divide(ArrayType *const in),
-         void       conquer(ArrayType *const in),
-         void       combine(ArrayType *const in, ArrayType *const out)>
+         bool       is_indivisible(const ArrayType& in),
+         std::vector<ArrayType> divide(const ArrayType& in),
+         void       conquer(const ArrayType& in),
+         void       combine(std::vector<ArrayType> in, ArrayType *const out)>
          void divide_and_conquer(ArrayType *const in, const int depth) {
 // Since the template syntax has rendered the parameterised name of
 // this function unholy ugly, we'll do a cheeky macro def to keep
@@ -133,15 +134,15 @@ template<typename   ArrayType,
 #define self divide_and_conquer<template_params>
 
   // Determine whether we're in a base case or recursion case:
-  if (is_indivisible(in)) {
+  if (is_indivisible(*in)) {
     // If we can solve the problem directly, then do that:
-    conquer(in);
+    conquer(*in);
 
   } else {
     const int next_depth = depth + 1;
 
     // Split our problem into "k" sub-problems:
-    ArrayType *const split = divide(in);
+    std::vector<ArrayType> split = divide(*in);
 
     // Recurse and solve for all sub-problems created by divide(). If
     // the depth is less than "parallelisation_depth", then we create
@@ -174,9 +175,6 @@ template<typename   ArrayType,
 
     // Merge the conquered "k" sub-problems into a solution:
     combine(split, in);
-
-    // Free heap memory:
-    delete[] split;
   }
 
 #undef template_params
@@ -189,29 +187,29 @@ template<typename   ArrayType,
 /***************************************/
 
 template<typename ArrayType>
-bool is_indivisible(Range<ArrayType> *const in) {
-  return (in->right_ - in->left_) <= SKEL_MERGE_SORT_SPLIT_THRESHOLD;
+bool is_indivisible(const Range<ArrayType>& in) {
+  return (in.right_ - in.left_) <= SKEL_MERGE_SORT_SPLIT_THRESHOLD;
 }
 
 
 template<typename ArrayType, const int degree>
-Range<ArrayType> *divide(Range<ArrayType> *const in) {
-  Range<ArrayType> *const out = new Range<ArrayType>[degree];
+std::vector<Range<ArrayType>> divide(const Range<ArrayType>& in) {
+  std::vector<Range<ArrayType>> out(degree);
 
-  const int input_length = in->right_ - in->left_;
+  const int input_length = in.right_ - in.left_;
   const int subproblem_length = input_length / degree;
   const int first_subproblem_length = input_length -
       (degree - 1) * subproblem_length;
 
   // Split "in" into "k" vectors, starting at address "out".
-  out[0].left_ = in->left_;
-  out[0].right_ = in->left_ + first_subproblem_length;
+  out[0].left_ = in.left_;
+  out[0].right_ = in.left_ + first_subproblem_length;
 
   for (int i = 1; i < degree; i++) {
     const int left = (i-1) * subproblem_length + first_subproblem_length;
 
-    out[i].left_ = &in->left_[left];
-    out[i].right_ = &in->left_[left] + subproblem_length;
+    out[i].left_ = &in.left_[left];
+    out[i].right_ = &in.left_[left] + subproblem_length;
   }
 
   return out;
@@ -219,25 +217,25 @@ Range<ArrayType> *divide(Range<ArrayType> *const in) {
 
 
 template<typename ArrayType>
-void insertion_sort(Range<ArrayType> *const in) {
+void insertion_sort(const Range<ArrayType>& in) {
   ArrayType key;
   int j;
 
-  for (int i = 1; i < in->right_ - in->left_; i++) {
-    key = in->left_[i];
+  for (int i = 1; i < in.right_ - in.left_; i++) {
+    key = in.left_[i];
     j = i;
 
-    while (j > 0 && in->left_[j - 1] > key) {
-      in->left_[j] = in->left_[j - 1];
+    while (j > 0 && in.left_[j - 1] > key) {
+      in.left_[j] = in.left_[j - 1];
       j--;
     }
-    in->left_[j] = key;
+    in.left_[j] = key;
   }
 }
 
 
 template<typename ArrayType>
-void merge_sort(Range<ArrayType> *const in, Range<ArrayType> *const out) {
+void merge_sort(std::vector<Range<ArrayType>> in, Range<ArrayType> *const out) {
   const int n1 = in[0].right_ - in[0].left_;
   const int n2 = in[1].right_ - in[1].left_;
 
