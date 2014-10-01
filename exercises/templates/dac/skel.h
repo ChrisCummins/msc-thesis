@@ -52,10 +52,10 @@ namespace skel {
  *
  * Primitive concurrency is provided by measuring the depth of
  * recursion in the divide_and_conquer() function. If the depth is
- * less than the "parallelisation_depth" parameter, then recursion
- * will occur in a new thread. This means that the maximum total
- * number of threads created is coarsely determined by both the degree
- * and the parallelisation depth. For a fixed degree of 2:
+ * less than the DAC_SKEL_PARALLELISATION_DEPTH constant, then
+ * recursion will occur in a new thread. This means that the maximum
+ * total number of threads created is coarsely determined by both the
+ * degree and the parallelisation depth. For a fixed degree of 2:
  *
  *             parallelisation_depth   max_no_of_threads
  *                                 0   1
@@ -71,13 +71,20 @@ namespace skel {
  * Where "n" is the parallelisation depth, and "k" is the degree.
  */
 template<typename   ArrayType,
-         const int  degree,
-         const int  parallelisation_depth,
-         bool       is_indivisible(const ArrayType& in),
-         std::vector<ArrayType> divide(const ArrayType& in),
-         void       conquer(const ArrayType& in),
-         void       combine(std::vector<ArrayType> in, ArrayType *const out)>
-         void       divide_and_conquer(ArrayType *const in, const int depth);
+    const int  degree,
+    bool       is_indivisible(const ArrayType& in),
+    std::vector<ArrayType> divide(const ArrayType& in),
+    void       conquer(const ArrayType& in),
+    void       combine(std::vector<ArrayType> in, ArrayType *const out)>
+void divide_and_conquer(ArrayType *const in, const int depth = 0);
+
+
+// The maximum depth at which to recurse in a new thread:
+#define DAC_SKEL_PARALLELISATION_DEPTH 2
+
+// Shorthand because we're lazy:
+#define DAC_SKEL_TEMPLATE_PARAMETERS ArrayType, degree, \
+      is_indivisible, divide, conquer, combine
 
 
 /*
@@ -94,13 +101,16 @@ template<typename ArrayType>
 void merge_sort(ArrayType *const left, ArrayType *const right);
 
 
-#define SKEL_MERGE_SORT_PARALLELISATION_DEPTH 2
+// An array length, below which the array is sorted using insertion
+// sort, above which by recursive merge sort.
 #define SKEL_MERGE_SORT_SPLIT_THRESHOLD       100
 
 
-/*
- * Generic data type for representing ranges within contiguous arrays.
- */
+//
+// Storing pointers to arrays.
+////////////////////////////////////////////////////////////////////
+//
+
 template<typename ArrayType>
 class Range {
  public:
@@ -113,25 +123,20 @@ class Range {
 };
 
 
-/***********************************************/
-/* Divide and Conquer Skeleton implementations */
-/***********************************************/
+//
+// Divide and Conquer skeleton implementation.
+////////////////////////////////////////////////////////////////////
+//
 
 template<typename   ArrayType,
-         const int  degree,
-         const int  parallelisation_depth,
-         bool       is_indivisible(const ArrayType& in),
-         std::vector<ArrayType> divide(const ArrayType& in),
-         void       conquer(const ArrayType& in),
-         void       combine(std::vector<ArrayType> in, ArrayType *const out)>
-         void divide_and_conquer(ArrayType *const in, const int depth) {
-// Since the template syntax has rendered the parameterised name of
-// this function unholy ugly, we'll do a cheeky macro def to keep
-// things looking pretty and consistent (don't worry ma, we'll tidy up
-// when we're done playing).
-#define template_params ArrayType, degree, parallelisation_depth, \
-               is_indivisible, divide, conquer, combine
-#define self divide_and_conquer<template_params>
+    const int  degree,
+    bool       is_indivisible(const ArrayType& in),
+    std::vector<ArrayType> divide(const ArrayType& in),
+    void       conquer(const ArrayType& in),
+    void       combine(std::vector<ArrayType> in, ArrayType *const out)>
+void divide_and_conquer(ArrayType *const in, const int depth) {
+// Cheeky shorthand:
+#define self divide_and_conquer<DAC_SKEL_TEMPLATE_PARAMETERS>
 
   // Determine whether we're in a base case or recursion case:
   if (is_indivisible(*in)) {
@@ -148,7 +153,7 @@ template<typename   ArrayType,
     // the depth is less than "parallelisation_depth", then we create
     // a new thread to perform the recursion in. Otherwise, we recurse
     // sequentially.
-    if (depth < parallelisation_depth) {
+    if (depth < DAC_SKEL_PARALLELISATION_DEPTH) {
       // Even though "degree" is a template parameter (and so should
       // be determined and constant-ified at compile time), cpplint
       // still thinks that this is a variable-length array
@@ -177,14 +182,14 @@ template<typename   ArrayType,
     combine(split, in);
   }
 
-#undef template_params
 #undef self
 }
 
 
-/***************************************/
-/* Merge sort skeleton implementations */
-/***************************************/
+//
+// Merge sort skeleton implementation.
+////////////////////////////////////////////////////////////////////
+//
 
 template<typename ArrayType>
 bool is_indivisible(const Range<ArrayType>& in) {
@@ -229,6 +234,7 @@ void insertion_sort(const Range<ArrayType>& in) {
       in.left_[j] = in.left_[j - 1];
       j--;
     }
+
     in.left_[j] = key;
   }
 }
@@ -273,17 +279,17 @@ void merge_sort(ArrayType *const left, ArrayType *const right) {
 
 #define degree 2
   divide_and_conquer<
-      Range<ArrayType>,
-      degree,
-      SKEL_MERGE_SORT_PARALLELISATION_DEPTH,
-      // Our "muscle" functions:
-      is_indivisible<ArrayType>,
-      divide<ArrayType, degree>,
-      insertion_sort<ArrayType>,
-      merge_sort<ArrayType>>(&in, 0);
-
+      Range<ArrayType>,                       // Data type
+      degree,                                 // Fixed degree
+      is_indivisible<ArrayType>,              // is_indivisible() muscle
+      divide<ArrayType, degree>,              // divide() muscle
+      insertion_sort<ArrayType>,              // conquer() muscle
+      merge_sort<ArrayType>>                  // combine() muscle
+      (&in);
 #undef degree
 }
+
+#undef DAC_SKEL_TEMPLATE_PARAMETERS
 
 }  // namespace skel
 
