@@ -1,6 +1,4 @@
-// Copyright 2014 Chris Cummins
-
-#ifndef EXERCISES_TEMPLATES_DAC_SKEL_H_
+#ifndef EXERCISES_TEMPLATES_DAC_SKEL_H_  // NOLINT(legal/copyright)
 #define EXERCISES_TEMPLATES_DAC_SKEL_H_
 
 #include <algorithm>
@@ -98,7 +96,7 @@ void merge_sort(ArrayType *const left, ArrayType *const right);
 
 // An array length, below which the array is sorted using insertion
 // sort, above which by recursive merge sort.
-#define SKEL_MERGE_SORT_SPLIT_THRESHOLD       100
+#define SKEL_MERGE_SORT_SPLIT_THRESHOLD 100
 
 
 //
