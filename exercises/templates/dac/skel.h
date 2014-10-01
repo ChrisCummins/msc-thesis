@@ -22,27 +22,24 @@ namespace skel {
  * Provides a template for writing divide and conquer solutions by
  * defining the 4 "muscle" functions:
  *
- * bool is_indivisible(const T& in)
+ * bool is_indivisible(const T& problem)
  *
- *    Returns whether the problem "in" can be split into multiple
+ *    Returns whether a problem can be split into multiple
  *    sub-problems, or whether the problem should be conquered
  *    directly.
  *
- * std::vector<T> divide(const T& in);
+ * std::vector<T> divide(const T& problem);
  *
- *    Returns a pointer to an array of sub-problems that have are the
- *    result of dividing "in". This function is responsible for
- *    allocating the required memory on the heap.
+ *    Divides the input problem into a set of smaller sub-problems.
  *
- * void conquer(const T& in)
+ * void conquer(const T& problem)
  *
- *    Solve an indivisible problem "in" directly, and in-place.
+ *    Solve an indivisible problem.
  *
- * void combine(std::vector<T> in, T *const out)
+ * void combine(std::vector<T> solutions, T *const out)
  *
- *    Combines the array of sub-problems pointed to by "in" into the
- *    "out" parameter. The size of input array "in" is determined by
- *    the fixed degree value.
+ *    Combines the set of conquered problems ("solutions") into a
+ *    single solution ("out").
  *
  * divide_and_conquer() acts as the "worker" function, invoking the
  * muscle functions as required. When invoked, it determines whether
@@ -72,10 +69,10 @@ namespace skel {
  */
 template<typename   ArrayType,
     const int  degree,
-    bool       is_indivisible(const ArrayType& in),
-    std::vector<ArrayType> divide(const ArrayType& in),
-    void       conquer(const ArrayType& in),
-    void       combine(std::vector<ArrayType> in, ArrayType *const out)>
+    bool       is_indivisible(const ArrayType& problem),
+    std::vector<ArrayType> divide(const ArrayType& problem),
+    void       conquer(const ArrayType& problem),
+    void       combine(std::vector<ArrayType> solutions, ArrayType *const out)>
 void divide_and_conquer(ArrayType *const in, const int depth = 0);
 
 
@@ -130,24 +127,25 @@ class Range {
 
 template<typename   ArrayType,
     const int  degree,
-    bool       is_indivisible(const ArrayType& in),
-    std::vector<ArrayType> divide(const ArrayType& in),
-    void       conquer(const ArrayType& in),
-    void       combine(std::vector<ArrayType> in, ArrayType *const out)>
-void divide_and_conquer(ArrayType *const in, const int depth) {
+    bool       is_indivisible(const ArrayType& problem),
+    std::vector<ArrayType> divide(const ArrayType& problem),
+    void       conquer(const ArrayType& problem),
+    void       combine(std::vector<ArrayType> problem, ArrayType *const out)>
+void divide_and_conquer(ArrayType *const problem, const int depth) {
 // Cheeky shorthand:
 #define self divide_and_conquer<DAC_SKEL_TEMPLATE_PARAMETERS>
 
   // Determine whether we're in a base case or recursion case:
-  if (is_indivisible(*in)) {
+  if (is_indivisible(*problem)) {
     // If we can solve the problem directly, then do that:
-    conquer(*in);
+    conquer(*problem);
 
   } else {
     const int next_depth = depth + 1;
 
     // Split our problem into "k" sub-problems:
-    std::vector<ArrayType> split = divide(*in);
+    std::vector<ArrayType> sub_problems = divide(*problem);
+
 // If the parallelisation depth is set greater than 0, then it means
 // we are going to be recursing in parallel. Otherwise, we will
 // *always* recurse sequentially. We can use the pre-processor to
@@ -157,7 +155,7 @@ void divide_and_conquer(ArrayType *const in, const int depth) {
 #if DAC_SKEL_PARALLELISATION_DEPTH > 0
 
     // Recurse and solve for all sub-problems created by divide(). If
-    // the depth is less than "parallelisation_depth", then we create
+    // the depth is less than the parallelisation depth then we create
     // a new thread to perform the recursion in. Otherwise, we recurse
     // sequentially.
     if (depth < DAC_SKEL_PARALLELISATION_DEPTH) {
@@ -167,18 +165,15 @@ void divide_and_conquer(ArrayType *const in, const int depth) {
       // declaration:
       std::thread threads[degree];  // NOLINT(runtime/arrays)
 
-      // Create threads:
+      // Create threads and block until completed:
       for (int i = 0; i < degree; i++) {
-        threads[i] = std::thread(self, &split[i], next_depth);
+        threads[i] = std::thread(self, &sub_problems[i], next_depth);
         DAC_DEBUG_PRINT(3, "Creating thread at depth " << next_depth);
       }
-
-      // Block until threads complete:
       for (auto &thread : threads) {
         thread.join();
         DAC_DEBUG_PRINT(3, "Thread completed at depth " << next_depth);
       }
-
     } else {
       // Sequential execution (*yawn*):
       for (auto sub_problem : sub_problems)
@@ -194,7 +189,7 @@ void divide_and_conquer(ArrayType *const in, const int depth) {
 #endif  // DAC_SKEL_PARALLELISATION_DEPTH
 
     // Merge the conquered "k" sub-problems into a solution:
-    combine(split, in);
+    combine(sub_problems, problem);
   }
 
 #undef self
@@ -206,72 +201,79 @@ void divide_and_conquer(ArrayType *const in, const int depth) {
 ////////////////////////////////////////////////////////////////////
 //
 
+// The "is_indivisble" muscle. Determine whether the list is small
+// enough to sort directly (insertion sort) or to keep dividing it.
 template<typename ArrayType>
-bool is_indivisible(const Range<ArrayType>& in) {
-  return (in.right_ - in.left_) <= SKEL_MERGE_SORT_SPLIT_THRESHOLD;
+bool is_indivisible(const Range<ArrayType>& range) {
+  return (range.right_ - range.left_) <= SKEL_MERGE_SORT_SPLIT_THRESHOLD;
 }
 
 
+// The "divide" muscle. Takes a range and splits in half.
 template<typename ArrayType, const int degree>
-std::vector<Range<ArrayType>> divide(const Range<ArrayType>& in) {
+std::vector<Range<ArrayType>> divide(const Range<ArrayType>& range) {
   std::vector<Range<ArrayType>> out(degree);
 
-  const int input_length = in.right_ - in.left_;
+  const int input_length = range.right_ - range.left_;
   const int subproblem_length = input_length / degree;
   const int first_subproblem_length = input_length -
       (degree - 1) * subproblem_length;
 
-  // Split "in" into "k" vectors, starting at address "out".
-  out[0].left_ = in.left_;
-  out[0].right_ = in.left_ + first_subproblem_length;
+  // Split "range" into "k" vectors, starting at address "out".
+  out[0].left_ = range.left_;
+  out[0].right_ = range.left_ + first_subproblem_length;
 
   for (int i = 1; i < degree; i++) {
     const int left = (i-1) * subproblem_length + first_subproblem_length;
 
-    out[i].left_ = &in.left_[left];
-    out[i].right_ = &in.left_[left] + subproblem_length;
+    out[i].left_ = &range.left_[left];
+    out[i].right_ = &range.left_[left] + subproblem_length;
   }
 
   return out;
 }
 
 
+// Our "conquer" muscle. A dumb insertion sort, good enough for small
+// lists.
 template<typename ArrayType>
-void insertion_sort(const Range<ArrayType>& in) {
+void insertion_sort(const Range<ArrayType>& range) {
   ArrayType key;
   int j;
 
-  for (int i = 1; i < in.right_ - in.left_; i++) {
-    key = in.left_[i];
+  for (int i = 1; i < range.right_ - range.left_; i++) {
+    key = range.left_[i];
     j = i;
 
-    while (j > 0 && in.left_[j - 1] > key) {
-      in.left_[j] = in.left_[j - 1];
+    while (j > 0 && range.left_[j - 1] > key) {
+      range.left_[j] = range.left_[j - 1];
       j--;
     }
 
-    in.left_[j] = key;
+    range.left_[j] = key;
   }
 }
 
 
+// Our "combine" muscle. Takes two sorted lists, and combines them
+// into a single sorted list.
 template<typename ArrayType>
-void merge_sort(std::vector<Range<ArrayType>> in, Range<ArrayType> *const out) {
-  const int n1 = in[0].right_ - in[0].left_;
-  const int n2 = in[1].right_ - in[1].left_;
+void merge(std::vector<Range<ArrayType>> range,
+           Range<ArrayType> *const out) {
+  const int n1 = range[0].right_ - range[0].left_;
+  const int n2 = range[1].right_ - range[1].left_;
 
   ArrayType L[n1];
   ArrayType R[n2];
 
-  std::copy(in[0].left_, in[0].right_, &L[0]);
-  std::copy(in[1].left_, in[1].right_, &R[0]);
+  std::copy(range[0].left_, range[0].right_, &L[0]);
+  std::copy(range[1].left_, range[1].right_, &R[0]);
 
   int i = 0, l = 0, r = 0;
 
-  out->left_ = in[0].left_;
-  out->right_ = in[1].right_;
+  out->left_ = range[0].left_;
+  out->right_ = range[1].right_;
 
-  // Merge-sort both lists together:
   while (l < n1 && r < n2) {
     if (R[r] < L[l])
       out->left_[i++] = R[r++];
@@ -288,19 +290,20 @@ void merge_sort(std::vector<Range<ArrayType>> in, Range<ArrayType> *const out) {
 }
 
 
+// Merge sort function.
 template<typename ArrayType>
 void merge_sort(ArrayType *const left, ArrayType *const right) {
-  Range<ArrayType> in(left, right);
+  Range<ArrayType> range(left, right);
 
 #define degree 2
   divide_and_conquer<
-      Range<ArrayType>,                       // Data type
-      degree,                                 // Fixed degree
-      is_indivisible<ArrayType>,              // is_indivisible() muscle
-      divide<ArrayType, degree>,              // divide() muscle
-      insertion_sort<ArrayType>,              // conquer() muscle
-      merge_sort<ArrayType>>                  // combine() muscle
-      (&in);
+      Range<ArrayType>,           // Data type
+      degree,                     // Fixed degree
+      is_indivisible<ArrayType>,  // is_indivisible() muscle
+      divide<ArrayType, degree>,  // divide() muscle
+      insertion_sort<ArrayType>,  // conquer() muscle
+      merge<ArrayType>>           // combine() muscle
+      (&range);
 #undef degree
 }
 
