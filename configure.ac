@@ -26,7 +26,7 @@ dnl Project details (i.e. the "meta" stuff)
 dnl ================================================================
 m4_define([author],[chrisc.101@gmail.com])
 
-AC_INIT([report],[report_version],[author])
+AC_INIT([report],[report_version],[author]) : ${CXXFLAGS=""}
 AC_CONFIG_AUX_DIR([build])
 
 dnl Support for --program-prefix, --program-suffix and
