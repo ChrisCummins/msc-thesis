@@ -41,16 +41,16 @@ namespace skel {
 //    Combines a set of conquered problems ("solutions") into a single
 //    solution ("out").
 //
-template<typename ArrayType,
-    bool is_indivisible(const ArrayType& problem),
-    std::vector<ArrayType> divide(const ArrayType& problem),
-    void conquer(const ArrayType& problem),
-    void combine(std::vector<ArrayType> solutions, ArrayType *const out)>
-void divide_and_conquer(ArrayType *const in, const int depth = 0);
+template<typename Type,
+    bool is_indivisible(const Type& problem),
+    std::vector<Type> divide(const Type& problem),
+    void conquer(const Type& problem),
+    void combine(std::vector<Type> solutions, Type *const out)>
+void divide_and_conquer(Type *const in, const int depth = 0);
 
 // Shorthand because we're lazy:
-#define DAC_SKEL_TEMPLATE_PARAMETERS                    \
-  ArrayType, is_indivisible, divide, conquer, combine
+#define DAC_SKEL_TEMPLATE_PARAMETERS \
+  Type, is_indivisible, divide, conquer, combine
 
 // Primitive concurrency is provided by measuring the depth of
 // recursion in the divide_and_conquer() function. If the depth is
