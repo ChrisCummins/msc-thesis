@@ -149,7 +149,7 @@ void FDDC<T>::divide_and_conquer(vector_t *const in,
          * we recurse sequentially.
          */
         if (depth < this->parallelisation_depth) {
-            std::thread threads[k];
+            std::vector<std::thread> threads(k);
 
             // Create threads:
             for (unsigned int i = 0; i < k; i++) {
