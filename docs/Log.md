@@ -1103,3 +1103,17 @@ int *a = get_big_array(NUM_ELEMS);
 
 merge_sort(a, a + NUM_ELEMS);
 ```
+
+
+## Thursday 2nd
+
+The number of nodes *N* in a balanced binary tree of depth *d* can be
+calculated as: `N = 2^d - 1`. So, to re-arrange with respect to *d*:
+
+```
+N = 2^d - 1
+2^d = N + 1
+log2(2^d) = log2(N + 1)
+dlog2(2) = log2(N + 1)
+d = log2(N + 1)
+```
