@@ -1,5 +1,9 @@
+CXX_STD = -std=c++11
+CXX_STDLIB = -stdlib=libstdc++
+
 AM_CXXFLAGS = 				\
-	-std=c++11			\
+	$(CXX_STD)			\
+	$(CXX_STDLIB)			\
 	-pthread 			\
 	-Wall 				\
 	-Wextra 			\
@@ -9,6 +13,8 @@ AM_CXXFLAGS = 				\
 	$(NULL)
 
 AM_LDFLAGS = 				\
+	$(CXX_STD)			\
+	$(CXX_STDLIB)			\
 	-pthread			\
 	$(NULL)
 
