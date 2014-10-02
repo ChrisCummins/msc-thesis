@@ -3,7 +3,7 @@
 
 #include <assert.h>
 
-#include "skel.h"
+#include "skel-merge-sort.h"
 #include "merge-sort.h"
 #include "timer.h"
 #include "vector.h"

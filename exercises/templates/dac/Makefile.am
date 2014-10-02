@@ -19,10 +19,11 @@ AM_LDFLAGS = 				\
 	$(NULL)
 
 noinst_PROGRAMS = 			\
-	skel-merge-sort-int		\
 	ita-merge-sort-int		\
 	merge-sort-float		\
 	merge-sort-int			\
+	skel-fft			\
+	skel-merge-sort-int		\
 	std-stable-sort-int		\
 	$(NULL)
 
@@ -31,6 +32,7 @@ test_SOURCES = timer.cc test.cc
 ita_merge_sort_int_SOURCES      = ita-merge-sort-int.cc $(test_SOURCES)
 merge_sort_float_SOURCES	= merge-sort-float.cc $(test_SOURCES)
 merge_sort_int_SOURCES		= merge-sort-int.cc $(test_SOURCES)
+skel_fft_SOURCES                = skel-fft.cc $(test_SOURCES)
 skel_merge_sort_int_SOURCES     = skel-merge-sort-int.cc $(test_SOURCES)
 std_stable_sort_int_SOURCES	= std-stable-sort-int.cc $(test_SOURCES)
 
