@@ -147,6 +147,31 @@ AM_CONDITIONAL([HAVE_CHECKCITES],[test "x$HAVE_CHECKCITES" = xyes])
 
 
 dnl ================================================================
+dnl Do we have nproc installed?
+dnl ================================================================
+AC_CHECK_PROG([NPROC],[nproc],[nproc])
+AS_IF([test "x$NPROC" != x],
+      [HAVE_NPROC=yes],
+      [HAVE_NPROC=no
+       AC_MSG_WARN([Unable to determine the number of processors available.])])
+AC_SUBST([HAVE_NPROC],[$HAVE_NPROC])
+AM_CONDITIONAL([HAVE_NPROC],[test "x$HAVE_NPROC" = xyes])
+
+
+dnl ================================================================
+dnl Export the number of available processors (if we have nproc).
+dnl ================================================================
+AS_IF([test "x$HAVE_NPROC" = xyes],
+      [NUM_PROC=$($NPROC)],
+      [NUM_PROC=1
+       AC_MSG_WARN([Defaulting to sequential back-end.])])
+AC_SUBST([NUM_PROC],[$NUM_PROC])
+AC_DEFINE_UNQUOTED([NUM_PROC],[$NUM_PROC],
+                   [Number of processing units available.])
+
+AC_MSG_NOTICE([Number of processor available: $NUM_PROC])
+
+dnl ================================================================
 dnl Generate files
 dnl ================================================================
 AC_CONFIG_FILES([
