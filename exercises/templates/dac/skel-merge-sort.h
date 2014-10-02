@@ -2,25 +2,11 @@
 #define EXERCISES_TEMPLATES_DAC_SKEL_MERGE_SORT_H_
 
 #include "./skel.h"
+#include "./range.h"
 
 namespace skel {
 
-//
-// Storing pointers to arrays.
-////////////////////////////////////////////////////////////////////
-//
 
-template<typename ArrayType>
-class Range {
- public:
-  ArrayType *left_;
-  ArrayType *right_;
-
-  Range() {}
-  Range(ArrayType *const left, ArrayType *const right)
-      : left_(left), right_(right) {}
-};
-  
 // A concrete stable merge sort implementation, using the Divide and
 // Conquer skeleton.
 //
@@ -70,7 +56,7 @@ std::vector<Range<ArrayType>> divide(const Range<ArrayType>& range) {
     out[i].left_ = &range.left_[left];
     out[i].right_ = &range.left_[left] + subproblem_length;
   }
-  
+
   return out;
 }
 
