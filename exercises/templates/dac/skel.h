@@ -112,6 +112,19 @@ void divide_and_conquer(Type *const problem, const int depth) {
 
     std::vector<Type> sub_problems = divide(*problem);
 
+    // Debugging output:
+#if DAC_DEBUG_LEVEL >= 2
+    if (depth == 0) {
+#  if DAC_SKEL_PARALLELISATION_DEPTH > 0
+      DAC_DEBUG_PRINT(2, "Using parallelisation depth "
+                      << DAC_SKEL_PARALLELISATION_DEPTH)
+#  else
+      DAC_DEBUG_PRINT(2, "Using sequential skeleton back-end")
+#  endif  // DAC_SKEL_PARALLELISATION_DEPTH
+    }
+#endif  // DAC_DEBUG_LEVEL
+
+
 // If the parallelisation depth is set greater than 0, then it means
 // we may be recursing in parallel. Otherwise, we will *always*
 // recurse sequentially. We can use the pre-processor to optimise for
