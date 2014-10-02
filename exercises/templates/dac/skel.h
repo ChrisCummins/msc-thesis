@@ -90,12 +90,12 @@ void divide_and_conquer(ArrayType *const in, const int depth = 0);
 ////////////////////////////////////////////////////////////////////
 //
 
-template<typename   ArrayType,
-    bool is_indivisible(const ArrayType& problem),
-    std::vector<ArrayType> divide(const ArrayType& problem),
-    void conquer(const ArrayType& problem),
-    void combine(std::vector<ArrayType> problem, ArrayType *const out)>
-void divide_and_conquer(ArrayType *const problem, const int depth) {
+template<typename Type,
+    bool is_indivisible(const Type& problem),
+    std::vector<Type> divide(const Type& problem),
+    void conquer(const Type& problem),
+    void combine(std::vector<Type> problem, Type *const out)>
+void divide_and_conquer(Type *const problem, const int depth) {
 // Cheeky shorthand:
 #define self divide_and_conquer<DAC_SKEL_TEMPLATE_PARAMETERS>
 
@@ -110,7 +110,7 @@ void divide_and_conquer(ArrayType *const problem, const int depth) {
     // sub-problems, before combining the results:
     const int next_depth = depth + 1;
 
-    std::vector<ArrayType> sub_problems = divide(*problem);
+    std::vector<Type> sub_problems = divide(*problem);
 
 // If the parallelisation depth is set greater than 0, then it means
 // we may be recursing in parallel. Otherwise, we will *always*
