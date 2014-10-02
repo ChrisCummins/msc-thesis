@@ -36,30 +36,6 @@ bool is_indivisible(const Range<ArrayType>& range) {
 }
 
 
-// The "divide" muscle. Takes a range and splits into "degree" sections.
-template<typename ArrayType, const int degree>
-std::vector<Range<ArrayType>> divide(const Range<ArrayType>& range) {
-  std::vector<Range<ArrayType>> out(degree);
-
-  const int input_length = range.right_ - range.left_;
-  const int subproblem_length = input_length / degree;
-  const int first_subproblem_length = input_length -
-      (degree - 1) * subproblem_length;
-
-  // Split "range" into "k" vectors, starting at address "out".
-  out[0].left_ = range.left_;
-  out[0].right_ = range.left_ + first_subproblem_length;
-
-  for (int i = 1; i < degree; i++) {
-    const int left = (i-1) * subproblem_length + first_subproblem_length;
-
-    out[i].left_ = &range.left_[left];
-    out[i].right_ = &range.left_[left] + subproblem_length;
-  }
-
-  return out;
-}
-
 // Our "conquer" muscle. A dumb insertion sort, good enough for small
 // lists.
 template<typename ArrayType>
@@ -123,7 +99,7 @@ void merge_sort(ArrayType *const left, ArrayType *const right) {
   divide_and_conquer<
       Range<ArrayType>,           // Data type
       is_indivisible<ArrayType>,  // is_indivisible() muscle
-      divide<ArrayType, 2>,       // divide() muscle
+      split_range<ArrayType, 2>,  // divide() muscle
       insertion_sort<ArrayType>,  // conquer() muscle
       merge<ArrayType>>           // combine() muscle
       (&range);
