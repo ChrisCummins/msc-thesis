@@ -49,6 +49,7 @@ AC_PROG_INSTALL
 AC_PROG_MKDIR_P
 AC_PROG_SED
 
+AM_CONDITIONAL([HAVE_CLANG], [test "x$CXX" = xclang++])
 
 
 dnl ================================================================
