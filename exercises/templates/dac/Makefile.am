@@ -1,5 +1,11 @@
 CXX_STD = -std=c++11
+
+if HAVE_CLANG
 CXX_STDLIB = -stdlib=libstdc++
+all-local: analyze
+else
+CXX_STDLIB =
+endif
 
 AM_CXXFLAGS = 				\
 	$(CXX_STD)			\
@@ -40,3 +46,18 @@ run: all
 		echo ./$$f; \
 		./$$f; \
 	done
+
+# Static analysis:
+analyze_cxx_SRC = $(wildcard *.cc)
+analyze_cxx_PLISTS = $(analyze_cxx_SRC:%.cc=%.plist)
+
+MOSTLYCLEANFILES = $(analyze_cxx_PLISTS)
+
+.PHONY: analyze
+analyze: analyze_cxx
+
+analyze_cxx: $(analyze_cxx_PLISTS)
+
+$(analyze_cxx_PLISTS): %.plist: %.cc
+	@echo '  CXXSA    $@'
+	@$(CXXCOMPILE) --analyze $< -o $@
