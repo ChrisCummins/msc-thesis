@@ -1003,7 +1003,7 @@ Merge(A, left, mid, right):
  * In-place merge sort using a *function template* skeleton, instead
    of an object orientated class based skeleton.
 
-![14.09.29-16.24.00](docs/assets/14.09.29-16.24.00.png)
+![14.09.29-16.24.00](assets/14.09.29-16.24.00.png)
 
 
 ## Tuesday 30th
