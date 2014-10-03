@@ -41,6 +41,7 @@ skel_merge_sort_int_SOURCES     = skel-merge-sort-int.cc $(test_SOURCES)
 std_stable_sort_int_SOURCES	= std-stable-sort-int.cc $(test_SOURCES)
 
 # Execute all programs:
+.PHONY: run
 run: all
 	@for f in $(noinst_PROGRAMS); do \
 		echo ./$$f; \
