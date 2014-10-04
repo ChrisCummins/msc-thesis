@@ -1117,3 +1117,107 @@ log2(2^d) = log2(N + 1)
 dlog2(2) = log2(N + 1)
 d = log2(N + 1)
 ```
+
+
+## Friday 3rd
+
+Divide and conquer algorithms tend to perform one of two tasks: either
+they *solve* a problem in order to return a solution value, or they
+*transform* the input data in some manner. For example, the max
+subarray problem is a *solution* orientated DaC algorithm, in which
+the input is an array and the output is an integer value for the
+maximum value obtained in a subarray. The merge sort algorithm is an
+example of a *transformation* DaC, in which the return value is a
+sorted permutation of the input data. While it is possible to describe
+transformation algorithms using the same terminology as solution
+algorithms (in which the return data is a transformed permutation of
+the input data), it is possible to optimise the transformation
+algorithms by instead removing the return values and considering them
+in-place.
+
+### Notes on Max Subarray DaC
+
+Psuedocode:
+
+```
+def max_subarray(A) {
+
+    # is_indivisible:
+    if len(A) == 1:
+        # conquer:
+        return A
+
+    # divide:
+    left = A[0:len(A/2)]
+    right = A[len(A/2)+1:len(A)]
+
+    # recurse:
+    l = self(left)
+    m = max_crossing_subarray(left, right)
+    r = self(right)
+
+    # combine:
+    return max(l, m, r)
+}
+
+def max_crossing_subarray(L, R) {
+    sum = 0, l = 0
+    for i in reverse(L):
+        sum += i
+        l = max(l, sum)
+
+    sum = 0, r = 0
+    for i in R:
+        sum += i
+        r = max(r, sum)
+
+    return l + r
+}
+```
+
+And our divide and conquer skeleton:
+
+```
+def divide_and_conquer(T):
+    if is_indivisible(T):
+        return solve(T)
+    else:
+        return combine(map(divide_and_conquer, split(T)))
+```
+
+So mapping this to skeleton functions:
+
+```
+class Problem:
+    this.left = T[]
+    this.right = T[]
+
+def is_indivisible(T):
+    return len(T.right) or len(T.left) == 1
+
+def solve(T):
+    if len(T.right):
+        sum = 0, l = 0
+        for i in reverse(T.left):
+            sum += i
+            l = max(l, sum)
+
+        sum = 0, r = 0
+        for i in T.right:
+            sum += i
+            r = max(r, sum)
+
+        return l + r
+    else:
+        return T.left[0]
+
+def split(T):
+    A = [2]
+    mid = len(T.left) / 2
+    A[0] = T.left[0:mid]
+    A[1] = T.left[mid:]
+    return A
+
+def combine(T[]):
+    return max(T)
+```
