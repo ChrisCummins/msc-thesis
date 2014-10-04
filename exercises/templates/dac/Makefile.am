@@ -1,28 +1,6 @@
-CXX_STD = -std=c++11
-
 if HAVE_CLANG
-CXX_STDLIB = -stdlib=libstdc++
 all-local: analyze
-else
-CXX_STDLIB =
 endif
-
-AM_CXXFLAGS = 				\
-	$(CXX_STD)			\
-	$(CXX_STDLIB)			\
-	-pthread 			\
-	-Wall 				\
-	-Wextra 			\
-	-Wno-unused-parameter 		\
-	-O0 -pg 			\
-	-DDAC_DEBUG_LEVEL=1		\
-	$(NULL)
-
-AM_LDFLAGS = 				\
-	$(CXX_STD)			\
-	$(CXX_STDLIB)			\
-	-pthread			\
-	$(NULL)
 
 noinst_PROGRAMS = 			\
 	ita-merge-sort-int		\
