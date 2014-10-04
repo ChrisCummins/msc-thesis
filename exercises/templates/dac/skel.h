@@ -48,9 +48,18 @@ template<typename Type,
     void combine(std::vector<Type> solutions, Type *const out)>
 void divide_and_conquer(Type *const in, const int depth = 0);
 
+template<typename Type,
+    bool is_indivisible(const Type& problem),
+    std::vector<Type> divide(const Type& problem),
+    void transform(const Type& problem),
+    void combine(std::vector<Type> solutions, Type *const out)>
+void divide_and_transform(Type *const in, const int depth = 0);
+
 // Shorthand because we're lazy:
 #define DAC_SKEL_TEMPLATE_PARAMETERS \
   Type, is_indivisible, divide, conquer, combine
+#define DAT_SKEL_TEMPLATE_PARAMETERS \
+    Type, is_indivisible, divide, transform, combine
 
 // Primitive concurrency is provided by measuring the depth of
 // recursion in the divide_and_conquer() function. If the depth is
@@ -86,24 +95,24 @@ void divide_and_conquer(Type *const in, const int depth = 0);
 #define DAC_SKEL_PARALLELISATION_DEPTH NBITS((NUM_PROC - 1))
 
 //
-// Divide and Conquer skeleton implementation.
+// Divide and Transform skeleton implementation.
 ////////////////////////////////////////////////////////////////////
 //
 
 template<typename Type,
     bool is_indivisible(const Type& problem),
     std::vector<Type> divide(const Type& problem),
-    void conquer(const Type& problem),
+    void transform(const Type& problem),
     void combine(std::vector<Type> problem, Type *const out)>
-void divide_and_conquer(Type *const problem, const int depth) {
+void divide_and_transform(Type *const problem, const int depth) {
 // Cheeky shorthand:
-#define self divide_and_conquer<DAC_SKEL_TEMPLATE_PARAMETERS>
+#define self divide_and_transform<DAT_SKEL_TEMPLATE_PARAMETERS>
 
   // Determine whether we're in a base case or recursion case:
   if (is_indivisible(*problem)) {
     // If we're in a base case, then we can solve the problem
     // directly:
-    conquer(*problem);
+    transform(*problem);
   } else {
     // If we're in a recursion case, then we need to divide the
     // problem into multiple subproblems, and recurse on each of those
@@ -168,6 +177,7 @@ void divide_and_conquer(Type *const problem, const int depth) {
 
 
 #undef DAC_SKEL_TEMPLATE_PARAMETERS
+#undef DAT_SKEL_TEMPLATE_PARAMETERS
 
 }  // namespace skel
 

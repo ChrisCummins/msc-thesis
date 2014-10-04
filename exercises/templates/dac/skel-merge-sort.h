@@ -96,7 +96,7 @@ template<typename ArrayType>
 void merge_sort(ArrayType *const left, ArrayType *const right) {
   Range<ArrayType> range(left, right);
 
-  divide_and_conquer<
+  divide_and_transform<
       Range<ArrayType>,           // Data type
       is_indivisible<ArrayType>,  // is_indivisible() muscle
       split_range<ArrayType, 2>,  // divide() muscle
