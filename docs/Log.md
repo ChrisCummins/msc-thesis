@@ -1212,10 +1212,11 @@ def solve(T):
         return T.left[0]
 
 def split(T):
-    A = [2]
+    A = [3]
     mid = len(T.left) / 2
     A[0] = T.left[0:mid]
     A[1] = T.left[mid:]
+    A[2] = {A[0], A[1]}
     return A
 
 def combine(T[]):
