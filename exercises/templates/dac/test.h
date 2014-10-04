@@ -13,9 +13,8 @@ vector<int>   *get_unsorted_int_vector(const size_t size);
 vector<float> *get_unsorted_float_vector(const size_t size);
 
 namespace {
-    template<class T>
-    void print_result(vector<T> *const in, Timer *const t) {
-        printf("size: %7u, time: %4ld ms\n", in->length, t->ms());
+    void print_result(int length, Timer *const t) {
+        printf("size: %7u, time: %4ld ms\n", length, t->ms());
     }
 }
 
@@ -40,7 +39,7 @@ void test_merge_sort(vector<T> *const in,
     sort.run();
 
     // Results:
-    print_result<T>(in, &t);
+    print_result(in->length, &t);
     assert(in->isSorted());
 
     // Free test data:
@@ -54,7 +53,7 @@ void test_sort_func(vector<T> *const in,
 
     Timer t;
     sort(in->data, in->data + in->length);
-    print_result<T>(in, &t);
+    print_result(in->length, &t);
 
     assert(in->isSorted());
 
