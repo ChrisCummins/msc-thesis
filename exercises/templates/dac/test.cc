@@ -6,7 +6,7 @@ namespace {
         int *const a = new int[size];
 
         for (size_t i = 0; i < size; i++)
-            a[i] = rand() % size;
+            a[i] = rand() % size - size / 2;
 
         return a;
     }
