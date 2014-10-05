@@ -10,12 +10,12 @@
 
 template<typename ArrayType>
 class Range {
-public:
+ public:
   ArrayType *left_;
   ArrayType *right_;
 
   Range() {}
-Range(ArrayType *const left, ArrayType *const right)
+  Range(ArrayType *const left, ArrayType *const right)
     : left_(left), right_(right) {}
 };
 
