@@ -10,7 +10,7 @@ CLEANFILES = $(BIN:=.out)
 all: $(BIN)
 
 # Execute all programs:
-run: all
+run-local: all
 	@for f in $(BIN:=.out); do \
 		echo mpirun -np $(NO_OF_PROCESSES) $$f; \
 		mpirun -np $(NO_OF_PROCESSES) $$f; \

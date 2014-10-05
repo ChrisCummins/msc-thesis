@@ -107,7 +107,7 @@ cite:
 endif
 
 # Print make targets
-help:
+help-local:
 	@echo "Build targets:"
 	@echo
 	@echo "  make all       Compile $(DOCPDF)"

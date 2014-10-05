@@ -24,8 +24,7 @@ std_stable_sort_int_SOURCES     = std-stable-sort-int.cc $(test_SOURCES)
 MOSTLYCLEANFILES =
 
 # Execute all programs:
-.PHONY: run
-run: all
+run-local: all
 	@for f in $(noinst_PROGRAMS); do \
 		echo ./$$f; \
 		./$$f; \

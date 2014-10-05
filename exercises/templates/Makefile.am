@@ -15,7 +15,7 @@ stack_SOURCES = stack.cc
 std_stable_sort_list_int_SOURCES = std-stable-sort-list-int.cc list.cc timer.cc
 
 # Execute all programs:
-run: all
+run-local: all
 	@for f in $(noinst_PROGRAMS); do \
 		echo ./$$f; \
 		./$$f; \
