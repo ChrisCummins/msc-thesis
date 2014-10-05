@@ -1,9 +1,11 @@
-#ifndef MSC_THESIS_EXERCISES_TEMPLATES_ITA_MERGE_SORT_H_
-#define MSC_THESIS_EXERCISES_TEMPLATES_ITA_MERGE_SORT_H_
+#ifndef EXERCISES_TEMPLATES_DAC_ITA_MERGE_SORT_H_
+#define EXERCISES_TEMPLATES_DAC_ITA_MERGE_SORT_H_
 
+#include <algorithm>
 #include <cstring>
+#include <vector>
 
-#include "vector.h"
+#include "./vector.h"
 
 #define DEFAULT_BOTTOM_OUT_LENGTH 30
 
@@ -22,55 +24,52 @@ void ita_merge_sort(T *const start, T *const end, unsigned int threshold);
 /* Template implementations */
 /****************************/
 
-namespace {
+template<class T>
+void ita_merge(T *const start, T *const mid, T *const end) {
+    typedef int index_t;
 
-    template<class T>
-    void ita_merge(T *const start, T *const mid, T *const end) {
-        typedef unsigned long int index_t;
+    const index_t n1 = mid - start;
+    const index_t n2 = end - mid;
 
-        const index_t n1 = mid - start;
-        const index_t n2 = end - mid;
+    // Create local copies of arrays:
+    T left[n1];
+    T right[n2];
 
-        // Create local copies of arrays:
-        T left[n1];
-        T right[n2];
+    std::copy(start, mid, &left[0]);
+    std::copy(mid, end, &right[0]);
 
-        std::copy(start, mid, &left[0]);
-        std::copy(mid, end, &right[0]);
+    index_t l = 0, i = 0, r = 0;
 
-        index_t l = 0, i = 0, r = 0;
-
-        while (l < n1 && r < n2) {
-            if (right[r] < left[l])
-                start[i++] = right[r++];
-            else
-                start[i++] = left[l++];
-        }
-
-        while (r < n2)
+    while (l < n1 && r < n2) {
+        if (right[r] < left[l])
             start[i++] = right[r++];
-
-        while (l < n1)
+        else
             start[i++] = left[l++];
     }
 
-    template<class T>
-    void ita_insertion_sort(T *const start, T *const end) {
-        typedef unsigned long int index_t;
-        const index_t len = end - start;
-        T key;
-        index_t j;
+    while (r < n2)
+        start[i++] = right[r++];
 
-        for (index_t i = 1; i < len; i++) {
-            key = start[i];
-            j = i;
+    while (l < n1)
+        start[i++] = left[l++];
+}
 
-            while (j > 0 && start[j-1] > key) {
-                start[j] = start[j-1];
-                j--;
-            }
-            start[j] = key;
+template<class T>
+void ita_insertion_sort(T *const start, T *const end) {
+    typedef int index_t;
+    const index_t len = end - start;
+    T key;
+    index_t j;
+
+    for (index_t i = 1; i < len; i++) {
+        key = start[i];
+        j = i;
+
+        while (j > 0 && start[j-1] > key) {
+            start[j] = start[j-1];
+            j--;
         }
+        start[j] = key;
     }
 }
 
@@ -84,7 +83,7 @@ void ita_merge_sort(T *const start, T *const end) {
 template<class T>
 void ita_merge_sort(T *const start, T *const end,
                     const unsigned int threshold) {
-    const unsigned long int len = end - start;
+    const unsigned int len = end - start;
 
     if (len > threshold) {
         // Recursion case:
@@ -99,4 +98,4 @@ void ita_merge_sort(T *const start, T *const end,
     }
 }
 
-#endif // MSC_THESIS_EXERCISES_TEMPLATES_ITA_MERGE_SORT_H_
+#endif  // EXERCISES_TEMPLATES_DAC_ITA_MERGE_SORT_H_

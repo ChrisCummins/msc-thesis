@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 
     Timer t;
     int m = skel::max_subarray(&a[0], &a[0] + j);
-    printf("size: %7u, time: %4ld ms, answer: %d\n", j, t.ms(), m);
+    printf("size: %7u, time: %4d ms, answer: %d\n", j, t.ms(), m);
   }
 
   return 0;

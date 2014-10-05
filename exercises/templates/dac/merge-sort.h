@@ -1,7 +1,9 @@
-#ifndef MSC_THESIS_EXERCISES_TEMPLATES_MERGE_SORT_H_
-#define MSC_THESIS_EXERCISES_TEMPLATES_MERGE_SORT_H_
+#ifndef EXERCISES_TEMPLATES_DAC_MERGE_SORT_H_
+#define EXERCISES_TEMPLATES_DAC_MERGE_SORT_H_
 
-#include "fddc.h"
+#include <algorithm>
+
+#include "./fddc.h"
 
 /*
  * A concrete stable merge sort implementation, using the Divide and
@@ -19,8 +21,7 @@ class MergeSort : public FDDC<T> {
     using vector_t = typename FDDC<T>::vector_t;
 
  public:
-
-    MergeSort(vector_t *const data_in);
+    explicit MergeSort(vector_t *const data_in);
     bool isIndivisible(const vector_t &t);
     void solve(vector_t *const in);
     void merge(vector_t *const in, vector_t *const out);
@@ -103,8 +104,9 @@ void MergeSort<T>::merge(vector_t *const in, vector_t *const out) {
 
 
 template<class T>
-void MergeSort<T>::set_split_threshold(typename vector_t::size_t split_threshold) {
-    this->split_threshold = split_threshold;
+void MergeSort<T>::set_split_threshold(
+    typename vector_t::size_t split_threshold) {
+  this->split_threshold = split_threshold;
 }
 
-#endif // MSC_THESIS_EXERCISES_TEMPLATES_MERGE_SORT_H_
+#endif  // EXERCISES_TEMPLATES_DAC_MERGE_SORT_H_

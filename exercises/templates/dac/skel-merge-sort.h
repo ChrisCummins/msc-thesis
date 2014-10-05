@@ -1,6 +1,9 @@
 #ifndef EXERCISES_TEMPLATES_DAC_SKEL_MERGE_SORT_H_  // NOLINT(legal/copyright)
 #define EXERCISES_TEMPLATES_DAC_SKEL_MERGE_SORT_H_
 
+#include <algorithm>
+#include <vector>
+
 #include "./skel.h"
 #include "./range.h"
 

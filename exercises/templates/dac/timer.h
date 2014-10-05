@@ -1,17 +1,17 @@
-#ifndef MSC_THESIS_EXERCISES_TEMPLATES_TIMER_H_
-#define MSC_THESIS_EXERCISES_TEMPLATES_TIMER_H_
+#ifndef EXERCISES_TEMPLATES_DAC_TIMER_H_
+#define EXERCISES_TEMPLATES_DAC_TIMER_H_
 
 #include <sys/time.h>
 #include <ctime>
 
 class Timer {
  public:
-     long int us();
-     long int ms();
+     int us();
+     int ms();
      void reset();
      Timer() { reset(); }
  private:
      struct timeval start;
 };
 
-#endif // MSC_THESIS_EXERCISES_TEMPLATES_TIMER_H_
+#endif  // EXERCISES_TEMPLATES_DAC_TIMER_H_

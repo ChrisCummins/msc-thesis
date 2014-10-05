@@ -1,16 +1,16 @@
-#ifndef MSC_THESIS_EXERCISES_TEMPLATES_FDDC_H_
-#define MSC_THESIS_EXERCISES_TEMPLATES_FDDC_H_
+#ifndef EXERCISES_TEMPLATES_DAC_FDDC_H_
+#define EXERCISES_TEMPLATES_DAC_FDDC_H_
 
 #include <atomic>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
+#include <iostream>  // NOLINT(readability/streams)
 #include <thread>
 #include <vector>
 
-#include "debug.h"
-#include "vector.h"
+#include "./debug.h"
+#include "./vector.h"
 
 /*
  * Abstract fixed degree Divide and Conquer skeleton.
@@ -66,10 +66,10 @@ class FDDC {
 
 
     // "Muscle" functions:
-    virtual bool isIndivisible(const vector_t &t);                   // T   -> bool
-    virtual void solve(vector_t *const in);                          // T   -> T
-    virtual void split(vector_t *const in, vector_t *const out);     // T   -> T[]
-    virtual void merge(vector_t *const in, vector_t *const out) = 0; // T[] -> T
+    virtual bool isIndivisible(const vector_t &t);                    // T -> b
+    virtual void solve(vector_t *const in);                           // T -> T
+    virtual void split(vector_t *const in, vector_t *const out);      // T-> T[]
+    virtual void merge(vector_t *const in, vector_t *const out) = 0;  // T[]-> T
 
 
  protected:
@@ -123,9 +123,7 @@ template<class T>
 void FDDC<T>::divide_and_conquer(vector_t *const in,
                                  const unsigned int depth) {
     if (isIndivisible(*in)) {
-
         solve(in);
-
     } else {
         const int next_depth = depth + 1;
         const unsigned int k = this->split_degree;
@@ -161,7 +159,8 @@ void FDDC<T>::divide_and_conquer(vector_t *const in,
                 IF_DAC_DEBUG(this->active_thread_count++);
                 DAC_DEBUG_PRINT(3, "Creating thread " << this->thread_count
                                 << " at depth " << depth
-                                << " (" << this->active_thread_count << " active)");
+                                << " (" << this->active_thread_count
+                                << " active)");
             }
 
             // Block until threads complete:
@@ -170,16 +169,15 @@ void FDDC<T>::divide_and_conquer(vector_t *const in,
                 // Debugging analytics
                 IF_DAC_DEBUG(this->active_thread_count--);
                 DAC_DEBUG_PRINT(3, "Thread completed at depth " << depth <<
-                                " (" << this->active_thread_count << " still active)");
+                                " (" << this->active_thread_count
+                                << " still active)");
             }
 
         } else {
-
             // Sequential:
             for (unsigned int i = 0; i < k; i++) {
                 divide_and_conquer(&buf[i], next_depth);
             }
-
         }
 
         // Merge buffers buf[k:2k] into "out":
@@ -225,4 +223,4 @@ FDDC<T>::FDDC(vector_t *const in, const unsigned int degree)
 }
 
 
-#endif // MSC_THESIS_EXERCISES_TEMPLATES_FDDC_H_
+#endif  // EXERCISES_TEMPLATES_DAC_FDDC_H_

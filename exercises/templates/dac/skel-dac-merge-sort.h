@@ -1,6 +1,7 @@
 #ifndef EXERCISES_TEMPLATES_DAC_SKEL_DAC_MERGE_SORT_H_  // NOLINT(legal/copyright)
 #define EXERCISES_TEMPLATES_DAC_SKEL_DAC_MERGE_SORT_H_
 
+#include <algorithm>
 #include <vector>
 
 #include "./skel.h"
@@ -107,7 +108,7 @@ std::vector<ArrayType> merge(std::vector<std::vector<ArrayType>> lists) {
 template<typename ArrayType>
 std::vector<ArrayType> dac_merge_sort(std::vector<ArrayType> in) {
   return divide_and_conquer<
-      std::vector<ArrayType>, std::vector<ArrayType>, // Data types
+      std::vector<ArrayType>, std::vector<ArrayType>,  // Data types
       is_indivisible<ArrayType>,                      // is_indivisible() muscle
       divide<ArrayType>,                              // divide() muscle
       insertion_sort<ArrayType>,                      // conquer() muscle
