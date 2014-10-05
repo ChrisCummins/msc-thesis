@@ -279,7 +279,7 @@ void divide_and_transform(Type *const problem, const int depth) {
 #endif  // DAC_SKEL_PARALLELISATION_DEPTH > 0
 
       // Sequential execution (*yawn*):
-      for (auto sub_problem : sub_problems)
+      for (auto& sub_problem : sub_problems)
         self(&sub_problem, next_depth);
 
 #if DAC_SKEL_PARALLELISATION_DEPTH > 0
