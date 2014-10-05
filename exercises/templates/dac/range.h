@@ -17,6 +17,10 @@ class Range {
   Range() {}
   Range(ArrayType *const left, ArrayType *const right)
     : left_(left), right_(right) {}
+
+  int size() const {
+    return this->right_ - this->left_;
+  }
 };
 
 // Split a range into multiple evenly size smaller ranges.
