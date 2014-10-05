@@ -158,6 +158,17 @@ AM_CONDITIONAL([HAVE_NPROC],[test "x$HAVE_NPROC" = xyes])
 
 
 dnl ================================================================
+dnl Do we have cpplint installed?
+dnl ================================================================
+AC_CHECK_PROG([CPPLINT],[cpplint],[cpplint])
+AS_IF([test "x$CPPLINT" != x],
+      [HAVE_CPPLINT=yes],
+      [HAVE_CPPLINT=no])
+AC_SUBST([HAVE_CPPLINT],[$HAVE_CPPLINT])
+AM_CONDITIONAL([HAVE_CPPLINT],[test "x$HAVE_CPPLINT" = xyes])
+
+
+dnl ================================================================
 dnl Export the number of available processors (if we have nproc).
 dnl ================================================================
 AS_IF([test "x$HAVE_NPROC" = xyes],

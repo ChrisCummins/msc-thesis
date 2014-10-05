@@ -41,6 +41,22 @@ analyze: analyze_cxx
 analyze_cxx: $(analyze_cxx_PLISTS)
 
 $(analyze_cxx_PLISTS): %.plist: %.cc
-	@echo '  CXXSA    $@'
+	@echo '  CXXSA    $<'
 	@$(CXXCOMPILE) --analyze $< -o $@
+endif
+
+
+# C++ linter:
+if HAVE_CPPLINT
+
+all-local: cpplint
+cpplint_SRC = $(wildcard *.cc) $(wildcard *.h)
+cpplint_LINT = $(addsuffix .lint,$(cpplint_SRC))
+MOSTLYCLEANFILES += $(cpplint_LINT)
+
+cpplint: $(cpplint_LINT)
+
+$(cpplint_LINT): %.lint: %
+	@echo '  CPPLINT  $<'
+	@$(CPPLINT) $< 2>&1 | tee $@
 endif
