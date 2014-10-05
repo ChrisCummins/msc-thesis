@@ -55,5 +55,5 @@ cpplint: $(cpplint_LINT)
 
 $(cpplint_LINT): %.lint: %
 	@echo '  CPPLINT  $<'
-	@$(CPPLINT) $< 2>&1 | tee $@
+	@$(CPPLINT) --filter=-legal $< 2>&1 | tee $@
 endif
