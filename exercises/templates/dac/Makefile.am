@@ -43,8 +43,8 @@ MOSTLYCLEANFILES += $(analyze_PLISTS)
 analyze: $(analyze_PLISTS)
 
 $(analyze_PLISTS): %.plist: %
-	@echo '  CXXSA    $<'
-	@$(CXXCOMPILE) -xc++ --analyze $< -o $@
+	@if ! $(AM_V_P); then echo '  CXXSA    $<'; fi
+	$(AM_V_at)$(CXXCOMPILE) -xc++ --analyze $< -o $@
 endif
 
 
@@ -59,8 +59,8 @@ MOSTLYCLEANFILES += $(cpplint_LINT)
 cpplint: $(cpplint_LINT)
 
 $(cpplint_LINT): %.lint: %
-	@echo '  CPPLINT  $<'
-	@$(CPPLINT) --filter=-legal,-build/c++11 $< 2>&1 \
+	@if ! $(AM_V_P); then echo '  CPPLINT  $<'; fi
+	$(AM_V_at)$(CPPLINT) --filter=-legal,-build/c++11 $< 2>&1 \
 		| grep -v '^Done processing\|^Total errors found: ' \
 		| tee $@
 endif
