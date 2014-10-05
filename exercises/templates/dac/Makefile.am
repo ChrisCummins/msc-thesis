@@ -29,7 +29,7 @@ run: all
 	done
 
 # Static analysis:
-analyze_cxx_SRC = $(wildcard *.cc)
+analyze_cxx_SRC = $(sort $(filter %.cc,$(SOURCES)))
 analyze_cxx_PLISTS = $(analyze_cxx_SRC:%.cc=%.plist)
 
 MOSTLYCLEANFILES = $(analyze_cxx_PLISTS)
