@@ -32,6 +32,10 @@ namespace {
     }
 }
 
+int *get_unsorted_int_array(const size_t size) {
+    return get_rand_int_array(size);
+}
+
 vector<int> *get_unsorted_int_vector(const size_t size) {
     return get_unsorted_vector(size, get_rand_int_array);
 }
