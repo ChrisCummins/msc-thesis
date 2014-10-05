@@ -55,5 +55,7 @@ cpplint: $(cpplint_LINT)
 
 $(cpplint_LINT): %.lint: %
 	@echo '  CPPLINT  $<'
-	@$(CPPLINT) --filter=-legal $< 2>&1 | tee $@
+	@$(CPPLINT) --filter=-legal $< 2>&1 \
+		| grep -v '^Done processing\|^Total errors found: ' \
+		| tee $@
 endif
