@@ -49,8 +49,6 @@ AC_PROG_INSTALL
 AC_PROG_MKDIR_P
 AC_PROG_SED
 
-AM_CONDITIONAL([HAVE_CLANG], [test "x$CXX" = xclang++])
-
 
 dnl ================================================================
 dnl Build configuration
@@ -171,6 +169,66 @@ AC_DEFINE_UNQUOTED([NUM_PROC],[$NUM_PROC],
                    [Number of processing units available.])
 
 AC_MSG_NOTICE([Number of processor available: $NUM_PROC])
+
+
+dnl ================================================================
+dnl Set build configuration for C++ compilation
+dnl ================================================================
+
+# Configurable options:
+CXX_STD=c++11
+CXX_STDLIB=libstdc++
+CXX_OLEVEL="-O0"
+
+# Flags for C++ compilation
+cxx_flags="\
+-Wall
+-Wextra
+-Wno-unused-parameter"
+
+# Flags for linking
+ld_flags=""
+
+dnl Export debugging symbols if not building with optimisation.
+AS_IF([test "x$CXX_OLEVEL" = x-O0],
+      [CXX_OLEVEL="$CXX_OLEVEL -pg"])
+
+dnl Export HAS_CLANG conditional
+AC_MSG_CHECKING([for clang++ compiler])
+AS_IF([test "x$CXX" = xclang++],
+      [HAVE_CLANG=yes
+       AC_MSG_RESULT([yes])],
+      [HAVE_CLANG=no
+       AC_MSG_RESULT([no])])
+AC_SUBST([HAVE_CLANG],[$HAVE_CLANG])
+AM_CONDITIONAL([HAVE_CLANG],[test "x$HAVE_CLANG" = xyes])
+
+dnl Export CXX_STD flag
+AC_SUBST([CXX_STD],[-std=$CXX_STD])
+
+dnl Export CXX_STDLIB flag
+AS_IF([test "x$HAVE_CLANG" = xyes],
+      [AC_MSG_NOTICE([Using C++ standard library: $CXX_STDLIB])
+       CXX_STDLIB=-stdlib=$CXX_STDLIB],
+      [CXX_STDLIB=])
+AC_SUBST([CXX_STDLIB],[$CXX_STDLIB])
+
+dnl Set and export CXXFLAGS
+CXXFLAGS="$CXX_STD $CXX_STDLIB $CXX_OLEVEL"
+while read -r flag; do
+      CXXFLAGS="$CXXFLAGS $flag"
+done <<< "$cxx_flags"
+unset cxx_flags
+AC_SUBST([CXXFLAGS],[$CXXFLAGS])
+
+dnl Set and export LDFLAGS
+LDFLAGS="$CXX_STD $CXX_STDLIB"
+while read -r flag; do
+      LDFLAGS="$LDFLAGS $flag"
+done <<< "$ld_flags"
+unset ld_flags
+AC_SUBST([LDFLAGS],[$LDFLAGS])
+
 
 dnl ================================================================
 dnl Generate files

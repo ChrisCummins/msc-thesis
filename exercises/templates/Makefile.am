@@ -1,18 +1,5 @@
 SUBDIRS = dac
 
-AM_CXXFLAGS = 				\
-	-std=c++11			\
-	-pthread 			\
-	-Wall 				\
-	-Wextra 			\
-	-Wno-unused-parameter 		\
-	-O0 -pg 			\
-	$(NULL)
-
-AM_LDFLAGS = 				\
-	-pthread			\
-	$(NULL)
-
 noinst_PROGRAMS = 			\
 	dc-merge-sort			\
 	fddc-merge-sort			\
