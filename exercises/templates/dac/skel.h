@@ -7,9 +7,9 @@
 #include <cstring>
 #include <iostream>  // NOLINT(readability/streams)
 #include <memory>
-#include <thread>    // NOLINT(build/c++11)
+#include <thread>
 #include <vector>
-#include <future>    // NOLINT(build/c++11)
+#include <future>
 
 #include "./config.h"
 #include "./debug.h"
