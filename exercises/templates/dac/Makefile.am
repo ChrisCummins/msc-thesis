@@ -31,18 +31,15 @@ run: all
 if HAVE_CLANG
 
 all-local: analyze
-analyze_cxx_SRC = $(sort $(filter %.cc,$(SOURCES)))
-analyze_cxx_PLISTS = $(analyze_cxx_SRC:%.cc=%.plist)
-MOSTLYCLEANFILES += $(analyze_cxx_PLISTS)
+analyze_SRC = $(wildcard *.h) $(wildcard *.cc)
+analyze_PLISTS = $(addsuffix .plist,$(analyze_SRC))
+MOSTLYCLEANFILES += $(analyze_PLISTS)
 
-.PHONY: analyze
-analyze: analyze_cxx
+analyze: $(analyze_PLISTS)
 
-analyze_cxx: $(analyze_cxx_PLISTS)
-
-$(analyze_cxx_PLISTS): %.plist: %.cc
+$(analyze_PLISTS): %.plist: %
 	@echo '  CXXSA    $<'
-	@$(CXXCOMPILE) --analyze $< -o $@
+	@$(CXXCOMPILE) -xc++ --analyze $< -o $@
 endif
 
 
