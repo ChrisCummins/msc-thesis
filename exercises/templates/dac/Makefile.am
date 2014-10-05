@@ -1,7 +1,3 @@
-if HAVE_CLANG
-all-local: analyze
-endif
-
 noinst_PROGRAMS = 			\
 	ita-merge-sort-int		\
 	merge-sort-float		\
@@ -20,6 +16,8 @@ skel_dac_merge_sort_int_SOURCES = skel-dac-merge-sort-int.cc $(test_SOURCES)
 skel_merge_sort_int_SOURCES     = skel-merge-sort-int.cc $(test_SOURCES)
 std_stable_sort_int_SOURCES	= std-stable-sort-int.cc $(test_SOURCES)
 
+MOSTLYCLEANFILES =
+
 # Execute all programs:
 .PHONY: run
 run: all
@@ -28,11 +26,14 @@ run: all
 		./$$f; \
 	done
 
+
 # Static analysis:
+if HAVE_CLANG
+
+all-local: analyze
 analyze_cxx_SRC = $(sort $(filter %.cc,$(SOURCES)))
 analyze_cxx_PLISTS = $(analyze_cxx_SRC:%.cc=%.plist)
-
-MOSTLYCLEANFILES = $(analyze_cxx_PLISTS)
+MOSTLYCLEANFILES += $(analyze_cxx_PLISTS)
 
 .PHONY: analyze
 analyze: analyze_cxx
@@ -42,3 +43,4 @@ analyze_cxx: $(analyze_cxx_PLISTS)
 $(analyze_cxx_PLISTS): %.plist: %.cc
 	@echo '  CXXSA    $@'
 	@$(CXXCOMPILE) --analyze $< -o $@
+endif
