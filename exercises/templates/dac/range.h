@@ -14,9 +14,11 @@ class Range {
   ArrayType *left_;
   ArrayType *right_;
 
-  Range() {}
-  Range(ArrayType *const left, ArrayType *const right)
-    : left_(left), right_(right) {}
+  Range() : left_(0), right_(0) {}
+  Range(ArrayType *const left, ArrayType *const right) :
+      left_(left), right_(right) {}
+  Range(const Range& src) :
+      left_(src.left_), right_(src.right_) {}
 
   int size() const {
     return this->right_ - this->left_;
