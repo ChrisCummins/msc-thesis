@@ -1,6 +1,8 @@
 #ifndef EXERCISES_TEMPLATES_DAC_RANGE_H_  // NOLINT(legal/copyright)
 #define EXERCISES_TEMPLATES_DAC_RANGE_H_
 
+#include <vector>
+
 //
 // Storing pointers to arrays.
 ////////////////////////////////////////////////////////////////////
