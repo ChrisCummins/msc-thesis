@@ -9,7 +9,7 @@
 #include <memory>
 #include <thread>    // NOLINT(build/c++11)
 #include <vector>
-#include <future>
+#include <future>    // NOLINT(build/c++11)
 
 #include "./config.h"
 #include "./debug.h"
