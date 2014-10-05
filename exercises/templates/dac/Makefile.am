@@ -1,5 +1,5 @@
 AM_CXXFLAGS = -pthread
-AM_LDFLAGS = -pthread
+AM_LDFLAGS  = -pthread
 
 noinst_PROGRAMS = 			\
 	ita-merge-sort-int		\
@@ -31,35 +31,83 @@ run-local: all
 	done
 
 
-# Static analysis:
+# The C++ static analyser.
+##########################
+#
+# If we have clang++ available, then we can invoke it with the
+# --analyze parameter to run a static analyser.
+#
 if HAVE_CLANG
 
-all-local: analyze
-analyze_SRC = $(wildcard *.h) $(wildcard *.cc)
+analyze_SRC = $(wildcard *.h)
 analyze_PLISTS = $(addsuffix .plist,$(analyze_SRC))
-MOSTLYCLEANFILES += $(analyze_PLISTS)
+MOSTLYCLEANFILES += $(analyze_PLISTS) $(addsuffix .plist,$(sort $(SOURCES)))
 
-analyze: $(analyze_PLISTS)
+# Our static analysis function:
+define analyze
+	$(AM_V_at)$(CXXCOMPILE) -xc++ --analyze $1 -o $2;
+endef
 
+all-local: $(analyze_PLISTS)
+
+# Explicit target for static analysis:
 $(analyze_PLISTS): %.plist: %
 	@if ! $(AM_V_P); then echo '  CXXSA    $<'; fi
-	$(AM_V_at)$(CXXCOMPILE) -xc++ --analyze $< -o $@
+	$(call analyze,$<,$@)
+
+else
+# If we don't have clang++ then just define a null function so that we
+# can safely call clang++ from our non-conditional make rule:
+define analyze
+endef
 endif
 
 
-# C++ linter:
+# The C++ linter.
+#################
+#
+# The cpplint script checks an input source file and enforces the
+# style guidelines set out in:
+#
+#   http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml
+#
 if HAVE_CPPLINT
 
-all-local: cpplint
-cpplint_SRC = $(wildcard *.cc) $(wildcard *.h)
-cpplint_LINT = $(addsuffix .lint,$(cpplint_SRC))
-MOSTLYCLEANFILES += $(cpplint_LINT)
+cpplint_SRC       = $(wildcard *.h)
+cpplint_LINT      = $(addsuffix .lint,$(cpplint_SRC))
+MOSTLYCLEANFILES += $(cpplint_LINT) $(addsuffix .lint,$(sort $(SOURCES)))
 
-cpplint: $(cpplint_LINT)
+# Our cpplint function:
+define cpplint
+	$(AM_V_at)$(CPPLINT) --filter=-legal,-build/c++11 $1 2>&1 \
+		| grep -v '^Done processing\|^Total errors found: ' \
+		| tee $2
+endef
 
+all-local: $(cpplint_LINT)
+
+# Explicit target for cpplint:
 $(cpplint_LINT): %.lint: %
 	@if ! $(AM_V_P); then echo '  CPPLINT  $<'; fi
-	$(AM_V_at)$(CPPLINT) --filter=-legal,-build/c++11 $< 2>&1 \
-		| grep -v '^Done processing\|^Total errors found: ' \
-		| tee $@
+	$(call cpplint,$<,$@)
+
+else
+# If we don't have cpplint then just define a null function so that we
+# can safely call cpplint from our non-conditional make rule:
+define cpplint
+endef
 endif
+
+
+# C++ compilation.
+##################
+#
+# Automake doesn't support extending the built-in rules, so we have to
+# override the default with our own. The first two lines are copied
+# from the built-in the rule. We then hook our custom build logic at
+# the end, running the static analyzer and lint script.
+%.o: %.cc
+	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+	$(call analyze,$<,$<.plist)
+	$(call cpplint,$<,$<.lint)
