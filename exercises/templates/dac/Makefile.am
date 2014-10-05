@@ -1,3 +1,6 @@
+AM_CXXFLAGS = -pthread
+AM_LDFLAGS = -pthread
+
 noinst_PROGRAMS = 			\
 	ita-merge-sort-int		\
 	merge-sort-float		\
