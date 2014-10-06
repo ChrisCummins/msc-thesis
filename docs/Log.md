@@ -1121,6 +1121,17 @@ d = log2(N + 1)
 
 ## Friday 3rd
 
+Now that I have a working divide and conquer skeleton implemented, I'm
+going to build Skandium and compare usage + execution times against
+their Java skeleton framework.
+
+ * Checked out `https://github.com/mleyton/Skandium.git` repo.
+ * Imported sources into Eclipse (I couldn't figure out the build
+   system that they were using, lots of strange errors about
+   conflicting versions of dependencies).
+
+### In-place Divide and Conquer
+
 Divide and conquer algorithms tend to perform one of two tasks: either
 they *solve* a problem in order to return a solution value, or they
 *transform* the input data in some manner. For example, the max
