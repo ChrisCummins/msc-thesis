@@ -1233,3 +1233,49 @@ def split(T):
 def combine(T[]):
     return max(T)
 ```
+
+
+## Tuesday 7th
+
+There are two possible areas for research in algorithmic skeletons
+which appear to lacking from the existing literature:
+
+ * **Completely *transparently parallelising* skeletons**. The amount of
+   explicit parallelisation support required from the user of
+   Skeletons varies from framework to framework. For example, Skandium
+   offers fairly abstracted view, but still requires the user to set
+   the number of threads (i.e. declare the available resources), and
+   to wrap shared memory access in muscle functions with
+   `synchronized` constructs. By contrast, eSkel requires absolute
+   explicit control of parallelisation by building on top of MPI, and
+   so would have a relatively high cost-of-entry for anyone who is
+   looking to parallelise a sequential program (at a minimum, they
+   would need to refactor their code to use MPI/eSkel data
+   structures). This leaves room for the development of a skeleton
+   framework which performs the parallelisation entirely
+   transparently. This would allow users to simply replace existing
+   sequential constructs with their skeleton equivalent *without*
+   having to concern themselves with any of the additional
+   complexities such as coordinating available resources even being
+   aware that the skeleton operates in parallel. For example, my
+   simple `merge_sort` skeleton could serve as a direct replacement
+   for any call to the STL stable sort function, and would "magically"
+   offer the user a ~x2.8 speedup.
+
+ * **Intelligent skeletons which determine *when* to
+   parallelise**. Skeletons provide the necessary coordination logic
+   to take a selection of muscle functions and to parallelise
+   them. However, there appears to be no skeletons which attempt to
+   determine *when* to parallelise a muscle function. For example, in
+   the case of a merge sort skeleton, you would expect full
+   parallelisation when dealing with large datasets. However, if only
+   sorting 10 elements, then the cost of coordinating separate threads
+   and shared memory access may be greater than simply operating in
+   parallel. Similarly, a divide and conquer skeleton may apply
+   heuristics to the individual divide, conquer, and combine muscles
+   to determine which are the most computationally expensive, and so
+   which would benefit most from parallelisation. In the case of merge
+   sort, the `conquer()` muscle simply returns a single element array,
+   but for a max-subarray skeleton, the `conquer()` muscle can perform
+   many more operations, totalling up the maximum value of two
+   subarrays.
