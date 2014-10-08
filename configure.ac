@@ -232,6 +232,7 @@ while read -r flag; do
 done <<< "$cxx_flags"
 unset cxx_flags
 AC_SUBST([CXXFLAGS],[$CXXFLAGS])
+AC_MSG_NOTICE([Using C++ optimisation flags: $CXX_OLEVEL])
 
 dnl Set and export LDFLAGS
 LDFLAGS="$CXX_STD $CXX_STDLIB"
