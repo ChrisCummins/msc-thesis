@@ -99,6 +99,38 @@ endef
 endif
 
 
+# Generating LLVM IR bytecode.
+##############################
+#
+# If we have clang++ available, then we emit bytecode in addition to
+# the native object file. This bytecode isn't used by any other stage
+# of the compilation process, but is intended primarily for
+# informative purposes and to aid in debugging.
+#
+if HAVE_CLANG
+MOSTLYCLEANFILES += $(addsuffix .ll,$(patsubst %.cc,%,$(sort $(SOURCES))))
+define emit-bytecode
+	$(AM_V_CXX)$(CXXCOMPILE) -emit-llvm -S -o $2 $1
+endef
+else
+define emit-bytecode
+endef
+endif
+
+
+# Generating native assembly.
+#############################
+#
+# We generate native assembly code for all input sources. This is for
+# debugging and informative purposes, it is not required as part of
+# the compilation process.
+#
+MOSTLYCLEANFILES += $(addsuffix .s,$(patsubst %.cc,%,$(sort $(SOURCES))))
+define emit-asm
+	$(AM_V_CXX)$(CXX) -S -o $2 $1
+endef
+
+
 # C++ compilation.
 ##################
 #
@@ -109,5 +141,7 @@ endif
 %.o: %.cc
 	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
 	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+	$(call emit-bytecode,$<,$(patsubst %.o,%,$@).ll)
+	$(call emit-asm,$(patsubst %.o,%,$@).ll,$(patsubst %.o,%,$@).s)
 	$(call analyze,$<,$<.plist)
 	$(call cpplint,$<,$<.lint)
