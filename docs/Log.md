@@ -1289,3 +1289,93 @@ which appear to lacking from the existing literature:
    (either at compile or execution time) to execute merge sort conquer
    muscle sequentially, but to parallelise the equivalent muscle for
    max-subarray.
+
+
+## Thursday 9th
+
+### Building LLVM:
+
+1. Clone https://github.com/llvm-mirror/llvm.git.
+1. Clone https://github.com/llvm-mirror/clang.git into `llvm/tools`.
+1. Clone https://github.com/llvm-mirror/clang-tools-extra.git into
+   `llvm/tools/clang/tools`.
+1. Clone https://github.com/llvm-mirror/compiler-rt.git into
+   `llvm/projects`.
+1. Clone https://github.com/llvm-mirror/test-suite.git into `llvm/projects`.
+1. Out of tree build: `mkdir build && cd build && ../configure &&
+   make`
+
+### Execute LLVM bitcode natively
+
+Load kernel module:
+
+```
+mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+```
+
+Persistent mount with `/etc/fstab`:
+
+```
+# Execute arbitrary file formats as executables
+none  /proc/sys/fs/binfmt_misc binfmt_misc defaults 0 0
+```
+
+See the Arch Wiki
+[binfmt_misc](https://wiki.archlinux.org/index.php/Binfmt_misc_for_Java#Registering_the_file_type_with_binfmt_misc)
+page for instructions on Java Wrappers. For native execution of LLVM
+bitcode (NOTE: `/bin/lli` is system specific):
+
+```
+% echo ':llvm:M::BC::/bin/lli:' > /proc/sys/fs/binfmt_misc/register
+```
+
+To emit bitcode:
+
+```
+$ clang -emit-llvm hello.c -c -o hello.bc
+$ chmod +x hello.bc
+$ ./hello.bc
+```
+
+To emit bytecode:
+
+```
+$ clang -emit-llvm hello.c -S -o hello.ll
+```
+
+To compile bitcode to native assembly:
+
+```
+$ llc hello.bc -o hello.s
+```
+
+To disassemble bitcode to LLVM IR:
+
+```
+$ llvm-dis < hello.bc
+```
+
+A totally manual compilation process:
+
+```
+# Compile source code to bytecode:
+$ clang -emit-llvm hello.c -S -o hello.ll
+# Compile bytecode to bitcode:
+$ clang -emit-llvm hello.ll -c -o hello.bc
+# Compile bitcode to native assembly:
+$ llc hello.bc -o hello.s
+# Compile native assembly to DSO:
+$ clang hello.s -c -o hello.o
+# Link DSO to executable:
+$ clang hello.o -o hello
+```
+
+And for multiple files:
+
+```
+# C source code to bytecode:
+$ clang -emit-llvm hello.c -S -o hello.ll
+$ clang -emit-llvm foo.c -S -o foo.ll
+# Link:
+$ clang foo.ll hello.ll -o hello
+```
