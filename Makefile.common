@@ -1,0 +1,207 @@
+#------------------------------------------------------------------------
+# Variables and file lists.
+#------------------------------------------------------------------------
+
+CSourceExtension   = .c
+CHeaderExtension   = .g
+
+CxxSourceExtension = .cc
+CxxHeaderExtension = .h
+
+ByteCodeExtension  = .ll
+AsmExtension       = .s
+
+# File extension for cpplint tool.
+CpplintExtension      = .lint
+PlistExtension     = .plist
+
+# Derived file lists.
+Sources            = $(sort $(SOURCES))
+
+CSources           = $(wildcard *$(CSourceExtension))
+CSourceBaseNames   = $(patsubst %$(CSourceExtension),%,$(CSources))
+
+CHeaders           = $(wildcard *$(CHeaderExtension))
+CHeaderBaseNames   = $(patsubst %$(CHeaderExtension),%,$(CHeaders))
+
+CxxSources         = $(wildcard *$(CxxSourceExtension))
+CxxSourceBaseNames = $(patsubst %$(CxxSourceExtension),%,$(CxxSources))
+
+CxxHeaders         = $(wildcard *$(CxxHeaderExtension))
+CxxHeaderBaseNames = $(patsubst %$(CxxHeaderExtension),%,$(CxxHeaders))
+
+# Empty clean list to append to.
+MOSTLYCLEANFILES =
+
+#------------------------------------------------------------------------
+# Auxiliary build targets.
+#------------------------------------------------------------------------
+
+# Execute all binaries.
+run-local: $(noinst_PROGRAMS)
+	@for bin in $^; do			\
+		echo ./$$bin;			\
+		./$$bin;			\
+	done
+
+#------------------------------------------------------------------------
+# Static analysis of C and C++ files.
+#------------------------------------------------------------------------
+
+# If we have clang available, then we can invoke it with the --analyze
+# parameter to perform static analysis of C and C++ sources.
+if HAVE_CLANG
+
+# The clang static analyser generates .plist files.
+CPlists           = $(addsuffix $(PlistExtension),$(CSources) $(CHeaders))
+CxxPlists         = $(addsuffix $(PlistExtension),$(CxxSources) $(CxxHeaders))
+Plists            = $(CPlists) $(CxxPlists)
+MOSTLYCLEANFILES += $(Plists)
+
+# Generate static analysis files as a part of regular compilation.
+all-local: $(Plists)
+
+# Explicit targets for static analysis.
+$(CPlists): %$(PlistExtension): %
+	@if ! $(AM_V_P); then echo '  CSA      $<'; fi
+	$(AM_V_at)$(call create-c-plist,$<,$@)
+
+$(CxxPlists): %$(PlistExtension): %
+	@if ! $(AM_V_P); then echo '  CXXSA    $<'; fi
+	$(AM_V_at)$(call create-cxx-plist,$<,$@)
+
+# Functions for generating plist files.
+define create-c-plist
+	$(COMPILE) --analyze $1 -o $2;
+endef
+
+define create-cxx-plist
+	$(CXXCOMPILE) -xc++ --analyze $1 -o $2;
+endef
+
+else
+# If we don't have clang then just define an empty functions so that
+# we can safely call create-x-plist whether or not we are building
+# with clang.
+define create-c-plist
+	true
+endef
+
+define create-cxx-plist
+	true
+endef
+endif
+
+#------------------------------------------------------------------------
+# Style checking C++ files.
+#------------------------------------------------------------------------
+
+# The cpplint script checks an input source file and enforces the
+# style guidelines set out in:
+#
+#   http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml
+#
+if HAVE_CPPLINT
+
+Cpplints          = $(addsuffix $(CpplintExtension),$(CxxSources) $(CxxHeaders))
+MOSTLYCLEANFILES += $(Cpplints)
+
+# Generate linter files as a part of regular compilation.
+all-local: $(Cpplints)
+
+# Explicit target for cpplint:
+$(Cpplints): %$(CpplintExtension): %
+	@if ! $(AM_V_P); then echo '  CPPLINT  $<'; fi
+	$(AM_V_at)$(call cpplint,$<,$@)
+
+# Function for generating lint files.
+define cpplint
+	$(CPPLINT) --filter=-legal,-build/c++11 $1 2>&1 		\
+		| grep -v '^Done processing\|^Total errors found: ' 	\
+		| tee $2
+endef
+
+else
+# If we don't have cpplint then just define an empty function so that
+# we can safely call cpplint whether or not we have the cpplint
+# package available.
+define cpplint
+	true
+endef
+endif
+
+#------------------------------------------------------------------------
+# Generating LLVM IR bytecode.
+#------------------------------------------------------------------------
+
+# If we have clang available, then we emit LLVM bytecode in addition
+# to native object files. This bytecode isn't used by any other stage
+# of the compilation process, but is intended primarily for
+# informative purposes and to aid in debugging.
+if HAVE_CLANG
+
+# Generate bytecode files with .ll extension.
+CByteCodes        = $(addsuffix $(ByteCodeExtension),$(CSourceBaseNames))
+CxxByteCodes      = $(addsuffix $(ByteCodeExtension),$(CxxSourceBaseNames))
+ByteCodes         = $(CByteCodes) $(CxxByteCodes)
+MOSTLYCLEANFILES += $(ByteCodes)
+
+# Functions for generating bytecode.
+define emit-c-bytecode
+	$(COMPILE) -emit-llvm -S -o $2 $1
+endef
+
+define emit-cxx-bytecode
+	$(CXXCOMPILE) -emit-llvm -S -o $2 $1
+endef
+
+else
+# If we don't have clang then just define an empty function so that we
+# can safely call emit-bytecode whether or not we are building with
+# clang.
+define emit-c-bytecode
+	true
+endef
+
+define emit-cxx-bytecode
+	true
+endef
+endif
+
+#------------------------------------------------------------------------
+# Generating native assembly sources.
+#------------------------------------------------------------------------
+
+# We generate native assembly code for all input sources. This is for
+# debugging and informative purposes, it is not required as part of
+# the compilation process.
+CAsmFiles         = $(addsuffix $(AsmExtension),$(CSourceBaseNames))
+CxxAsmFiles       = $(addsuffix $(AsmExtension),$(CxxSourceBaseNames))
+GeneratedAsmFiles = $(CAsmFiles) $(CxxAsmFiles)
+MOSTLYCLEANFILES += $(GeneratedAsmFiles)
+
+# Functions for generating asm files.
+define emit-c-asm
+	$(CC) -S -o $2 $1
+endef
+
+define emit-cxx-asm
+	$(CXX) -S -o $2 $1
+endef
+
+#------------------------------------------------------------------------
+# Compiling C++ object files.
+#------------------------------------------------------------------------
+
+# Automake doesn't support extending the built-in rules, so we have to
+# override the default with our own. The first two lines are copied
+# from the built-in the rule. We then hook our custom build logic
+# after this, generating additional source listings and performing
+# source analysis.
+%.o: %.cc
+	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+	$(AM_V_at)$(call emit-cxx-bytecode, $<, $*$(ByteCodeExtension))
+	$(AM_V_at)$(call emit-cxx-asm,      $*$(ByteCodeExtension), $*$(AsmExtension))
+	$(AM_V_at)$(call create-cxx-plist,  $<, $<$(PlistExtension))
+	$(AM_V_at)$(call cpplint,           $<, $<$(CpplintExtension))

@@ -1,3 +1,6 @@
+# Import common build script.
+include $(top_srcdir)/Makefile.common
+
 BIN := $(basename $(wildcard *.cpp))
 NO_OF_PROCESSES := 4
 

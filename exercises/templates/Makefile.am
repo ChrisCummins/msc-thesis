@@ -1,3 +1,6 @@
+# Import common build script.
+include $(top_srcdir)/Makefile.common
+
 SUBDIRS = dac
 
 noinst_PROGRAMS = 			\
@@ -13,10 +16,3 @@ fddc_merge_sort_SOURCES = fddc-merge-sort.cc list.cc timer.cc
 merge_sort_SOURCES = merge-sort.cc list.cc timer.cc
 stack_SOURCES = stack.cc
 std_stable_sort_list_int_SOURCES = std-stable-sort-list-int.cc list.cc timer.cc
-
-# Execute all programs:
-run-local: all
-	@for f in $(noinst_PROGRAMS); do \
-		echo ./$$f; \
-		./$$f; \
-	done

@@ -1,3 +1,6 @@
+# Import common build script.
+include $(top_srcdir)/Makefile.common
+
 # Our target document:
 DOC = plan
 
