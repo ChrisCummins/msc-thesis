@@ -205,3 +205,39 @@ endef
 	$(AM_V_at)$(call emit-cxx-asm,      $*$(ByteCodeExtension), $*$(AsmExtension))
 	$(AM_V_at)$(call create-cxx-plist,  $<, $<$(PlistExtension))
 	$(AM_V_at)$(call cpplint,           $<, $<$(CpplintExtension))
+
+#------------------------------------------------------------------------
+# Compiling PDF LaTeX documents.
+#------------------------------------------------------------------------
+DocumentBuildLog = make.log
+
+PdflatexArgs = 				\
+	-output-format pdf 		\
+	-progname pdflatex 		\
+	-file-line-error 		\
+	-interaction=nonstopmode	\
+	$(NULL)
+
+# Compile commands. We pipe the output to /dev/null to silence it, and
+# if there is an error, we re-run the compilation without the pipe so
+# as to print the failure messages.
+define pdflatex
+	$(AM_V_at)echo -e "\nCOMMAND: $(PDFLATEX) $(PdflatexArgs) $1\n" >>$(DocumentBuildLog)
+	$(AM_V_at)$(PDFLATEX) $(PdflatexArgs) $1 2>&1 >>$(DocumentBuildLog) || $(PDFLATEX) $(PdflatexArgs) $1
+endef
+
+define bibtex
+	$(AM_V_at)echo -e "\nCOMMAND: $(BIBTEX) $1\n" >>$(DocumentBuildLog)
+	$(AM_V_at)$(BIBTEX) $1 2>&1 >>$(DocumentBuildLog) || $(BIBTEX) $1
+endef
+
+%.pdf: %.tex
+	$(AM_V_at)echo -e "Build log for `date`\n\n" >$(DocumentBuildLog)
+	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
+	$(call pdflatex, $<)
+	@if ! $(AM_V_P); then echo '  BIBTEX   $@'; fi
+	$(call bibtex,   $*)
+	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
+	$(call pdflatex, $<)
+	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
+	$(call pdflatex, $<)

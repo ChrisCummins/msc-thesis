@@ -10,8 +10,7 @@
 
 % Paper title
 \title{Foo bar}
-\newcommand{\multilinetitle}{Foo\\
-                             bar}
+\newcommand{\multilinetitle}{Foo\\bar}
 
 % Subtitle
 \newcommand{\subtitle}{Baz}
@@ -27,7 +26,7 @@
 %%%%%%%%%%%%%%
 %% Preamble %%
 %%%%%%%%%%%%%%
-\input{preamble}
+\input{_\jobname.tex}
 
 
 %%%%%%%%%%%%%%
@@ -50,6 +49,8 @@
 
 \pagenumbering{arabic} % Reset page counter to Arabic
 
+Foo \cite{ibm2003uml}.
+
 % Chapters:
 %% \input{chapters/intro}
 %% \input{chapters/lit}
@@ -65,9 +66,8 @@
   %% \input{appendices/wc}
 \end{appendices}
 
-\newpage
-\begin{thebibliography}{9}
-  %% \input{ref}
-\end{thebibliography}
+\label{bibliography}
+\bibliography{ref}{}
+\bibliographystyle{plain}
 
 \end{document}

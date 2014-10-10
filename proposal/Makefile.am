@@ -1,122 +1,113 @@
 # Import common build script.
 include $(top_srcdir)/Makefile.common
 
-# Our target document:
-DOC = plan
+###############################################################################
+# Build targets and configuration.
+###############################################################################
 
-DOCPDF = $(DOC).pdf
-DOCTEX = $(DOC).tex
-DOCSRC = $(shell find . \( ! -name '.*' \) \( ! -name 'flycheck_*' \) -name '*.tex')
+# Our target document.
+Document        = proposal
 
-BUILD_LOG = make.log
+# Derived variables.
+DocumentPDF     = $(Document).pdf
+DocumentTex     = $(Document).tex
+DocumentSources = $(shell find . 			\
+			\( ! -name '.*' \) 		\
+			\( ! -name 'flycheck_*' \)	\
+			-name '*.tex')
 
-doc_DATA = $(DOCPDF)
+#------------------------------------------------------------------------
+# Build targets.
+#------------------------------------------------------------------------
+doc_DATA = $(DocumentPDF)
 
-CLEANFILES = \
-	$(DOCPDF) \
-	$(BUILD_LOG) \
-	*-blx.bib \
-	*.acn \
-	*.acr \
-	*.alg \
-	*.aux \
-	*.bbl \
-	*.bcf \
-	*.blg \
-	*.dvi \
-	*.fdb_latexmk \
-	*.glg \
-	*.glo \
-	*.gls \
-	*.idx \
-	*.ilg \
-	*.ind \
-	*.ist \
-	*.lof \
-	*.log \
-	*.lol \
-	*.lot \
-	*.maf \
-	*.mtc \
-	*.mtc0 \
-	*.nav \
-	*.nlo \
-	*.out \
-	*.pdfsync \
-	*.ps \
-	*.run.xml \
-	*.snm \
-	*.synctex.gz \
-	*.tdo \
-	*.toc \
-	*.vrb \
-	*.xdy \
-	.\#* \
-	\#* \
+#------------------------------------------------------------------------
+# Clean list.
+#------------------------------------------------------------------------
+MOSTLYCLEANFILES +=		\
+	$(DocumentPDF) 		\
+	$(BuildLog) 		\
+	*-blx.bib 		\
+	*.acn 			\
+	*.acr 			\
+	*.alg 			\
+	*.aux 			\
+	*.bbl 			\
+	*.bcf 			\
+	*.blg 			\
+	*.dvi 			\
+	*.fdb_latexmk 		\
+	*.glg 			\
+	*.glo 			\
+	*.gls 			\
+	*.idx 			\
+	*.ilg 			\
+	*.ind 			\
+	*.ist 			\
+	*.lof 			\
+	*.log 			\
+	*.lol 			\
+	*.lot 			\
+	*.maf 			\
+	*.mtc 			\
+	*.mtc0 			\
+	*.nav 			\
+	*.nlo 			\
+	*.out 			\
+	*.pdfsync 		\
+	*.ps 			\
+	*.run.xml 		\
+	*.snm 			\
+	*.synctex.gz		\
+	*.tdo 			\
+	*.toc 			\
+	*.vrb 			\
+	*.xdy 			\
+	.\#* 			\
+	\#* 			\
 	$(NULL)
-
-PDFLATEX_ARGS = -output-format pdf \
-	-progname pdflatex \
-	-file-line-error \
-	-interaction=nonstopmode
 
 # Import lib/*.sty libraries.
 export TEXINPUTS := .:./lib:$(TEXINPUTS)
 
-all: $(DOCPDF)
+all: $(DocumentPDF)
 
-# Compile commands. We pipe the output to /dev/null to silence it, and
-# if there is an error, we re-run the compilation without the pipe so
-# as to print the failure messages.
-define pdflatex
-echo -e "\nCOMMAND: $(PDFLATEX) $(PDFLATEX_ARGS) $1\n" >>$(BUILD_LOG)
-$(PDFLATEX) $(PDFLATEX_ARGS) $1 >>$(BUILD_LOG) 2>&1 || $(PDFLATEX) $(PDFLATEX_ARGS) $1
-endef
+$(DocumentPDF): $(DocumentSources)
 
-define bibtex
-echo -e "\nCOMMAND: $(BIBTEX) $1\n" >>$(BUILD_LOG)
-$(BIBTEX) $1 >>$(BUILD_LOG) 2>&1 || $(BIBTEX) $1
-endef
+#------------------------------------------------------------------------
+# Local build rules.
+#------------------------------------------------------------------------
 
-# Compile twice to refresh cross-references
-$(DOCPDF): $(DOCSRC)
-	@echo -e "Build log for `date`\n\n" >$(BUILD_LOG)
-#	@echo '  LATEX  $(DOCPDF)'
-#	@$(call pdflatex,$(DOCTEX))
-#	@echo '  BIBTEX $(DOC)'
-#	@$(call bibtex,$(DOC))
-	@echo '  LATEX  $(DOCPDF)'
-	@$(call pdflatex,$(DOCTEX))
-	@echo '  LATEX  $(DOCPDF)'
-	@$(call pdflatex,$(DOCTEX))
-
-# If we have xdg-open then we can open the PDF
+# If we have xdg-open then we can open the PDF.
 if HAVE_XDG_OPEN
+.PHONY: open
 open:
-	@test -f $(DOCPDF) || echo "File '$(DOCPDF)' not found, is it compiled?"
-	@test ! -f $(DOCPDF) || $(XDG_OPEN) $(DOCPDF) >/dev/null 2>&1 &
+	$(AM_V_at)test -f $(DocumentPDF) || echo "File '$(DocumentPDF)' not found, is it compiled?"
+	$(AM_V_at)test ! -f $(DocumentPDF) || $(XDG_OPEN) $(DocumentPDF) >/dev/null 2>&1 &
 endif
 
-# If we have texcount then we can perform word counts
+# If we have texcount then we can perform word counts.
 if HAVE_TEXCOUNT
+.PHONY: wc
 wc:
-	@$(TEXCOUNT) $(DOCSRC) | $(SED) '1,/total/Id'
+	$(AM_V_at)$(TEXCOUNT) $(DocumentSources) | $(SED) '1,/total/Id'
 endif
 
-# If we have checkcites then we can perform citation checks
+# If we have checkcites then we can perform citation checks.
 if HAVE_CHECKCITES
+.PHONY: cite
 cite:
-	@$(CHECKCITES) $(DOC).aux
+	$(AM_V_at)$(CHECKCITES) $(Document).aux
 endif
 
-# Print make targets
+# Print make targets.
 help-local:
 	@echo "Build targets:"
 	@echo
-	@echo "  make all       Compile $(DOCPDF)"
+	@echo "  make all       Compile $(DocumentPDF)"
 	@echo "  make clean     Remove all build files"
 if HAVE_XDG_OPEN
-	@echo "  make open      Open $(DOCPDF) in default PDF viewer"
+	@echo "  make open      Open $(DocumentPDF) in default PDF viewer"
 endif
 if HAVE_TEXCOUNT
 	@echo "  make wc        Show a word count"
