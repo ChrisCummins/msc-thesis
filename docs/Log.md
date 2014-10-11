@@ -1379,3 +1379,11 @@ $ clang -emit-llvm foo.c -S -o foo.ll
 # Link:
 $ clang foo.ll hello.ll -o hello
 ```
+
+
+## Saturday 11th
+
+The
+[Microsoft Academic Search tool](http://academic.research.microsoft.com/Keyword/1231/algorithmic-skeletons?query=algorithmic%20skeletons)
+has some really nice meta properties about searches, such as lists of
+relevant conferences and journals, visualisations of citations, etc.
