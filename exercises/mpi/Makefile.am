@@ -1,20 +1,35 @@
 # Import common build script.
 include $(top_srcdir)/Makefile.common
 
-BIN := $(basename $(wildcard *.cpp))
-NO_OF_PROCESSES := 4
+###############################################################################
+# Build targets and configuration.
+###############################################################################
 
-CLEANFILES = $(BIN:=.out)
+# Local compiler and linker flags.
+AM_CXXFLAGS = $(shell mpic++ --showme:compile)
+AM_LDFLAGS  = $(shell mpic++ --showme:link)
 
-# Compilation target for C++ programs:
-%: %.cpp
-	mpic++ $< -o $@.out
+#------------------------------------------------------------------------
+# Build targets.
+#------------------------------------------------------------------------
+noinst_PROGRAMS = 			\
+	hello				\
+	pi				\
+	$(NULL)
 
-all: $(BIN)
+#------------------------------------------------------------------------
+# Define build target requisites.
+#------------------------------------------------------------------------
+hello_SOURCES  = hello.cpp
+pi_SOURCES     = pi.cpp
 
-# Execute all programs:
-run-local: all
-	@for f in $(BIN:=.out); do \
-		echo mpirun -np $(NO_OF_PROCESSES) $$f; \
-		mpirun -np $(NO_OF_PROCESSES) $$f; \
+#------------------------------------------------------------------------
+# Auxiliary build targets.
+#------------------------------------------------------------------------
+
+# Execute all binaries.
+run-local: $(noinst_PROGRAMS)
+	@for f in $^; do \
+		echo "mpirun -np $(NUM_PROC) $$f"; \
+		mpirun -np $(NUM_PROC) $$f; \
 	done
