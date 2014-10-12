@@ -26,7 +26,6 @@ int main(int argc, char *argv[]) {
 
     int no_of_processes;
     int process_id;
-    double wtime;
 
     MPI::Init(argc, argv);
 
