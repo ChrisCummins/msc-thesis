@@ -1387,3 +1387,12 @@ The
 [Microsoft Academic Search tool](http://academic.research.microsoft.com/Keyword/1231/algorithmic-skeletons?query=algorithmic%20skeletons)
 has some really nice meta properties about searches, such as lists of
 relevant conferences and journals, visualisations of citations, etc.
+
+
+## Sunday 12th
+
+Example Hello World LLVM pass invocation:
+
+```
+$ Debug+Asserts/bin/opt -load Debug+Asserts/lib/LLVMHello.so -stats -hello < ~/hello.bc > hello.bc
+```
