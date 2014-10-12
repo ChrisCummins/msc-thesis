@@ -34,3 +34,14 @@ skel_dac_merge_sort_int_SOURCES = skel-dac-merge-sort-int.cc $(TestSources)
 skel_merge_sort_int_SOURCES     = skel-merge-sort-int.cc     $(TestSources)
 skel_max_subarray_SOURCES       = skel-max-subarray.cc       $(TestSources)
 std_stable_sort_int_SOURCES     = std-stable-sort-int.cc     $(TestSources)
+
+#------------------------------------------------------------------------
+# Auxiliary build targets.
+#------------------------------------------------------------------------
+
+# Execute all binaries.
+run-local: $(noinst_PROGRAMS)
+	@for bin in $^; do			\
+		echo ./$$bin;			\
+		./$$bin;			\
+	done

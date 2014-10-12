@@ -34,17 +34,6 @@ CxxHeaderBaseNames = $(patsubst %$(CxxHeaderExtension),%,$(CxxHeaders))
 MOSTLYCLEANFILES =
 
 #------------------------------------------------------------------------
-# Auxiliary build targets.
-#------------------------------------------------------------------------
-
-# Execute all binaries.
-run-local: $(noinst_PROGRAMS)
-	@for bin in $^; do			\
-		echo ./$$bin;			\
-		./$$bin;			\
-	done
-
-#------------------------------------------------------------------------
 # Static analysis of C and C++ files.
 #------------------------------------------------------------------------
 
