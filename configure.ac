@@ -261,6 +261,7 @@ dnl ================================================================
 AC_CONFIG_FILES([
         Makefile
         exercises/Makefile
+        exercises/llvm/Makefile
         exercises/mpi/Makefile
         exercises/templates/Makefile
         exercises/templates/dac/Makefile
