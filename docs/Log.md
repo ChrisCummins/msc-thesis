@@ -1396,3 +1396,14 @@ Example Hello World LLVM pass invocation:
 ```
 $ Debug+Asserts/bin/opt -load Debug+Asserts/lib/LLVMHello.so -stats -hello < ~/hello.bc > hello.bc
 ```
+
+
+## Monday 13th
+
+Pavlos' tips for critically reviewing papers:
+
+1. The most common criticism for technical papers is errors in the
+   experimental method. Was their evaluation sound? Did they compare
+   their results with existing solutions?
+1. For theoretical papers, the criticism usually centres around
+   finding errors in the author's fundamental reasoning or argument.
