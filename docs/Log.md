@@ -1407,3 +1407,13 @@ Pavlos' tips for critically reviewing papers:
    their results with existing solutions?
 1. For theoretical papers, the criticism usually centres around
    finding errors in the author's fundamental reasoning or argument.
+
+
+## Tuesday 14th
+
+The library has a copy of Structured Parallel Programming: Patterns
+for Efficient Computation (2008) in
+[PDF format](http://www.sciencedirect.com.ezproxy.is.ed.ac.uk/science/book/9780124159938). This
+should be high up on my reading list.
+
+TODO: Install `intel-tbb` on `cec`.
