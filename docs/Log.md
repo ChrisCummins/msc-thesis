@@ -1637,3 +1637,7 @@ perl:           211 (0.02%)
 
 Total Physical Source Lines of Code (SLOC)                = 860,448
 ```
+
+The
+[Parallel programming languages and systems](http://www.inf.ed.ac.uk/teaching/courses/ppls/)
+course contains relevant notes and lecture material.
