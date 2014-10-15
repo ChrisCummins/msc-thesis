@@ -1417,3 +1417,169 @@ for Efficient Computation (2008) in
 should be high up on my reading list.
 
 TODO: Install `intel-tbb` on `cec`.
+
+
+## Wednesday 15th
+
+Useful reading in clang's C++ template handling:
+
+ * [The Dreaded Two-Phase Name Lookup](http://blog.llvm.org/2009/12/dreaded-two-phase-name-lookup.html)
+
+An experiment to see if C++ template information is carried into LLVM
+bytecode. Take the following C++ program:
+
+```
+int add(int a, int b) {
+  return a + b;
+}
+
+double fadd(double a, double b) {
+  return a + b;
+}
+
+int main() {
+  double x = add(0.0, 0.0);                // Double
+  return     add(static_cast<int>(x), 0);  // Integer
+}
+```
+
+When compiled with clang++ -O0, this generates the following bytecode:
+
+```
+; ModuleID = 'test.cc'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
+
+; Function Attrs: nounwind uwtable
+define i32 @_Z3addii(i32 %a, i32 %b) #0 {
+  %1 = alloca i32, align 4
+  %2 = alloca i32, align 4
+  call void @mcount() #1
+  store i32 %a, i32* %1, align 4
+  store i32 %b, i32* %2, align 4
+  %3 = load i32* %1, align 4
+  %4 = load i32* %2, align 4
+  %5 = add nsw i32 %3, %4
+  ret i32 %5
+}
+
+declare void @mcount()
+
+; Function Attrs: nounwind uwtable
+define double @_Z4fadddd(double %a, double %b) #0 {
+  %1 = alloca double, align 8
+  %2 = alloca double, align 8
+  call void @mcount() #1
+  store double %a, double* %1, align 8
+  store double %b, double* %2, align 8
+  %3 = load double* %1, align 8
+  %4 = load double* %2, align 8
+  %5 = fadd double %3, %4
+  ret double %5
+}
+
+; Function Attrs: nounwind uwtable
+define i32 @main() #0 {
+  %1 = alloca i32, align 4
+  %x = alloca double, align 8
+  call void @mcount() #1
+  store i32 0, i32* %1
+  %2 = call i32 @_Z3addii(i32 0, i32 0)
+  %3 = sitofp i32 %2 to double
+  store double %3, double* %x, align 8
+  %4 = load double* %x, align 8
+  %5 = fptosi double %4 to i32
+  %6 = call i32 @_Z3addii(i32 %5, i32 0)
+  ret i32 %6
+}
+
+attributes #0 = { nounwind uwtable "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind }
+
+!llvm.ident = !{!0}
+
+!0 = metadata !{metadata !"clang version 3.5.0 (tags/RELEASE_350/final)"}
+```
+
+We then refactor the two distinct `add` functions into a single
+template function:
+
+```
+template<typename T>
+T add(T a, T b) {
+  return a + b;
+}
+
+int main() {
+  float x = add(0.0, 0.0);                // Float
+  return    add(static_cast<int>(x), 0);  // Integer
+}
+```
+
+And compile this in the same way, generating the bytecode:
+
+```
+; ModuleID = 'test.cc'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
+
+; Function Attrs: uwtable
+define i32 @main() #0 {
+  %1 = alloca i32, align 4
+  %x = alloca double, align 8
+  call void @mcount() #2
+  store i32 0, i32* %1
+  %2 = call double @_Z3addIdET_S0_S0_(double 0.000000e+00, double 0.000000e+00)
+  store double %2, double* %x, align 8
+  %3 = load double* %x, align 8
+  %4 = fptosi double %3 to i32
+  %5 = call i32 @_Z3addIiET_S0_S0_(i32 %4, i32 0)
+  ret i32 %5
+}
+
+declare void @mcount()
+
+; Function Attrs: nounwind uwtable
+define linkonce_odr double @_Z3addIdET_S0_S0_(double %a, double %b) #1 {
+  %1 = alloca double, align 8
+  %2 = alloca double, align 8
+  call void @mcount() #2
+  store double %a, double* %1, align 8
+  store double %b, double* %2, align 8
+  %3 = load double* %1, align 8
+  %4 = load double* %2, align 8
+  %5 = fadd double %3, %4
+  ret double %5
+}
+
+; Function Attrs: nounwind uwtable
+define linkonce_odr i32 @_Z3addIiET_S0_S0_(i32 %a, i32 %b) #1 {
+  %1 = alloca i32, align 4
+  %2 = alloca i32, align 4
+  call void @mcount() #2
+  store i32 %a, i32* %1, align 4
+  store i32 %b, i32* %2, align 4
+  %3 = load i32* %1, align 4
+  %4 = load i32* %2, align 4
+  %5 = add nsw i32 %3, %4
+  ret i32 %5
+}
+
+attributes #0 = { uwtable "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind uwtable "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #2 = { nounwind }
+
+!llvm.ident = !{!0}
+
+!0 = metadata !{metadata !"clang version 3.5.0 (tags/RELEASE_350/final)"}
+```
+
+A comparison of the two sets of bytecodes:
+
+ * In the template version, the functions appear in the order they are
+instantiated; in the explicit version, the functions appear in the
+order they are declared.
+
+ * The functions instantiated from templates have a `linkonce_odr`
+   keyword annotation, explained
+   [here](http://llvm.org/docs/LangRef.html#linkage).
