@@ -9,6 +9,7 @@ noinst_PROGRAMS = 			\
 	merge-sort			\
 	stack				\
 	std-stable-sort-list-int	\
+	test				\
 	$(NULL)
 
 dc_merge_sort_SOURCES = dc-merge-sort.cc list.cc timer.cc
@@ -16,6 +17,7 @@ fddc_merge_sort_SOURCES = fddc-merge-sort.cc list.cc timer.cc
 merge_sort_SOURCES = merge-sort.cc list.cc timer.cc
 stack_SOURCES = stack.cc
 std_stable_sort_list_int_SOURCES = std-stable-sort-list-int.cc list.cc timer.cc
+test_SOURCES = test.cc
 
 #------------------------------------------------------------------------
 # Auxiliary build targets.
