@@ -1581,5 +1581,59 @@ instantiated; in the explicit version, the functions appear in the
 order they are declared.
 
  * The functions instantiated from templates have a `linkonce_odr`
-   keyword annotation, explained
-   [here](http://llvm.org/docs/LangRef.html#linkage).
+keyword annotation, explained
+[here](http://llvm.org/docs/LangRef.html#linkage).
+
+
+### Notes from meeting with Hugh and Pavlos
+
+ * The first draft of a presentation *will* fail.
+ * Typically, I'll need to supply a first draft to supervisors 3-5
+   weeks before giving the presentation, in order to have adequate
+   time to make modifications.
+
+PPar slides:
+ * There's no clear message. The presentation tries to cover too many
+   topics and so doesn't cover any adequately.
+ * Process for writing a presentation:
+   * Decide on topics
+   * Decide on the message
+   * Sketch ideas on paper
+   * Put sketches into computer
+ * There's too much text. Don't use text where a diagram would
+   suffice.
+ * The psuedocode for DaC *doesn't* actually show how writing a
+   parallelised skeleton would be hard.
+ * The claim that parallel programming is hard is unsubstantiated.
+ * Examples of skeletons in the "wild" include MapReduce and Intel
+   TBB. Neither identify themselves as skeletons.
+ * The presentation doesn't emphasise the *necessity* of skeletons.
+
+Sloccount for intel-tbb:
+
+```
+Totals grouped by language (dominant language first):
+cpp:         104704 (90.81%)
+ansic:         9421 (8.17%)
+asm:            441 (0.38%)
+sh:             342 (0.30%)
+java:           226 (0.20%)
+objc:            98 (0.08%)
+pascal:          68 (0.06%)
+
+Total Physical Source Lines of Code (SLOC)                = 115,300
+```
+
+Sloccount for hadoop-common:
+
+```
+Totals grouped by language (dominant language first):
+java:        827667 (96.19%)
+ansic:        26658 (3.10%)
+sh:            3733 (0.43%)
+cpp:           1903 (0.22%)
+python:         276 (0.03%)
+perl:           211 (0.02%)
+
+Total Physical Source Lines of Code (SLOC)                = 860,448
+```
