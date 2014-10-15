@@ -95,6 +95,9 @@ if HAVE_CPPLINT
 Cpplints          = $(addsuffix $(CpplintExtension),$(CxxSources) $(CxxHeaders))
 MOSTLYCLEANFILES += $(Cpplints)
 
+# Arguments to --filter flag for cpplint.
+CpplintFilters = -legal,-build/c++11,-readability/streams
+
 # Generate linter files as a part of regular compilation.
 all-local: $(Cpplints)
 
@@ -105,7 +108,7 @@ $(Cpplints): %$(CpplintExtension): %
 
 # Function for generating lint files.
 define cpplint
-	$(CPPLINT) --filter=-legal,-build/c++11 $1 2>&1 		\
+	$(CPPLINT) --filter=$(CpplintFilters) $1 2>&1	 		\
 		| grep -v '^Done processing\|^Total errors found: ' 	\
 		| tee $2
 endef
