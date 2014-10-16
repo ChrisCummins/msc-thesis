@@ -1638,6 +1638,62 @@ perl:           211 (0.02%)
 Total Physical Source Lines of Code (SLOC)                = 860,448
 ```
 
+Sloccount for OpenMPI:
+
+```
+ansic:       664595 (87.32%)
+cpp:          44461 (5.84%)
+f90:          17980 (2.36%)
+sh:           15848 (2.08%)
+java:          7071 (0.93%)
+perl:          5298 (0.70%)
+python:        3202 (0.42%)
+asm:           1291 (0.17%)
+lex:            860 (0.11%)
+fortran:        237 (0.03%)
+csh:            172 (0.02%)
+tcl:             39 (0.01%)
+sed:             24 (0.00%)
+
+Total Physical Source Lines of Code (SLOC)                = 761,078
+```
+
 The
 [Parallel programming languages and systems](http://www.inf.ed.ac.uk/teaching/courses/ppls/)
 course contains relevant notes and lecture material.
+
+
+## Thursday 16th
+
+
+### PPar Presentation
+
+Topic: The direction of skeletons research
+
+Message: Algorithmic Skeletons *are* the future of parallel programming.
+
+Structure:
+
+ * Writing robust parallel software is impossibly time
+   consuming. (why? Provide evidence)
+ * Algorithmic skeletons solve this time sink. (how?)
+ * Algorithmic skeletons are *everywhere*.
+ * This is how skeletons used to be designed: [1]
+ * Why didn't [1] succeed?
+ * This is how skeletons are designed now: [2]
+ * Why does [2] succeed?
+ * What pattern are we seeing?
+
+
+## Notes from meeting with Hugh and Pavlos
+
+Revised slides:
+
+ * The opening description of the *purpose* of skeletons is a lot
+   stronger, although now it's missing a high-level description of
+   what skeletons actually *are*.
+ * The topic of "future of skeleton research" is the weakest bit,
+   since I'm not confident on it.
+ * Instead, perhaps focus more on the differences between the two
+   papers. What did I like about each? What didn't I like?
+ * The skeleton manifesto can be dropped.
