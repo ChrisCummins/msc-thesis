@@ -261,6 +261,8 @@ dnl Generate files
 dnl ================================================================
 AC_CONFIG_FILES([
         Makefile
+        docs/Makefile
+        docs/maths/Makefile
         exercises/Makefile
         exercises/llvm/Makefile
         exercises/mpi/Makefile
