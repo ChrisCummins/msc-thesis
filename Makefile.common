@@ -214,22 +214,31 @@ PdflatexArgs = 				\
 # if there is an error, we re-run the compilation without the pipe so
 # as to print the failure messages.
 define pdflatex
-	$(AM_V_at)echo -e "\nCOMMAND: $(PDFLATEX) $(PdflatexArgs) $1\n" >>$(DocumentBuildLog)
-	$(AM_V_at)$(PDFLATEX) $(PdflatexArgs) $1 2>&1 >>$(DocumentBuildLog) || $(PDFLATEX) $(PdflatexArgs) $1
+	(echo -e "\nCOMMAND: $(PDFLATEX) $(PdflatexArgs) $1\n" >>$(DocumentBuildLog); \
+	 $(PDFLATEX) $(PdflatexArgs) $1 2>&1 >>$(DocumentBuildLog) || $(PDFLATEX) $(PdflatexArgs) $1)
 endef
 
 define bibtex
-	$(AM_V_at)echo -e "\nCOMMAND: $(BIBTEX) $1\n" >>$(DocumentBuildLog)
-	$(AM_V_at)$(BIBTEX) $1 2>&1 >>$(DocumentBuildLog) || $(BIBTEX) $1
+	(echo -e "\nCOMMAND: $(BIBTEX) $1\n" >>$(DocumentBuildLog);	\
+	 $(BIBTEX) $1 2>&1 >>$(DocumentBuildLog) || $(BIBTEX) $1)
 endef
 
+# The LaTeX build target. We use conditionals and sub-shells to invoke
+# pdflatex and bibtex the correct number of times depending on the
+# document contents. The sequence of program invocations is as
+# follows:
+#
+#  If the document contains no citations: pdflatex, pdflatex.
+#  If the document contains citations: pdflatex, bibtex, pdflatex, pdflatex.
 %.pdf: %.tex
-	$(AM_V_at)echo -e "Build log for `date`\n\n" >$(DocumentBuildLog)
+	$(AM_V_at)echo -e "Build log for `date`\n" >$(DocumentBuildLog)
 	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
-	$(call pdflatex, $<)
-	@if ! $(AM_V_P); then echo '  BIBTEX   $@'; fi
-	$(call bibtex,   $*)
+	$(AM_V_at)$(call pdflatex, $<)
+	$(AM_V_at)($(GREP) '\\citation' >/dev/null 2>&1 < $*.aux && {	\
+			if ! $(AM_V_P); then echo "  BIBTEX   $@"; fi;	\
+			$(call bibtex, $*);				\
+			if ! $(AM_V_P); then echo '  LATEX    $@'; fi;	\
+			$(call pdflatex, $<);				\
+		} || true)
 	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
-	$(call pdflatex, $<)
-	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
-	$(call pdflatex, $<)
+	$(AM_V_at)$(call pdflatex, $<)
