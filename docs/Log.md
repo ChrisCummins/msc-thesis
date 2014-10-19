@@ -1697,3 +1697,72 @@ Revised slides:
  * Instead, perhaps focus more on the differences between the two
    papers. What did I like about each? What didn't I like?
  * The skeleton manifesto can be dropped.
+
+
+## Sunday 19th
+
+### Reasoning about Algorithmic Skeletons
+
+#### Claims
+1. All computer hardware is parallel.
+1. In order to gain continued performance improvements, programmers
+   must write software for parallel hardware.
+1. Writing parallel software requires prohibitive effort.
+1. Common programming problems can be phrased in terms of reusable
+   patterns of activities.
+1. Algorithmic Skeletons are implementations of reusable patterns.
+1. Algorithmic Skeletons can be parallelised.
+
+#### Hypothesis
+
+1. Algorithmic Skeletons can address the problem of prohibitive effort
+   for parallel programming.
+
+In order to justify this hypothesis, we require algorithmic skeletons
+to:
+
+1. Encapsulate a number of common patterns which are in *regular use*.
+1. Be demonstrably *quicker* than serial or parallel implementations
+   with equivalent effort.
+1. Be demonstrably *easier to use* than parallel implementations with
+   equivalent effort.
+1. Be demonstrably *safer* to use (i.e. more robust) than parallel
+   implementations with equivalent effort.
+
+Problems with current Skeletons research:
+
+1. They do not compare speed against *equivalent effort* parallel
+   implementations. They either compare only against other skeletons
+   implementations, or tuned parallelised implementations.
+1. They compare themselves against different example problems, and
+   often only one or two per publication.
+
+Problems that Skeletons must address:
+
+1. Nesting. Skeletons must be nest-able to arbitrary depths without
+   problems.
+1. Scalability. If Skeletons are to be widely adopted, then they must
+   prove to be able to scale to realistically sized hardware.
+1. Sequential performance. Similar to the scalability problem, we must
+   be able to demonstrate that Skeletons will not significantly hamper
+   performance when operating on only single core architectures.
+1. Coordination overhead. The overhead required to orchestrate
+   parallel execution must not be significant compared to the
+   performance benefits of the parallelisation.
+1. Error handling. Known behaviour for error conditions,
+   e.g. exception handling.
+1. Pattern abstraction. The appropriate granularity of abstraction
+   must be chosen. For example, do we enforce all divide and conquer
+   Skeletons to return a value, or do we have separate Skeletons to
+   support in-place manipulation of data?
+
+Potential innovations for Skeletons:
+
+1. Runtime optimisations. Using instrumentation and profiling at
+   runtime to further optimise execution. This could be as simple as
+   determining what are the "hot" code paths and optimising for them,
+   or there could be a mechanism for assigning weights to each muscle
+   function and parallelising them appropriately.
+1. Compiler optimisations. By using predefined patterns, it may be
+   possible to further optimise performance by exploiting compile time
+   (i.e. static) optimisations.
