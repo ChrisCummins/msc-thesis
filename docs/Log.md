@@ -1766,3 +1766,46 @@ Potential innovations for Skeletons:
 1. Compiler optimisations. By using predefined patterns, it may be
    possible to further optimise performance by exploiting compile time
    (i.e. static) optimisations.
+
+Possible MSc project idea:
+
+Algorithmic skeletons offer flexible, generic patterns of computation,
+yet their coordination logic is *inflexible*. This means that it could
+be possible to invoke a skeleton in such a way that it would execute
+in significantly *sub-optimal* time by simply supplying muscle
+functions that do not fit with this inflexible model.
+
+For example, in a divide and conquer skeleton, it may be assumed that
+the `merge` muscle is a computationally intensive task, whereas the
+`solve` muscle is comparatively cheap. The skeleton author may then
+choose to parallelise execution of `merge` muscles, leaving the
+`solve` muscles sequential. By instantiating this skeleton with a
+computationally intensive `solve` muscle but a lightweight `merge`
+muscle, the benefits of parallelising the `merge` muscle would be
+negated.
+
+The solution:
+
+* For each *unit* of parallelism (e.g. muscle function, recursion,
+  etc), assign a *weight*. The purpose of the weight is to provide an
+  indicator of the amount of *work done* by a unit. This could either
+  be a fixed constant value, or could depend on the size of input
+  parameters.
+* Use these assigned weights to determine *if* if it is profitable to
+  parallelise a unit, or invoke it sequentially. A static heuristic
+  could compare the weight of the unit against the cost of
+  parallelistation (e.g. creating a new thread, or distributing the
+  task).
+* It would be easy to evaluate at compile time whether a unit will
+  operate in fixed time or not.
+* If the work done by a unit is constant, then the decision on whether
+  to parallelise or not could be performed statically at compile time.
+* If the work done depends on the size of the input parameters, then
+  it could be expressed using the standard notation for time
+  complexity. Decisions on whether or not to parallelise would have to
+  be made at run-time.
+* An alternative method of assigning weights to a function could be by
+  actually measuring the system clock during run-time. This could give
+  a reasonable approximation for units which are executed repeatedly,
+  allowing the skeleton to build up a profile of the unit weights over
+  the course of a program's lifetime.
