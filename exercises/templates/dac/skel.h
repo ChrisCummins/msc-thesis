@@ -20,8 +20,8 @@ namespace skel {
 // There are two types of divide_and_conquer skeleton:
 // divide_and_conquer, and divide_and_transform. They both operate in
 // the same way, except that divide_and_transform is an in-place
-// operation, wheras divide_and_conquer skeletons return values, with
-// separate types for input and return values.
+// operation, wheras divide_and_conquer skeletons return a value, with
+// separate types for input and return value.
 
 
 // Divide and Conquer skeleton.
