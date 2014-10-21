@@ -97,15 +97,22 @@ void merge(std::vector<Range<ArrayType>> range,
 // Merge sort function.
 template<typename ArrayType>
 void merge_sort(ArrayType *const left, ArrayType *const right) {
+  // Wrap the input parameters into a Range object, for passing to the
+  // divide-and-transform skeleton. We need to use a wrapper object
+  // since the divide-and-transform skeleton expects only a single
+  // input argument.
   Range<ArrayType> range(left, right);
 
+  // Instantiate the divide-and-transform (i.e. in-place
+  // divide-and-conquer) skeleton with our wrapped data, and our
+  // muscle functions.
   divide_and_transform<
       Range<ArrayType>,           // Data type
-      is_indivisible<ArrayType>,  // is_indivisible() muscle
-      split_range<ArrayType, 2>,  // divide() muscle
-      insertion_sort<ArrayType>,  // conquer() muscle
-      merge<ArrayType>>           // combine() muscle
-      (&range);
+      is_indivisible<ArrayType>,  // Is-indivisible muscle
+      split_range<ArrayType, 2>,  // Divide muscle
+      insertion_sort<ArrayType>,  // Conquer muscle
+      merge<ArrayType>>           // Combine muscle
+      (&range);                   // Wrapped data
 }
 
 }  // namespace skel
