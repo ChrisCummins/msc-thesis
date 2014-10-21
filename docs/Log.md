@@ -1809,3 +1809,23 @@ The solution:
   a reasonable approximation for units which are executed repeatedly,
   allowing the skeleton to build up a profile of the unit weights over
   the course of a program's lifetime.
+
+
+## Tuesday 21st
+
+Read an
+[interesting blog post](http://blogs.msdn.com/b/vcblog/archive/2014/04/16/parallel-stl-democratizing-parallelism-in-c.aspx)
+about Intel, NVIDIA, and Microsoft's collaborative effort to introduce
+a parallelised version of the C++ STL, by each implementing their own
+versions. Of particular interest is this excerpt:
+
+> As is always the case with parallelization, not every program will
+> benefit from using the Parallel STL, so don't just go sprinkling
+> your STL code with par willy-nilly. You still need to find a
+> bottleneck in your program that's worth parallelizing. In some
+> cases, your program will need to be rewritten tobecome amenable to
+> parallelism.
+
+What we would need from a *truly* successful parallel STL is logic to
+determine *when* to parallelise, so that the programmer would not have
+to identify the performance bottlenecks themselves.
