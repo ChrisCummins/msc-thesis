@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
             << "parallelisation depth = "
             << DAC_SKEL_PARALLELISATION_DEPTH << "\n";
 
-  for (int i = 0, j = 1000; i < 50; i++, j += 1000) {
+  for (int i = 0, j = 1000000; i <= 10; i++, j += 100000) {
     int *a = get_unsorted_int_array(j);
 
     Timer t;
