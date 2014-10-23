@@ -13,7 +13,7 @@ dnl ================================================================
 
 
 dnl ================================================================
-dnl Report version (i.e. the package version)
+dnl The package version
 dnl ================================================================
 m4_define([report_major_version],[0])
 m4_define([report_minor_version],[0])
@@ -42,10 +42,10 @@ AM_EXTRA_RECURSIVE_TARGETS([help run])
 dnl ================================================================
 dnl Build requirements
 dnl ================================================================
+dnl Note that the CC and CXX compilers are configured later, since we
+dnl have our own local version of clang.
 AC_HEADER_STDC
 AC_PROG_AWK
-AC_PROG_CC
-AC_PROG_CXX([clang++ g++])
 AC_PROG_GREP
 AC_PROG_INSTALL
 AC_PROG_MKDIR_P
@@ -58,6 +58,37 @@ dnl ================================================================
 AC_CONFIG_SRCDIR([exercises/templates/dc.h])
 AC_CONFIG_HEADERS([config.h])
 
+
+dnl ================================================================
+dnl LLVM and Clang compiler configuration
+dnl ================================================================
+LLVM_TARGET="Release+Asserts"
+AC_SUBST([LLVM_TARGET],[$LLVM_TARGET])
+
+LLVM_BUILD_PATH="$(pwd)/llvm/$LLVM_TARGET"
+AC_SUBST([LLVM_BUILD_PATH],[$LLVM_BUILD_PATH])
+
+CC="$LLVM_BUILD_PATH/bin/clang"
+dnl CC is exported by the AC_PROG_CC macro, called below.
+CXX="$LLVM_BUILD_PATH/bin/clang++"
+dnl CXX is exported by the AC_PROG_CXX macro, called below.
+
+OPT="$LLVM_BUILD_PATH/bin/opt"
+AC_SUBST([OPT],[$OPT])
+
+LLVM_DIS="$LLVM_BUILD_PATH/bin/llvm-dis"
+AC_SUBST([LLVM_DIS],[$LLVM_DIS])
+
+test -f "$CXX" || {
+     echo "Running one-time build of llvm...";
+     cd llvm;
+     ./configure --enable-optimisations;
+     make;
+     cd ..;
+}
+
+AC_PROG_CXX
+AC_PROG_CC
 
 dnl ================================================================
 dnl Do we have MPI tools?
@@ -200,6 +231,12 @@ dnl ================================================================
 dnl Set build configuration for C++ compilation
 dnl ================================================================
 
+AC_ARG_ENABLE([memory_counter],
+              [AS_HELP_STRING([--enable-memory-counter],
+                              [Enable memory profiling (default: no)])],
+              [enable_memory_counter=yes],)
+AM_CONDITIONAL(ENABLE_MEMORY_COUNTER,[test "x$enable_memory_counter" = xyes])
+
 # Configurable options:
 CXX_STD=c++11
 CXX_STDLIB=libstdc++
@@ -218,24 +255,12 @@ dnl Export debugging symbols if not building with optimisation.
 AS_IF([test "x$CXX_OLEVEL" = x-O0],
       [CXX_OLEVEL="$CXX_OLEVEL -pg"])
 
-dnl Export HAS_CLANG conditional
-AC_MSG_CHECKING([for clang++ compiler])
-AS_IF([test "x$CXX" = xclang++],
-      [HAVE_CLANG=yes
-       AC_MSG_RESULT([yes])],
-      [HAVE_CLANG=no
-       AC_MSG_RESULT([no])])
-AC_SUBST([HAVE_CLANG],[$HAVE_CLANG])
-AM_CONDITIONAL([HAVE_CLANG],[test "x$HAVE_CLANG" = xyes])
-
 dnl Export CXX_STD flag
 AC_SUBST([CXX_STD],[-std=$CXX_STD])
 
 dnl Export CXX_STDLIB flag
-AS_IF([test "x$HAVE_CLANG" = xyes],
-      [AC_MSG_NOTICE([Using C++ standard library: $CXX_STDLIB])
-       CXX_STDLIB=-stdlib=$CXX_STDLIB],
-      [CXX_STDLIB=])
+AC_MSG_NOTICE([Using C++ standard library: $CXX_STDLIB])
+CXX_STDLIB=-stdlib=$CXX_STDLIB
 AC_SUBST([CXX_STDLIB],[$CXX_STDLIB])
 
 dnl Set and export CXXFLAGS

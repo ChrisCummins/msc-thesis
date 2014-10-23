@@ -8,6 +8,7 @@ CHeaderExtension   = .g
 CxxSourceExtension = .cc
 CxxHeaderExtension = .h
 
+BitCodeExtension   = .bc
 ByteCodeExtension  = .ll
 AsmExtension       = .s
 
@@ -37,18 +38,11 @@ MOSTLYCLEANFILES =
 # Static analysis of C and C++ files.
 #------------------------------------------------------------------------
 
-# If we have clang available, then we can invoke it with the --analyze
-# parameter to perform static analysis of C and C++ sources.
-if HAVE_CLANG
-
 # The clang static analyser generates .plist files.
 CPlists           = $(addsuffix $(PlistExtension),$(CSources) $(CHeaders))
 CxxPlists         = $(addsuffix $(PlistExtension),$(CxxSources) $(CxxHeaders))
 Plists            = $(CPlists) $(CxxPlists)
 MOSTLYCLEANFILES += $(Plists)
-
-# Generate static analysis files as a part of regular compilation.
-all-local: $(Plists)
 
 # Explicit targets for static analysis.
 $(CPlists): %$(PlistExtension): %
@@ -68,19 +62,6 @@ define create-cxx-plist
 	$(CXXCOMPILE) -xc++ --analyze $1 -o $2;
 endef
 
-else
-# If we don't have clang then just define an empty functions so that
-# we can safely call create-x-plist whether or not we are building
-# with clang.
-define create-c-plist
-	true
-endef
-
-define create-cxx-plist
-	true
-endef
-endif
-
 #------------------------------------------------------------------------
 # Style checking C++ files.
 #------------------------------------------------------------------------
@@ -97,9 +78,6 @@ MOSTLYCLEANFILES += $(Cpplints)
 
 # Arguments to --filter flag for cpplint.
 CpplintFilters = -legal,-build/c++11,-readability/streams
-
-# Generate linter files as a part of regular compilation.
-all-local: $(Cpplints)
 
 # Explicit target for cpplint:
 $(Cpplints): %$(CpplintExtension): %
@@ -130,7 +108,6 @@ endif
 # to native object files. This bytecode isn't used by any other stage
 # of the compilation process, but is intended primarily for
 # informative purposes and to aid in debugging.
-if HAVE_CLANG
 
 # Generate bytecode files with .ll extension.
 CByteCodes        = $(addsuffix $(ByteCodeExtension),$(CSourceBaseNames))
@@ -138,27 +115,18 @@ CxxByteCodes      = $(addsuffix $(ByteCodeExtension),$(CxxSourceBaseNames))
 ByteCodes         = $(CByteCodes) $(CxxByteCodes)
 MOSTLYCLEANFILES += $(ByteCodes)
 
-# Functions for generating bytecode.
-define emit-c-bytecode
-	$(COMPILE) -emit-llvm -S -o $2 $1
-endef
+#------------------------------------------------------------------------
+# Generating LLVM bitcode.
+#------------------------------------------------------------------------
 
-define emit-cxx-bytecode
-	$(CXXCOMPILE) -emit-llvm -S -o $2 $1
-endef
+# The compilation process translates sources first into LLVM bitcode,
+# before translating these bitcode files to native object files.
 
-else
-# If we don't have clang then just define an empty function so that we
-# can safely call emit-bytecode whether or not we are building with
-# clang.
-define emit-c-bytecode
-	true
-endef
-
-define emit-cxx-bytecode
-	true
-endef
-endif
+# Generate bitcode files with .ll extension.
+CBitCodes         = $(addsuffix $(BitCodeExtension),$(CSourceBaseNames))
+CxxBitCodes       = $(addsuffix $(BitCodeExtension),$(CxxSourceBaseNames))
+BitCodes          = $(CBitCodes) $(CxxBitCodes)
+MOSTLYCLEANFILES += $(BitCodes)
 
 #------------------------------------------------------------------------
 # Generating native assembly sources.
@@ -185,16 +153,26 @@ endef
 # Compiling C++ object files.
 #------------------------------------------------------------------------
 
+# Generate static analysis and linter files as a part of regular
+# compilation.
+all-local: $(Plists) $(Cpplints)
+
 # Automake doesn't support extending the built-in rules, so we have to
-# override the default with our own. The first two lines are copied
-# from the built-in the rule. We then hook our custom build logic
+# override the default with our own. The first two lines are adapted
+# from the built-in the rule. We then hook in our custom build logic
 # after this, generating additional source listings and performing
-# source analysis.
+# static analysis and linting.
 %.o: %.cc
-	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+	$(AM_V_CXX)$(CXXCOMPILE) -emit-llvm -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c $< -o $*$(BitCodeExtension)
 	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-	$(AM_V_at)$(call emit-cxx-bytecode, $<, $*$(ByteCodeExtension))
-	$(AM_V_at)$(call emit-cxx-asm,      $*$(ByteCodeExtension), $*$(AsmExtension))
+if ENABLE_MEMORY_COUNTER
+	$(AM_V_at)$(OPT) -load $(LLVM_BUILD_PATH)/lib/LLVMMemoryCounter.so -memorycounter < $*$(BitCodeExtension) > $*$(BitCodeExtension).out
+	$(AM_V_at)mv $*$(BitCodeExtension).out $*$(BitCodeExtension)
+endif
+	$(AM_V_at)$(LLVM_DIS) $*$(BitCodeExtension) -o $*$(ByteCodeExtension)
+	$(AM_V_at)$(CXX) -c $*$(BitCodeExtension) -o $@
+	$(AM_V_at)$(CXX) -emit-llvm -S $*$(BitCodeExtension) -o $*$(ByteCodeExtension)
+	$(AM_V_at)$(call emit-cxx-asm,      $*$(BitCodeExtension), $*$(AsmExtension))
 	$(AM_V_at)$(call create-cxx-plist,  $<, $<$(PlistExtension))
 	$(AM_V_at)$(call cpplint,           $<, $<$(CpplintExtension))
 
