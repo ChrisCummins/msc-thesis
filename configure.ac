@@ -264,6 +264,7 @@ AC_CONFIG_FILES([
         docs/Makefile
         docs/maths/Makefile
         exercises/Makefile
+        exercises/algos/Makefile
         exercises/llvm/Makefile
         exercises/mpi/Makefile
         exercises/tbb/Makefile
