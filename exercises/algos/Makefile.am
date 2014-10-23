@@ -2,10 +2,10 @@
 include $(top_srcdir)/Makefile.common
 
 noinst_PROGRAMS = 			\
-	skel-n-queens			\
+	n-queens			\
 	$(NULL)
 
-skel_n_queens_SOURCES = skel-n-queens.cc
+n_queens_SOURCES = n-queens.cc
 
 #------------------------------------------------------------------------
 # Auxiliary build targets.
