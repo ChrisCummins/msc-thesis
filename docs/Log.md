@@ -1829,3 +1829,56 @@ versions. Of particular interest is this excerpt:
 What we would need from a *truly* successful parallel STL is logic to
 determine *when* to parallelise, so that the programmer would not have
 to identify the performance bottlenecks themselves.
+
+
+## Friday 24th
+
+### Analysing performance of memory instrumentation
+
+Sequential:
+```
+---------- INSTRUMENTATION ----------
+Number of STORE instructions executed: 1382005059
+Number of LOAD instructions executed:  1709966643
+```
+
+Parallelisation depth 2:
+```
+---------- INSTRUMENTATION ----------
+Number of STORE instructions executed: 448304099
+Number of LOAD instructions executed:  585520151
+```
+
+Why does the parallelised version require an order of magnitude fewer
+stores/load? Perhaps it's a race condition in the counter increment
+logic?
+
+
+### Notes from meeting with Hugh and Pavlos:
+
+ * MSc project question: furthering the existing work on auto-tuning
+   skeletons by optimising static attributes, could we produce better
+   results by considering dynamic attributes? Things to consider:
+   * Iterative compilation is a crowded field, so the best chance of
+     getting published is by performing these optimisations during
+     run-time.
+   * I should read some of the existing papers on run-time adaption
+     (not just wrt. skeletons) to see what has already been done, and
+     how + to what extent.
+   * A likely approach:
+     1. Instrument a set of representative skeleton programs in order
+        to analyse run time behaviour.
+     2. Discover a set of attributes which have the greatest effect on
+        performance.
+     3. Get a feel for the effect of the attributes by manually
+        adjusting the benchmarks.
+     4. Find the simplest way to adjust these attributes "on the fly".
+ * I've completed a first attempt at instrumenting instructions in
+   LLVM bitcode so that programs will print the number of load and
+   store instructions executed.
+   * The current implementation is not thread safe. Race conditions
+     during the incrementing of counters can be negated either by
+     using atomics or thread local counter. Thread local counters
+     would reduce the amount of locking required.
+   * LLVM has exit hooks which can replace the need to instrument
+     every return instruction from `main` function.
