@@ -1854,7 +1854,7 @@ stores/load? Perhaps it's a race condition in the counter increment
 logic?
 
 
-### Notes from meeting with Hugh and Pavlos:
+### 24.10.2014 meeting with Hugh and Pavlos:
 
  * MSc project question: furthering the existing work on auto-tuning
    skeletons by optimising static attributes, could we produce better
