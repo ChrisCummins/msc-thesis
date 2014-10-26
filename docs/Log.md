@@ -1882,3 +1882,9 @@ logic?
      would reduce the amount of locking required.
    * LLVM has exit hooks which can replace the need to instrument
      every return instruction from `main` function.
+
+
+## Sunday 26th
+
+Control flow graphs can be visualised using
+`opt -view-cfg program.bc >/dev/null`.
