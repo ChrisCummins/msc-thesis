@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -e
+
+llvm_prefix=../../../llvm
+llvm_build=Release+Asserts
+
+opt=$llvm_prefix/$llvm_build/bin/opt
+clangxx=clang++
+llvmdis=llvm-dis
+
+module_name=MemoryCounter
+library_name=LLVM$module_name
+module_path=$llvm_prefix/$llvm_build/lib/$library_name.so
+
+src=test
+
+CFLAGS="-O0"
+
+# Generate bytecode:
+$clangxx $CFLAGS -emit-llvm $src.cpp -S -o $src.ll
+
+# Generate bitcode:
+$clangxx $CFLAGS -emit-llvm $src.cpp -c -o $src.bc
+
+# Generate exec:
+$clangxx $CFLAGS $src.bc -o $src
+
+# Generate instrumented bitcode:
+$opt -load $module_path -$(echo $module_name | tr '[:upper:]' '[:lower:]') \
+     -stats < $src.bc > $src-pass.bc
+
+# Generate instrumented bytecode:
+$llvmdis $src-pass.bc
+
+# Generate instrumented exec:
+$clangxx $CFLAGS $src-pass.bc -o $src-pass
+
+set +e
+./test-pass
+set -e
+
+exit 0
