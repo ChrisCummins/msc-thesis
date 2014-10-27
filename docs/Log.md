@@ -1888,3 +1888,14 @@ logic?
 
 Control flow graphs can be visualised using
 `opt -view-cfg program.bc >/dev/null`.
+
+
+## Monday 27th
+
+Useful high-level topics to become familiar with:
+
+ * [Adaptive optimisation](http://en.wikipedia.org/wiki/Adaptive_optimization)
+ * [Profile-guided optimisation](http://en.wikipedia.org/wiki/Profile-guided_optimization)
+ * [Hot spot](http://en.wikipedia.org/wiki/Hot_spot_(computer_programming))
+ * [Profiling](http://en.wikipedia.org/wiki/Profiling_(computer_programming))
+ * [Hypervisor](http://en.wikipedia.org/wiki/Hypervisor)
