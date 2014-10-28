@@ -1899,3 +1899,9 @@ Useful high-level topics to become familiar with:
  * [Hot spot](http://en.wikipedia.org/wiki/Hot_spot_(computer_programming))
  * [Profiling](http://en.wikipedia.org/wiki/Profiling_(computer_programming))
  * [Hypervisor](http://en.wikipedia.org/wiki/Hypervisor)
+
+
+## Tuesday 28th
+
+Date for MSc research proposal presentation: **21st November**. Adam
+will be presenting my slides.
