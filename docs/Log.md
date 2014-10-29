@@ -1905,3 +1905,10 @@ Useful high-level topics to become familiar with:
 
 Date for MSc research proposal presentation: **21st November**. Adam
 will be presenting my slides.
+
+
+## Wednesday 29th
+
+List of
+[Profile-Guided Optimization](http://llvm.org/OpenProjects.html#profileguided)
+projects in LLVM.
