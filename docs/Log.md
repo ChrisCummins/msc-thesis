@@ -1921,27 +1921,55 @@ projects in LLVM.
 * A. Collins, C. Fensch, H. Leather, and M. Cole, *“MaSiF: Machine
   learning guided auto-tuning of parallel skeletons,”* 20th
   Annu. Int. Conf. High Perform. Comput., pp. 186–195, Dec. 2013.
+  * Auto-tuning tool that selects best static parameters for
+    skeletons.
+  * Reduced search space with PCA.
+  * Offline kNN ML training.
 * Z. Wang and M. F. P. O. Boyle, *“Mapping Parallelism to Multi-cores:
   A Machine Learning Based Approach,”* in ACM Sigplan Notices, 2009,
   no. 15, pp. 75–84.
+  * Auto-tuning tool that maps MPI programs to hardware.
+  * Uses profiling runs to gather dynamic features.
+  * Offline kNN ML training.
+  * Results have been bested by [1].
 * G. Contreras and M. Martonosi, *“Characterizing and improving the
   performance of Intel Threading Building Blocks,”* in Workload
   Characterization, 2008. IISWC 2008. IEEE International Symposium on,
   2008, pp. 57–66.
+  * Profiling TBB on benchmarks using profiling runs.
 * U. Dastgeer, J. Enmyren, and C. W. Kessler, *“Auto-tuning SkePU: a
   multi-backend skeleton programming framework for multi-GPU
   systems,”* in Proceedings of the 4th International Workshop on
   Multicore Software Engineering, 2011, pp. 25–32.
+  * Generating execution plans SkePU, which selects static features
+    such as CPU / GPU, num of workers etc.
+  * Offline ML training (no method given).
 * G. Fursin, C. Miranda, O. Temam, E. Yom-tov, E. Bonilla, J. Thomson,
   H. Leather, C. Williams, and M. O. Boyle, *“MILEPOST GCC: machine
   learning based research compiler,”* in GCC Summit, 2008.
+  * Setting compiler heuristics based on profiling runs.
+  * Offline ML training.
 * K. D. Cooper, A. Grosul, T. J. Harvey, S. Reeves, D. Subramanian,
   L. Torczon, and T. Waterman, *“ACME: adaptive compilation made
   efficient,”* ACM SIGPLAN Not., vol. 40, no. 7, pp. 69–77, 2005.
+  * Setting compilation flags for a program using hill climbing,
+  genetic algos + 2 others.
+  * Simulates execution in order to reduce number of profiling runs.
+  * Front-end GUI for twiddling parameters.
 * P. Prabhu, *“Safe Programmable Speculative Parallelism,”* in
   Proceedings of Programming Language Design and Implementation
   (PLDI), 2010.
+  * C# library which adds language constructs for programmer level
+    speculative parallelism.
 * Z. Wang and M. F. P. O. Boyle, *“Partitioning Streaming Parallelism
   for Multi-cores: A Machine Learning Based Approach,”* in Proceedings
   of the 19th international conference on Parallel architectures and
   compilation techniques, 2010, pp. 307–318.
+  * Auto-tuning partitions for StreamIt programs.
+  * Generates 3k random partitions and then tries to find closest to
+    "ideal".
+  * Offline kNN ML training.
+* K. Asanovic, J. Wawrzynek, D. Wessel, K. Yelick, R. Bodik,
+  J. Demmel, T. Keaveny, K. Keutzer, J. Kubiatowicz, N. Morgan,
+  D. Patterson, and K. Sen, *“A view of the parallel computing
+  landscape,”* Commun. ACM, vol. 52, no. 10, p. 56, Oct. 2009.
