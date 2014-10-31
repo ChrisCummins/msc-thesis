@@ -1973,3 +1973,17 @@ projects in LLVM.
   J. Demmel, T. Keaveny, K. Keutzer, J. Kubiatowicz, N. Morgan,
   D. Patterson, and K. Sen, *“A view of the parallel computing
   landscape,”* Commun. ACM, vol. 52, no. 10, p. 56, Oct. 2009.
+
+
+#### Notes from meeting with Hugh and Pavlos 31.10.2014
+
+ * TODO: By next week, have a firm idea of research proposal, and a
+   set of proposal presentation slides; OR back-out and have a
+   contingency plan.
+ * TODO: Have a look through relevant publications by:
+   * Alexander Collins
+   * Grigori Fursin (run-time adaption)
+   * Chris Williams (ML)
+ * A reasonable metric is to aim for 5 papers per hour. This means
+   being very selective about which sections
+ * There was talk of developing run-time adaption for PetaBricks.
