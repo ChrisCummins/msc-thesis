@@ -1912,3 +1912,36 @@ will be presenting my slides.
 List of
 [Profile-Guided Optimization](http://llvm.org/OpenProjects.html#profileguided)
 projects in LLVM.
+
+
+## Friday 31st
+
+#### Reading list from this week:
+
+* A. Collins, C. Fensch, H. Leather, and M. Cole, *“MaSiF: Machine
+  learning guided auto-tuning of parallel skeletons,”* 20th
+  Annu. Int. Conf. High Perform. Comput., pp. 186–195, Dec. 2013.
+* Z. Wang and M. F. P. O. Boyle, *“Mapping Parallelism to Multi-cores:
+  A Machine Learning Based Approach,”* in ACM Sigplan Notices, 2009,
+  no. 15, pp. 75–84.
+* G. Contreras and M. Martonosi, *“Characterizing and improving the
+  performance of Intel Threading Building Blocks,”* in Workload
+  Characterization, 2008. IISWC 2008. IEEE International Symposium on,
+  2008, pp. 57–66.
+* U. Dastgeer, J. Enmyren, and C. W. Kessler, *“Auto-tuning SkePU: a
+  multi-backend skeleton programming framework for multi-GPU
+  systems,”* in Proceedings of the 4th International Workshop on
+  Multicore Software Engineering, 2011, pp. 25–32.
+* G. Fursin, C. Miranda, O. Temam, E. Yom-tov, E. Bonilla, J. Thomson,
+  H. Leather, C. Williams, and M. O. Boyle, *“MILEPOST GCC: machine
+  learning based research compiler,”* in GCC Summit, 2008.
+* K. D. Cooper, A. Grosul, T. J. Harvey, S. Reeves, D. Subramanian,
+  L. Torczon, and T. Waterman, *“ACME: adaptive compilation made
+  efficient,”* ACM SIGPLAN Not., vol. 40, no. 7, pp. 69–77, 2005.
+* P. Prabhu, *“Safe Programmable Speculative Parallelism,”* in
+  Proceedings of Programming Language Design and Implementation
+  (PLDI), 2010.
+* Z. Wang and M. F. P. O. Boyle, *“Partitioning Streaming Parallelism
+  for Multi-cores: A Machine Learning Based Approach,”* in Proceedings
+  of the 19th international conference on Parallel architectures and
+  compilation techniques, 2010, pp. 307–318.
