@@ -23,6 +23,12 @@ A list of papers read, organised by amount of time spent reading them.
 1. J. Jim and G. Fursin, **“Predictive Runtime Code Scheduling for
    Heterogeneous Architectures,”** in High Performance Embedded
    Architectures and Compilers, 2009, pp. 19–33.
+1. G. Fursin, A. Cohen, M. O. Boyle, O. Temam, and A. P. Method, **“A
+   Practical Method For Quickly Evaluating Program Optimizations,”**
+   High Perform. Embed. Archit. Compil., pp. 29–46, 2005.
+1. J. Auslander, M. Philipose, C. Chambers, S. J. Eggers, and
+   B. N. Bershad, **“Fast, effective dynamic compilation,”** in ACM
+   SIGPLAN Notices, 1996, pp. 149–159.
 
 # 13-30 min
 
