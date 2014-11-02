@@ -53,102 +53,102 @@ void Evolution::UpdateMatrix()
 */
 
 //! SequentialEvolution::Run - begins looped evolution
-  void SequentialEvolution::Run(double execution_time, int nthread)
-  {
-    printf("Starting game (Sequential evolution)\n");
+void SequentialEvolution::Run(double execution_time, int nthread)
+{
+  printf("Starting game (Sequential evolution)\n");
 
-    m_nIteration = 0;
-    m_serial_time = 0;
-    tbb::tick_count t0 = tbb::tick_count::now();
-    while (!m_done)
-    {
-      if( !is_paused )
-      {
-        tbb::tick_count t = tbb::tick_count::now();
-        Step();
-        tbb::tick_count t1 = tbb::tick_count::now();
-        ++m_nIteration;
-        double  work_time = (t1-t0).seconds();
-        m_serial_time += work_time;
-      }
-      //! Let the parallel algorithm work uncontended almost the same time
-      //! as the serial one. See ParallelEvolution::Run() as well.
-      t0 = tbb::tick_count::now();
-      if(m_serial_time > execution_time)
-      {
-        printf("iterations count = %d time = %g\n", m_nIteration, m_serial_time);
-        break;
-      }
-    }
-  }
-
-  //! SequentialEvolution::Step() - override of step method
-  void SequentialEvolution::Step()
+  m_nIteration = 0;
+  m_serial_time = 0;
+  tbb::tick_count t0 = tbb::tick_count::now();
+  while (!m_done)
   {
     if( !is_paused )
     {
-#ifdef USE_SSE
-      UpdateState(m_matrix, m_matrix->data, 0, m_matrix->height);
-#else
-      UpdateState(m_matrix, m_dest, 0, (m_matrix->width * m_matrix->height)-1);
-      UpdateMatrix();
-#endif
+      tbb::tick_count t = tbb::tick_count::now();
+      Step();
+      tbb::tick_count t1 = tbb::tick_count::now();
+      ++m_nIteration;
+      double  work_time = (t1-t0).seconds();
+      m_serial_time += work_time;
+    }
+    //! Let the parallel algorithm work uncontended almost the same time
+    //! as the serial one. See ParallelEvolution::Run() as well.
+    t0 = tbb::tick_count::now();
+    if(m_serial_time > execution_time)
+    {
+      printf("iterations count = %d time = %g\n", m_nIteration, m_serial_time);
+      break;
     }
   }
+}
 
-  /*
-    ParallelEvolution
-  */
+//! SequentialEvolution::Step() - override of step method
+void SequentialEvolution::Step()
+{
+  if( !is_paused )
+  {
+#ifdef USE_SSE
+    UpdateState(m_matrix, m_matrix->data, 0, m_matrix->height);
+#else
+    UpdateState(m_matrix, m_dest, 0, (m_matrix->width * m_matrix->height)-1);
+    UpdateMatrix();
+#endif
+  }
+}
 
-  //! SequentialEvolution::Run - begins looped evolution
+/*
+  ParallelEvolution
+*/
+
+//! SequentialEvolution::Run - begins looped evolution
 void ParallelEvolution::Run(double execution_time, int nthread)
 {
-      if(nthread == tbb::task_scheduler_init::automatic)
-        printf("Starting game (Parallel evolution for automatic number of thread(s))\n");
-      else
-        printf("Starting game (Parallel evolution for %d thread(s))\n", nthread);
+  if(nthread == tbb::task_scheduler_init::automatic)
+    printf("Starting game (Parallel evolution for automatic number of thread(s))\n");
+  else
+    printf("Starting game (Parallel evolution for %d thread(s))\n", nthread);
 
-      m_nIteration = 0;
-      m_parallel_time = 0;
+  m_nIteration = 0;
+  m_parallel_time = 0;
 
-      tbb::task_scheduler_init init(nthread);
+  tbb::task_scheduler_init init(nthread);
 
-      double  work_time = m_serial_time;
-      tbb::tick_count t0 = tbb::tick_count::now();
+  double  work_time = m_serial_time;
+  tbb::tick_count t0 = tbb::tick_count::now();
 
-      while (!m_done)
-      {
-        if( !is_paused )
-        {
-          tbb::tick_count t = tbb::tick_count::now();
-          Step();
-          tbb::tick_count t1 = tbb::tick_count::now();
-          ++m_nIteration;
-          double real_work_time = (t1-t0).seconds();
-          m_parallel_time += real_work_time;
-        }
-        //! Let the serial algorithm work the same time as the parallel one.
-        t0 = tbb::tick_count::now();
-        if(m_parallel_time > execution_time)
-        {
-          printf("iterations count = %d time = %g\n", m_nIteration, m_parallel_time);
-          init.terminate();
-          break;
-        }
-      }
+  while (!m_done)
+  {
+    if( !is_paused )
+    {
+      tbb::tick_count t = tbb::tick_count::now();
+      Step();
+      tbb::tick_count t1 = tbb::tick_count::now();
+      ++m_nIteration;
+      double real_work_time = (t1-t0).seconds();
+      m_parallel_time += real_work_time;
     }
+    //! Let the serial algorithm work the same time as the parallel one.
+    t0 = tbb::tick_count::now();
+    if(m_parallel_time > execution_time)
+    {
+      printf("iterations count = %d time = %g\n", m_nIteration, m_parallel_time);
+      init.terminate();
+      break;
+    }
+  }
+}
 
-    /**
-       class tbb_parallel_task
+/**
+   class tbb_parallel_task
 
-       TBB requires a class for parallel loop implementations. The actual
-       loop "chunks" are performed using the () operator of the class.
-       The blocked_range contains the range to calculate. Please see the
-       TBB documentation for more information.
-    **/
+   TBB requires a class for parallel loop implementations. The actual
+   loop "chunks" are performed using the () operator of the class.
+   The blocked_range contains the range to calculate. Please see the
+   TBB documentation for more information.
+**/
 class tbb_parallel_task
 {
-public:
+ public:
   static void set_values (Matrix* source, char* dest)
   {
     m_source = source;
@@ -165,7 +165,7 @@ public:
 
   tbb_parallel_task () {}
 
-private:
+ private:
   static Matrix* m_source;
   static char* m_dest;
 };
