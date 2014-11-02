@@ -1987,3 +1987,47 @@ projects in LLVM.
  * A reasonable metric is to aim for 5 papers per hour. This means
    being very selective about which sections
  * There was talk of developing run-time adaption for PetaBricks.
+
+
+# November 2014
+
+## Sunday 2nd
+
+A list of the tunable parameters and program features used in:
+
+> A. Collins, C. Fensch, H. Leather, and M. Cole, “MaSiF: Machine
+> learning guided auto-tuning of parallel skeletons,” 20th
+> Annu. Int. Conf. High Perform. Comput., pp. 186–195, Dec. 2013.
+
+For TBB:
+
+```
+Tunable parameters:
+threads                  1 - (1.5 x core-count)
+grainsize                1 - 2^16
+partitioner              {auto,affinit,simple}_partitioner
+allocator                {std::,tbb_,zero_,cache_aligned_,scalable_}allocator,
+
+Features:
+skeleton_used            parallel_for, parallel_reduce
+data_structure_read      blocked_range,shared_array,concurrent_vector
+data_structure_written   atomic_variable,concurrent_vector,shared_{variable,array}
+time complexity*
+```
+
+For FastFlow:
+
+```
+Tunable parameters:
+
+numworkers               1 - (1.5 x core-count)
+buffertype               bounded or undounded
+buffersize               1 - 2^20
+batchsize                1 - 2^20
+cachealign               64,128,256
+
+skeleton_used            farm,farm-with-feedback
+collector_thread         yes,no
+number_of_tasks_created*
+size_of_task*
+```
