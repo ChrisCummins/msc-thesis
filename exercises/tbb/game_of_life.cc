@@ -18,8 +18,8 @@
     reasons why the executable file might be covered by the GNU General Public License.
 */
 
-/* 
-    Game_of_life.cpp : 
+/*
+    Game_of_life.cpp :
                       main project file.
 */
 #include "Board.h"
@@ -53,12 +53,12 @@ Board::~Board()
 }
 
 void Board::seed(int s)
-{        
+{
     srand(s);
     for (int j=0; j<m_height; j++)
     {
         for (int i=0; i<m_width; i++)
-        {        
+        {
             int x = rand()/(int)(((unsigned)RAND_MAX + 1) / 100);
             m_matrix->data[i+j*m_width] = x>75? 1: 0;               // 25% occupied
         }
@@ -71,14 +71,14 @@ void Board::seed( const BoardPtr src )
 }
 
 //! Print usage of this program
-void PrintUsage() 
+void PrintUsage()
 {
     printf("Usage: gol [M[:N] -t execution_time]\nM and N are a range of numbers of threads to be used.\nexecution_time is a time (in sec) for execution game_of_life iterations\n");
     printf("Default values:\nM:\t\tautomatic\nN:\t\tM\nexecution_time:\t10\n");
 }
 
 //! Parse command line
-bool ParseCommandLine(int argc, char * argv []) 
+bool ParseCommandLine(int argc, char * argv [])
 {
     char* s = argv[1];
     char* end;
@@ -100,10 +100,10 @@ bool ParseCommandLine(int argc, char * argv [])
     //! process M[:N] parameter
     high = strtol(s,&end,0);
     low = strtol(s,&end,0);
-    switch( *end ) 
+    switch( *end )
     {
-        case ':': 
-            high = strtol(end+1,0,0); 
+        case ':':
+            high = strtol(end+1,0,0);
             break;
         case '\0':
             break;
@@ -123,16 +123,16 @@ bool ParseCommandLine(int argc, char * argv [])
     return true;
 }
 
-int main( int argc, char* argv[] ) 
+int main( int argc, char* argv[] )
 {
     if(!ParseCommandLine( argc, argv ))
         return 1;
     SequentialEvolution* m_seq;
     ParallelEvolution* m_par;
     Board* m_board1;
-    Board* m_board2; 
+    Board* m_board2;
     int* count = NULL;
-   
+
     int boardWidth = 300;
     int boardHeight = 300;
 
@@ -149,7 +149,7 @@ int main( int argc, char* argv[] )
     delete m_seq;
 
     m_par = new ParallelEvolution(m_board2->m_matrix, m_board2);
-    for( int p = low; p <= high; ++p ) 
+    for( int p = low; p <= high; ++p )
     {
         m_par->Run(execution_time, p);
     }
