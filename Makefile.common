@@ -25,11 +25,15 @@ CSourceBaseNames   = $(patsubst %$(CSourceExtension),%,$(CSources))
 CHeaders           = $(wildcard *$(CHeaderExtension))
 CHeaderBaseNames   = $(patsubst %$(CHeaderExtension),%,$(CHeaders))
 
+CAll               = $(CSources) $(CHeaders)
+
 CxxSources         = $(wildcard *$(CxxSourceExtension))
 CxxSourceBaseNames = $(patsubst %$(CxxSourceExtension),%,$(CxxSources))
 
 CxxHeaders         = $(wildcard *$(CxxHeaderExtension))
 CxxHeaderBaseNames = $(patsubst %$(CxxHeaderExtension),%,$(CxxHeaders))
+
+CxxAll             = $(CxxSources) $(CxxHeaders)
 
 # Empty clean list to append to.
 MOSTLYCLEANFILES =
@@ -175,6 +179,16 @@ endif
 	$(AM_V_at)$(call emit-cxx-asm,      $*$(BitCodeExtension), $*$(AsmExtension))
 	$(AM_V_at)$(call create-cxx-plist,  $<, $<$(PlistExtension))
 	$(AM_V_at)$(call cpplint,           $<, $<$(CpplintExtension))
+
+#------------------------------------------------------------------------
+# Generating TAGS files for C and C++ sources.
+#------------------------------------------------------------------------
+etags: TAGS
+
+TAGS: $(CAll) $(CxxAll)
+	$(AM_V_at)etags $^
+
+MOSTLYCLEANFILES += TAGS
 
 #------------------------------------------------------------------------
 # Compiling PDF LaTeX documents.
