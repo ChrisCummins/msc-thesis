@@ -23,7 +23,6 @@
                       main project file.
 */
 #include "Board.h"
-#include "Form1.h"
 
 #include <iostream>
 #include <sstream>
