@@ -6,7 +6,7 @@ include $(top_srcdir)/Makefile.common
 ###############################################################################
 
 # Local compiler and linker flags.
-AM_CXXFLAGS = -D_CONSOLE
+AM_CXXFLAGS =
 AM_LDFLAGS  = -ltbb_debug
 
 #------------------------------------------------------------------------

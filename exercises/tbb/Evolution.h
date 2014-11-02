@@ -31,30 +31,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define WIN32_LEAN_AND_MEAN
-
 #include "tbb/task_scheduler_init.h"
 #include "tbb/blocked_range.h"
 #include "tbb/parallel_for.h"
 #include "tbb/tick_count.h"
 
-#ifndef _CONSOLE
-#include <windows.h>
-using namespace System::Threading;
-#else
 typedef unsigned int Int32;
-#endif
 
 void UpdateState(Matrix * m_matrix, char * dest ,int begin, int end);
 
 /**
     class Evolution - base class for SequentialEvolution and ParallelEvolution
 **/
-#ifndef _CONSOLE
-public ref class Evolution abstract
-#else
 class Evolution
-#endif
 {
 public:
     Evolution( Matrix *m,                //! beginning matrix including initial pattern
@@ -65,9 +54,7 @@ public:
         //! allocate memory for second matrix data block
         m_dest = new char[m_size];
         is_paused = false;
-#ifdef _CONSOLE
         m_serial_time = 0;
-#endif
     }
 
     virtual ~Evolution()
@@ -76,11 +63,7 @@ public:
     }
 
     //! Run() - begins looped evolution
-#ifndef _CONSOLE
-    virtual void Run() = 0;
-#else
     virtual void Run(double execution_time, int nthread) = 0;
-#endif
 
     //! Quit() - tell the thread to terminate
     virtual void Quit() { m_done = true; }
@@ -118,36 +101,20 @@ protected:
         This member is updated by the sequential version and read by parallel,
         so no synchronization is necessary.
     **/
-#ifndef _CONSOLE
-    static volatile double m_serial_time = 0;
-
-    static System::Threading::AutoResetEvent    ^m_evt_start_serial = gcnew AutoResetEvent(false),
-                                                ^m_evt_start_parallel = gcnew AutoResetEvent(false);
-#else
     double m_serial_time;
-#endif
 };
 
 /**
     class SequentialEvolution - derived from Evolution - calculate life generations serially
 **/
-#ifndef _CONSOLE
-public ref class SequentialEvolution: public Evolution
-#else
 class SequentialEvolution: public Evolution
-#endif
 {
 public:
     SequentialEvolution(Matrix *m, BoardPtr board)
                        : Evolution(m, board)
     {}
-#ifndef _CONSOLE        
-    virtual void Run() override;
-    virtual void Step() override;
-#else
     virtual void Run(double execution_time, int nthread);
     virtual void Step();
-#endif
 
 };
 
@@ -155,11 +122,7 @@ public:
     class ParallelEvolution - derived from Evolution - calculate life generations
     in parallel using Intel(R) TBB
 **/
-#ifndef _CONSOLE
-public ref class ParallelEvolution: public Evolution
-#else
 class ParallelEvolution: public Evolution
-#endif
 {
 public:
 
@@ -177,13 +140,8 @@ public:
         if (m_pInit != NULL)
             delete m_pInit;
     }
-#ifndef _CONSOLE
-    virtual void Run() override;
-    virtual void Step() override;
-#else
     virtual void Run(double execution_time, int nthread);
     virtual void Step();
-#endif
     
 
 private:
