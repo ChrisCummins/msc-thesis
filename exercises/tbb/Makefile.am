@@ -6,13 +6,14 @@ include $(top_srcdir)/Makefile.common
 ###############################################################################
 
 # Local compiler and linker flags.
-AM_CXXFLAGS =
+AM_CXXFLAGS = -D_CONSOLE
 AM_LDFLAGS  = -ltbb_debug
 
 #------------------------------------------------------------------------
 # Build targets.
 #------------------------------------------------------------------------
 noinst_PROGRAMS = 				\
+	game_of_life				\
 	quicksort 				\
 	$(NULL)
 
@@ -20,6 +21,7 @@ noinst_PROGRAMS = 				\
 # Define build target requisites.
 #------------------------------------------------------------------------
 quicksort_SOURCES               = quicksort.cc
+game_of_life_SOURCES            = Evolution.cc Update_state.cc game_of_life.cc
 
 #------------------------------------------------------------------------
 # Auxiliary build targets.
