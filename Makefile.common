@@ -166,7 +166,7 @@ all-local: $(Plists) $(Cpplints)
 # from the built-in the rule. We then hook in our custom build logic
 # after this, generating additional source listings and performing
 # static analysis and linting.
-%.o: %.cc
+%.o: %.cc etags
 	$(AM_V_CXX)$(CXXCOMPILE) -emit-llvm -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c $< -o $*$(BitCodeExtension)
 	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
 if ENABLE_MEMORY_COUNTER
