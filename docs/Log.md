@@ -2019,15 +2019,35 @@ For FastFlow:
 
 ```
 Tunable parameters:
-
 numworkers               1 - (1.5 x core-count)
 buffertype               bounded or undounded
 buffersize               1 - 2^20
 batchsize                1 - 2^20
 cachealign               64,128,256
 
+Features:
 skeleton_used            farm,farm-with-feedback
 collector_thread         yes,no
 number_of_tasks_created*
 size_of_task*
 ```
+
+
+## Monday 3rd
+
+#### Notes from meeting with Alex
+
+* They did look into applying MaSiF at runtime by modifying FastFlow
+  to add a separate monitoring thread and using sampling
+  profiling. The performance benefits they experienced **did not**
+  outweigh the overhead of performing the dynamic parameter
+  tuning. Possible reasons for this include:
+  * Benchmarks that didn't suit the benefits of dynamic optimisation.
+    * Small compute kernels.
+    * Short-, not long-running programs.
+  * Optimising parameters at run-time was expensive. The overhead of
+    determining whether or not a parameter set was optimal or not was
+    relatively low - performance overhead was negligible when the
+    runtime decided not to make any changes.
+* Don't underestimate the importance of good, widely accepted
+  benchmarks when performing experiments.

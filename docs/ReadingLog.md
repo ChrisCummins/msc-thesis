@@ -24,6 +24,10 @@ A list of papers read, organised by amount of time spent reading them.
    T. Kovacshazy, **“An Approach to Self-adaptive Software Based on
    Supervisory Control,”** Self-adaptive Softw. Appl., pp. 24–38,
    2003.
+1. V. Bhat, M. Parashar, M. Khandekar, N. Kandasamy, and
+   S. Abdelwahed, **“Enabling Self-Managing Applications using
+   Model-based Online Control Strategies,”** in 2006 IEEE
+   International Conference on Autonomic Computing, 2006, pp. 15–24.
 
 # 5-12 min
 
