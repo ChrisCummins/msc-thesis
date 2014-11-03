@@ -9,8 +9,21 @@ A list of papers read, organised by amount of time spent reading them.
    learning accelerated automatic heuristic construction for parallel
    program mapping,”** Proc. 23rd Int. Conf. Parallel
    Archit. Compil. - PACT ’14, pp. 481–482, 2014.
-1. P. Diniz and M. Rinard, “Dynamic Feedback: An Effective Technique
-   for Adaptive Computing,” in ACM SIGPLAN Notices, 1997, pp. 71–84.
+1. P. Diniz and M. Rinard, **“Dynamic Feedback: An Effective Technique
+   for Adaptive Computing,”** in ACM SIGPLAN Notices, 1997, pp. 71–84.
+1. F. Chang and V. Karamcheti, **“A Framework for Automatic Adaptation
+   of Tunable Distributed Applications,”** Cluster Comput., vol. 4,
+   no. 1, pp. 49–62, 2001.
+1. I. Chung, J. K. Hollingsworth, and H. Server, **“Active Harmony:
+   Towards Automated Performance Tuning,”** in Proceedings of the 2002
+   ACM/IEEE conference on Supercomputing, 2002, pp. 1–11.
+1. T. J. Edler von Koch and B. Franke, **“Limits of Region-Based
+   Dynamic Binary Parallelization,”** ACM SIGPLAN Not., vol. 48,
+   no. 7, pp. 13–22, 2013.
+1. G. Karsai, A. Ledeczi, J. Sztipanovits, G. Peceli, G. Simon, and
+   T. Kovacshazy, **“An Approach to Self-adaptive Software Based on
+   Supervisory Control,”** Self-adaptive Softw. Appl., pp. 24–38,
+   2003.
 
 # 5-12 min
 
@@ -60,6 +73,9 @@ A list of papers read, organised by amount of time spent reading them.
    Heterogeneous Multiprocessors with Adaptive Mapping Categories and
    Subject Descriptors,”** in Microarchitecture, 2009. MICRO-42. 42nd
    Annual IEEE/ACM International Symposium on, 2009, pp. 45–55.
+1. C. Chan, J. Ansel, Y. L. Wong, S. Amarasinghe, and A. Edelman,
+   **“Autotuning multigrid with PetaBricks,”** in ACM/IEEE Conference on
+   Supercomputing, 2009.
 
 # 12-30 min
 
@@ -70,3 +86,13 @@ A list of papers read, organised by amount of time spent reading them.
 1. M. Tartara and S. Crespi Reghizzi, **“Continuous learning of
    compiler heuristics,”** ACM Trans. Archit. Code Optim., vol. 9,
    no. 4, pp. 1–25, Jan. 2013.
+1. J. Ansel and U. O. Reilly, **“SiblingRivalry: Online Autotuning
+   Through Local Competitions,”** in International Conference on
+   Compilers Architecture and Synthesis for Embedded Systems, 2012.
+
+# > 30 min
+
+1. D. Nuzman, R. Eres, S. Dyshel, and M. Zalmanovici, **“JIT
+   Technology with C / C ++ : Feedback-Directed Dynamic Recompilation
+   for Statically Compiled Languages,”** ACM Trans. Arch. Code
+   Optim.}, vol. 10, no. 4, p. 59, 2013.
