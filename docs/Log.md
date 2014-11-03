@@ -2051,3 +2051,5 @@ size_of_task*
     runtime decided not to make any changes.
 * Don't underestimate the importance of good, widely accepted
   benchmarks when performing experiments.
+* It could be worth talking to Michel Steuwer and Christoph Dubach
+  about the work they've been doing on SkelCL.

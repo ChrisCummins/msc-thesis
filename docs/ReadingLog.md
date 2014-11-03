@@ -80,6 +80,9 @@ A list of papers read, organised by amount of time spent reading them.
 1. C. Chan, J. Ansel, Y. L. Wong, S. Amarasinghe, and A. Edelman,
    **“Autotuning multigrid with PetaBricks,”** in ACM/IEEE Conference on
    Supercomputing, 2009.
+1. C. Dubach, **“Using Machine-Learning to Efficiently Explore the
+   Architecture / Compiler Co-Design Space,”** Univeristy of
+   Edinburgh, 2009.
 
 # 12-30 min
 
@@ -93,6 +96,9 @@ A list of papers read, organised by amount of time spent reading them.
 1. J. Ansel and U. O. Reilly, **“SiblingRivalry: Online Autotuning
    Through Local Competitions,”** in International Conference on
    Compilers Architecture and Synthesis for Embedded Systems, 2012.
+1. M. Steuwer and S. Gorlatch, **“High-level Programming for Medical
+   Imaging on Multi-GPU Systems Using the SkelCL Library,”** Procedia
+   Comput. Sci., vol. 18, pp. 749–758, Jan. 2013.
 
 # > 30 min
 
