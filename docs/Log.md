@@ -2032,6 +2032,29 @@ number_of_tasks_created*
 size_of_task*
 ```
 
+A list of the tunable parameters and program features used in:
+
+> U. Dastgeer, J. Enmyren, and C. W. Kessler, “Auto-tuning SkePU: a
+> multi-backend skeleton programming framework for multi-GPU systems,”
+> in Proceedings of the 4th International Workshop on Multicore
+> Software Engineering, 2011, pp. 25–32.
+
+```
+Tunable parameters:
+problem_size_range       1 - infinity
+backend                  CPU,OMP,GPU_backend
+no_of_threads            only available for OMP backend
+grid_size                only available for GPU backends
+block_size               only available for GPU backends
+
+Features:
+problem_size*
+copy_up_time             only available for GPU backends
+copy_down_time           only available for GPU backends
+kernel_execution_time    only available for GPU backends
+total_time               only available for OMP backend
+overhead_time            only available for OMP backend
+```
 
 ## Monday 3rd
 
