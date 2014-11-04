@@ -32,6 +32,12 @@ A list of papers read, organised by amount of time spent reading them.
    programming library for multi-GPU systems,”** in Proceedings of the
    fourth international workshop on High-level parallel programming
    and applications, 2010, pp. 5–14.
+1. J. A. Stratton, C. Rodrigues, I. Sung, N. Obeid, L. Chang,
+   N. Anssari, G. D. Liu, and W. W. Hwu, **“Parboil: A Revised
+   Benchmark Suite for Scientific and Commercial Throughput
+   Computing,”** Cent. Reliab. High-Performance Comput., 2012.
+1. H. Hoffmann, S. Sidiroglou, S. Misailovic, A. Agarwal, M. Rinard,
+   and M. Carbin, **“Dynamic Knobs for Power-Aware Computing,”** 2010.
 
 # 5-12 min
 
@@ -91,6 +97,16 @@ A list of papers read, organised by amount of time spent reading them.
    Experimental Study on Performance Portability of OpenCL Kernels,”**
    in 2010 Symposium on Application Accelerators in High Performance
    Computing (SAAHPC’10), 2010, pp. 4–6.
+1. Y. Dotsenko, S. S. Baghsorkhi, B. Lloyd, and N. K. Govindaraju,
+   **“Auto-tuning of fast fourier transform on graphics processors,”**
+   ACM SIGPLAN Not., vol. 46, no. 8, pp. 257–266, 2011.
+1. J. Fang, A. L. Varbanescu, and H. Sips, **“An Auto-tuning Solution
+   to Data Streams Clustering in OpenCL,”** in Computational Science
+   and Engineering (CSE), 2011 IEEE 14th International Conference on,
+   2011, pp. 587–594.
+1. M. Steuwer and S. Gorlatch, **“SkelCL: Enhancing OpenCL for
+   High-Level Programming of Multi-GPU Systems,”** Parallel
+   Comput. Technol., pp. 258–272, 2013.
 
 # 12-30 min
 

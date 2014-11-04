@@ -2087,3 +2087,44 @@ perhaps this could be an interesting optimisation space to search at
 runtime? Advantages that make SkelCL a viable platform for
 experimenting include that it is open source (GPL), actively
 developed, and the primary author Michel is at Edinburgh.
+
+
+# Tuesday 4th
+
+A list of the benchmarks, targets, and datasets for
+[Parboil](http://impact.crhc.illinois.edu/Parboil/parboil.aspx):
+
+```
+BENCHMARK, TARGETS, DATASETS
+bfs, base  cuda  cuda_base  omp_base  opencl_base  opencl_nvidia, 1M  NY  SF  UT
+cutcp, base  cuda  cuda_base  omp_base  opencl_base  opencl_nvidia, large  small
+histo, base  cuda  cuda_base  cuda-base  omp_base  opencl_base  opencl_nvidia  threaded, default  large
+lbm, cpu  cuda  cuda_base  omp_cpu  opencl_base  opencl_nvidia, long  short
+mri-gridding, base  cuda  cuda-base  omp_base  opencl_base  opencl_nvidia, mrig_small.tgz  small
+mri-q, cpu  cuda  omp_base  opencl  opencl_nvidia, large  small
+sad, base  cpu  cuda  cuda_base  opencl_base  opencl_nvidia, default  large
+sgemm, base  cuda  cuda_base  omp_base  opencl_base  opencl_nvidia, medium  small
+spmv, cpu   cuda_base      cuda_tex  opencl_ati      opencl_base    opencl_tex cuda  cuda_base_tex  omp_base  opencl_ati_vec  opencl_nvidia  opencl_tex_nvidia, large  medium  small
+stencil, cpu  cuda  cuda_base  cuda_fermi  omp_base  opencl_base  opencl_fermi  opencl_nvidia, default  small
+tpacf, base  cuda  cuda_base  omp_base  opencl_base  opencl_nvidia, large  medium  small
+```
+
+The benchmarks can be ran with the command:
+
+```
+./parboil <benchmark> <target> <dataset>
+```
+
+Considerations for proposing a dynamic auto-tuner for SkelCL:
+
+1. What features and attributes can I select, and at what level
+   (i.e. individual muscles, whole program, etc.)?
+   * Compilation space: Optimisation flags and levels.
+   * Device space: Number of threads to execute.
+   * Skeleton space: What kind of muscle function is it.
+1. How am I going to exploit the *structure* provided by skeletons?
+1. Why is a *dynamic* approach better than static?
+   * No offline training phase.
+   * Can use runtime features (i.e. the contents and behaviour of
+     muscle functions).
+1. What is the current state of the art? How is my solution novel?
