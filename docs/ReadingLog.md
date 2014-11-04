@@ -28,6 +28,10 @@ A list of papers read, organised by amount of time spent reading them.
    S. Abdelwahed, **“Enabling Self-Managing Applications using
    Model-based Online Control Strategies,”** in 2006 IEEE
    International Conference on Autonomic Computing, 2006, pp. 15–24.
+1. J. Enmyren and C. Kessler, **“SkePU: a multi-backend skeleton
+   programming library for multi-GPU systems,”** in Proceedings of the
+   fourth international workshop on High-level parallel programming
+   and applications, 2010, pp. 5–14.
 
 # 5-12 min
 
