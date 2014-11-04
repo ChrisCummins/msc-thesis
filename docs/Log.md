@@ -2115,16 +2115,62 @@ The benchmarks can be ran with the command:
 ./parboil <benchmark> <target> <dataset>
 ```
 
-Considerations for proposing a dynamic auto-tuner for SkelCL:
+Considerations for proposing a SkelCL dynamic auto-tuner:
 
 1. What features and attributes can I select, and at what level
    (i.e. individual muscles, whole program, etc.)?
    * Compilation space: Optimisation flags and levels.
-   * Device space: Number of threads to execute.
+   * Device space: Number of threads to execute, distribution of work.
    * Skeleton space: What kind of muscle function is it.
 1. How am I going to exploit the *structure* provided by skeletons?
 1. Why is a *dynamic* approach better than static?
    * No offline training phase.
    * Can use runtime features (i.e. the contents and behaviour of
-     muscle functions).
+     muscle functions and input data).
 1. What is the current state of the art? How is my solution novel?
+
+
+#### Notes from meeting with Hugh and Pavlos 4.11.2014
+
+* Notes from my meeting with Alex:
+  * They did look doing autotuning FastFlow at runtime by adding a
+    separate monitoring thread which used sampling profiling, and did
+    the re-optimising heavy-lifting.
+  * The results weren't positive. The overhead of performing the
+    re-optimising was greater than the benefits of the optimisations.
+  * The actual overhead of profiling and comparing current
+    configuration against training data was relatively small.
+  * They attributed the poor performance to short-, not long-running
+    benchmarks, which don't offer adequate time to converge on optimal
+    configurations.
+  * TODO: Find out exactly *what* optimisations they did, and how. Get
+    a better understanding of why they weren't successful, and what I
+    can do differently.
+* SkelCL:
+  * Written by Michel in 2011, and actively developed.
+  * Targets heterogeneous devices, and compiles OpenCL kernels at
+    runtime from source strings.
+  * There's a compilation space associated with OpenCL, in additional
+    to the usual skel-specific params.
+    * I should contact Alberto (?). He has been working on PTX, which
+      is a bytecode IR for GPU programming with an LLVM backend.
+  * I should re-read Grigori's paper on continuous compilation which
+    suggests that optimisation parameters are insensitive to datasets.
+  * The general idea isn't novel (it's a re-hash of iterative
+    compilation). In order to generate 10 months work and not 2 weeks
+    work, I'll need to come up with some extra challenges and
+    opportunities for *innovation*. These could include:
+    * Extracting features from datasets. This isn't possible using
+      offline training. Note this isn't necessarily a trivial task -
+      even something as simple as the number of elements in a dataset
+      may be expensive to compute if dealing with arbitrarily nested
+      structures.
+    * Splitting long-running skeletons into epochs and changing the
+      behaviour of the compiled kernel between them. This would be a
+      more interesting engineering challenge than simply recompiling
+      the same kernel with different params between invocations.
+    * Using the additional structure of skeletons as features for a ML
+      model. This could be a simple as having different models for
+      different skeletons.
+    * Supporting arbitrary nesting of skeletons. How do we distribute
+      nested skeletons amongst available resources?
