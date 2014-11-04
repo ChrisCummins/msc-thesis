@@ -2076,3 +2076,14 @@ overhead_time            only available for OMP backend
   benchmarks when performing experiments.
 * It could be worth talking to Michel Steuwer and Christoph Dubach
   about the work they've been doing on SkelCL.
+
+
+SkelCL is an interesting algorithmic skeleton library which targets
+hetergeous systems by compiling skeletons for execution on multiple
+GPUs using OpenCL. Since OpenCL programs are compiled at runtime from
+strings, it is by its very nature dynamically compiled. If OpenCL
+compilation exposes options for optimising compiled kernels, then
+perhaps this could be an interesting optimisation space to search at
+runtime? Advantages that make SkelCL a viable platform for
+experimenting include that it is open source (GPL), actively
+developed, and the primary author Michel is at Edinburgh.

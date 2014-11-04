@@ -87,6 +87,10 @@ A list of papers read, organised by amount of time spent reading them.
 1. C. Dubach, **“Using Machine-Learning to Efficiently Explore the
    Architecture / Compiler Co-Design Space,”** Univeristy of
    Edinburgh, 2009.
+1. S. Rul, H. Vandierendonck, J. D. Haene, and K. De Bosschere, **“An
+   Experimental Study on Performance Portability of OpenCL Kernels,”**
+   in 2010 Symposium on Application Accelerators in High Performance
+   Computing (SAAHPC’10), 2010, pp. 4–6.
 
 # 12-30 min
 
