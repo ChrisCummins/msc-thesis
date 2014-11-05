@@ -23,7 +23,7 @@ std::vector<ArrayType> dac_merge_sort(std::vector<ArrayType> in);
 
 // An array length, below which the array is sorted using insertion
 // sort, above which by recursive merge sort.
-#define SKEL_MERGE_SORT_SPLIT_THRESHOLD 100
+#define SKEL_DAC_MERGE_SORT_SPLIT_THRESHOLD 100
 
 //
 // Merge sort skeleton implementation.
@@ -34,7 +34,7 @@ std::vector<ArrayType> dac_merge_sort(std::vector<ArrayType> in);
 // enough to sort directly (insertion sort) or to keep dividing it.
 template<typename ArrayType>
 bool is_indivisible(const std::vector<ArrayType>& input) {
-  return input.size() <= SKEL_MERGE_SORT_SPLIT_THRESHOLD;
+  return input.size() <= SKEL_DAC_MERGE_SORT_SPLIT_THRESHOLD;
 }
 
 
