@@ -17,9 +17,10 @@ noinst_PROGRAMS = 				\
 	merge-sort-float			\
 	merge-sort-int				\
 	skel-dac-merge-sort-int			\
-	skel-merge-sort-int			\
 	skel-max-subarray			\
+	skel-merge-sort-int			\
 	std-stable-sort-int			\
+	test-skel-merge-sort-int		\
 	$(NULL)
 
 #------------------------------------------------------------------------
@@ -31,9 +32,10 @@ ita_merge_sort_int_SOURCES      = ita-merge-sort-int.cc      $(TestSources)
 merge_sort_float_SOURCES        = merge-sort-float.cc        $(TestSources)
 merge_sort_int_SOURCES          = merge-sort-int.cc          $(TestSources)
 skel_dac_merge_sort_int_SOURCES = skel-dac-merge-sort-int.cc $(TestSources)
-skel_merge_sort_int_SOURCES     = skel-merge-sort-int.cc     $(TestSources)
 skel_max_subarray_SOURCES       = skel-max-subarray.cc       $(TestSources)
+skel_merge_sort_int_SOURCES     = skel-merge-sort-int.cc     $(TestSources)
 std_stable_sort_int_SOURCES     = std-stable-sort-int.cc     $(TestSources)
+test_skel_merge_sort_int_SOURCES = test-skel-merge-sort-int.cc $(TestSources)
 
 #------------------------------------------------------------------------
 # Auxiliary build targets.
