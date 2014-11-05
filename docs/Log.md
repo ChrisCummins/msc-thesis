@@ -2152,8 +2152,8 @@ Considerations for proposing a SkelCL dynamic auto-tuner:
     runtime from source strings.
   * There's a compilation space associated with OpenCL, in additional
     to the usual skel-specific params.
-    * I should contact Alberto (?). He has been working on PTX, which
-      is a bytecode IR for GPU programming with an LLVM backend.
+    * I should contact Alberto Magni. He has been working on PTX,
+      which is a bytecode IR for GPU programming with an LLVM backend.
   * I should re-read Grigori's paper on continuous compilation which
     suggests that optimisation parameters are insensitive to datasets.
   * The general idea isn't novel (it's a re-hash of iterative
