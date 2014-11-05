@@ -2174,3 +2174,27 @@ Considerations for proposing a SkelCL dynamic auto-tuner:
       different skeletons.
     * Supporting arbitrary nesting of skeletons. How do we distribute
       nested skeletons amongst available resources?
+
+
+## Wednesday 5th
+
+Goals for today:
+* Make two graphs plotting the effects of two distinct optimisation
+  parameters on a skeleton's runtime, and show how they interact.
+* Meet with Michel to discuss SkelCL autotuning.
+* Create rough sketches for PPar slides.
+
+Notes from meeting with Michel and Adam:
+* Currently, SkelCL maps work items to threads directly.
+* NVIDIA and ATI have different memory hierarchies, which means memory
+  access patterns need to be specialised for the underlying hardware.
+* Relevant related work is Alberto's Thread coarsening paper, which
+  takes a compiler-level approach to mapping work items to
+  threads. Performing this optimisation at the library level should
+  provide advantages since we have a higher-level overview of the
+  code.
+* Some input data and kernels produce irregular loads,
+  e.g. calculating Mandelbrot sets (The pixels which aren't in the set
+  can be calculated quickly, the pixels which are in the set require
+  expensive computations).
+* Build script for Arch Linux.
