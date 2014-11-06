@@ -20,11 +20,11 @@ n = sys.argv[2]
 
 x = []
 for i in r:
-    x.append(i[0])
+    x.append(i[1])
 X = np.array(x)
 y = []
 for i in r:
-    y.append(i[1])
+    y.append(i[0])
 Y = np.array(y)
 z = []
 for i in r:
@@ -39,17 +39,18 @@ Z = np.array(z)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.set_zlabel('Speedup')
 
 # Speedup is between 1 and 4. Note this causes slowdowns to "fall
 # through the floor".
-ax.set_zlim(1, 4)
+ax.set_zlim(1, 8)
 
 # vmin and vmax are the limits of the colour maps.
 surf = ax.plot_trisurf(X, Y, Z, cmap=cm.jet, vmin=1.0, vmax=3.5, linewidth=.2)
+plt.gca().invert_xaxis()
 
 plt.suptitle('Optimisation space for merge sort, n=1e{0}'.format(n), fontsize=16)
-plt.ylabel('Parallelisation depth')
-plt.xlabel('Split threshold')
+plt.xlabel('Parallelisation depth')
+plt.ylabel('Split threshold')
+ax.set_zlabel('Speedup')
 plt.savefig('plot.png')
 plt.show()
