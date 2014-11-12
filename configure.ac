@@ -295,6 +295,8 @@ AC_CONFIG_FILES([
         exercises/tbb/Makefile
         exercises/templates/Makefile
         exercises/templates/dac/Makefile
+        experiments/Makefile
+        experiments/20141105-skel-opt-space/Makefile
         proposal/Makefile
 ])
 

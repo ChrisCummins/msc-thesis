@@ -1,6 +1,7 @@
 SUBDIRS = \
 	docs \
 	exercises \
+	experiments \
 	$(NULL)
 
 if HAVE_PDFLATEX
