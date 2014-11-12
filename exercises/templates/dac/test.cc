@@ -21,6 +21,17 @@ float *get_rand_float_array(const size_t size) {
   return a;
 }
 
+template<typename T>
+T *get_rand_array(const size_t size) {
+  T *const a = new T[size];
+
+  for (size_t i = 0; i < size; i++)
+    a[i] = (static_cast<T>(rand())  // NOLINT(runtime/threadsafe_fn)
+            / static_cast<T>(size));
+
+  return a;
+}
+
 template<class T>
 vector<T> *get_unsorted_vector(const size_t size,
                                T *(*get_array)(const size_t)) {
@@ -44,6 +55,10 @@ vector<int> *get_unsorted_int_vector(const size_t size) {
 
 vector<float> *get_unsorted_float_vector(const size_t size) {
   return get_unsorted_vector(size, get_rand_float_array);
+}
+
+vector<char> *get_unsorted_char_vector(const size_t size) {
+  return get_unsorted_vector(size, get_rand_array<char>);
 }
 
 void print_result(int length, Timer *const t) {

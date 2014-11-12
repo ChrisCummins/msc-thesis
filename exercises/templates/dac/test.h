@@ -16,6 +16,7 @@
 int           *get_unsorted_int_array(const size_t size);
 vector<int>   *get_unsorted_int_vector(const size_t size);
 vector<float> *get_unsorted_float_vector(const size_t size);
+vector<char>  *get_unsorted_char_vector(const size_t size);
 
 void print_result(int length, Timer *const t);
 
