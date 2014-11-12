@@ -2354,3 +2354,9 @@ Evaluation:
 * Find, or rewrite, a set of benchmarks that my solution can be
   compared against which target the same hardware.
 * Perhaps compare results against *hand tuned* solution.
+
+Hugh's suggestions for presentation slides:
+1. Be exact and clear about the things that I am proposing to do which
+   **have not been done before**.
+1. Why are the challenges challenging? The audience should **want** to
+   see the results of my research.
