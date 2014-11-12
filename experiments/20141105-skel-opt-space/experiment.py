@@ -4,7 +4,7 @@ from datetime import datetime
 
 target = "test-skel-merge-sort-int"
 target_dir = "../../exercises/templates/dac/"
-split_threshold = [10, 1000, 100]
+split_threshold = [10, 2000, 25]
 max_recursion_depth = [0, 10, 1]
 test_size = [3, 6, 1]
 

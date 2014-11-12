@@ -42,11 +42,12 @@ ax = fig.add_subplot(111, projection='3d')
 
 # Speedup is between 1 and 4. Note this causes slowdowns to "fall
 # through the floor".
-ax.set_zlim(1, 8)
+ax.set_zlim(1, 4)
 
 # vmin and vmax are the limits of the colour maps.
-surf = ax.plot_trisurf(X, Y, Z, cmap=cm.jet, vmin=1.0, vmax=3.5, linewidth=.2)
-plt.gca().invert_xaxis()
+surf = ax.plot_trisurf(Y, X, Z, cmap=cm.jet, vmin=0, vmax=1.0, linewidth=.2)
+#plt.gca().invert_xaxis()
+#plt.gca().invert_yaxis()
 
 plt.suptitle('Optimisation space for merge sort, n=1e{0}'.format(n), fontsize=16)
 plt.xlabel('Parallelisation depth')
