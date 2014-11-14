@@ -14,6 +14,8 @@ AM_LDFLAGS  = -pthread
 #------------------------------------------------------------------------
 noinst_PROGRAMS = 				\
 	char					\
+	float					\
+	int					\
 	$(NULL)
 
 #------------------------------------------------------------------------
@@ -22,6 +24,8 @@ noinst_PROGRAMS = 				\
 TestSources = test.cc
 
 char_SOURCES = char.cc $(TestSources)
+float_SOURCES = float.cc $(TestSources)
+int_SOURCES = int.cc $(TestSources)
 
 #------------------------------------------------------------------------
 # Auxiliary build targets.
