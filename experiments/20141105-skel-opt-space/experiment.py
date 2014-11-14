@@ -1,8 +1,13 @@
 #!/usr/bin/env python2.7
 import os
+import sys
 from datetime import datetime
 
-target = "char"
+if len(sys.argv) != 2:
+    print("Usage: experiment.py <target>")
+    sys.exit(1)
+
+target = sys.argv[1]
 split_threshold = [10, 2000, 25]
 max_recursion_depth = [0, 10, 1]
 test_size = [3, 6, 1]
