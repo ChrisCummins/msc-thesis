@@ -2360,3 +2360,11 @@ Hugh's suggestions for presentation slides:
    **have not been done before**.
 1. Why are the challenges challenging? The audience should **want** to
    see the results of my research.
+
+## Friday 14th
+
+Goals for today:
+* Re-read Fursins' paper on Continuous Optimisation.
+* Write a statistically rigorous implementation of the `time` program,
+  which will execute a given command a number of times and report
+  variance between runs and confidence intervals.
