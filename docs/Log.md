@@ -2368,3 +2368,13 @@ Goals for today:
 * Write a statistically rigorous implementation of the `time` program,
   which will execute a given command a number of times and report
   variance between runs and confidence intervals.
+
+
+## Monday 17th
+
+I spent the weekend hacking on a small tool
+[srtime](https://github.com/ChrisCummins/srtime) for performing
+statistically rigorous program performance evaluation. Perhaps the
+next step would be a "performance evaluation tool (PET)" project which
+provides an API which wraps this timer and allows users to specify
+variants which can be iterated over and timed?
