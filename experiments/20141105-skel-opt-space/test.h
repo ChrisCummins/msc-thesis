@@ -10,10 +10,11 @@
 #include "./vector.h"
 
 // Vector factories:
-int           *get_unsorted_int_array(const size_t size);
-vector<int>   *get_unsorted_int_vector(const size_t size);
-vector<float> *get_unsorted_float_vector(const size_t size);
-vector<char>  *get_unsorted_char_vector(const size_t size);
+int            *get_unsorted_int_array(const size_t size);
+vector<int>    *get_unsorted_int_vector(const size_t size);
+vector<float>  *get_unsorted_float_vector(const size_t size);
+vector<char>   *get_unsorted_char_vector(const size_t size);
+vector<double> *get_unsorted_double_vector(const size_t size);
 
 template<class T>
 void test_sort_func(vector<T> *const in,

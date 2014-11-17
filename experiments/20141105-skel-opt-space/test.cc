@@ -60,3 +60,7 @@ vector<float> *get_unsorted_float_vector(const size_t size) {
 vector<char> *get_unsorted_char_vector(const size_t size) {
   return get_unsorted_vector(size, get_rand_array<char>);
 }
+
+vector<double> *get_unsorted_double_vector(const size_t size) {
+  return get_unsorted_vector(size, get_rand_array<double>);
+}

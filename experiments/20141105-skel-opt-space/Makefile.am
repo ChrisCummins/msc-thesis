@@ -14,6 +14,7 @@ AM_LDFLAGS  = -pthread
 #------------------------------------------------------------------------
 noinst_PROGRAMS = 				\
 	char					\
+	double					\
 	float					\
 	int					\
 	$(NULL)
@@ -24,6 +25,7 @@ noinst_PROGRAMS = 				\
 TestSources = test.cc
 
 char_SOURCES = char.cc $(TestSources)
+double_SOURCES = double.cc $(TestSources)
 float_SOURCES = float.cc $(TestSources)
 int_SOURCES = int.cc $(TestSources)
 
