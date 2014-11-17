@@ -2199,6 +2199,18 @@ Notes from meeting with Michel and Adam:
   expensive computations).
 * Build script for Arch Linux.
 
+
+## Saturday 8th
+
+The brilliantly named "Stats Make Me Cry" blog has a
+[good post](http://www.statsmakemecry.com/smmctheblog/the-time-for-reproducible-research-is-now)
+about the importance of reproducible research, and some related
+reading resources. It's nice to see "Literate Programming" crop up
+again. The blog has a bunch of other good posts as well, including one
+about the importance of
+[submitting early drafts](http://www.statsmakemecry.com/smmctheblog/the-worst-mistake-made-on-a-dissertation-is.html).
+
+
 ## Tuesday 11th
 
 A list of papers read since Oct 31, organised by amount of time spent
@@ -2368,6 +2380,12 @@ Goals for today:
 * Write a statistically rigorous implementation of the `time` program,
   which will execute a given command a number of times and report
   variance between runs and confidence intervals.
+
+
+## Saturday 15th
+
+Adam sent me a link to an interesting blog post about
+[Linear vs Binary Search](https://schani.wordpress.com/2010/04/30/linear-vs-binary-search/).
 
 
 ## Monday 17th
