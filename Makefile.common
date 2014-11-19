@@ -193,6 +193,8 @@ MOSTLYCLEANFILES += TAGS
 #------------------------------------------------------------------------
 # Compiling PDF LaTeX documents.
 #------------------------------------------------------------------------
+DocumentPDF = $(Document).pdf
+DocumentTex = $(Document).tex
 DocumentBuildLog = make.log
 
 PdflatexArgs = 				\
@@ -200,6 +202,49 @@ PdflatexArgs = 				\
 	-progname pdflatex 		\
 	-file-line-error 		\
 	-interaction=nonstopmode	\
+	$(NULL)
+
+LatexCleanfiles = 			\
+	$(DocumentPDF) 			\
+	$(DocumentBuildLog)		\
+	*-blx.bib 			\
+	*.acn 				\
+	*.acr 				\
+	*.alg 				\
+	*.aux 				\
+	*.bbl 				\
+	*.bcf 				\
+	*.blg 				\
+	*.dvi 				\
+	*.fdb_latexmk 			\
+	*.glg 				\
+	*.glo 				\
+	*.gls 				\
+	*.idx 				\
+	*.ilg 				\
+	*.ind 				\
+	*.ist 				\
+	*.lof 				\
+	*.log 				\
+	*.lol 				\
+	*.lot 				\
+	*.maf 				\
+	*.mtc 				\
+	*.mtc0 				\
+	*.nav 				\
+	*.nlo 				\
+	*.out 				\
+	*.pdfsync 			\
+	*.ps 				\
+	*.run.xml 			\
+	*.snm 				\
+	*.synctex.gz			\
+	*.tdo 				\
+	*.toc 				\
+	*.vrb 				\
+	*.xdy 				\
+	.\#* 				\
+	\#* 				\
 	$(NULL)
 
 # Compile commands. We pipe the output to /dev/null to silence it, and
