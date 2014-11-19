@@ -7,4 +7,173 @@
 \begin{document}
 \maketitle
 
+%% What are your aims and objectives? What do you hope to have achieved
+%% when you are finished, e.g. build a program to do some task, prove a
+%% theorem, model a natural system?
+%%
+%% What is the motivation of your project? That is, why do you think it
+%% will make a significant and original contribution to the scientific
+%% and/or engineering progress of Informatics? Why is it timely to tackle
+%% this project now and do you think it is feasible to achieve in the
+%% timescale available to you? Who would benefit from a solution to the
+%% problem you have set yourself?
+%%
+%% What are the main pieces of related work? Have other people tried to
+%% solve the same problem using a different solution? Has a similar
+%% solution to yours been applied to different problems? What is the
+%% state of the art in this field? What are the limitations of previous
+%% work on this problem?
+%%
+%% What is your novel idea? What do you bring to this project that is
+%% new? Why do you think you can extend the state of the art? Can you
+%% solve any previously unsolved problems or overcome limitations of
+%% previous work? Why might you succeed where others have failed?
+%%
+%% What are your claims or hypotheses? For instance, if you plan to build
+%% a computer program, in what way will this program be better than each
+%% of the rival programs for solving the same or similar tasks? Will it:
+%% exhibit better quality behaviour, be more efficient, apply to a wider
+%% range of problems, be more dependable, be easier to maintain, more
+%% accurately model some natural system, ...?
+%%
+%% What kind of evidence will be needed to support these claims or
+%% hypotheses? Is your evidence experimental or theoretical? Is it
+%% amenable to statistical analysis? Will you need to experiment using
+%% humans or other animals? Will you require a large corpus of test data?
+%% How will your ensure that your test data is representative? What will
+%% provide the "gold standard" by which you judge the correctness and/or
+%% quality of your project's results?
+%%
+%% At what stage is your project? Are you just formulating your project
+%% proposal, is the work in progress or is it finished or nearly
+%% finished? What further work do you still have to do or have you
+%% identified for others to do after you?
+
+
+Algorithmic Skeletons enable programmers to quickly write parallel
+software by providing generic implementations of reusable patterns. By
+abstracting common patterns of communication, frameworks of Higher
+Order Functions can be written that provide tuned and robust
+implementations of parallel patterns. Users of these patterns provide
+small sections of problem-solving logic, called ``muscle functions'',
+while the allocation and coordination of resources is managed
+automatically by the pattern's implementation.
+
+While frameworks of Algorithmic Skeletons abound, widespread adoption
+has so far been restricted largely to established use cases that rely
+heavily on high performance and distributed computation, for example,
+Google's MapReduce, and Intel's Thread Building Blocks. While the
+demand for such frameworks in the field of High Performance Computing
+(HPC) is self-evident, this should by no means blinker the ambitions
+of skeletons research. The benefits of Algorithmic Skeletons extend
+beyond that of HPC and cover general purpose computing.
+
+% goal and aims
+The objective of this research is to demonstrate that the performance
+of an Algorithmic Skeleton library can be improved by enabling it to
+adjust its behaviour at run time. The aim is to increase the viability
+of Algorithmic Skeletons as a “general purpose” solution for parallel
+programming by allowing them to dynamically adapt to their
+environment.
+
+% motiviation
+As the need for parallel software increases, so too does the need for
+ways in which to simplify the difficult task of writing
+it. Algorithmic Skeletons have been shown to enable programmers to
+focus on writing simple problem-solving code, while gaining the
+benefit of highly tuned, robust parallelisation.
+
+% motivation
+While iterative compilation is a very well studied field, fewer papers
+have been published about dynamic optimisation. Therefore work in this
+field has a greater chance of influencing future research, besides the
+primary benefit of improving the performance of algorithmic skeletons.
+
+% risks
+One risk is that the overhead required to implement this dynamic
+optimisation will exceed the performance gained from the optimisations
+themselves. Contributors to the overhead include: time spent
+evaluating dynamic features and deciding on which optimisations to
+select (extra instructions to execute), and either increased code size
+from having multiple copies of procedures (bad for branch predictors /
+instruction prefetch), or decreased ability for optimisations (because
+of setting parameters at runtime instead of at compiled).
+
+Another risk is that optimising for dynamic features will not provide
+a sufficient advantage over considering static features alone.
+
+
+% snippet
+In such cases, the overhead introduced by these massively scaleable
+high performance skeleton libraries would likely outweigh the
+performance gains. If Algorithmic Skeletons are to achieve widespread
+adoption, they must provide scalable performance benefits not only to
+the upper-tier of high performance computers but also to modest
+consumer hardware, which is increasingly reliant on software
+parallelism in order to achieve performance improvements.
+
+% TODO: Static parameter tuning example
+
+% snippet
+Many existing dynamic optimisation systems do not store the results of
+their efforts persistently, allowing the work to die along with the
+host process. This approach relies on the assumption that either that
+the convergence time to reach an optimal set of parameters is short
+enough to be amortized by the overhead of persistent storage, or that
+the runtime of the host process is sufficiently long to reach an
+optimal set of parameters in good time. Neither assumption can be
+shown to fit the general case.
+
+% snippet
+SkelCL is a C++ Algorithmic Skeleton Framework which targets
+heterogeneous parallel programming using OpenCL. Steuwer, a research
+associate at the University of Edinburgh, developed SkelCL as an
+approach to high-level programming of multi-GPU systems, demonstrating
+an $11\times$ reduction in programmer effort for equivalent programs
+written in pure OpenCL, while suffering only a modest 5\% overhead.
+
+% evaluation
+It should be possible to get convincing results that such an autotuner
+can improve performance at an early stage, by simply hand-hacking a
+few benchmarks to show the differences between optimal and suboptimal
+configurations.
+
+% evaluation
+The primary goal of this research is to modify the behaviour of SkelCL
+so that it can autotune its performance at runtime. The question which
+must be answered when evaluating this goal is: has the performance of
+SkelCL been improved? This is itself is not an easy answer to
+quantify.
+
+The final success metrics will include:
+
+\begin{itemize}
+\item The overhead introduced by the runtime.
+\item The amount of time to converge to a good set of optimised
+parameters.
+\item The speedup of the optimised skeletons relative to an
+out-of-the-box implementation.
+\item The speedup of the optimised skeletons relative to a state of the
+art auto-tuned implementation.
+\item The ability of the skeletons to adapt to a change in dynamic features (
+e.g. system load).
+\end{itemize}
+
+This can be determined experimentally by timing the execution of three
+versions of skeleton benchmark suite: a control group, a state of the
+art autotuned version, and my dynamically optimised version.
+
+% stat rigour
+
+% snippet
+We are ideally suited for tackling this difficult problem at
+University of Edinburgh. Not only have academic members been
+responsible for introducing and developing Algorithmic Skeletons, but
+there is a large and active research interest in iterative compilation
+and machine learning based optimisation. Previous research at the
+University of Edinburgh has also approach the static autotuning of
+Algorithmic Skeletons, which will provide a solid source of
+inspiration and an interesting counterpoint for evaluating the
+performance of a dynamic autotuning approach.
+
 \end{document}
