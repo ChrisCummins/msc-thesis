@@ -2396,3 +2396,15 @@ statistically rigorous program performance evaluation. Perhaps the
 next step would be a "performance evaluation tool (PET)" project which
 provides an API which wraps this timer and allows users to specify
 variants which can be iterated over and timed?
+
+
+## Tuesday 18th
+
+I have been given the opportunity to write a survey paper on automatic
+parallelisation, due March / April time. I should let my supervisors
+know this week whether I will take up the offer or not.
+
+[Thrust](http://thrust.github.io/) is a parallel algorithms library in
+the style of the C++ STL. It's intended for high performance
+heterogeneous programming. It provides host and device container
+types, and requires the user to manually copy to and from devices.

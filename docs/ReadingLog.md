@@ -13,6 +13,12 @@ reading them.
    M. Torquati, **“Targeting heterogeneous architectures via macro
    data flow,”** Parallel Process. Lett., vol. 22, no. 02, pp. 1–12,
    2012.
+1. Q. Yi and R. C. Whaley, **“Automated transformation for
+   performance-critical kernels,”** in Proceedings of the 2007
+   Symposium on Library-Centric Software Design, 2007, pp. 109–119.
+1. O. Trachsel and T. R. Gross, **“Variant-based Competitive Parallel
+   Execution of Sequential Programs,”** in Proceedings of the 7th ACM
+   international conference on Computing frontiers, 2010, pp. 197–206.
 
 # 12-30 min
 
