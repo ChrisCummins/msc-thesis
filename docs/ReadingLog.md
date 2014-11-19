@@ -6,6 +6,14 @@ reading them.
 1. M. Aldinucci, S. Campa, M. Danelutto, P. Kilpatrick, and
    M. Torquati, **“Targeting Distributed Systems in FastFlow,”** in
    Euro-Par 2012: Parallel Processing Workshops, 2013, pp. 47–56.
+1. C. Bienia, S. Kumar, J. P. Singh, and K. Li, **“The PARSEC
+   Benchmark Suite: Characterization and Architectural
+   Implications,”** in Proceedings of the 17th international
+   conference on Parallel architectures and compilation techniques,
+   2008, pp. 72–81.
+1. C. Bienia and K. Li, **“PARSEC 2.0: A New Benchmark Suite for
+   Chip-Multiprocessors,”** in Proceedings of the 5th Annual Workshop
+   on Modeling, Benchmarking and Simulation, 2009.
 
 # 5-12 min
 
