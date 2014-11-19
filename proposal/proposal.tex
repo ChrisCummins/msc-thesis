@@ -39,13 +39,14 @@ allocation and coordination of resources is managed automatically by
 the pattern's implementation.
 
 While frameworks of Algorithmic Skeletons abound, widespread adoption
-has so far restricted largely to established use cases that rely
+has so far been restricted largely to established use cases that rely
 heavily on high performance and distributed computation, for example,
-Google's MapReduce~\cite{Dean2008}. While the demand for such
-frameworks in the field of High Performance Computing (HPC) is
-self-evident, this should by no means blinker the ambitions of
-skeleton research. The benefits of Algorithmic Skeletons extend beyond
-that of HPC and cover general purpose computing.
+Google's MapReduce~\cite{Dean2008}, and Intel's Thread Building
+Blocks~\cite{IntelTBB}. While the demand for such frameworks in the
+field of High Performance Computing (HPC) is self-evident, this should
+by no means blinker the ambitions of skeletons research. The benefits
+of Algorithmic Skeletons extend beyond that of HPC and cover general
+purpose computing.
 
 % snippet
 In such cases, the overhead introduced by these massively scaleable
@@ -55,16 +56,53 @@ adoption, they must provide scalable performance benefits not only to
 the upper-tier of high performance computers but also to modest
 consumer hardware, which is increasingly reliant on software
 parallelism in order to achieve performance improvements.
-% snippet
 
 \subsection{Motivating Example}
+% TODO: Static parameter tuning example
+
 \subsection{Hypothesis}
+
 \section{Background}
+
+% snippet
+Many existing dynamic optimisation systems do not store the results of
+their efforts persistently, allowing the work to die along with the
+host process. This approach relies on the assumption that either that
+the convergence time to reach an optimal set of parameters is short
+enough to be amortized by the overhead of persistent storage, or that
+the runtime of the host process is sufficiently long to reach an
+optimal set of parameters in good time. Neither assumption can be
+shown to fit the general case.
+
 \section{Methodology}
+
+% snippet
+SkelCL is a C++ Algorithmic Skeleton Framework which targets
+heterogeneous parallel programming using OpenCL~\cite{Steuwer2011,
+Steuwer2013a}. Steuwer, a research associate at the University of
+Edinburgh, developed SkelCL as an approach to high-level programming
+of multi-GPU systems, demonstrating an $11\times$ reduction in
+programmer effort for equivalent programs written in pure OpenCL,
+while suffering only a modest 5\% overhead~\cite{Steuwer2012}.
+
 \section{Evaluation}
+
+% snippet
+The primary goal of this research is to modify the behaviour of SkelCL
+so that it can autotune its performance at runtime. The question which
+must be answered when evaluating this goal is: has the performance of
+SkelCL been improved? This is itself is not an easy answer to
+quantify.
+
+% stat rigour
+\cite{Georges2007}
+
+
 \section{Work plan}
 
 \section{Conclusion}
+
+% snippet
 We are ideally suited for tackling this difficult problem at
 University of Edinburgh. Not only have academic members been
 responsible for introducing and developing Algorithmic
