@@ -9,7 +9,7 @@
 \date{December 2014}
 
 % Paper title
-\title{Dynamic Autotuning\\of Parallel Skeletons}
+\title{Dynamic Autotuning\\of Algorithmic Skeletons}
 %\newcommand{\multilinetitle}{}
 
 % Subtitle
@@ -28,13 +28,53 @@
 %% Body %%
 %%%%%%%%%%
 \section{Introduction}
-\subsection{Purpose}
+Algorithmic Skeletons enable programmers to quickly write parallel
+software by providing generic implementations of reusable
+patterns~\cite{Cole1989, Cole2004}. By abstracting common patterns of
+communication, frameworks of Higher Order Functions can be written
+that provide tuned and robust implementations of parallel
+patterns. Users of these patterns provide small sections of
+problem-solving logic, called ``muscle functions'', while the
+allocation and coordination of resources is managed automatically by
+the pattern's implementation.
+
+While frameworks of Algorithmic Skeletons abound, widespread adoption
+has so far restricted largely to established use cases that rely
+heavily on high performance and distributed computation, for example,
+Google's MapReduce~\cite{Dean2008}. While the demand for such
+frameworks in the field of High Performance Computing (HPC) is
+self-evident, this should by no means blinker the ambitions of
+skeleton research. The benefits of Algorithmic Skeletons extend beyond
+that of HPC and cover general purpose computing.
+
+% snippet
+In such cases, the overhead introduced by these massively scaleable
+high performance skeleton libraries would likely outweigh the
+performance gains. If Algorithmic Skeletons are to achieve widespread
+adoption, they must provide scalable performance benefits not only to
+the upper-tier of high performance computers but also to modest
+consumer hardware, which is increasingly reliant on software
+parallelism in order to achieve performance improvements.
+% snippet
+
 \subsection{Motivating Example}
 \subsection{Hypothesis}
 \section{Background}
 \section{Methodology}
 \section{Evaluation}
 \section{Work plan}
+
 \section{Conclusion}
+We are ideally suited for tackling this difficult problem at
+University of Edinburgh. Not only have academic members been
+responsible for introducing and developing Algorithmic
+Skeletons~\cite{Cole1989, Cole2004, Benoit2005a}, but there is a large
+and active research interest in iterative compilation and machine
+learning based optimisation~\cite{Fursin2008, Agakov,
+Fursin2005}. Previous research at the University of Edinburgh has also
+approach the static autotuning of Algorithmic
+Skeletons~\cite{Collins2012, Collins2013}, which will provide a solid
+source of inspiration and an interesting counterpoint for evaluating
+the performance of a dynamic autotuning approach.
 
 \input{_\jobname-post.tex}
