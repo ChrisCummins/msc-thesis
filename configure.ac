@@ -288,6 +288,7 @@ AC_CONFIG_FILES([
         Makefile
         docs/Makefile
         docs/maths/Makefile
+        docs/proposal/Makefile
         exercises/Makefile
         exercises/algos/Makefile
         exercises/llvm/Makefile
@@ -297,7 +298,6 @@ AC_CONFIG_FILES([
         exercises/templates/dac/Makefile
         experiments/Makefile
         experiments/20141105-skel-opt-space/Makefile
-        proposal/Makefile
 ])
 
 AC_OUTPUT

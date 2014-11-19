@@ -4,6 +4,3 @@ SUBDIRS = \
 	experiments \
 	$(NULL)
 
-if HAVE_PDFLATEX
-SUBDIRS += proposal
-endif
