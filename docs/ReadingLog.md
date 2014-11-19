@@ -14,6 +14,19 @@ reading them.
 1. C. Bienia and K. Li, **“PARSEC 2.0: A New Benchmark Suite for
    Chip-Multiprocessors,”** in Proceedings of the 5th Annual Workshop
    on Modeling, Benchmarking and Simulation, 2009.
+1. W. Baek, **“Green: A Framework for Supporting Energy-Conscious
+   Programming using Controlled Approximation,”** ACM Sigplan Not.,
+   vol. 45, no. 6, pp. 198–209, 2010.
+1. I. Böhm, T. J. K. Edler von Koch, S. C. Kyle, B. Franke, and
+   N. Topham, **“Generalized just-in-time trace compilation using a
+   parallel task farm in a dynamic binary translator,”** in
+   Proceedings of the 32nd ACM SIGPLAN conference on Programming
+   language design and implementation - PLDI ’11, 2011, pp. 74–85.
+1. C. Dubach, P. Cheng, D. F. Bacon, and S. J. Fink, **“Compiling a
+   High-Level Language for GPUs (via Language Support for
+   Architectures and Compilers),”** in Proceedings of the 33rd ACM
+   SIGPLAN Symposium on Programming Language Design and Implementation
+   (PLDI), 2012.
 
 # 5-12 min
 
@@ -27,6 +40,13 @@ reading them.
 1. O. Trachsel and T. R. Gross, **“Variant-based Competitive Parallel
    Execution of Sequential Programs,”** in Proceedings of the 7th ACM
    international conference on Computing frontiers, 2010, pp. 197–206.
+1. S. Campanoni, G. Agosta, S. C. Reghizzi, and P. Milano, **“A
+   parallel dynamic compiler for CIL bytecode,”** ACM Sigplan Not.,
+   vol. 43, no. 4, pp. 11–20, 2008.
+1. P. Du, R. Weber, P. Luszczek, S. Tomov, G. Peterson, and
+   J. Dongarra, **“From CUDA to OpenCL: Towards a performance-portable
+   solution for multi-platform GPU programming,”** Parallel Comput.,
+   vol. 38, no. 8, pp. 391–407, 2012.
 
 # 12-30 min
 
