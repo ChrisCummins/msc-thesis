@@ -38,6 +38,11 @@ CxxAll             = $(CxxSources) $(CxxHeaders)
 # Empty clean list to append to.
 MOSTLYCLEANFILES =
 
+# Build in parallel by default, by executing with make flag -j(n+1),
+# where n is the number of logical processors, reported by nproc.
+NumberOfThreads = $(shell echo $(NUM_PROC) + 1 | bc)
+MAKEFLAGS = "-j $(NumberOfThreads)"
+
 #------------------------------------------------------------------------
 # Static analysis of C and C++ files.
 #------------------------------------------------------------------------
