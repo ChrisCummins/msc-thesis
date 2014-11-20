@@ -299,6 +299,7 @@ AC_CONFIG_FILES([
         exercises/templates/dac/Makefile
         experiments/Makefile
         experiments/20141105-skel-opt-space/Makefile
+        experiments/20141120-stable-sort/Makefile
 ])
 
 AC_OUTPUT
