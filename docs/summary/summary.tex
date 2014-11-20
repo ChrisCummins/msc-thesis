@@ -176,4 +176,66 @@ Algorithmic Skeletons, which will provide a solid source of
 inspiration and an interesting counterpoint for evaluating the
 performance of a dynamic autotuning approach.
 
+\newpage
+% free writing
+The unique advantage of SkelCL is that it has the potential to take
+advantage of both high level information about the structure and
+intent of programs, while still having access to the low level
+compilation optimisation processes of dynamic optimisers.
+
+PetaBricks is a language and runtime which supports dynamic
+algorithmic choice determined by properties of the data input. This
+provides a promising space for optimisation but has the drawback of
+increasing programmer effort by requiring them to implement multiple
+versions of an algorithm tailored to different optimisation
+parameters. SkelCL has the advantage of being able to localise this
+extra programmer effort into a single library implementation.
+
+MapReduce is a hugely successful framework for writing high
+performance massively distributed applications at a fraction of the
+effort required for a hand tuned implementation. The source code of
+Hadoop is over 800,000 lines of code, but efficient user programs can
+be written in well under 100 lines. While is an incredible technical
+feat, the overhead the huge runtime would negate the performance
+advantages for all but the largest computations. Users writing
+programs for more modestly specced off the shelf hardware will not be
+able to take advantage of the engineering achievement.
+
+One of the biggest challenges facing the implementation of dynamic
+optimisers is that of minimising the runtime overhead so that it does
+not outweigh the performance advantages of the optimisations. JIT
+compilation is an expensive task and does not have access to high
+level information about the program structure. Dynamic optimisers
+require extensive profiling and tracing to identify hot paths and
+regularly executed code, and recompiling these hot paths is an
+expensive task. One possible workaround for this challenge is to
+compile multiple versions of a routine ahead of time, and to switch
+between them at runtime, selecting the version with the best
+performance. This technique can prove very successful for optimising
+programs dynamically, but massively reduces the search space, as it is
+not feasible to compile thousands of different versions as is
+performed in offline autotuning, but only a dozen or so different
+versions.
+
+Another challenge facing dynamic optimisation is that of the necessity
+to provide Quality of Service. A random search of the optimisation
+space will result in many configurations with vastly suboptimal
+performance. If these configurations are being evaluated online on a
+working program, then it is often not satisfactory to be running
+massively slower implementations. The search of the optimisation space
+must be designed so that convergence time towards optimal parameters
+is minimal.
+
+SiblingRivalry poses an interesting solution to this problem, by
+dividing available resources in half and executing two copies of the
+target code, one using the current best configuration, and the other
+using a trial configuration which is being evaluated. If the trial
+configuration performs better than the best configuration, then it
+replaces it as the new current best configuration. By doing this, the
+tuning framework has the freedom to evaluate vastly suboptimal
+configurations while still providing adequate performance for the
+user. However, by dividing the available resources in half, you can
+expect only 50\% of the performance versus a statically optimised
+version.
+
 \end{document}
