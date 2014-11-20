@@ -86,7 +86,7 @@ Cpplints          = $(addsuffix $(CpplintExtension),$(CxxSources) $(CxxHeaders))
 MOSTLYCLEANFILES += $(Cpplints)
 
 # Arguments to --filter flag for cpplint.
-CpplintFilters = -legal,-build/c++11,-readability/streams
+CpplintFilters = -legal,-build/c++11,-readability/streams,-readability/todo
 
 # Explicit target for cpplint:
 $(Cpplints): %$(CpplintExtension): %
