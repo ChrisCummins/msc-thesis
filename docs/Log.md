@@ -2408,3 +2408,54 @@ know this week whether I will take up the offer or not.
 the style of the C++ STL. It's intended for high performance
 heterogeneous programming. It provides host and device container
 types, and requires the user to manually copy to and from devices.
+
+
+## Wednesday 19th
+
+I have discovered [plot.ly](https://plot.ly), a web interface for
+creating nice simple 2D plots. This will come in handy for quickly
+creating nice "modern" looking plots.
+
+
+## Friday 21st
+
+The proposal presentation went well, and there was some good questions
+at the end. Murray raised a very interesting point - clarifying
+whether the "persistent data" part of my dynamic optimiser proposal
+meant storing data at a per-program or per-skeleton level. I should be
+clear in the proposal to emphasise that the data collected captures a
+bit of context about the skeleton call and is applicable to all future
+skeleton calls, irrespective of the program. This is a key advantage
+over current dynamic optimisers, which tailor their optimisations to
+the host procress.
+
+
+## Monday 24th
+
+Notes from meeting with Pavlos:
+
+* Important deadlines: 1000 word summary of research (due Wednesday);
+  6 page research proposal (due next Friday).
+* All effort this week (and last) has been focused on the research
+  proposal. Currently it's just a ~2000 word brain dump.
+* Method section for research proposal doesn't have to be
+  ultra-specific. Pose various ideas for how you will approach the
+  problem.
+* Reference counts for research proposals is generally pretty low. ~12
+  ref for 6 pages, almost always < 20 ref for an 8 page paper.
+* Yes to the offer of writing an auto parallelisation survey
+  paper. The biggest time sink will be the background reading. Pavlos,
+  Hugh and Zheng will help with draft reviews.
+* My reading over the past 10 days has been quite low (averaging about
+  3 papers / day). I will try to keep my
+  [reading list](https://github.com/ChrisCummins/msc-thesis/blob/master/docs/ReadingLog.md)
+  up to date, but sometimes forget (I'm keeping all my papers & notes
+  tracked with Mendeley). If you're reading for a specific purpose
+  (e.g. finding relevant citations for a paper), you can generally
+  decide whether a paper is worth reading in the first 20 seconds.
+* TODO: Send Pavlos & Hugh my research summary *tomorrow*.
+* TODO: Send Pavlos & Hugh my first draft research proposal by
+  *Friday* (earlier is better).
+* TODO: Send Pavlos 3-4 papers that I thought were interesting.
+* Pavlos is going to send me a list of sub-topics and important papers
+  for the auto parallelisation survey in the next ~2.5 weeks.

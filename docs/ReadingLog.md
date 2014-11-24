@@ -59,3 +59,7 @@ reading them.
 1. G. Fursin, A. Cohen, M. O. Boyle, O. Temam, and A. P. Method, **“A
    Practical Method For Quickly Evaluating Program Optimizations,”**
    High Perform. Embed. Archit. Compil., pp. 29–46, 2005.
+1. K. Flautner, S. Reinhardt, and T. Mudge, **"Automatic performance
+   setting for dynamic voltage scaling,"** in Proceedings of the 7th
+   annual international conference on Mobile computing and
+   networking - MobiCom '01, 2001, pp. 260-271.
