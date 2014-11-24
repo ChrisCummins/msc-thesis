@@ -28,7 +28,8 @@ endif
 if HAVE_TEXCOUNT
 .PHONY: wc
 wc:
-	$(AM_V_at)$(TEXCOUNT) $(DocumentSources) | $(SED) '1,/total/Id'
+	$(AM_V_at)$(TEXCOUNT) $(DocumentSources) | $(SED) '1,/total/Id' \
+		| $(EGREP) --color=never '^(Words|Number)'
 endif
 
 # If we have checkcites then we can perform citation checks.
