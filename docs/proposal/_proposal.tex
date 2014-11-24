@@ -93,10 +93,20 @@
 % Reduce the font size of the bibliography:
 \renewcommand{\bibfont}{\normalfont\footnotesize}
 
-% Import my Mendeley BibTex library, located in my home directory. Note
-% that this is a relative path, and will break if either this file or
-% the BibTex library are moved:
-\addbibresource{../../../../library.bib}
+% Determine which BibTeX file to use:
+%
+% If available, use my Mendeley BibTex library, located in the home
+% directory. Note that this is a relative path and will break if
+% either this file or the BibTex library are moved. If the library is
+% not present, use the local refs.bib file.
+\newcommand{\BibResourceGlobal}{../../../../library.bib}
+\newcommand{\BibResourceLocal}{refs.bib}
+
+\IfFileExists{\BibResourceGlobal}
+  {\newcommand{\BibResource}{\BibResourceGlobal}}
+  {\newcommand{\BibResource}{\BibResourceLocal}}
+
+\addbibresource{\BibResource}
 
 % Appendix package. Documentation:
 %
