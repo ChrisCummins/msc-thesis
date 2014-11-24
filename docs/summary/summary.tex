@@ -18,60 +18,15 @@
   \vspace{.5em}
 \end{center}
 
-
-%% What are your aims and objectives? What do you hope to have achieved
-%% when you are finished, e.g. build a program to do some task, prove a
-%% theorem, model a natural system?
-%%
-%% What is the motivation of your project? That is, why do you think it
-%% will make a significant and original contribution to the scientific
-%% and/or engineering progress of Informatics? Why is it timely to tackle
-%% this project now and do you think it is feasible to achieve in the
-%% timescale available to you? Who would benefit from a solution to the
-%% problem you have set yourself?
-%%
-%% What are the main pieces of related work? Have other people tried to
-%% solve the same problem using a different solution? Has a similar
-%% solution to yours been applied to different problems? What is the
-%% state of the art in this field? What are the limitations of previous
-%% work on this problem?
-%%
-%% What is your novel idea? What do you bring to this project that is
-%% new? Why do you think you can extend the state of the art? Can you
-%% solve any previously unsolved problems or overcome limitations of
-%% previous work? Why might you succeed where others have failed?
-%%
-%% What are your claims or hypotheses? For instance, if you plan to build
-%% a computer program, in what way will this program be better than each
-%% of the rival programs for solving the same or similar tasks? Will it:
-%% exhibit better quality behaviour, be more efficient, apply to a wider
-%% range of problems, be more dependable, be easier to maintain, more
-%% accurately model some natural system, ...?
-%%
-%% What kind of evidence will be needed to support these claims or
-%% hypotheses? Is your evidence experimental or theoretical? Is it
-%% amenable to statistical analysis? Will you need to experiment using
-%% humans or other animals? Will you require a large corpus of test data?
-%% How will your ensure that your test data is representative? What will
-%% provide the "gold standard" by which you judge the correctness and/or
-%% quality of your project's results?
-%%
-%% At what stage is your project? Are you just formulating your project
-%% proposal, is the work in progress or is it finished or nearly
-%% finished? What further work do you still have to do or have you
-%% identified for others to do after you?
-
-% THE LEAD
+%%%%%%%%%%%%%%%%
+% INTRODUCTION %
+%%%%%%%%%%%%%%%%
+%% What are your aims and objectives?
 Algorithmic Skeletons enable quick parallel software development by
 equipping application programmers with a set of generic patterns for
 parallel programming. The objective of this research is to demonstrate
 that the performance of Algorithmic Skeletons can be improved by
 enabling them to adjust their behaviour at runtime.
-
-% AIM
-The aim is to increase the viability of Algorithmic Skeletons as a
-“general purpose” solution for parallel programming by allowing them
-to dynamically adapt to their environment.
 
 % SKELETONS
 As the need for parallel software increases, so too does the need for
@@ -94,206 +49,26 @@ should by no means blinker the ambitions of skeletons research. The
 benefits of Algorithmic Skeletons extend beyond that of HPC and cover
 general purpose computing.
 
-% MOTIVATION
-While iterative compilation is a very well studied field, fewer papers
-have been published about dynamic optimisation. Therefore work in this
-field has a greater chance of influencing future research, besides the
-primary benefit of improving the performance of algorithmic skeletons.
+% What do you hope to have achieved when you are finished?
 
-% risks
-One risk is that the overhead required to implement this dynamic
-optimisation will exceed the performance gained from the optimisations
-themselves. Contributors to the overhead include: time spent
-evaluating dynamic features and deciding on which optimisations to
-select (extra instructions to execute), and either increased code size
-from having multiple copies of procedures (bad for branch predictors /
-instruction prefetch), or decreased ability for optimisations (because
-of setting parameters at runtime instead of at compiled).
+% What is your novel idea? What do you bring to this project that is
+% new?
 
-Another risk is that optimising for dynamic features will not provide
-a sufficient advantage over considering static features alone.
-
-
-% snippet
-In such cases, the overhead introduced by these massively scaleable
-high performance skeleton libraries would likely outweigh the
-performance gains. If Algorithmic Skeletons are to achieve widespread
-adoption, they must provide scalable performance benefits not only to
-the upper-tier of high performance computers but also to modest
-consumer hardware, which is increasingly reliant on software
-parallelism in order to achieve performance improvements.
-
-% TODO: Static parameter tuning example
-
-% snippet
-Many existing dynamic optimisation systems do not store the results of
-their efforts persistently, allowing the work to die along with the
-host process. This approach relies on the assumption that either that
-the convergence time to reach an optimal set of parameters is short
-enough to be amortized by the overhead of persistent storage, or that
-the runtime of the host process is sufficiently long to reach an
-optimal set of parameters in good time. Neither assumption can be
-shown to fit the general case.
-
-% snippet
-SkelCL is a C++ Algorithmic Skeleton Framework which targets
-heterogeneous parallel programming using OpenCL. Steuwer, a research
-associate at the University of Edinburgh, developed SkelCL as an
-approach to high-level programming of multi-GPU systems, demonstrating
-an $11\times$ reduction in programmer effort for equivalent programs
-written in pure OpenCL, while suffering only a modest 5\% overhead.
-
-% evaluation
-It should be possible to get convincing results that such an autotuner
-can improve performance at an early stage, by simply hand-hacking a
-few benchmarks to show the differences between optimal and suboptimal
-configurations.
-
-% evaluation
-The primary goal of this research is to modify the behaviour of SkelCL
-so that it can autotune its performance at runtime. The question which
-must be answered when evaluating this goal is: has the performance of
-SkelCL been improved? This is itself is not an easy answer to
-quantify.
-
-The final success metrics will include:
-
-\begin{itemize}
-\item The overhead introduced by the runtime.
-\item The amount of time to converge to a good set of optimised
-parameters.
-\item The speedup of the optimised skeletons relative to an
-out-of-the-box implementation.
-\item The speedup of the optimised skeletons relative to a state of the
-art auto-tuned implementation.
-\item The ability of the skeletons to adapt to a change in dynamic features (
-e.g. system load).
-\end{itemize}
-
-This can be determined experimentally by timing the execution of three
-versions of skeleton benchmark suite: a control group, a state of the
-art autotuned version, and my dynamically optimised version.
-
-% stat rigour
-
-% snippet
-We are ideally suited for tackling this difficult problem at
-University of Edinburgh. Not only have academic members been
-responsible for introducing and developing Algorithmic Skeletons, but
-there is a large and active research interest in iterative compilation
-and machine learning based optimisation. Previous research at the
-University of Edinburgh has also approach the static autotuning of
-Algorithmic Skeletons, which will provide a solid source of
-inspiration and an interesting counterpoint for evaluating the
-performance of a dynamic autotuning approach.
-
-
-% free writing
-The unique advantage of SkelCL is that it has the potential to take
-advantage of both high level information about the structure and
-intent of programs, while still having access to the low level
-compilation optimisation processes of dynamic optimisers.
-
-PetaBricks is a language and runtime which supports dynamic
-algorithmic choice determined by properties of the data input. This
-provides a promising space for optimisation but has the drawback of
-increasing programmer effort by requiring them to implement multiple
-versions of an algorithm tailored to different optimisation
-parameters. SkelCL has the advantage of being able to localise this
-extra programmer effort into a single library implementation.
-
-MapReduce is a hugely successful framework for writing high
-performance massively distributed applications at a fraction of the
-effort required for a hand tuned implementation. The source code of
-Hadoop is over 800,000 lines of code, but efficient user programs can
-be written in well under 100 lines. While is an incredible technical
-feat, the overhead the huge runtime would negate the performance
-advantages for all but the largest computations. Users writing
-programs for more modestly specced off the shelf hardware will not be
-able to take advantage of the engineering achievement.
-
-One of the biggest challenges facing the implementation of dynamic
-optimisers is that of minimising the runtime overhead so that it does
-not outweigh the performance advantages of the optimisations. JIT
-compilation is an expensive task and does not have access to high
-level information about the program structure. Dynamic optimisers
-require extensive profiling and tracing to identify hot paths and
-regularly executed code, and recompiling these hot paths is an
-expensive task. One possible workaround for this challenge is to
-compile multiple versions of a routine ahead of time, and to switch
-between them at runtime, selecting the version with the best
-performance. This technique can prove very successful for optimising
-programs dynamically, but massively reduces the search space, as it is
-not feasible to compile thousands of different versions as is
-performed in offline autotuning, but only a dozen or so different
-versions.
-
-Another challenge facing dynamic optimisation is that of the necessity
-to provide Quality of Service. A random search of the optimisation
-space will result in many configurations with vastly suboptimal
-performance. If these configurations are being evaluated online on a
-working program, then it is often not satisfactory to be running
-massively slower implementations. The search of the optimisation space
-must be designed so that convergence time towards optimal parameters
-is minimal.
-
-SiblingRivalry poses an interesting solution to this problem, by
-dividing available resources in half and executing two copies of the
-target code, one using the current best configuration, and the other
-using a trial configuration which is being evaluated. If the trial
-configuration performs better than the best configuration, then it
-replaces it as the new current best configuration. By doing this, the
-tuning framework has the freedom to evaluate vastly suboptimal
-configurations while still providing adequate performance for the
-user. However, by dividing the available resources in half, you can
-expect only 50\% of the performance versus a statically optimised
-version.
-
-
-% free writing
 Whereas current approaches to autotuning have largely relied on huge
 offline training periods and optimising for static features, this
 proposed research will develop an online autotuner which is capable of
 adapting to dynamic features at runtime.
 
-The primary aim of the research is to demonstrate that the performance
-of an algorithmic skeleton library can be improved by allowing it to
-change its behaviour at runtime. To demonstrate this, we
+% Why do you think you can extend the state of the art? Can you solve
+% any previously unsolved problems or overcome limitations of previous
+% work? Why might you succeed where others have failed?
 
+%%%%%%%%%%%%%%%
+% THE PROBLEM %
+%%%%%%%%%%%%%%%
 
-%% What are your aims and objectives? What do you hope to have achieved
-%% when you are finished, e.g. build a program to do some task, prove a
-%% theorem, model a natural system?
-The aim of this research project is to demonstrate that the
-performance of Algorithmic Skeletons can be improved by enabling them
-to change their behaviour at runtime. This will be implementing a
-dynamic auto-tuner for SkelCL, a C++ skeleton library targeting
-heterogeneous parallelism, so that it can adapt to its environment at
-runtime. The auto-tuner will be embedded within the SkelCL runtime and
-will enable transparent optimisation of skeletons.
+% What are your claims or hypotheses?
 
-%% What is the motivation of your project? That is, why do you think it
-%% will make a significant and original contribution to the scientific
-%% and/or engineering progress of Informatics? Why is it timely to tackle
-%% this project now and do you think it is feasible to achieve in the
-%% timescale available to you? Who would benefit from a solution to the
-%% problem you have set yourself?
-The project is motivating by empirical evidence showing that
-optimising algorithms requires both static information about the
-structure of the algorithm, and dynamic information about the type and
-nature of algorithm inputs. Or rather, static optimisations cannot
-provide a universally optimum configuration for all inputs. For
-example, a sorting algorithm may display different asymptotic
-performance based on the type of data being sorted, the size of the
-list to be sorted, and the extent to which the list is already
-sorted. Since these factors cannot be determined at compilation time,
-programmers are reliant on crude static heuristics to switch been
-different optimisations, or attempting to build models to predict
-dynamic optimisation configurations. The modelling approach has been
-know to fail due to the time required to build models - varying
-architectures exhibit wildly different behaviours, etc.
-
-% Modelling based on empirical evidence, at runtime
 The problem with attempting to model optimisation spaces is that they
 are fundamentally stochastic. As a result, they can only properly be
 built using empirical evidence, and so the problem becomes one of
@@ -302,52 +77,7 @@ least amount of data points, since the time taken to acquire data is
 prohibitively expensive. Previous static autotuners have taken as long
 as three months to sample the optimisation space.
 
-% Timely: skeletons are really taking off (MapReduce)
-The popularity of programming with parallel patterns is rapidly
-increasing, as they have been demonstrated as a means of providing
-re-usability to the thousands of man-hours that is required to write a
-tuned and stable parallel application. For example, Google's
-MapReduce, which allows their programmers to write data sorting
-programs in 55 lines of code, while taking advantage of the over
-800,000 lines of code present in a MapReduce implementation. Any
-research forwarding the cause of parallel patterns will prove
-extremely valuable to both application developers and future
-researchers.
-
-% Feasible: standing on the shoulders of MaSiF
-Their is a wealth of research which demonstrates the advantages of
-auto-tuning, iterative compilation, and dynamic optimisations. While
-the challenge of trying to take the advantages of those and insert
-them into a skeleton's runtime is large, existing research has showed
-the value of performing this auto-tuning statically, and one of the
-greatest problems facing dynamic optimisers is the cost of compiling
-code online . SkelCL offers the unique advantage of being able to
-amortize many of the costs associated with dynamic compilation, due to
-it's JIT-like nature of compiling OpenCL kernels immediately before
-execution.
-
-% Who would benefit from a solution to the problem you have set
-% yourself?
-Algorithmic Skeletons have been shown to improve programmer
-effectiveness for parallel programming, and has many use cases, from
-general purpose computing to bioinformatics and physics
-simulations. The SkelCL library has been used to implement high
-performance medical imaging applications. A dynamic autotuner for
-SkelCL would improve the performance of these applications, and
-provide a starting point for future research into online autotuning
-for other applications, as well as being directly applicable to the
-implementation of other Algorithmic Skeleton libraries.
-
-% snippet: SkelCL
-The core of SkelCL comprises a set of parallel container data types
-for vectors and matrices, with an automatic distribution mechanism
-which performs implicit transfer of these data structures between the
-host and device memory. Computations on these data structures are then
-expressed using OpenCL methods as muscle functions for a set of
-Algorithmic Skeletons.
-
-
-% What is the motivation of your project?
+% MOTIVATING EXAMPLE
 The central premise of this research is that the large range of
 tunable parameters and optimisations that influence the performance of
 parallel skeletons can only be effectively searched using empirical
@@ -404,5 +134,255 @@ naturally upon an optimum configuration. Such a system would be
 capable of dealing with varying dynamic features which would destroy
 the capabilities of a static heuristic based system. This is the goal
 of my research.
+
+%%%%%%%%%%%%%%
+% MOTIVATION %
+%%%%%%%%%%%%%%
+
+% What is the motivation of your project? That is, why do you think it
+% will make a significant and original contribution to the scientific
+% and/or engineering progress of Informatics?
+While iterative compilation is a very well studied field, fewer papers
+have been published about dynamic optimisation. Therefore work in this
+field has a greater chance of influencing future research, besides the
+primary benefit of improving the performance of algorithmic skeletons.
+
+The project is motivating by empirical evidence showing that
+optimising algorithms requires both static information about the
+structure of the algorithm, and dynamic information about the type and
+nature of algorithm inputs. Or rather, static optimisations cannot
+provide a universally optimum configuration for all inputs. For
+example, a sorting algorithm may display different asymptotic
+performance based on the type of data being sorted, the size of the
+list to be sorted, and the extent to which the list is already
+sorted. Since these factors cannot be determined at compilation time,
+programmers are reliant on crude static heuristics to switch been
+different optimisations, or attempting to build models to predict
+dynamic optimisation configurations. The modelling approach has been
+know to fail due to the time required to build models - varying
+architectures exhibit wildly different behaviours, etc.
+
+% WHO CARES
+
+% Why is it timely to tackle this project now and do you think it is
+% feasible to achieve in the timescale available to you?
+
+The popularity of programming with parallel patterns is rapidly
+increasing, as they have been demonstrated as a means of providing
+re-usability to the thousands of man-hours that is required to write a
+tuned and stable parallel application. For example, Google's
+MapReduce, which allows their programmers to write data sorting
+programs in 55 lines of code, while taking advantage of the over
+800,000 lines of code present in a MapReduce implementation. Any
+research forwarding the cause of parallel patterns will prove
+extremely valuable to both application developers and future
+researchers.
+
+% Who would benefit from a solution to the problem you have set
+% yourself?
+Algorithmic Skeletons have been shown to improve programmer
+effectiveness for parallel programming, and has many use cases, from
+general purpose computing to bioinformatics and physics
+simulations. The SkelCL library has been used to implement high
+performance medical imaging applications. A dynamic autotuner for
+SkelCL would improve the performance of these applications, and
+provide a starting point for future research into online autotuning
+for other applications, as well as being directly applicable to the
+implementation of other Algorithmic Skeleton libraries.
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% EXISTING APPROACHES %
+%%%%%%%%%%%%%%%%%%%%%%%
+
+% What are the main pieces of related work?
+Many existing dynamic optimisation systems do not store the results of
+their efforts persistently, allowing the work to die along with the
+host process. This approach relies on the assumption that either that
+the convergence time to reach an optimal set of parameters is short
+enough to be amortized by the overhead of persistent storage, or that
+the runtime of the host process is sufficiently long to reach an
+optimal set of parameters in good time. Neither assumption can be
+shown to fit the general case.
+
+% WHY MAP REDUCE SUCKS
+In such cases, the overhead introduced by these massively scaleable
+high performance skeleton libraries would likely outweigh the
+performance gains. If Algorithmic Skeletons are to achieve widespread
+adoption, they must provide scalable performance benefits not only to
+the upper-tier of high performance computers but also to modest
+consumer hardware, which is increasingly reliant on software
+parallelism in order to achieve performance improvements.
+
+MapReduce is a hugely successful framework for writing high
+performance massively distributed applications at a fraction of the
+effort required for a hand tuned implementation. The source code of
+Hadoop is over 800,000 lines of code, but efficient user programs can
+be written in well under 100 lines. While is an incredible technical
+feat, the overhead the huge runtime would negate the performance
+advantages for all but the largest computations. Users writing
+programs for more modestly specced off the shelf hardware will not be
+able to take advantage of the engineering achievement.
+
+% Have other people tried to solve the same problem using a different
+% solution?
+
+% PETABRICKS
+PetaBricks is a language and runtime which supports dynamic
+algorithmic choice determined by properties of the data input. This
+provides a promising space for optimisation but has the drawback of
+increasing programmer effort by requiring them to implement multiple
+versions of an algorithm tailored to different optimisation
+parameters. SkelCL has the advantage of being able to localise this
+extra programmer effort into a single library implementation.
+
+% SIBLING RIVALRY
+SiblingRivalry poses an interesting solution to this problem, by
+dividing available resources in half and executing two copies of the
+target code, one using the current best configuration, and the other
+using a trial configuration which is being evaluated. If the trial
+configuration performs better than the best configuration, then it
+replaces it as the new current best configuration. By doing this, the
+tuning framework has the freedom to evaluate vastly suboptimal
+configurations while still providing adequate performance for the
+user. However, by dividing the available resources in half, you can
+expect only 50\% of the performance versus a statically optimised
+version.
+
+% Has a similar solution to yours been applied to different problems?
+
+% What is the state of the art in this field? What are the limitations
+% of previous work on this problem?
+
+
+%%%%%%%%%%%%%%%
+% MY APPROACH %
+%%%%%%%%%%%%%%%
+
+It should be possible to get convincing results that such an autotuner
+can improve performance at an early stage, by simply hand-hacking a
+few benchmarks to show the differences between optimal and suboptimal
+configurations.
+
+% WHAT IS SKELCL
+SkelCL is a C++ Algorithmic Skeleton Framework which targets
+heterogeneous parallel programming using OpenCL. Steuwer, a research
+associate at the University of Edinburgh, developed SkelCL as an
+approach to high-level programming of multi-GPU systems, demonstrating
+an $11\times$ reduction in programmer effort for equivalent programs
+written in pure OpenCL, while suffering only a modest 5\% overhead.
+
+The unique advantage of SkelCL is that it has the potential to take
+advantage of both high level information about the structure and
+intent of programs, while still having access to the low level
+compilation optimisation processes of dynamic optimisers.
+
+The core of SkelCL comprises a set of parallel container data types
+for vectors and matrices, with an automatic distribution mechanism
+which performs implicit transfer of these data structures between the
+host and device memory. Computations on these data structures are then
+expressed using OpenCL methods as muscle functions for a set of
+Algorithmic Skeletons.
+
+%%%%%%%%%%%%%%
+% CHALLENGES %
+%%%%%%%%%%%%%%
+One risk is that the overhead required to implement this dynamic
+optimisation will exceed the performance gained from the optimisations
+themselves. Contributors to the overhead include: time spent
+evaluating dynamic features and deciding on which optimisations to
+select (extra instructions to execute), and either increased code size
+from having multiple copies of procedures (bad for branch predictors /
+instruction prefetch), or decreased ability for optimisations (because
+of setting parameters at runtime instead of at compiled).
+
+Another risk is that optimising for dynamic features will not provide
+a sufficient advantage over considering static features alone.
+
+One of the biggest challenges facing the implementation of dynamic
+optimisers is that of minimising the runtime overhead so that it does
+not outweigh the performance advantages of the optimisations. JIT
+compilation is an expensive task and does not have access to high
+level information about the program structure. Dynamic optimisers
+require extensive profiling and tracing to identify hot paths and
+regularly executed code, and recompiling these hot paths is an
+expensive task. One possible workaround for this challenge is to
+compile multiple versions of a routine ahead of time, and to switch
+between them at runtime, selecting the version with the best
+performance. This technique can prove very successful for optimising
+programs dynamically, but massively reduces the search space, as it is
+not feasible to compile thousands of different versions as is
+performed in offline autotuning, but only a dozen or so different
+versions.
+
+Another challenge facing dynamic optimisation is that of the necessity
+to provide Quality of Service. A random search of the optimisation
+space will result in many configurations with vastly suboptimal
+performance. If these configurations are being evaluated online on a
+working program, then it is often not satisfactory to be running
+massively slower implementations. The search of the optimisation space
+must be designed so that convergence time towards optimal parameters
+is minimal.
+
+One of the greatest problems facing dynamic optimisers is the cost of
+compiling code online. SkelCL offers the unique advantage of being
+able to amortize many of the costs associated with dynamic
+compilation, due to it's JIT-like nature of compiling OpenCL kernels
+immediately before execution.
+
+%%%%%%%%%%%%%%
+% EVALUATION %
+%%%%%%%%%%%%%%
+
+% What kind of evidence will be needed to support these claims or
+% hypotheses? Is your evidence experimental or theoretical? Is it
+% amenable to statistical analysis?
+The primary goal of this research is to modify the behaviour of SkelCL
+so that it can autotune its performance at runtime. The question which
+must be answered when evaluating this goal is: has the performance of
+SkelCL been improved? This is itself is not an easy answer to
+quantify.
+
+The final success metrics will include:
+
+\begin{itemize}
+\item The overhead introduced by the runtime.
+\item The amount of time to converge to a good set of optimised
+parameters.
+\item The speedup of the optimised skeletons relative to an
+out-of-the-box implementation.
+\item The speedup of the optimised skeletons relative to a state of the
+art auto-tuned implementation.
+\item The ability of the skeletons to adapt to a change in dynamic features (
+e.g. system load).
+\end{itemize}
+
+This can be determined experimentally by timing the execution of three
+versions of skeleton benchmark suite: a control group, a state of the
+art autotuned version, and my dynamically optimised version.
+% TODO: stat rigour
+
+% Will you require a large corpus of test data?  How will your ensure
+% that your test data is representative? What will provide the "gold
+% standard" by which you judge the correctness and/or quality of your
+% project's results?
+
+%%%%%%%%%%%%%%
+% CONCLUSION %
+%%%%%%%%%%%%%%
+
+% At what stage is your project? Are you just formulating your project
+% proposal, is the work in progress or is it finished or nearly
+% finished? What further work do you still have to do or have you
+% identified for others to do after you?
+
+We are ideally suited for tackling this difficult problem at
+University of Edinburgh. Not only have academic members been
+responsible for introducing and developing Algorithmic Skeletons, but
+there is a large and active research interest in iterative compilation
+and machine learning based optimisation. Previous research at the
+University of Edinburgh has also approach the static autotuning of
+Algorithmic Skeletons, which will provide a solid source of
+inspiration and an interesting counterpoint for evaluating the
+performance of a dynamic autotuning approach.
 
 \end{document}
