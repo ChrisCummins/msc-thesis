@@ -53,6 +53,8 @@ reading them.
 1. A. Georges, D. Buytaert, and L. Eeckhout, **“Statistically rigorous
    java performance evaluation,”** ACM SIGPLAN Not., vol. 42, no. 10,
    p. 57, Oct. 2007.
+1. A. Bundy, **“Empirical methods,”** 2014. [Online]. Available:
+   http://www.inf.ed.ac.uk/teaching/courses/irm/notes/empirical.html.
 
 # > 30 min
 

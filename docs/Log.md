@@ -2459,3 +2459,12 @@ Notes from meeting with Pavlos:
 * TODO: Send Pavlos 3-4 papers that I thought were interesting.
 * Pavlos is going to send me a list of sub-topics and important papers
   for the auto parallelisation survey in the next ~2.5 weeks.
+
+New term: **register spilling**. Moving a variable from a register to
+main memory is called *spilling*. The reverse operation is called
+*filling*. Compilers use multiple factors to decide which variables to
+spill: execution time, code space, and data space.
+
+There is a very interesting look book about parallel programming,
+available freely online:
+[Is Parallel Programming Hard, And, If So, What Can You Do About It?](https://www.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook-1c-e1.pdf).
