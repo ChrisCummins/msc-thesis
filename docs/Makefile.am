@@ -7,5 +7,6 @@ if HAVE_PDFLATEX
 SUBDIRS += 		\
 	maths		\
 	proposal	\
+	summary		\
 	$(NULL)
 endif
