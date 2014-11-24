@@ -1,16 +1,84 @@
+#
+# Makefile.latex - Common Makefile for building LaTeX documents.
+#
+# Ensure that any Makefile which includes this defines the $(Document)
+# and $(DocumentSources) variables. The $(Document) variable is the
+# name of the target LaTeX source file without the file extension, and
+# $(DocumentSources) is a space delimited list of LaTeX source files.
+# For example:
+#
+#     Document = report
+#     DocumentSources = chapter1.tex appendix.tex abstract.tex
+#
 include $(top_srcdir)/Makefile.common
 
 #------------------------------------------------------------------------
-# Build targets.
+# Build configuration.
 #------------------------------------------------------------------------
-doc_DATA = $(DocumentPDF)
+DocumentPDF = $(Document).pdf
+DocumentTex = $(Document).tex
+DocumentAux = $(Document).aux
+DocumentBuildLog = make.log
+DocumentBibfile = refs.bib
 
-$(DocumentPDF): $(DocumentSources)
+PdflatexArgs = 				\
+	-output-format pdf 		\
+	-progname pdflatex 		\
+	-file-line-error 		\
+	-interaction=nonstopmode	\
+	$(NULL)
 
 # Import lib/*.sty libraries.
 export TEXINPUTS := .:./lib:$(TEXINPUTS)
 
-MOSTLYCLEANFILES += $(LatexCleanfiles)
+# The cleanbib script.
+CLEANBIB = $(top_srcdir)/scripts/cleanbib
+
+# The system-wide LaTeX library name.
+BIBLIBRARY = library
+
+MOSTLYCLEANFILES +=                     \
+	$(DocumentPDF) 			\
+	$(DocumentBuildLog)		\
+	*-blx.bib 			\
+	*.acn 				\
+	*.acr 				\
+	*.alg 				\
+	*.aux 				\
+	*.bbl 				\
+	*.bcf 				\
+	*.blg 				\
+	*.dvi 				\
+	*.fdb_latexmk 			\
+	*.glg 				\
+	*.glo 				\
+	*.gls 				\
+	*.idx 				\
+	*.ilg 				\
+	*.ind 				\
+	*.ist 				\
+	*.lof 				\
+	*.log 				\
+	*.lol 				\
+	*.lot 				\
+	*.maf 				\
+	*.mtc 				\
+	*.mtc0 				\
+	*.nav 				\
+	*.nlo 				\
+	*.out 				\
+	*.pdfsync 			\
+	*.ps 				\
+	*.run.xml 			\
+	*.snm 				\
+	*.synctex.gz			\
+	*.tdo 				\
+	*.toc 				\
+	*.vrb 				\
+	*.xdy 				\
+	.\#* 				\
+	\#* 				\
+	$(NULL)
 
 #------------------------------------------------------------------------
 # Local build rules.
@@ -36,7 +104,7 @@ endif
 if HAVE_CHECKCITES
 .PHONY: cite
 cite:
-	$(AM_V_at)$(CHECKCITES) --undefined $(Document).aux
+	$(AM_V_at)$(CHECKCITES) --undefined $(DocumentAux)
 endif
 
 # Print make targets.
@@ -54,3 +122,65 @@ endif
 if HAVE_CHECKCITES
 	@echo "  make cite      Check citations"
 endif
+
+#------------------------------------------------------------------------
+# Compiling PDF LaTeX documents.
+#------------------------------------------------------------------------
+
+doc_DATA = $(DocumentPDF)
+$(DocumentPDF): $(DocumentSources)
+
+# Compile commands. We pipe the output to /dev/null to silence it, and
+# if there is an error, we re-run the compilation without the pipe so
+# as to print the failure messages.
+define pdflatex
+	(echo -e "\nCOMMAND: $(PDFLATEX) $(PdflatexArgs) $1\n" >>$(DocumentBuildLog); \
+	 $(PDFLATEX) $(PdflatexArgs) $1 2>&1 >>$(DocumentBuildLog) || $(PDFLATEX) $(PdflatexArgs) $1)
+endef
+
+define bibtex
+	(echo -e "\nCOMMAND: $(BIBTEX) $1\n" >>$(DocumentBuildLog);	\
+	 $(BIBTEX) $1 2>&1 >>$(DocumentBuildLog) || $(BIBTEX) $1)
+endef
+
+define bibtool
+	(echo -e "\nCOMMAND: $(BIBTOOL) -x $1 -o $2\n" >>$(DocumentBuildLog); \
+	 $(BIBTOOL) -v -x $1 -o $2 &>>$(DocumentBuildLog) || $(BIBTOOL) -v -x $1 -o $2)
+endef
+
+define cleanbib
+	(echo -e "\nCOMMAND: $(CLEANBIB) $1\n" >>$(DocumentBuildLog); \
+	 $(CLEANBIB) $1 &>>$(DocumentBuildLog) || $(CLEANBIB) $1)
+endef
+
+# The LaTeX build target. This gnarly bit of shell hackery uses nested
+# conditionals and sub-shells to invoke pdflatex, bibtex, bibtool, and
+# cleanbib the correct number of times depending on the document
+# contents. The sequence of program invocations is as follows:
+#
+# 1. pdflatex
+# -  If the document contains citations:
+# 2.     bibtex
+# -      If the document uses the global biblibrary:
+# 3.          bibtool
+# 4.          cleanbib
+# 5.     pdflatex
+# 6.  pdflatex
+%.pdf: %.tex
+	$(AM_V_at)echo -e "Build log for `date`\n" >$(DocumentBuildLog)
+	$(AM_V_at)echo -e "\nCOMMAND: $(CLEANBIB)\n" >>$(DocumentBuildLog)
+	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
+	$(AM_V_at)$(call pdflatex, $<)
+	$(AM_V_at)($(GREP) '\\citation' >/dev/null 2>&1 < $*.aux && {	\
+			if ! $(AM_V_P); then echo "  BIBTEX   $@"; fi;	\
+			$(call bibtex, $*);				\
+			$(EGREP) '\\bibdata.*$(BIBLIBRARY)' $*.aux >/dev/null 2>&1 && { \
+				if ! $(AM_V_P); then echo '  BIBTOOL  $(DocumentBibfile)'; fi; \
+				$(call bibtool,$*.aux,$(DocumentBibfile)); \
+				$(call cleanbib,$(DocumentBibfile));	\
+			} || true;					\
+			if ! $(AM_V_P); then echo '  LATEX    $@'; fi;	\
+			$(call pdflatex, $<);				\
+		} || true)
+	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
+	$(AM_V_at)$(call pdflatex, $<)

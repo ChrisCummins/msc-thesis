@@ -143,6 +143,18 @@ AM_CONDITIONAL([HAVE_BIBTEX],[test "x$HAVE_BIBTEX" = xyes])
 
 
 dnl ================================================================
+dnl Do we have bibtool installed?
+dnl ================================================================
+AC_CHECK_PROG([BIBTOOL],[bibtool],[bibtool])
+AS_IF([test "x$BIBTOOL" != x],
+      [HAVE_BIBTOOL=yes],
+      [HAVE_BIBTOOL=no
+       AC_MSG_WARN([Unable to export local BibTeX files.])])
+AC_SUBST([HAVE_BIBTOOL],[$HAVE_BIBTOOL])
+AM_CONDITIONAL([HAVE_BIBTOOL],[test "x$HAVE_BIBTOOL" = xyes])
+
+
+dnl ================================================================
 dnl Should xdg-open be used to open PDFs?
 dnl ================================================================
 AC_CHECK_PROG([XDG_OPEN],[xdg-open],[xdg-open])
