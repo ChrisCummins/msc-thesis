@@ -1,11 +1,23 @@
-\title{Dynamic Autotuning of Algorithmic Skeletons}
+\title{Dynamic Autotuning\\of Algorithmic Skeletons}
 \author{Chris Cummins}
 \date{November 2014}
 
 \input{_\jobname.tex}
 
 \begin{document}
-\maketitle
+
+% Title.
+\begin{center}
+  \huge
+  \textbf{\@title}
+  \vspace{.5em}
+
+  \normalsize
+  \@author\\
+  \@date
+  \vspace{.5em}
+\end{center}
+
 
 %% What are your aims and objectives? What do you hope to have achieved
 %% when you are finished, e.g. build a program to do some task, prove a
@@ -67,7 +79,7 @@ ways in which to simplify the difficult task of writing
 it. Algorithmic Skeletons enable programmers to focus on writing
 simple problem-solving code, while gaining the benefit of highly
 tuned, robust parallelisation. They achieve this by abstracting common
-patterns pf parallel programming into specialised parallel higher
+patterns of parallel programming into specialised parallel higher
 order functions that orchestrate the execution of ``muscle functions''
 - small sections of problem-solving logic provided by the user.
 % TODO: example
@@ -175,7 +187,7 @@ Algorithmic Skeletons, which will provide a solid source of
 inspiration and an interesting counterpoint for evaluating the
 performance of a dynamic autotuning approach.
 
-\newpage
+
 % free writing
 The unique advantage of SkelCL is that it has the potential to take
 advantage of both high level information about the structure and
@@ -236,5 +248,161 @@ configurations while still providing adequate performance for the
 user. However, by dividing the available resources in half, you can
 expect only 50\% of the performance versus a statically optimised
 version.
+
+
+% free writing
+Whereas current approaches to autotuning have largely relied on huge
+offline training periods and optimising for static features, this
+proposed research will develop an online autotuner which is capable of
+adapting to dynamic features at runtime.
+
+The primary aim of the research is to demonstrate that the performance
+of an algorithmic skeleton library can be improved by allowing it to
+change its behaviour at runtime. To demonstrate this, we
+
+
+%% What are your aims and objectives? What do you hope to have achieved
+%% when you are finished, e.g. build a program to do some task, prove a
+%% theorem, model a natural system?
+The aim of this research project is to demonstrate that the
+performance of Algorithmic Skeletons can be improved by enabling them
+to change their behaviour at runtime. This will be implementing a
+dynamic auto-tuner for SkelCL, a C++ skeleton library targeting
+heterogeneous parallelism, so that it can adapt to its environment at
+runtime. The auto-tuner will be embedded within the SkelCL runtime and
+will enable transparent optimisation of skeletons.
+
+%% What is the motivation of your project? That is, why do you think it
+%% will make a significant and original contribution to the scientific
+%% and/or engineering progress of Informatics? Why is it timely to tackle
+%% this project now and do you think it is feasible to achieve in the
+%% timescale available to you? Who would benefit from a solution to the
+%% problem you have set yourself?
+The project is motivating by empirical evidence showing that
+optimising algorithms requires both static information about the
+structure of the algorithm, and dynamic information about the type and
+nature of algorithm inputs. Or rather, static optimisations cannot
+provide a universally optimum configuration for all inputs. For
+example, a sorting algorithm may display different asymptotic
+performance based on the type of data being sorted, the size of the
+list to be sorted, and the extent to which the list is already
+sorted. Since these factors cannot be determined at compilation time,
+programmers are reliant on crude static heuristics to switch been
+different optimisations, or attempting to build models to predict
+dynamic optimisation configurations. The modelling approach has been
+know to fail due to the time required to build models - varying
+architectures exhibit wildly different behaviours, etc.
+
+% Modelling based on empirical evidence, at runtime
+The problem with attempting to model optimisation spaces is that they
+are fundamentally stochastic. As a result, they can only properly be
+built using empirical evidence, and so the problem becomes one of
+trying to extrapolate complicated many-dimensional spaces using the
+least amount of data points, since the time taken to acquire data is
+prohibitively expensive. Previous static autotuners have taken as long
+as three months to sample the optimisation space.
+
+% Timely: skeletons are really taking off (MapReduce)
+The popularity of programming with parallel patterns is rapidly
+increasing, as they have been demonstrated as a means of providing
+re-usability to the thousands of man-hours that is required to write a
+tuned and stable parallel application. For example, Google's
+MapReduce, which allows their programmers to write data sorting
+programs in 55 lines of code, while taking advantage of the over
+800,000 lines of code present in a MapReduce implementation. Any
+research forwarding the cause of parallel patterns will prove
+extremely valuable to both application developers and future
+researchers.
+
+% Feasible: standing on the shoulders of MaSiF
+Their is a wealth of research which demonstrates the advantages of
+auto-tuning, iterative compilation, and dynamic optimisations. While
+the challenge of trying to take the advantages of those and insert
+them into a skeleton's runtime is large, existing research has showed
+the value of performing this auto-tuning statically, and one of the
+greatest problems facing dynamic optimisers is the cost of compiling
+code online . SkelCL offers the unique advantage of being able to
+amortize many of the costs associated with dynamic compilation, due to
+it's JIT-like nature of compiling OpenCL kernels immediately before
+execution.
+
+% Who would benefit from a solution to the problem you have set
+% yourself?
+Algorithmic Skeletons have been shown to improve programmer
+effectiveness for parallel programming, and has many use cases, from
+general purpose computing to bioinformatics and physics
+simulations. The SkelCL library has been used to implement high
+performance medical imaging applications. A dynamic autotuner for
+SkelCL would improve the performance of these applications, and
+provide a starting point for future research into online autotuning
+for other applications, as well as being directly applicable to the
+implementation of other Algorithmic Skeleton libraries.
+
+% snippet: SkelCL
+The core of SkelCL comprises a set of parallel container data types
+for vectors and matrices, with an automatic distribution mechanism
+which performs implicit transfer of these data structures between the
+host and device memory. Computations on these data structures are then
+expressed using OpenCL methods as muscle functions for a set of
+Algorithmic Skeletons.
+
+
+% What is the motivation of your project?
+The central premise of this research is that the large range of
+tunable parameters and optimisations that influence the performance of
+parallel skeletons can only be effectively searched using empirical
+data rather than predictive models, and that the gathering of
+empirical data that is required to find optimal parameter settings is
+prohibitively time consuming.
+
+To give a concrete example, consider a recursive merge sorting
+algorithm. When called, the algorithm determines whether the list is
+short enough to be solved directly using a linear sorting method, or
+whether it should split the input list into multiple sub-lists and
+sort them by recursing on each sub-list before combining the
+results. This computational pattern of repeatedly dividing a problem
+into smaller subproblems which are then recombined is abstracted by a
+Divide and Conquer pattern. This can be parallelised effectively by
+considering each recursion as a new task which can be executed
+concurrently.
+
+A parallel Divide and Conquer pattern is a common form that can be
+implemented as an Algorithmic Skeleton, allowing the user to supply
+muscle functions for the split, merge, and conquer logic, and the
+skeleton can coordinate the allocation of new tasks. When implementing
+such a Divide and Conquer skeleton, there are two immediate parameters
+which will greatly affect the performance: the maximum depth at which
+recursion should occur as a new task, as opposed to sequentially; and
+the threshold minimum size of the input problem before the problem is
+conquered directly rather than recursively.
+
+By performing an iterative search of the optimisation space generated
+by these two parameters reveals a strong interaction between the two
+parameters. The optimum value for one parameter is strongly influenced
+by the value of the other parameter. Additionally, the optimisation
+space of both parameters is strongly influenced by an independent
+factor: the size and type of input problem. This means that in the
+case of a parallel merge sort algorithm, the optimum values for the
+max recursion depth and minimum input threshold parameters will be
+very different when sorting lists of integers and lists of bytes, or
+lists of arbitrary user-chosen data structures.
+
+If the programmer were to attempt to optimise the selection of these
+parameter values using static heuristics, he would need to perform an
+extensive empirical search of the optimisation space, and then segment
+the space using crude heuristics in order to pick best approximate
+values. The effectiveness of these heuristics is limited by their
+complexity and the thoroughness of the optimisation space search. In
+addition, the resulting optimisation heuristics would be very fragile
+and non-portable, so that the whole tedious process would need to be
+repeated for every target architecture, and with every new generation
+of hardware. Such an approach is clearly impractical. Compare this to
+the alternate approach of a Divide and Conquer skeleton which is
+capable of performing this empirical data gathering online and during
+normal execution, and which will use successive iterations to converge
+naturally upon an optimum configuration. Such a system would be
+capable of dealing with varying dynamic features which would destroy
+the capabilities of a static heuristic based system. This is the goal
+of my research.
 
 \end{document}
