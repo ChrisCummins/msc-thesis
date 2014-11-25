@@ -150,6 +150,14 @@ this coordination logic, ridding the application programmer of these
 responsibilities and allowing them to focus instead on the
 problem-solving logic.
 
+Previous research has attempted to address this issue using iterative
+compilation techniques, by tuning the performance of Algorithmic
+Skeletons through searching the optimisation space offline and
+selecting a set of parameter values that provide optimum performance
+for a given program. Such tools perform static autotuning, that is,
+they automatically tune optimisation parameters based on static
+features which can be selected at compile time.
+
 \subsection{Motivating Example}
 
 To give a concrete example, consider a recursive merge sorting
@@ -222,6 +230,19 @@ increasing programmer effort by requiring them to implement multiple
 versions of an algorithm tailored to different optimisation
 parameters. SkelCL has the advantage of being able to localise this
 extra programmer effort into a single library implementation.
+
+% SIBLING RIVALRY
+SiblingRivalry poses an interesting solution to the challenge of
+providing sustained quality of service. Resources are divided in half,
+and two copies of a target subroutine are executed simultaneously, one
+using the current best known configuration, and the other using a
+trial configuration which is to be evaluated. If the trial
+configuration outperforms the current best configuration, then it
+replaces it as the new best configuration. By doing this, the tuning
+framework has the freedom to evaluate vastly suboptimal configurations
+while still providing adequate performance for the user. However, a
+large runtime penalty is incurred by dividing the available resources
+in half.
 
 % WHY MAP REDUCE SUCKS
 In such cases, the overhead introduced by these massively scaleable
