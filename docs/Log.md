@@ -2468,3 +2468,11 @@ spill: execution time, code space, and data space.
 There is a very interesting look book about parallel programming,
 available freely online:
 [Is Parallel Programming Hard, And, If So, What Can You Do About It?](https://www.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook-1c-e1.pdf).
+
+
+## Tuesday 25th
+
+I've been looking for quantifiable examples of the decreasing rate of
+improvement of single-core performance in modern CPUs. The best I
+could find was this blog post:
+[A Look Back at Single-Threaded CPU Performance](http://preshing.com/20120208/a-look-back-at-single-threaded-cpu-performance/).

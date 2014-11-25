@@ -47,6 +47,13 @@ reading them.
    J. Dongarra, **“From CUDA to OpenCL: Towards a performance-portable
    solution for multi-platform GPU programming,”** Parallel Comput.,
    vol. 38, no. 8, pp. 391–407, 2012.
+1. M. Dezani-ciancaglini and U. De Liguoro, **“Sessions and Session
+   Types: An Overview,”** Web Serv. Form. Methods, pp. 1–28, 2010.
+1. C. Dubach, T. M. Jones, E. V. Bonilla, G. Fursin, and
+   M. F. P. O’Boyle, **“Portable compiler optimisation across embedded
+   programs and microarchitectures using machine learning,”** in
+   Proceedings of the 42nd Annual IEEE/ACM International Symposium on
+   Microarchitecture - Micro-42, 2009, pp. 78–88.
 
 # 12-30 min
 
@@ -55,6 +62,9 @@ reading them.
    p. 57, Oct. 2007.
 1. A. Bundy, **“Empirical methods,”** 2014. [Online]. Available:
    http://www.inf.ed.ac.uk/teaching/courses/irm/notes/empirical.html.
+1. J. Lau, M. Arnold, M. Hind, and B. Calder, **“Online Performance
+   Auditing : Using Hot Optimizations Without Getting Burned,”** ACM
+   SIGPLAN Not., vol. 41, no. 6, pp. 239–251, 2006.
 
 # > 30 min
 
