@@ -35,28 +35,27 @@
 %
 % a
 
-Parallel computing is increasingly being seen as the only viable
-approach for maintaining continued performance improvements in a
-multicore world. Despite this, the adoption of parallel programming
-practises has been slow and awkward, due to the prohibitive complexity
-and low level of abstraction when writing parallel
-software. Algorithmic Skeletons address this issue by equipping
-programmers with reusable patterns for parallel programming, offering
-higher level abstractions and reducing programmer effort. Tuning these
-Algorithmic Skeletons is currently a manual process which requires
-exhaustively searching the optimisation space to select optimum
-parameters. The aim of this research is to demonstrate that this
-parameter tuning can be performed at runtime without the need for
-expensive offline training phases, a process called dynamic
-autotuning.
+Parallel computing is increasingly seen as the only viable approach
+for maintaining continued performance improvements in a multicore
+world. Despite this, the adoption of parallel programming practises
+has been slow and awkward, due to the prohibitive complexity and low
+level of abstraction when writing parallel software. Algorithmic
+Skeletons address this issue by equipping programmers with reusable
+patterns for parallel programming, offering higher level abstractions
+and reducing programmer effort. Tuning these Algorithmic Skeletons is
+a manual process which requires exhaustively searching the
+optimisation space to select optimum parameters. The aim of this
+research is to demonstrate that this parameter tuning can be performed
+at runtime without the need for expensive offline training phases, a
+process called dynamic autotuning.
 
-It is my hypothesis that the performance of Algorithmic Skeletons can
+It is my hypothesis that the performance of Algorithmic Skeletons will
 be improved by developing an autotuner which considers dynamic
 features which cannot be determined at compile time. The premise is
-that the optimisation spaces of Algorithmic Skeletons are shaped
-significantly by features which can only be determined at runtime, and
-that effective searching of these spaces can only be performed by
-collecting empirical data rather than building predictive models.
+that the optimisation spaces of Algorithmic Skeletons are shaped by
+features which can only be determined at runtime. Effective searching
+of these spaces can only be performed by collecting empirical data
+rather than building predictive models.
 
 The objective of this research is improve the performance of
 Algorithmic Skeletons by enabling them to adjust their behaviour at
@@ -66,17 +65,17 @@ heterogeneous parallel programming using OpenCL.
 
 % What are the main pieces of related work?
 % Has a similar solution to yours been applied to different problems?
-In developing a dynamic autotuner for Algorithmic Skeletons, it is
-helpful to draw on existing research from the fields of iterative
-compilation and dynamic optimisation. Iterative compilation is an
-approach to autotuning which uses an offline training phase to perform
-an extensive search of a program's optimisation space by gathering
-empirical data through repeatedly compiling and evaluating different
-trial configurations. Iterative compilation techniques has been
-successfully applied to a range of optimisation challenges. Of
+It is helpful to draw on existing research from the fields of
+iterative compilation and dynamic optimisation. Iterative compilation
+is an approach to autotuning which uses an offline training phase to
+perform an extensive search of the optimisation space of a program.
+Empirical data is gathered through repeatedly compiling and evaluating
+different trial configurations, before selecting the configuration
+which proved the most profitable. Iterative compilation techniques has
+been successfully applied to a range of optimisation challenges. Of
 particular relevance to this work is MaSiF, a static autotuning tool
-which combines iterative compilation techniques with machine learning
-to perform a focused search of the optimisation space of FastFlow and
+which combines iterative compilation techniques with machine learning.
+It performs a focused search of the optimisation space of FastFlow and
 Intel Thread Building Blocks, two popular Algorithmic Skeleton
 libraries. While sharing the same goal as MaSiF, the approach of this
 project focuses on performing optimisation space searching at runtime,
@@ -89,31 +88,31 @@ optimisation space exploration at runtime, allowing programs to
 respond to dynamic features ``online''. This is a challenging task, as
 a random search of the optimisation space will result in many
 configurations with vastly suboptimal performance. In a real world
-system, it is not satisfactory to be evaluating many suboptimal
-configurations, as this will cause significant slowdown of the
-program. Thus dynamic optimisers must be designed so that convergence
-time towards optimal parameters is minimal.
+system, evaluating many suboptimal configurations will cause a
+significant slowdown of the program. Thus a requirement of dynamic
+optimisers is that convergence time towards optimal parameters is
+minimal.
 
 Existing dynamic optimisation research has typically taken a low level
 approach to performing optimisations. Dynamo is a dynamic optimiser
 which performs binary level transformations of programs using
 information gathered from runtime profiling and tracing. While this
-provides the ability to respond to dynamic features, the range of
-optimisations that can be applied is limited to binary
-transformations, and so it cannot perform the high level parameter
-tuning which can often have greatest impact on performance.
+provides the ability to respond to dynamic features, it restricts the
+range of optimisations that can be applied to binary
+transformations. These low level transformations cannot match the
+performance gains that higher level parameter tuning produces.
 
 One of the biggest challenges facing the implementation of dynamic
 optimisers is to minimise the runtime overhead so that it does not
 outweigh the performance advantages of the optimisations. A
-significant contributor to this runtime overhead is provided by the
-requirement to compile code dynamically. Previous research has negated
-this cost by compiling multiple versions of a target subroutine ahead
-of time. At runtime, execution switches between the many versions,
-selecting the version with the best performance. In practice, this
-technique massively reduces the optimisation space which can be
-searched as it is unfeasible to insert the thousands of different
-versions of a subroutine that are tested using offline autotuning.
+significant contributor to this runtime overhead is the requirement to
+compile code dynamically. Previous research has negated this cost by
+compiling multiple versions of a target subroutine ahead of time. At
+runtime, execution switches between the available versions, selecting
+the version with the best performance. In practice, this technique
+massively reduces the optimisation space which can be searched as it
+is unfeasible to insert the thousands of different versions of a
+subroutine that are tested using offline autotuning.
 
 The novelty of the approach posed in this research is to combine the
 advantages of offline training phases and online parameter tuning by
@@ -122,41 +121,43 @@ in-between program executions using SkelCL.
 
 Michel Steuwer, a research associate at the University of Edinburgh,
 developed SkelCL as an approach to high-level programming for
-multi-GPU systems, demonstrating an $11\times$ reduction in programmer
-effort compared to implement equivalent programs written in pure
-OpenCL, while suffering only a modest 5\% overhead. The core of SkelCL
-comprises a set of parallel container data types for vectors and
-matrices, with an automatic distribution mechanism which performs
+multi-GPU systems. Steuwer demonstrated an $11\times$ reduction in
+programmer effort compared to implement equivalent programs written in
+pure OpenCL, while suffering only a modest 5\% overhead. The core of
+SkelCL comprises a set of parallel container data types for vectors
+and matrices, and an automatic distribution mechanism which performs
 implicit transfer of these data structures between the host and device
-memory. Computations on these data structures are expressed using
-Algorithmic Skeletons, parameterised with small sections of OpenCL
-code. At runtime, the OpenCL code is compiled into compute kernels for
-execution on GPUs. This makes SkelCL an excellent candidate for
-dynamic autotuning, as it exposes not only the optimisation space of
-the OpenCL compiler, but also the high level tunable parameters
-provided by the structure of Algorithmic Skeletons. SkelCL offers the
-unique advantage of being able to amortise many of the costs
-associated with dynamic compilation due to it's JIT-like nature of
-compiling OpenCL kernels immediately before execution.
+memory. Application programmers express computations on these data
+structures using Algorithmic Skeletons that are parameterised with
+small sections of OpenCL code. At runtime, SkelCL compiles the OpenCL
+code into compute kernels for execution on GPUs. This makes SkelCL an
+excellent candidate for dynamic autotuning, as it exposes both the
+optimisation space of the OpenCL compiler, and the high level tunable
+parameters provided by the structure of Algorithmic Skeletons. SkelCL
+offers the unique advantage of being able to amortise many of the
+costs associated with dynamic compilation due to its JIT-like nature
+of compiling OpenCL kernels immediately before execution.
 
-Implementing a dynamic optimiser poses many difficult challenges which
-must be overcome. There is a risk that the runtime overhead of the
-dynamic optimiser will exceed the performance gained by the
-optimisations themselves. The proposed approach to dynamically
-autotune SkelCL will overcome one of the most significant overheads
-associated with dynamic optimising, which is that of profiling and
-tracing. Since Algorithmic Skeletons perform the coordination of
-muscle functions, it is possible to forgo the use of many profiling
-counters by being to make assumptions about the execution frequency of
-certain code paths, given the nature of the skeleton. Additionally,
+Implementing a dynamic optimiser poses a number of difficult
+challenges which must be overcome.
+% TODO: What are these challenges? ^^
+There is a risk that the runtime overhead of the dynamic optimiser
+will exceed the performance gained by the optimisations
+themselves. The proposed approach to dynamically autotune SkelCL will
+overcome one of the most significant overheads associated with dynamic
+optimising: that of instrumenting the code the purposes of profiling
+and tracing. Since Algorithmic Skeletons coordinate muscle functions,
+it is possible to forgo many of the profiling counters that dynamic
+optimisers require by making assumptions about the execution frequency
+of certain code paths, given the nature of the skeleton. Additionally,
 the placement of profiling counters can be optimised manually.
 
 % What kind of evidence will be needed to support these claims or
 % hypotheses? Is your evidence experimental or theoretical? Is it
 % amenable to statistical analysis?
 My hypothesis is that the performance of Algorithmic Skeletons can be
-improved using dynamic autotuning. To test this hypothesis, empirical
-data must be collected from several representative benchmarks by
+improved using dynamic autotuning. To test this hypothesis, I will
+collect empirical data from a suite of representative benchmarks,
 comparing the performance of my implementation against: baseline
 performance provided by an unmodified SkelCL implementation;\ and a
 hand-tuned ``oracle'' implementation using an optimal configuration
@@ -167,21 +168,16 @@ Other measurable success metrics include: the overhead introduced by
 the runtime; the amount of time required to converge to a sufficiently
 good configuration; and the ability of the dynamic optimiser to adapt
 to changes in dynamic features (e.g.\ system load). All of these
-metrics can be evaluated by profiling performance benchmarks.
+metrics will be evaluated by profiling performance benchmarks.
 
 % Who would benefit from a solution to the problem you have set
 % yourself?
-Algorithmic Skeletons have been shown to improve programmer
-effectiveness for a range of tasks, from general purpose computing to
-bioinformatics and complex simulations. For example, the SkelCL
-library has been used to implement high performance medical imaging
-applications. A dynamic autotuner for SkelCL would improve the
+Existing research has shown that Algorithmic Skeletons improve
+programmer effectiveness for a range of tasks from general purpose
+computing, to bioinformatics, and complex simulations. For example,
+the SkelCL library has been used to implement high performance medical
+imaging applications. A dynamic autotuner for SkelCL will improve the
 performance of these applications, and provide a starting point for
 future research into the online autotuning of Algorithmic Skeletons.
-
-% At what stage is your project? Are you just formulating your project
-% proposal, is the work in progress or is it finished or nearly
-% finished? What further work do you still have to do or have you
-% identified for others to do after you?
 
 \end{document}
