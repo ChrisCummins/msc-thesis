@@ -203,6 +203,18 @@ AM_CONDITIONAL([HAVE_CHECKCITES],[test "x$HAVE_CHECKCITES" = xyes])
 
 
 dnl ================================================================
+dnl Do we have textlint installed?
+dnl ================================================================
+AC_CHECK_PROG([TEXTLINT],[textlint],[textlint])
+AS_IF([test "x$TEXTLINT" != x],
+      [HAVE_TEXTLINT=yes],
+      [HAVE_TEXTLINT=no
+       AC_MSG_WARN([LaTeX style checks disabled.])])
+AC_SUBST([HAVE_TEXTLINT],[$HAVE_TEXTLINT])
+AM_CONDITIONAL([HAVE_TEXTLINT],[test "x$HAVE_TEXTLINT" = xyes])
+
+
+dnl ================================================================
 dnl Do we have nproc installed?
 dnl ================================================================
 AC_CHECK_PROG([NPROC],[nproc],[nproc])

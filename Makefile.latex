@@ -107,6 +107,15 @@ cite:
 	$(AM_V_at)$(CHECKCITES) --undefined $(DocumentAux)
 endif
 
+if HAVE_TEXTLINT
+.PHONY: style lint
+style lint:
+	$(AM_V_at)for f in $(sort $(DocumentSources)); do \
+		echo 'Textlint: $(DocumentTex)'; \
+		$(TEXTLINT) $$f; \
+	done
+endif
+
 # Print make targets.
 help-local:
 	@echo "Build targets:"
@@ -121,6 +130,9 @@ if HAVE_TEXCOUNT
 endif
 if HAVE_CHECKCITES
 	@echo "  make cite      Check citations"
+endif
+if HAVE_TEXTLINT
+	@echo "  make style     Check writing style"
 endif
 
 #------------------------------------------------------------------------
