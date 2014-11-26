@@ -2476,3 +2476,39 @@ I've been looking for quantifiable examples of the decreasing rate of
 improvement of single-core performance in modern CPUs. The best I
 could find was this blog post:
 [A Look Back at Single-Threaded CPU Performance](http://preshing.com/20120208/a-look-back-at-single-threaded-cpu-performance/).
+
+
+## Wednesday 26th
+
+Pavlos has reviewed my 1000 word research summary. Apart from some
+grammatical errors, the biggest criticism was a weak ending. The
+conclusion needs to end with a "this research will change the world"
+statement.
+
+I notice that textlint reports extensive use of the passive voice in
+my research summary. Many of the sentences seem to flow quite
+naturally, for example:
+
+"Effective searching of these spaces can only be performed by
+collecting empirical data rather than building predictive models."
+
+Rephrasing into the active voice puts an unnatural emphasis on the
+actor (in this case: "we"):
+
+"We can effectively search these spaces only by collecting empirical
+data rather than building predictive models."
+
+I found a good blog post on the use of passive voice in scientific
+writing,
+[The Value of the Passive Voice](http://www.biomedicaleditor.com/passive-voice.html).
+It identifies three cases where the passive voice may be preferred to
+the active:
+
+1. The performer is unknown, irrelevant, or obvious
+1. The performer is less important than the action
+1. The recipient is the main topic
+
+They have a related article,
+["Hedging" in Scientific Writing](http://www.biomedicaleditor.com/hedging.html),
+which describes the overuse of cautious language in scientific
+writing.
