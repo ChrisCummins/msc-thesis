@@ -1,22 +1,25 @@
-\centering
+% Font to use in Gantt chart:
+\newcommand{\ganttfont}{\footnotesize}
+
 \begin{ganttchart}[%
-    group label font=\footnotesize,
-    bar label font=\footnotesize,
-    milestone label font=\footnotesize
-  ]{1}{24}
-  \gantttitle{Jan}{3}
-  \gantttitle{Feb}{3}
-  \gantttitle{Mar}{3}
-  \gantttitle{Apr}{3}
-  \gantttitle{May}{3}
-  \gantttitle{Jun}{3}
-  \gantttitle{Jul}{3}
-  \gantttitle{Aug}{3} \\
-  \ganttgroup{Group 1}{1}{7} \\
-  \ganttbar{Preliminary work}{1}{2} \\
-  \ganttlinkedbar{Task 2}{3}{7} \ganttnewline
-  \ganttmilestone{IPP}{7} \ganttnewline
-  \ganttbar{Final Task}{24}{24}
-  \ganttlink{elem2}{elem3}
-  \ganttlink{elem3}{elem4}
+    x unit=.55mm,                    % Horizontal scaling
+    y unit title=10mm,               % Vertical scaling (title)
+    y unit chart=7mm,                % Vertical scaling (chart)
+    hgrid,                           % Horizontal grid
+    vgrid={*7{draw=none}, dotted},   % Vertical week grid
+    time slot format=isodate,        % yyyy-mm-dd format
+    title label font=\ganttfont,
+    group label font=\ganttfont,
+    bar label font=\ganttfont,
+    milestone label font=\ganttfont,
+  ]{2014-12-8}{2015-8-21}            % Chart range
+  % Title.
+  \gantttitlecalendar{year, month=shortname} \\
+
+  % Chart elements.
+  \ganttbar{Pilot experiments}{2014-12-8}{2015-3-1} \\
+  \ganttgroup{Progress presentation}{2015-4-20}{2015-4-25} \\
+  \ganttbar{Prototype development}{2015-2-1}{2015-6-1} \\
+  \ganttbar{Evaluation}{2015-6-1}{2015-7-15} \\
+  \ganttbar{Writing \& Corrections}{2015-7-1}{2015-8-21}
 \end{ganttchart}
