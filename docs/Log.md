@@ -2512,3 +2512,18 @@ They have a related article,
 ["Hedging" in Scientific Writing](http://www.biomedicaleditor.com/hedging.html),
 which describes the overuse of cautious language in scientific
 writing.
+
+
+## Thursday 27th
+
+I have attempted to articulate two scenarios in which I believe the
+performance of a dynamic autotuner for Algorithmic Skeletons will
+exceed the current state of the art:
+
+1. A dynamic autotuner will provide improved performance over a
+   "general case" implementation. This is especially important for
+   Algorithmic Skeletons since they present a generic library
+   interface where the author cannot infer many properties about the
+   type of input data *or* input algorithms (muscle functions).
+1. A dynamic autotuner will provide improved performance over a
+   statically tuned piece of code for *varying* data inputs.

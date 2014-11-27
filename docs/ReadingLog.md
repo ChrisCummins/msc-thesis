@@ -27,6 +27,17 @@ reading them.
    Architectures and Compilers),”** in Proceedings of the 33rd ACM
    SIGPLAN Symposium on Programming Language Design and Implementation
    (PLDI), 2012.
+1. G. H. Botorog and H. Kuchen, **“Efficient Parallel Programming with
+   Algorithmic Skeletons,”** in Euro-Par’96 Parallel Processing, 1996,
+   pp. 718–731.
+1. C. Dubach, J. Cavazos, B. Franke, G. Fursin, M. F. P. O’Boyle, and
+   O. Temam, **“Fast compiler optimisation evaluation using
+   code-feature based performance prediction,”** in Proceedings of the
+   4th international conference on Computing frontiers - CF ’07, 2007,
+   pp. 131–142.
+1. Q. Yi and S. Antonio, **“POET: A Scripting Language For Applying
+   Parameterized Source-to-source Program,”** Softw. Pract. Exp.,
+   vol. 42, no. 6, pp. 675–706, 2012.
 
 # 5-12 min
 
@@ -54,6 +65,25 @@ reading them.
    programs and microarchitectures using machine learning,”** in
    Proceedings of the 42nd Annual IEEE/ACM International Symposium on
    Microarchitecture - Micro-42, 2009, pp. 78–88.
+1. F. Agakov, E. Bonilla, J. Cavazos, B. Franke, G. Fursin,
+   M. F. P. O’Boyle, J. Thomson, M. Toussaint, and C. K. I. Williams,
+   **“Using Machine Learning to Focus Iterative Optimization,”** in
+   Proceedings of the International Symposium on Code Generation and
+   Optimization, 2006, pp. 295–305.
+1. R. Auler, E. Borin, P. De Halleux, and M. Moskal, **“Addressing
+   JavaScript JIT engines performance quirks : A crowdsourced adaptive
+   compiler,”** in Compiler Construction, 2014, pp. 218–237.
+1. A. Bundy, **“The Need for Hypothesis in
+   Informatics,”** 2014. [Online]. Available:
+   http://www.inf.ed.ac.uk/teaching/courses/irm/notes/hypotheses.html.
+1. A. Bundy, **“The Nature of Informatics,”** 2014. [Online]. Available:
+   http://www.inf.ed.ac.uk/teaching/courses/irm/notes/nature.html.
+1. G. Fursin and O. Temam, **“Collective optimization,”** High
+   Perform. Embed. Archit. Compil., pp. 34–49, Dec. 2009.
+1. Q. Yi, K. Seymour, H. You, R. Vuduc, and D. Quinlan, **“POET:
+   Parameterized Optimization for Empirical Tuning,”** in Parallel and
+   Distributed Processing Symposium, 2007. IPDPS 2007. IEEE
+   International, 2007, pp. 1–8.
 
 # 12-30 min
 
