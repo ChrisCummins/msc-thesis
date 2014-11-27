@@ -28,37 +28,58 @@
 %% Body %%
 %%%%%%%%%%
 \section{Introduction}
-
-Parallel computing is increasingly seen as the only viable approach
-for maintaining continued performance improvements in a multicore
+Parallel computing is increasingly seen as the only viable approach to
+maintaining continued performance improvements in a multicore
 world. Despite this, the adoption of parallel programming practises
 has been slow and awkward, due to the prohibitive complexity and low
-level of abstraction when writing parallel software. Algorithmic
-Skeletons address this issue by equipping programmers with reusable
+level of abstraction available to parallel programmers.
+
+Algorithmic Skeletons address this issue by providing reusable
 patterns for parallel programming, offering higher level abstractions
-and reducing programmer effort. Tuning these Algorithmic Skeletons is
-a manual process which requires exhaustively searching the
-optimisation space to select optimum parameters. The aim of this
-research is to demonstrate that this parameter tuning can be performed
-at runtime without the need for expensive offline training phases, a
-process called dynamic autotuning.
+and reducing programmer effort~\cite{Cole1989, Cole2004}. Tuning these
+Algorithmic Skeletons is a manual process which requires exhaustively
+searching the optimisation space to select optimum parameters.
 
-It is my hypothesis that the performance of Algorithmic Skeletons will
-be improved by developing an autotuner which considers dynamic
-features which cannot be determined at compile time. The premise is
-that the optimisation spaces of Algorithmic Skeletons are shaped by
-features which can only be determined at runtime. Effective searching
-of these spaces can only be performed by collecting empirical data
-rather than building predictive models.
+The aim of this project is to demonstrate that the tuning of
+optimisation parameters can be successfully performed at runtime. This
+would enable self-tuning programs which adapt to their execution
+environment by selecting optimum configurations dynamically. Such
+configurations could be learned over time, allowing each successive
+iteration of a program to benefit from its predecessors.
 
-The objective of this research is improve the performance of
-Algorithmic Skeletons by enabling them to adjust their behaviour at
-runtime. This will be demonstrated by adding dynamic autotuning to
-SkelCL, a C++ Algorithmic Skeleton Framework which targets
-heterogeneous parallel programming using OpenCL.
+The case for self-tuning applications is strong. Previous research has
+demonstrated that there are many factors which contribute to
+performance that cannot be determined by when developing a program. As
+a result, program optimisation requires the programmer to either
+overfit the choice of parameters to optimise for a specific task and
+environment, or laboriously create heuristics which segment the
+possible space of different environments with sets of optimisation
+parameters for each. Both approaches have significant drawbacks:
+optimising for a specific task and environment creates brittle and
+non-portable optimisations that do not generalise to other
+architectures and problems; and the task of creating heuristics which
+cover every possible combination of factors is doomed to fail due to
+the prohibitive amount of time required to develop them.
 
-% alg skel
-~\cite{Cole1989, Cole2004}
+This project proposes two hypotheses:
+\begin{itemize}
+\item a dynamic autotuner will improve the performance of Algorithmic
+  Skeletons by enabling them to adapt to their environment at runtime;
+\item and a dynamic autotuner will provide better performance than a
+  statically tuned equivalent implementation, since it is able to
+  adapt to features which can only be determined dynamically.
+\end{itemize}
+
+It is my hypothesis that the performance an optimisation system which
+will be improved by developing a dynamic autotuner.  which considers
+dynamic features which cannot be determined at compile time. The
+premise is that the optimisation spaces of Algorithmic Skeletons are
+shaped by features which can only be determined at runtime. Effective
+searching of these spaces can only be performed by collecting
+empirical data rather than building predictive models. To justify this
+hypothesis, support for dynamic autotuning will be added to SkelCL, a
+C++ Algorithmic Skeleton Framework which targets heterogeneous
+parallel programming using OpenCL.
 
 % mapreduce
 ~\cite{Dean2008}
@@ -254,6 +275,9 @@ on performing optimisation space searching at runtime, without the
 need for the expensive offline training phase, which is a prohibitive
 drawback of iterative compilation.
 
+% collective optimisation
+~\cite{Fursin2010}
+
 \subsection{Dynamic optimisation}
 Whereas iterative compilation requires an expensive offline training
 phase to search an optimisation space, dynamic optimisers perform this
@@ -348,12 +372,19 @@ static features, this proposed research will develop an online
 autotuner which is capable of adapting to dynamic features at runtime.
 
 \section{Evaluation}
+My hypothesis is that the performance of Algorithmic Skeletons will be
+improved by using dynamic autotuning. After implementing a prototype
+dynamic autotuner, experimental evidence will be collected to support
+or refute this hypothesis: standard empirical methods will be used to
+evaluate the performance of a range of representative
+benchmarks. Careful selection of these benchmarks
 
-% What kind of evidence will be needed to support these claims or
-% hypotheses? Is your evidence experimental or theoretical? Is it
-% amenable to statistical analysis?
-My hypothesis is that the performance of Algorithmic Skeletons can be
-improved using dynamic autotuning. To test this hypothesis, I will
+The evaluation methodology must incorporate statistically rigorous
+performance evaluation techniques \cite{Georges2007}.
+
+As a result, evidence must be collected to support
+
+To test this hypothesis, I will
 collect empirical data from a suite of representative benchmarks,
 comparing the performance of my implementation against: baseline
 performance provided by an unmodified SkelCL implementation;\ and a
@@ -367,10 +398,16 @@ good configuration; and the ability of the dynamic optimiser to adapt
 to changes in dynamic features (e.g.\ system load). All of these
 metrics will be evaluated by profiling performance benchmarks.
 
-% stat rigour
-\cite{Georges2007}
+% important factors: amount of training data, variance in inputs
 
 \section{Work plan}
+The schedule for this project is shown in Figure~\ref{fig:gantt}. In
+addition to the internal progress presentation in April, a set of
+personal milestones will be used to provide intermediate progress
+checks. All source code and experimental results will be tracked using
+the git version control system\footnote{\url{http://git-scm.com/}},
+and GitHub\footnote{\url{https://github.com/}} will be used to track
+issues and milestone progress.
 
 \begin{figure}[b]
 \makebox[\textwidth][c]{\input{fig/gantt}}
