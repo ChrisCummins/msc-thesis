@@ -1,0 +1,122 @@
+It is helpful to draw on existing research from the fields of
+iterative compilation and dynamic optimisation.
+
+% snippet
+Many existing dynamic optimisation systems do not store the results of
+their efforts persistently, allowing the work to die along with the
+host process. This approach relies on the assumption that either that
+the convergence time to reach an optimal set of parameters is short
+enough to have negligible performance impact, or that the runtime of
+the host process is sufficiently long to reach an optimal set of
+parameters in good time. Neither assumption can be shown to fit the
+general case.
+
+% snippet PETABRICKS
+PetaBricks is a language and runtime which supports dynamic
+algorithmic choice determined by properties of the data input. This
+provides a promising space for optimisation but has the drawback of
+increasing programmer effort by requiring them to implement multiple
+versions of an algorithm tailored to different optimisation
+parameters. SkelCL has the advantage of being able to localise this
+extra programmer effort into a single library implementation.
+
+% snippet SIBLING RIVALRY
+SiblingRivalry poses an interesting solution to the challenge of
+providing sustained quality of service. Resources are divided in half,
+and two copies of a target subroutine are executed simultaneously, one
+using the current best known configuration, and the other using a
+trial configuration which is to be evaluated. If the trial
+configuration outperforms the current best configuration, then it
+replaces it as the new best configuration. By doing this, the tuning
+framework has the freedom to evaluate vastly suboptimal configurations
+while still providing adequate performance for the user. However, a
+large runtime penalty is incurred by dividing the available resources
+in half.
+
+% snippet WHY MAP REDUCE SUCKS
+In such cases, the overhead introduced by these massively scaleable
+high performance skeleton libraries would likely outweigh the
+performance gains. If Algorithmic Skeletons are to achieve widespread
+adoption, they must provide scalable performance benefits not only to
+the upper-tier of high performance computers but also to modest
+consumer hardware, which is increasingly reliant on software
+parallelism in order to achieve performance improvements.
+
+% snippet
+MapReduce is a hugely successful framework for writing high
+performance massively distributed applications at a fraction of the
+effort required for a hand tuned implementation. The source code of
+Hadoop is over 800,000 lines of code, but efficient user programs can
+be written in well under 100 lines. While is an incredible technical
+feat, the overhead the huge runtime would negate the performance
+advantages for all but the largest computations. Users writing
+programs for more modestly specced off the shelf hardware will not be
+able to take advantage of the engineering achievement.
+
+% snippet What are your claims or hypotheses?
+The problem with attempting to model optimisation spaces is that they
+are fundamentally stochastic. As a result, they can only properly be
+built using empirical evidence, and so the problem becomes one of
+trying to extrapolate complicated many-dimensional spaces using the
+least amount of data points, since the time taken to acquire data is
+prohibitively expensive. Previous static autotuners have taken as long
+as three months to sample the optimisation space.
+
+\subsection{Iterative compilation}
+Iterative compilation is an approach to autotuning which uses an
+offline training phase to perform an extensive search of the
+optimisation space of a program.  Empirical data is gathered through
+repeatedly compiling and evaluating different trial configurations,
+before selecting the configuration which proved the most
+profitable. Iterative compilation techniques has been successfully
+applied to a range of optimisation challenges. Of particular relevance
+to this work is MaSiF, a static autotuning tool which combines
+iterative compilation techniques with machine learning.  It performs a
+focused search of the optimisation space of FastFlow and Intel Thread
+Building Blocks, two popular Algorithmic Skeleton libraries. While
+sharing the same goal as MaSiF, the approach of this project focuses
+on performing optimisation space searching at runtime, without the
+need for the expensive offline training phase, which is a prohibitive
+drawback of iterative compilation.
+
+% collective optimisation
+~\cite{Fursin2010}
+
+% JS JIT
+~\cite{Auler2014}
+
+% Using Machine Learning to Focus Iterative Optimization
+~\cite{Agakov}
+
+\subsection{Dynamic optimisation}
+Whereas iterative compilation requires an expensive offline training
+phase to search an optimisation space, dynamic optimisers perform this
+optimisation space exploration at runtime, allowing programs to
+respond to dynamic features ``online''. This is a challenging task, as
+a random search of the optimisation space will result in many
+configurations with vastly suboptimal performance. In a real world
+system, evaluating many suboptimal configurations will cause a
+significant slowdown of the program. Thus a requirement of dynamic
+optimisers is that convergence time towards optimal parameters is
+minimal.
+
+Existing dynamic optimisation research has typically taken a low level
+approach to performing optimisations. Dynamo is a dynamic optimiser
+which performs binary level transformations of programs using
+information gathered from runtime profiling and tracing. While this
+provides the ability to respond to dynamic features, it restricts the
+range of optimisations that can be applied to binary
+transformations. These low level transformations cannot match the
+performance gains that higher level parameter tuning produces.
+
+One of the biggest challenges facing the implementation of dynamic
+optimisers is to minimise the runtime overhead so that it does not
+outweigh the performance advantages of the optimisations. A
+significant contributor to this runtime overhead is the requirement to
+compile code dynamically. Previous research has negated this cost by
+compiling multiple versions of a target subroutine ahead of time. At
+runtime, execution switches between the available versions, selecting
+the version with the best performance. In practice, this technique
+massively reduces the optimisation space which can be searched as it
+is unfeasible to insert the thousands of different versions of a
+subroutine that are tested using offline autotuning.

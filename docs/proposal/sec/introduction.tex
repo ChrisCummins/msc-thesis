@@ -1,0 +1,133 @@
+Parallel computing is increasingly seen as the only viable approach to
+maintaining continued performance improvements in a multicore
+world. Despite this, the adoption of parallel programming practises
+has been slow and awkward, due to the prohibitive complexity and low
+level of abstraction available to parallel programmers.
+
+Algorithmic Skeletons address this issue by providing reusable
+patterns for parallel programming, offering higher level abstractions
+and reducing programmer effort~\cite{Cole1989, Cole2004}. Tuning these
+Algorithmic Skeletons is a manual process which requires exhaustively
+searching the optimisation space to select optimum parameters.
+
+The aim of this project is to demonstrate that the tuning of
+optimisation parameters can be successfully performed at runtime. This
+would enable self-tuning programs which adapt to their execution
+environment by selecting optimum configurations dynamically. Such
+configurations could be learned over time, allowing each successive
+iteration of a program to benefit from its predecessors.
+
+The case for self-tuning applications is strong. Previous research has
+demonstrated that there are many factors which contribute to
+performance that cannot be determined by when developing a program. As
+a result, performance optimisation requires the programmer to either
+overfit the choice of parameters to optimise for a specific task and
+environment, or laboriously create heuristics which segment the
+possible space of different environments with optimisation parameters
+for each. Both approaches have significant drawbacks: optimising for a
+specific task and environment creates brittle and non-portable
+optimisations that do not generalise to other architectures and
+inputs; and the task of creating heuristics which cover every possible
+combination of factors requires a prohibitive amount of time to
+develop.
+
+This project proposes two hypotheses about the performance of
+Algorithmic Skeletons:
+\begin{itemize}
+\item a dynamic autotuner will improve the performance of Algorithmic
+  Skeletons in the general case, by selecting optimisations which
+  target specific dynamic features;
+\item a dynamic autotuner will provide better performance than a
+  statically tuned equivalent implementation across different inputs,
+  by adapting to features which can only be determined dynamically.
+\end{itemize}
+
+These hypotheses can be referred to respectively as the claims for
+\emph{specialisation} and \emph{generalisation}. It can be inferred
+from these that a dynamic autotuner cannot provide better performance
+than a statically tuned equivalent implement for a \emph{fixed} input,
+since there must be a baseline overhead which is required to implement
+the behaviour of dynamic autotuning. The reduction of this overhead is
+one of the greatest challenges facing the development of dynamic
+autotuners. The novelty of my solution is to reduce parameter
+convergence time by implementing a dynamic autotuner for Algorithmic
+Skeletons which can store the results of successive iterations
+persistently, across program runs. An evaluation of a successful
+implementation will contribute empirical evidence supporting the two
+hypotheses.
+
+The rest of the document is structured as follows:
+Section~\ref{sec:motivation} contains the motivation for this
+research; Section~\ref{sec:background} briefly reviews related
+research; Sections~\ref{sec:methodology} and~\ref{sec:evaluation}
+describe the methodology and evaluation plans for this research;
+Section~\ref{sec:work-plan} outlines the work plan; and
+Section~\ref{sec:conclusions} concludes.
+
+% It is my hypothesis that the performance an optimisation system which
+% will be improved by developing a dynamic autotuner.  which considers
+% dynamic features which cannot be determined at compile time. The
+% premise is that the optimisation spaces of Algorithmic Skeletons are
+% shaped by features which can only be determined at runtime. Effective
+% searching of these spaces can only be performed by collecting
+% empirical data rather than building predictive models. To justify this
+% hypothesis, support for dynamic autotuning will be added to SkelCL, a
+% C++ Algorithmic Skeleton Framework which targets heterogeneous
+% parallel programming using OpenCL.
+
+% % mapreduce
+% ~\cite{Dean2008}
+
+% Intel TBB\footnote{\url{https://www.threadingbuildingblocks.org/}}
+
+% % snippet
+% Parallel computing, traditionally the remit of scientific programming,
+% is increasingly being seen as the only viable approach for maintaining
+% continued performance improvements in a multicore computing world.
+% Despite its growing popularity, writing robust parallel software is an
+% inherently challenging task, requiring the programmer to think in
+% unfamiliar paradigms, and with many associated problems raised by race
+% conditions, deadlock, and managing access to shared resources.
+
+% % snippet
+% Equivalent parallel programs require many more lines of code than
+% their sequential counterparts, and the additional programmer effort
+% that is required is dedicated to writing coordination logic -- the
+% logic responsible for allocating and coordinating access to shared
+% resources. Algorithmic Skeletons address the difficulties of parallel
+% programming by providing a higher level abstraction that encapsulates
+% this coordination logic, ridding the application programmer of these
+% responsibilities and allowing them to focus instead on the
+% problem-solving logic.
+
+% % snippet
+% Previous research has attempted to address this issue using iterative
+% compilation techniques, by tuning the performance of Algorithmic
+% Skeletons through searching the optimisation space offline and
+% selecting a set of parameter values that provide optimum performance
+% for a given program. Such tools perform static autotuning, that is,
+% they automatically tune optimisation parameters based on static
+% features which can be selected at compile time.
+
+% % snippet
+% Research interest in Algorithmic Skeletons is high, and while
+% frameworks of Algorithmic Skeletons abound, widespread adoption has so
+% far been restricted largely to established use cases that rely heavily
+% on high performance computing, for example, Google's MapReduce, and
+% Intel's Thread Building Blocks. While the demand for such frameworks
+% in the field of High Performance Computing (HPC) is self-evident, this
+% should by no means blinker the ambitions of skeletons research. The
+% benefits of Algorithmic Skeletons extend beyond that of HPC and cover
+% general purpose computing.
+
+% % snippet
+% The popularity of programming with parallel patterns is rapidly
+% increasing, as they have been demonstrated as a means of providing
+% re-usability to the thousands of man-hours that is required to write a
+% tuned and stable parallel application. For example, Google's
+% MapReduce, which allows their programmers to write data sorting
+% programs in 55 lines of code, while taking advantage of the over
+% 800,000 lines of code present in a MapReduce implementation. Any
+% research forwarding the cause of parallel patterns will prove
+% extremely valuable to both application developers and future
+% researchers.

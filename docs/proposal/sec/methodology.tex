@@ -1,0 +1,57 @@
+The novelty of the approach posed in this research is to combine the
+advantages of offline training phases and online parameter tuning by
+implementing a dynamic autotuner which maintains persistent data
+in-between program executions using SkelCL.
+
+Michel Steuwer, a research associate at the University of Edinburgh,
+developed SkelCL as an approach to high-level programming for
+multi-GPU systems. Steuwer demonstrated an $11\times$ reduction in
+programmer effort compared to implement equivalent programs written in
+pure OpenCL, while suffering only a modest 5\% overhead. The core of
+SkelCL comprises a set of parallel container data types for vectors
+and matrices, and an automatic distribution mechanism which performs
+implicit transfer of these data structures between the host and device
+memory. Application programmers express computations on these data
+structures using Algorithmic Skeletons that are parameterised with
+small sections of OpenCL code. At runtime, SkelCL compiles the OpenCL
+code into compute kernels for execution on GPUs. This makes SkelCL an
+excellent candidate for dynamic autotuning, as it exposes both the
+optimisation space of the OpenCL compiler, and the high level tunable
+parameters provided by the structure of Algorithmic Skeletons. SkelCL
+offers the unique advantage of being able to amortise many of the
+costs associated with dynamic compilation due to its JIT-like nature
+of compiling OpenCL kernels immediately before execution.
+
+Implementing a dynamic optimiser poses a number of difficult
+challenges which must be overcome.
+% TODO: What are these challenges? ^^
+There is a risk that the runtime overhead of the dynamic optimiser
+will exceed the performance gained by the optimisations
+themselves. The proposed approach to dynamically autotune SkelCL will
+overcome one of the most significant overheads associated with dynamic
+optimising: that of instrumenting the code the purposes of profiling
+and tracing. Since Algorithmic Skeletons coordinate muscle functions,
+it is possible to forgo many of the profiling counters that dynamic
+optimisers require by making assumptions about the execution frequency
+of certain code paths, given the nature of the skeleton. Additionally,
+the placement of profiling counters can be optimised manually.
+
+% skelcl
+~\cite{Steuwer2011, Steuwer2013a}
+
+% skelcl 11x 5%
+~\cite{Steuwer2012}.
+
+% snippet
+Contributors to this overhead include: time spent evaluating dynamic
+features and deciding on which optimisations to select (extra
+instructions to execute), and either increased code size from having
+multiple copies of procedures (bad for branch predictors / instruction
+prefetch), or decreased ability for optimisations (because of setting
+parameters at runtime instead of at compiled).
+
+% snippet
+Whereas current approaches to Algorithmic Skeleton autotuning have
+largely relied on huge offline training periods and optimising for
+static features, this proposed research will develop an online
+autotuner which is capable of adapting to dynamic features at runtime.
