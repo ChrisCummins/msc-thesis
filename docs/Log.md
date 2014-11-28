@@ -2549,3 +2549,9 @@ A short note on language use: general advice is that while "optimum"
 and "optimal" may be used interchangeably when used as an adjective,
 only "optimum" may be used as a noun. As a result, it may be more
 clear to use only "optimum" as a noun, and "optimal" as an adjective.
+
+
+## Friday 28th
+
+The goal of today is to get a first draft of my project proposal
+completed and sent to Pavlos and Hugh for an initial critique.

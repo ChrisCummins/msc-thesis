@@ -38,6 +38,14 @@ reading them.
 1. Q. Yi and S. Antonio, **“POET: A Scripting Language For Applying
    Parameterized Source-to-source Program,”** Softw. Pract. Exp.,
    vol. 42, no. 6, pp. 675–706, 2012.
+1. P. Ciechanowicz and H. Kuchen, **“Enhancing Muesli’s Data Parallel
+   Skeletons for Multi-core Computer Architectures,”** in High
+   Performance Computing and Communications (HPCC), 2010 12th IEEE
+   International Conference on, 2010, pp. 108–113.
+1. K. Matsuzaki, H. Iwasaki, K. Emoto, and Z. Hu, **“A Library of
+   Constructive Skeletons for Sequential Style of Parallel
+   Programming,”** in Proceedings of the 1st international conference
+   on Scalable information systems, 2006, vol. 1, p. 13.
 
 # 5-12 min
 
@@ -95,6 +103,8 @@ reading them.
 1. J. Lau, M. Arnold, M. Hind, and B. Calder, **“Online Performance
    Auditing : Using Hot Optimizations Without Getting Burned,”** ACM
    SIGPLAN Not., vol. 41, no. 6, pp. 239–251, 2006.
+1. J. Hunter and M. Droettboom, **“matplotlib,”** in The Architecture
+   of Open Source Applications, vol. 2, no. Volume 2, 2014, pp. 1–14.
 
 # > 30 min
 
