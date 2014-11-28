@@ -7,46 +7,103 @@ categorised as either offline tuning, or dynamic optimisation.
 Offline tuning involves selecting the set of parameters that provides
 the best performance for a given input, based on some model of
 performance that is generated offline. Performance models can either
-be predictive models which attempt to characterise performance as a
-function of the optimisation parameters and input, or based on
-empirical data gathered by evaluating many different parameter
-configurations. In both cases, the performance model maps the
-relationship between a set of parameters $p$ and performance $f(p,x)$,
-given a specific problem $x$. The purpose of the offline tuning phase
-is then to select the set of parameters $p_{optimal}$ which produces
-the greatest performance:
+be predictive, in that they attempt to characterise performance as a
+function of the optimisation parameters and input, or empirical, in
+that they predict performance based on empirical data gathered by
+evaluating many different parameter configurations. In both cases, the
+performance model $f(p,x)$ maps the relationship between a set of
+parameters $p$, a specific problem $x$, and some metric of
+profitability. The purpose of the offline tuning phase is to select
+the set of parameters $p_{optimal}$ which maximises output of the
+performance model:
 \begin{align*}
   p_{optimal} = \argmax_{p}f(p,x)
 \end{align*}
-% predictive: quality limited by accuracy of f(p,x).
-% empirical:  quality limited by amount of training data, or ability to
-%             interpolate.
-Iterative compilation is an approach to autotuning which uses an
-offline training phase to perform an extensive search of the
-optimisation space of a program.  Empirical data is gathered through
-repeatedly compiling and evaluating different trial configurations,
-before selecting the configuration which proved the most
-profitable. Iterative compilation techniques has been successfully
-applied to a range of optimisation challenges. Of particular relevance
-to this work is MaSiF, a static autotuning tool which combines
-iterative compilation techniques with machine learning.  It performs a
-focused search of the optimisation space of FastFlow and Intel Thread
-Building Blocks, two popular Algorithmic Skeleton libraries. While
-sharing the same goal as MaSiF, the approach of this project focuses
-on performing optimisation space searching at runtime, without the
-need for the expensive offline training phase, which is a prohibitive
-drawback of iterative compilation.
+For predictive models, the quality of results is limited by the
+ability of the prediction model to accurately capture the behaviour of
+a real world system. Given the complexities of modern hardware and
+software stacks, such models have become increasingly hard to develop.
+% TODO: good for unknown inputs.
+The quality of empirical models is limited by the amount of training
+data available to it, or the ability to interpolate between training
+data when faced with new unknown inputs.
 
-% collective optimisation
-~\cite{Fursin2010}
+An example of an empirical approach to offline tuning is iterative
+compilation, which uses an offline training phase to perform an
+extensive search of the optimisation space of a program by compiling
+programs with different combinations of compiler transforms in order
+to select the set which provides the best performance.
 
-% JS JIT
-~\cite{Auler2014}
+Iterative compilation techniques has been successfully applied to a
+range of optimisation challenges, particularly when combined with
+machine learning techniques to focus the number of evaluations of
+training programs which are required~\cite{Agakov}. MILEPOST GCC is a
+research compiler that uses iterative compilation to adjust compiler
+heuristics for optimising programs on different
+architectures~\cite{Fursin2008}. Machine learning techniques are
+applied to model the large optimisation space, based on static
+features extracted from the source code of training programs. A
+classifier predicts optimisation parameters for new programs by
+comparing the static program features against the training data.
 
-% Using Machine Learning to Focus Iterative Optimization
-~\cite{Agakov}
+The primary issue with iterative compilation techniques is the amount
+of time required to evaluate a large range of training
+programs. \citeauthor{Fursin2005} attempt to address this problem by
+compiling multiple versions of a program's subroutines and switching
+between them at runtime \cite{Fursin2005}. This has the disadvantage
+of massively reducing the number of possible transformations that can
+be searched.
+
+An alternative approach to the problem of gathering sufficient
+training data is to distribute the task of collecting it by enabling
+the results of different program evaluations to be shared with a
+central remote database. This has been successfully applied to offline
+autotuners, in which the overhead of a round trip to a remote server
+is performed offline~\cite{Fursin2010, Auler2014}. A typical 150ms
+network round trip time in the performance critical path of a dynamic
+autotuner will cause a serious degradation of performance, given
+typical system performance in excess of 100 MIPS.
+
+An offline tuning tool with particular relevance to this work is
+MaSiF~\cite{Collins2013}, a static autotuner which uses iterative
+compilation techniques to perform a focused search of the optimisation
+space of FastFlow and Intel Thread Building Blocks, two popular
+Algorithmic Skeleton libraries. While sharing the same goal as MaSiF,
+the approach of this project focuses on performing optimisation space
+searching at runtime.
 
 \subsection{Dynamic optimisation}\label{subsec:dynamic-optimisation}
+Whereas iterative compilation requires an expensive offline training
+phase to search the space of possible optimisations, dynamic
+optimisers perform this optimisation space exploration at runtime,
+allowing programs to respond to dynamic features ``online''. This is a
+challenging task, as a random search of an optimisation space will
+typically result in many configurations with vastly suboptimal
+performance. In a real world system, evaluating many suboptimal
+configurations will cause a significant slowdown of the program. Thus
+a requirement of dynamic optimisers is that convergence time towards
+optimal parameters is minimised.
+
+Existing dynamic optimisation research has typically taken a low level
+approach to performing optimisations. Dynamo is a dynamic optimiser
+which performs binary level transformations of programs using
+information gathered from runtime profiling and tracing. While this
+provides the ability to respond to dynamic features, it restricts the
+range of optimisations that can be applied to binary
+transformations. These low level transformations cannot match the
+performance gains that higher level parameter tuning produces.
+
+One of the biggest challenges facing the implementation of dynamic
+optimisers is to minimise the runtime overhead so that it does not
+outweigh the performance advantages of the optimisations. A
+significant contributor to this runtime overhead is the requirement to
+compile code dynamically. Previous research has negated this cost by
+compiling multiple versions of a target subroutine ahead of time. At
+runtime, execution switches between the available versions, selecting
+the version with the best performance. In practice, this technique
+massively reduces the optimisation space which can be searched as it
+is unfeasible to insert the thousands of different versions of a
+subroutine that are tested using offline autotuning.
 
 % snippet
 Many existing dynamic optimisation systems do not store the results of
@@ -108,36 +165,3 @@ trying to extrapolate complicated many-dimensional spaces using the
 least amount of data points, since the time taken to acquire data is
 prohibitively expensive. Previous static autotuners have taken as long
 as three months to sample the optimisation space.
-
-\subsection{Dynamic optimisation}
-Whereas iterative compilation requires an expensive offline training
-phase to search an optimisation space, dynamic optimisers perform this
-optimisation space exploration at runtime, allowing programs to
-respond to dynamic features ``online''. This is a challenging task, as
-a random search of the optimisation space will result in many
-configurations with vastly suboptimal performance. In a real world
-system, evaluating many suboptimal configurations will cause a
-significant slowdown of the program. Thus a requirement of dynamic
-optimisers is that convergence time towards optimal parameters is
-minimal.
-
-Existing dynamic optimisation research has typically taken a low level
-approach to performing optimisations. Dynamo is a dynamic optimiser
-which performs binary level transformations of programs using
-information gathered from runtime profiling and tracing. While this
-provides the ability to respond to dynamic features, it restricts the
-range of optimisations that can be applied to binary
-transformations. These low level transformations cannot match the
-performance gains that higher level parameter tuning produces.
-
-One of the biggest challenges facing the implementation of dynamic
-optimisers is to minimise the runtime overhead so that it does not
-outweigh the performance advantages of the optimisations. A
-significant contributor to this runtime overhead is the requirement to
-compile code dynamically. Previous research has negated this cost by
-compiling multiple versions of a target subroutine ahead of time. At
-runtime, execution switches between the available versions, selecting
-the version with the best performance. In practice, this technique
-massively reduces the optimisation space which can be searched as it
-is unfeasible to insert the thousands of different versions of a
-subroutine that are tested using offline autotuning.

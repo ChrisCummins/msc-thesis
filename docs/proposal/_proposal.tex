@@ -780,6 +780,17 @@
 %
 \usepackage{pgfgantt}
 
+% Fix milestone aspect ratio by defining a custom element.
+\newganttchartelement*{mymilestone}{
+  mymilestone/.style={
+    shape=diamond,
+    inner sep=3pt,
+    draw=black,
+    top color=black,
+    bottom color=black,
+  }
+}
+
 % Tikz flowchart configuration.
 \usetikzlibrary{shapes,arrows,shadows}
 \tikzstyle{decision} = [diamond,
