@@ -37,7 +37,7 @@ dnl Fairly arbitrary, older versions might work too.
 AM_INIT_AUTOMAKE([1.11 foreign -Wno-portability])
 AM_SILENT_RULES([yes])
 
-AM_EXTRA_RECURSIVE_TARGETS([help run])
+AM_EXTRA_RECURSIVE_TARGETS([help run todo fixme])
 
 dnl ================================================================
 dnl Build requirements

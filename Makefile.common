@@ -204,3 +204,14 @@ TAGS: $(CAll) $(CxxAll)
 	$(AM_V_at)etags $^
 
 MOSTLYCLEANFILES += TAGS
+
+#------------------------------------------------------------------------
+# Show TODO and FIXME annotations in sources.
+#------------------------------------------------------------------------
+PhonyTargets += todo-local fixme-local
+
+# The "todo" and "fixme" targets search the available source files for
+# use of the TODO: or FIXME: tags.
+todo-local fixme-local:
+	$(AM_V_at)test -z "$(Sources)" \
+		|| $(EGREP) -in '(todo|fixme):' $(Sources) || true
