@@ -2527,3 +2527,25 @@ exceed the current state of the art:
    type of input data *or* input algorithms (muscle functions).
 1. A dynamic autotuner will provide improved performance over a
    statically tuned piece of code for *varying* data inputs.
+
+----
+
+I have been trying to decompose my title "Dynamic autotuning of
+Algorithmic Skeletons" in terms of where the two topics "Dynamic
+autotuning" and "Algorithmic Skeletons" fit within the big picture. I
+think it's interesting that I place both topics at the 5th tier down,
+and that the third topic in both hierarchies shares a common theme of
+automation:
+
+Pervasive Parallelism -> Parallel software -> Automatic
+parallelisation -> Library level -> Algorithmic Skeletons
+
+Computational performance -> Program optimisation -> Automatic
+optimisation -> Parameter tuning -> Dynamic autotuning
+
+----
+
+A short note on language use: general advice is that while "optimum"
+and "optimal" may be used interchangeably when used as an adjective,
+only "optimum" may be used as a noun. As a result, it may be more
+clear to use only "optimum" as a noun, and "optimal" as an adjective.
