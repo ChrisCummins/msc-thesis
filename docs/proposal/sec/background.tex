@@ -1,5 +1,52 @@
-It is helpful to draw on existing research from the fields of
-iterative compilation and dynamic optimisation.
+This section briefly outlines some of the most closely related pieces
+of work that address the issue of improving software performance
+through the selection of optimal parameters. These can broadly be
+categorised as either offline tuning, or dynamic optimisation.
+
+\subsection{Offline tuning}\label{subsec:offline-tuning}
+Offline tuning involves selecting the set of parameters that provides
+the best performance for a given input, based on some model of
+performance that is generated offline. Performance models can either
+be predictive models which attempt to characterise performance as a
+function of the optimisation parameters and input, or based on
+empirical data gathered by evaluating many different parameter
+configurations. In both cases, the performance model maps the
+relationship between a set of parameters $p$ and performance $f(p,x)$,
+given a specific problem $x$. The purpose of the offline tuning phase
+is then to select the set of parameters $p_{optimal}$ which produces
+the greatest performance:
+\begin{align*}
+  p_{optimal} = \argmax_{p}f(p,x)
+\end{align*}
+% predictive: quality limited by accuracy of f(p,x).
+% empirical:  quality limited by amount of training data, or ability to
+%             interpolate.
+Iterative compilation is an approach to autotuning which uses an
+offline training phase to perform an extensive search of the
+optimisation space of a program.  Empirical data is gathered through
+repeatedly compiling and evaluating different trial configurations,
+before selecting the configuration which proved the most
+profitable. Iterative compilation techniques has been successfully
+applied to a range of optimisation challenges. Of particular relevance
+to this work is MaSiF, a static autotuning tool which combines
+iterative compilation techniques with machine learning.  It performs a
+focused search of the optimisation space of FastFlow and Intel Thread
+Building Blocks, two popular Algorithmic Skeleton libraries. While
+sharing the same goal as MaSiF, the approach of this project focuses
+on performing optimisation space searching at runtime, without the
+need for the expensive offline training phase, which is a prohibitive
+drawback of iterative compilation.
+
+% collective optimisation
+~\cite{Fursin2010}
+
+% JS JIT
+~\cite{Auler2014}
+
+% Using Machine Learning to Focus Iterative Optimization
+~\cite{Agakov}
+
+\subsection{Dynamic optimisation}\label{subsec:dynamic-optimisation}
 
 % snippet
 Many existing dynamic optimisation systems do not store the results of
@@ -61,32 +108,6 @@ trying to extrapolate complicated many-dimensional spaces using the
 least amount of data points, since the time taken to acquire data is
 prohibitively expensive. Previous static autotuners have taken as long
 as three months to sample the optimisation space.
-
-\subsection{Iterative compilation}
-Iterative compilation is an approach to autotuning which uses an
-offline training phase to perform an extensive search of the
-optimisation space of a program.  Empirical data is gathered through
-repeatedly compiling and evaluating different trial configurations,
-before selecting the configuration which proved the most
-profitable. Iterative compilation techniques has been successfully
-applied to a range of optimisation challenges. Of particular relevance
-to this work is MaSiF, a static autotuning tool which combines
-iterative compilation techniques with machine learning.  It performs a
-focused search of the optimisation space of FastFlow and Intel Thread
-Building Blocks, two popular Algorithmic Skeleton libraries. While
-sharing the same goal as MaSiF, the approach of this project focuses
-on performing optimisation space searching at runtime, without the
-need for the expensive offline training phase, which is a prohibitive
-drawback of iterative compilation.
-
-% collective optimisation
-~\cite{Fursin2010}
-
-% JS JIT
-~\cite{Auler2014}
-
-% Using Machine Learning to Focus Iterative Optimization
-~\cite{Agakov}
 
 \subsection{Dynamic optimisation}
 Whereas iterative compilation requires an expensive offline training

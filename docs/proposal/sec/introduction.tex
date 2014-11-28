@@ -1,35 +1,42 @@
-Parallel computing is increasingly seen as the only viable approach to
-maintaining continued performance improvements in a multicore
-world. Despite this, the adoption of parallel programming practises
-has been slow and awkward, due to the prohibitive complexity and low
-level of abstraction available to parallel programmers.
+The computing world is increasingly finding parallelism as the only
+viable approach to maintaining continued performance improvements in
+the era of multicore hardware. Despite this, the adoption of parallel
+programming practises has been slow and awkward, due to the
+prohibitive complexity of parallel programming, and low level of
+abstractions available.
 
 Algorithmic Skeletons address this issue by providing reusable
 patterns for parallel programming, offering higher level abstractions
-and reducing programmer effort~\cite{Cole1989, Cole2004}. Tuning these
-Algorithmic Skeletons is a manual process which requires exhaustively
-searching the optimisation space to select optimum parameters.
+and reducing programmer effort~\cite{Cole1989, Cole2004}. Tuning the
+performance of these Algorithmic Skeletons is a manual process which
+requires exhaustively searching the optimisation space to select
+optimal parameters.
+% TODO: how big are these optimisation spaces?
 
 The aim of this project is to demonstrate that the tuning of
-optimisation parameters can be successfully performed at runtime. This
-would enable self-tuning programs which adapt to their execution
-environment by selecting optimum configurations dynamically. Such
-configurations could be learned over time, allowing each successive
-iteration of a program to benefit from its predecessors.
+optimisation parameters could be successfully performed at
+runtime. This would enable self-tuning programs which adapt to their
+execution environment by selecting optimal parameters
+dynamically. Such configurations of parameters could be learned over
+time, allowing each successive iteration of a program to benefit from
+its predecessors.
+% TODO: this last sentence is weak ^^
 
-The case for self-tuning applications is strong. Previous research has
-demonstrated that there are many factors which contribute to
-performance that cannot be determined by when developing a program. As
-a result, performance optimisation requires the programmer to either
-overfit the choice of parameters to optimise for a specific task and
-environment, or laboriously create heuristics which segment the
-possible space of different environments with optimisation parameters
-for each. Both approaches have significant drawbacks: optimising for a
-specific task and environment creates brittle and non-portable
-optimisations that do not generalise to other architectures and
-inputs; and the task of creating heuristics which cover every possible
-combination of factors requires a prohibitive amount of time to
-develop.
+The case for dynamically autotuning applications is strong. There are
+many factors which contribute to the performance of programs which
+cannot be determined by program developers. For example,
+
+% TODO: the case of self-tuning systems: TCP/IP.
+
+As a result, performance optimisation requires the programmer to
+either overfit the choice of parameters to optimise for a specific
+task and environment, or laboriously create heuristics which segment
+the optimisation space into regions of identical configurations. Both
+approaches have significant drawbacks: optimising for a specific task
+and environment creates brittle and non-portable optimisations that do
+not generalise to other architectures and inputs; and the task of
+creating heuristics which cover every possible combination of factors
+is prohibitively time consuming for developers.
 
 This project proposes two hypotheses about the performance of
 Algorithmic Skeletons:
@@ -37,32 +44,34 @@ Algorithmic Skeletons:
 \item a dynamic autotuner will improve the performance of Algorithmic
   Skeletons in the general case, by selecting optimisations which
   target specific dynamic features;
-\item a dynamic autotuner will provide better performance than a
-  statically tuned equivalent implementation across different inputs,
-  by adapting to features which can only be determined dynamically.
+\item a dynamic autotuner will provide better average performance than
+  a statically tuned equivalent implementation across different
+  inputs, by adapting to features which can only be determined
+  dynamically.
 \end{itemize}
 
 These hypotheses can be referred to respectively as the claims for
-\emph{specialisation} and \emph{generalisation}. It can be inferred
-from these that a dynamic autotuner cannot provide better performance
-than a statically tuned equivalent implement for a \emph{fixed} input,
-since there must be a baseline overhead which is required to implement
-the behaviour of dynamic autotuning. The reduction of this overhead is
-one of the greatest challenges facing the development of dynamic
-autotuners. The novelty of my solution is to reduce parameter
-convergence time by implementing a dynamic autotuner for Algorithmic
-Skeletons which can store the results of successive iterations
-persistently, across program runs. An evaluation of a successful
-implementation will contribute empirical evidence supporting the two
-hypotheses.
+autotuning using \emph{specialisation} and \emph{generalisation}. It
+can be inferred from these that a dynamic autotuner cannot provide
+better performance than a statically tuned equivalent implementation
+for a \emph{fixed} input, since the extra instructions that implement
+the dynamic autotuning behaviour present a performance overhead. The
+reduction of this overhead is one of the greatest challenges facing
+the development of dynamic autotuners. The novelty of my solution is
+to reduce parameter convergence time by implementing a dynamic
+autotuner for Algorithmic Skeletons which can store the results of
+successive iterations persistently, across program runs. An evaluation
+of a successful implementation will contribute empirical evidence
+supporting the two hypotheses.
+% TODO: parameter convergence time? This is a totally new topic
 
 The rest of the document is structured as follows:
 Section~\ref{sec:motivation} contains the motivation for this
-research; Section~\ref{sec:background} briefly reviews related
-research; Sections~\ref{sec:methodology} and~\ref{sec:evaluation}
-describe the methodology and evaluation plans for this research;
-Section~\ref{sec:work-plan} outlines the work plan; and
-Section~\ref{sec:conclusions} concludes.
+research; Section~\ref{sec:background} briefly outlines related work;
+Sections~\ref{sec:methodology} and~\ref{sec:evaluation} describe the
+methodology and evaluation plans for this research;
+Section~\ref{sec:work-plan} contains the work plan; followed by the
+conclusion in Section~\ref{sec:conclusions}.
 
 % It is my hypothesis that the performance an optimisation system which
 % will be improved by developing a dynamic autotuner.  which considers
