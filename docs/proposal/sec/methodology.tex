@@ -1,26 +1,32 @@
-The novelty of the approach posed in this research is to combine the
-advantages of offline training phases and online parameter tuning by
-implementing a dynamic autotuner which maintains persistent data
-in-between program executions using SkelCL.
+The objective of this research is to develop a dynamic autotuner for
+the SkelCL library. The novelty of the approach posed in this research
+is to combine the advantages of offline training phases and online
+parameter tuning by implementing maintaining persistent data between
+individual program runs.
 
 Michel Steuwer, a research associate at the University of Edinburgh,
 developed SkelCL as an approach to high-level programming for
-multi-GPU systems. Steuwer demonstrated an $11\times$ reduction in
-programmer effort compared to implement equivalent programs written in
-pure OpenCL, while suffering only a modest 5\% overhead. The core of
-SkelCL comprises a set of parallel container data types for vectors
-and matrices, and an automatic distribution mechanism which performs
-implicit transfer of these data structures between the host and device
-memory. Application programmers express computations on these data
-structures using Algorithmic Skeletons that are parameterised with
-small sections of OpenCL code. At runtime, SkelCL compiles the OpenCL
-code into compute kernels for execution on GPUs. This makes SkelCL an
-excellent candidate for dynamic autotuning, as it exposes both the
-optimisation space of the OpenCL compiler, and the high level tunable
-parameters provided by the structure of Algorithmic Skeletons. SkelCL
-offers the unique advantage of being able to amortise many of the
-costs associated with dynamic compilation due to its JIT-like nature
-of compiling OpenCL kernels immediately before execution.
+multi-GPU systems~\cite{Steuwer2011,
+Steuwer2013a}. \citeauthor{Steuwer2012} demonstrated an $11\times$
+reduction in programmer effort compared to implement equivalent
+programs written in pure OpenCL, while suffering only a modest 5\%
+overhead~\cite{Steuwer2012}.
+
+The core of SkelCL comprises a set of parallel container data types
+for vectors and matrices, and an automatic distribution mechanism
+which performs implicit transfer of these data structures between the
+host and device memory. Application programmers express computations
+on these data structures using Algorithmic Skeletons that are
+parameterised with small sections of OpenCL code. At runtime, SkelCL
+compiles the OpenCL code into compute kernels for execution on
+GPUs. This makes SkelCL an excellent candidate for dynamic autotuning,
+as it exposes both the optimisation space of the OpenCL compiler, and
+the high level tunable parameters provided by the structure of
+Algorithmic Skeletons.
+% TODO: is this next sentence necessary?
+SkelCL offers the unique advantage of being able to amortise many of
+the costs associated with dynamic compilation due to its JIT-like
+nature of compiling OpenCL kernels immediately before execution.
 
 Implementing a dynamic optimiser poses a number of difficult
 challenges which must be overcome.
@@ -35,12 +41,6 @@ it is possible to forgo many of the profiling counters that dynamic
 optimisers require by making assumptions about the execution frequency
 of certain code paths, given the nature of the skeleton. Additionally,
 the placement of profiling counters can be optimised manually.
-
-% skelcl
-~\cite{Steuwer2011, Steuwer2013a}
-
-% skelcl 11x 5%
-~\cite{Steuwer2012}.
 
 % snippet
 Contributors to this overhead include: time spent evaluating dynamic
