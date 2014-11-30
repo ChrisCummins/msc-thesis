@@ -46,6 +46,11 @@ reading them.
    Constructive Skeletons for Sequential Style of Parallel
    Programming,”** in Proceedings of the 1st international conference
    on Scalable information systems, 2006, vol. 1, p. 13.
+1. H. Jordan, P. Thoman, J. J. Durillo, S. Pellegrini,
+   P. Gschwandtner, T. Fahringer, and H. Moritsch, **“A
+   multi-objective auto-tuning framework for parallel codes,”** in
+   2012 International Conference for High Performance Computing,
+   Networking, Storage and Analysis, 2012, pp. 1–12.
 
 # 5-12 min
 
@@ -92,6 +97,9 @@ reading them.
    Parameterized Optimization for Empirical Tuning,”** in Parallel and
    Distributed Processing Symposium, 2007. IPDPS 2007. IEEE
    International, 2007, pp. 1–8.
+1. U. Dastgeer, L. Li, and C. Kessler, **“Adaptive Implementation
+   Selection in the SkePU Skeleton Programming Library,”**
+   Adv. Parallel Process. Technol., pp. 170–183, 2013.
 
 # 12-30 min
 
