@@ -55,19 +55,18 @@ has been used effectively to reduce the dimensionality of optimisation
 spaces. This exploratory phase provides opportunities for the novel
 use of dynamic features for the purpose of autotuning Algorithmic
 Skeletons. Previous research has focused on offline tuning and so has
-been restricted to the set of features which can be either determined
-or approximated statically. A dynamic autotuner exposes many new
-features
-% TODO: finish this sentence!
+been restricted to the set of features which can be either statically
+determined or approximated. A dynamic autotuner exposes many new
+features which cannot be statically determined, such as:
 
 \begin{itemize}
 %\itemsep0em
-\item Properties of the input data, e.g.\ the size, and data type.
-\item Copy-up and copy-down times for transferring data to and from
-  device memory.
-\item The number of cores available on devices.
-\item OpenCL compiler settings and optimisation flags.
-\item Runtime environment properties, e.g.\ system load.
+\item properties of the input data, e.g.\ the size, and data type;
+\item copy-up and copy-down times for transferring data to and from
+  device memory;
+\item the number of cores available on devices;
+\item OpenCL compiler settings and optimisation flags;
+\item runtime environment properties, e.g.\ system load.
 \end{itemize}
 
 The final stage will construct a dynamic autotuner that uses the
@@ -81,20 +80,28 @@ Skeletons to provide improved performance over existing dynamic
 optimisers.
 
 Implementing a dynamic autotuner poses a number of difficult
-implementation challenges which must be overcome.
-% TODO: What are these challenges? ^^
-The primary challenge is in minimising the runtime overhead of the
-dynamic autotuner so that it does not outweigh the performance gains
-of the optimisations themselves. The proposed approach to dynamically
-autotune SkelCL will overcome one of the most significant overheads
-associated with dynamic optimising: that of instrumenting the code for
-the purpose of profiling and tracing. Since Algorithmic Skeletons
-coordinate muscle functions, it is possible to forgo many of the
-profiling counters that dynamic optimisers require by making
-assumptions about the execution frequency of certain code paths, given
-the nature of the skeleton. Additionally, the placement of profiling
-counters can be optimised manually.
+implementation challenges. The primary challenge is to minimise the
+runtime overhead of the dynamic autotuner so that it does not outweigh
+the performance gains of the optimisations themselves. The proposed
+approach to dynamically autotune SkelCL will overcome one of the most
+significant overheads associated with dynamic optimising: that of
+instrumenting the code for the purpose of profiling and tracing. Since
+Algorithmic Skeletons coordinate muscle functions, it is possible to
+forgo many of the profiling counters that dynamic optimisers require
+by making assumptions about the execution frequency of certain code
+paths, given the nature of the skeleton. Additionally, the placement
+of profiling counters can be optimised manually.
 
-Persistent data
+The convergence time of autotuning can be improved by saving the
+results of trial configurations persistently in a central
+database. This provides two primary advantages: first, it allows the
+results of autotuning to be used by future invocations of the program;
+second, it allows the result of autotuning to be shared amongst
+different programs. The challenge of implementing this persistent data
+storage is that results must be stored efficiently and compactly, this
+is to allow for indefinite scaling of the dataset as future results
+are added. Increasing the size of the training dataset also increases
+the time required to compute new results, and there is additional
+latencies associated with reading and writing data to and from disk.
 
-inter-skeleton tuning
+% TODO: inter-skeleton tuning

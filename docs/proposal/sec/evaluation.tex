@@ -1,23 +1,34 @@
 My hypothesis is that the performance of Algorithmic Skeletons will be
-improved by using dynamic autotuning. After implementing a prototype
-dynamic autotuner, experimental evidence will be collected to support
-or refute this hypothesis: standard empirical methods will be used to
-evaluate the performance of a range of representative
-benchmarks. These benchmarks must be carefully selected to represent
-% TODO: complete sentence
+improved by using dynamic autotuning. This hypothesis will be
+supported or rejected by empirical evidence collected from an
+evaluation of the prototype implementation. Experimental evidence and
+standard empirical methods will be used to evaluate the performance of
+SkelCL across range of representative benchmarks.
 
-The evaluation methodology must incorporate statistically rigorous
-performance evaluation techniques \cite{Georges2007}.
-
-As a result, evidence must be collected to support
-
-To test this hypothesis, I will
-collect empirical data from a suite of representative benchmarks,
-comparing the performance of my implementation against: baseline
+Experimental performance results will be compared against: baseline
 performance provided by an unmodified SkelCL implementation;\ and a
 hand-tuned ``oracle'' implementation using an optimal configuration
 discovered through an offline exhaustive search of the optimisation
-space.
+space. Performance could also be compared against a hand tuned OpenCL
+implementation, in order to compare the performance cost of using the
+high-level Algorithmic Skeleton abstractions against the programmer
+effort required to implement the equivalent program in pure OpenCL.
+
+An important factor in the quality of the evaluation will be selecting
+performance benchmarks so that they are representative of a range of
+real world use cases. These benchmarks should be chosen at an early
+stage in the project, as there will be a tight feedback loop between
+implementation and evaluation during the prototype development.
+
+The stochastic nature of autotuning and machine learning techniques,
+the performance evaluation of these representative benchmarks must be
+performed with strict statistical rigour, using appropriate techniques
+for detecting outliers and inferring confidence intervals of
+performance results \cite{Georges2007}. The evaluation approach must
+carefully isolate independent variables and provide a controlled
+environment for testing the effects of altering them.
+
+The basic evaluation approach will
 
 Other measurable success metrics include: the overhead introduced by
 the runtime; the amount of time required to converge to a sufficiently
@@ -25,4 +36,6 @@ good configuration; and the ability of the dynamic optimiser to adapt
 to changes in dynamic features (e.g.\ system load). All of these
 metrics will be evaluated by profiling performance benchmarks.
 
-% important factors: amount of training data, variance in inputs
+
+There will be a tight feedback loop between implementation and
+evaluation throughout the lifetime of the project.
