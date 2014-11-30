@@ -2,6 +2,7 @@ This section briefly outlines some of the most closely related pieces
 of work that address the issue of improving software performance
 through the selection of optimal parameters. These can broadly be
 categorised as either offline tuning, or dynamic optimisation.
+% TODO: reword this weak sentence ^^
 
 \subsection{Offline tuning}\label{subsec:offline-tuning}
 Offline tuning involves selecting the set of parameters that provides
@@ -10,7 +11,7 @@ performance that is generated offline. Performance models can either
 be predictive, in that they attempt to characterise performance as a
 function of the optimisation parameters and input, or empirical, in
 that they predict performance based on empirical data gathered by
-evaluating many different parameter configurations. In both cases, the
+evaluating many different parameter configurations. In both cases, a
 performance model $f(p,x)$ maps the relationship between a set of
 parameters $p$, a specific problem $x$, and some metric of
 profitability. The purpose of the offline tuning phase is to select
@@ -21,11 +22,12 @@ performance model:
 \end{align*}
 For predictive models, the quality of results is limited by the
 ability of the prediction model to accurately capture the behaviour of
-a real world system. Given the complexities of modern hardware and
-software stacks, such models have become increasingly hard to develop.
+a real world system. Given the complexities of modern architectures
+and software stacks, such models have become increasingly hard to
+develop.
 % TODO: good for unknown inputs.
 The quality of empirical models is limited by the amount of training
-data available to it, or the ability to interpolate between training
+data available to it, and the ability to interpolate between training
 data when faced with new unknown inputs.
 
 An example of an empirical approach to offline tuning is iterative
@@ -95,8 +97,8 @@ optimisers is to minimise the runtime overhead so that it does not
 outweigh the performance advantages of the optimisations. A
 significant contributor to this runtime overhead is the requirement to
 compile code dynamically. \citeauthor{Fursin2005} negated this cost by
-compiling multiple versions of a target subroutine ahead of time
-\cite{Fursin2005}. At runtime, execution switches between the
+compiling multiple versions of a target subroutine ahead of
+time~\cite{Fursin2005}. At runtime, execution switches between the
 available versions, selecting the version with the best
 performance. In practice, this technique massively reduces the
 optimisation space which can be searched as it is unfeasible to insert
@@ -110,19 +112,18 @@ the convergence time to reach an optimal set of parameters is short
 enough to have negligible performance impact, or that the runtime of
 the host process is sufficiently long to reach an optimal set of
 parameters in good time. Neither assumption can be shown to fit the
-general case, which has led to the development of collective
-compilation techniques, which involves persistently storing the
-results of successive optimisation runs using a
-database~\cite{Fursin2010}.
+general case. This has led to the development of collective
+compilation techniques, which involve persistently storing the results
+of successive optimisation runs using a database~\cite{Fursin2010}.
 
-PetaBricks attempts to capture higher level optimisation choices than
-is available to a dynamic compiler \cite{Ansel2009a}. It consists of a
-language and compiler which allows programmers to express algorithms
-that target specific dynamic features, and to select which algorithm
-to execute at runtime. This provides a promising optimisation space
-but has the drawback of increasing programmer effort by requiring them
-to implement multiple versions of an algorithm tailored to different
-optimisation parameters.
+PetaBricks attempts to capture higher level optimisation decisions
+than are available to dynamic optimisers~\cite{Ansel2009a}. It
+consists of a language and compiler which allows programmers to
+express algorithms that target specific dynamic features, and to
+select which algorithm to execute at runtime. This provides a
+promising optimisation space but has the drawback of increasing
+programmer effort by requiring them to implement multiple versions of
+an algorithm tailored to different optimisation parameters.
 
 SiblingRivalry poses an interesting solution to the challenge of
 providing sustained quality of service~\cite{Ansel2012}. The available

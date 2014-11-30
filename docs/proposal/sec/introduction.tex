@@ -2,8 +2,8 @@ The computing world is increasingly finding parallelism as the only
 viable approach to maintaining continued performance improvements in
 the era of multicore hardware. Despite this, the adoption of parallel
 programming practises has been slow and awkward, due to the
-prohibitive complexity of parallel programming, and low level of
-abstractions available.
+prohibitive complexity and low level of abstractions available to
+programmers.
 
 Algorithmic Skeletons address this issue by providing reusable
 patterns for parallel programming, offering higher level abstractions
@@ -14,18 +14,16 @@ optimal parameters.
 % TODO: how big are these optimisation spaces?
 
 The aim of this project is to demonstrate that the tuning of
-optimisation parameters could be successfully performed at
-runtime. This would enable self-tuning programs which adapt to their
-execution environment by selecting optimal parameters
-dynamically. Such configurations of parameters could be learned over
-time, allowing each successive iteration of a program to benefit from
-its predecessors.
+optimisation parameters can be successfully performed at runtime. This
+will enable self-tuning programs which adapt to their execution
+environment by selecting optimal parameters dynamically. Such
+configurations of parameters can be learned over time, allowing each
+successive iteration of a program to benefit from its predecessors.
 % TODO: this last sentence is weak ^^
 
 The case for dynamically autotuning applications is strong. There are
 many factors which contribute to the performance of programs which
 cannot be determined by program developers. For example,
-
 % TODO: the case of self-tuning systems: TCP/IP.
 
 As a result, performance optimisation requires the programmer to
@@ -50,20 +48,21 @@ Algorithmic Skeletons:
   dynamically.
 \end{itemize}
 
-These hypotheses can be referred to respectively as the claims for
-autotuning using \emph{specialisation} and \emph{generalisation}. It
-can be inferred from these that a dynamic autotuner cannot provide
-better performance than a statically tuned equivalent implementation
-for a \emph{fixed} input, since the extra instructions that implement
-the dynamic autotuning behaviour present a performance overhead. The
-reduction of this overhead is one of the greatest challenges facing
-the development of dynamic autotuners. The novelty of my solution is
-to reduce parameter convergence time by implementing a dynamic
-autotuner for Algorithmic Skeletons which can store the results of
-successive iterations persistently, across program runs. An evaluation
-of a successful implementation will contribute empirical evidence
-supporting the two hypotheses.
+These hypotheses can be referred to respectively as the claims
+\emph{specialisation} and \emph{generalisation}. It can be inferred
+from these that a dynamic autotuner cannot provide better performance
+than a statically tuned equivalent implementation for a \emph{fixed}
+input, since the extra instructions that implement the dynamic
+autotuning behaviour present a performance overhead. The reduction of
+this overhead is one of the greatest challenges facing the development
+of dynamic autotuners. The novelty of my solution is to reduce
+parameter convergence time by implementing a dynamic autotuner for
+Algorithmic Skeletons which can store the results of successive
+iterations persistently, across program runs.
 % TODO: parameter convergence time? This is a totally new topic
+An evaluation of a successful implementation will contribute empirical
+evidence supporting the two hypotheses.
+% TODO: reword. This is too passive ^^
 
 The rest of the document is structured as follows:
 Section~\ref{sec:motivation} contains the motivation for this
