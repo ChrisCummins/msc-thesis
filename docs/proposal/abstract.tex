@@ -1,33 +1,17 @@
 The rapid pace of change in modern computer hardware has led to the
-development of automated empirical approaches to optimisation, in
-which multiple different versions of a program are generated and run
-to determine which provides the best performance for a given
-system. These autotuners provide significant performance benefits over
-traditional model-drive optimisations, at the expense of huge offline
-training periods in which the many thousands of different
-configurations are tested. Previously, attempts to reduce the length
-of offline training periods have focused on reducing the size of the
-search space, or reducing the optimal parameter convergence time.
-% TODO: reword ^^
-This paper proposes the development of an always-on autotuner, which
-addresses the issue of offline training periods by creating a feedback
-cycle of constant testing and evaluation. Such a system would overcome
-the prohibitive cost of offline training, while providing the
-additional advantage of being able to respond to dynamic features,
-which can only be determined at runtime. The dynamic autotuner will be
-embedded within SkelCL, an Algorithmic Skeleton library which enables
-high-level programming of multi-GPU systems.
-
-% Autotuning is an approach to optimisation which selects the
-% optimisation parameters which give the best performance for a given
-% program. This is achieved by generating and evaluating the performance
-% of multiple versions of the program on real hardware. These systems
-% typically require huge offline training periods in which many
-% thousands of different configurations are tested, which severely
-% impacts the practicality of such systems. If widespread adoption is to
-% be achieved, these systems must be implemented dynamically. This paper
-% proposes the development of a dynamic autotuner for SkelCL, an
-% Algorithmic Skeleton library which targets heterogeneous
-% parallelism. By combining always-on autotuning with persistent
-% training data and dynamic features, a self-tuning library for
-% high-level GPU programming will be developed.
+development of automated empirical approaches to optimisation. This
+approach provides significant performance benefits over traditional
+model-drive optimisations, at the expense of huge offline training
+periods in which empirical data is collected. Previously, attempts to
+reduce the length of offline training periods have focused on reducing
+the size of the search space, and using machine learning techniques to
+focus the search. This paper proposes the development of an always-on
+autotuner for SkelCL, an Algorithmic Skeleton library which enables
+high-level programming of multi-GPU systems. Such a system will
+overcome the prohibitive cost of offline training by creating a
+feedback cycle of constant testing and evaluation. This will provide
+the additional advantage of being able to respond to the runtime
+environment.
+% TODO: Stress the importance of parallelism. Algorithmic Skeletons
+% are *not* just an afterthought. What about my approach is *unique*
+% to skeletons?
