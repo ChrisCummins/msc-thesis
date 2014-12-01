@@ -1,4 +1,2 @@
-all:
-	@make -C .. $@
-%:
-	@make -C .. $@
+all:;@$(MAKE) -C.. $@
+%:  ;@$(MAKE) -C.. $@
