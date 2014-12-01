@@ -51,6 +51,18 @@ reading them.
    multi-objective auto-tuning framework for parallel codes,”** in
    2012 International Conference for High Performance Computing,
    Networking, Storage and Analysis, 2012, pp. 1–12.
+1. T. B. Jablin, P. Prabhu, J. a. Jablin, N. P. Johnson, S. R. Beard,
+   and D. I. August, **“Automatic CPU-GPU communication management and
+   optimization,”** ACM SIGPLAN Not., vol. 46, no. 6, pp. 142–151,
+   Aug. 2012.
+1. R. Clint Whaley, A. Petitet, and J. J. Dongarra, **“Automated
+   empirical optimizations of software and the ATLAS project,”**
+   Parallel Comput., vol. 27, no. 1, pp. 3–35, Jan. 2001.
+1. G. Keramidas, P. Petoumenos, and S. Kaxiras, **“Cache Replacement
+   Based on Reuse-Distance Prediction Pavlos Petoumenos Stefanos
+   Kaxiras,”** in Computer Design, 2007. ICCD 2007. 25th International
+   Conference on, 2007, pp. 245–250.
+
 
 # 5-12 min
 
@@ -100,6 +112,11 @@ reading them.
 1. U. Dastgeer, L. Li, and C. Kessler, **“Adaptive Implementation
    Selection in the SkePU Skeleton Programming Library,”**
    Adv. Parallel Process. Technol., pp. 170–183, 2013.
+1. K. Yotov, P. Wu, X. Li, G. Ren, M. Cibulskis, G. DeJong,
+   M. Garzaran, D. Padua, K. Pingali, and P. Stodghill, **“A
+   comparison of empirical and model-driven optimization,”** in
+   Proceedings of the ACM SIGPLAN 2003 conference on Programming
+   language design and implementation - PLDI ’03, 2003, pp. 63–76.
 
 # 12-30 min
 
@@ -109,7 +126,7 @@ reading them.
 1. A. Bundy, **“Empirical methods,”** 2014. [Online]. Available:
    http://www.inf.ed.ac.uk/teaching/courses/irm/notes/empirical.html.
 1. J. Lau, M. Arnold, M. Hind, and B. Calder, **“Online Performance
-   Auditing : Using Hot Optimizations Without Getting Burned,”** ACM
+   Auditing: Using Hot Optimizations Without Getting Burned,”** ACM
    SIGPLAN Not., vol. 41, no. 6, pp. 239–251, 2006.
 1. J. Hunter and M. Droettboom, **“matplotlib,”** in The Architecture
    of Open Source Applications, vol. 2, no. Volume 2, 2014, pp. 1–14.

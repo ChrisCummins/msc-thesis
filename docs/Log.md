@@ -2555,3 +2555,60 @@ clear to use only "optimum" as a noun, and "optimal" as an adjective.
 
 The goal of today is to get a first draft of my project proposal
 completed and sent to Pavlos and Hugh for an initial critique.
+
+
+# December 2014
+
+
+## Monday 1st
+
+The [PPar course page](http://www.inf.ed.ac.uk/teaching/courses/ppar/)
+lists 12 criteria that will be used to evaluate the project
+proposal. Based on my first draft, the following six points need
+further addressing before submission:
+
+* Sound approach: the proposed solution is well-founded and has a
+  reasonable chance of success.
+* Originality: it is clear which concepts and ideas originate from the
+  student and which are borrowed from the literature and from the
+  discussions with the supervisor.
+* Capable of execution: the student has the necessary skills
+  (programming or otherwise) to successfully complete the project in
+  the allocated timeframe.
+* Well-defined tasks and deliverables: each of the tasks in the plan
+  is well defined with clear inputs and deliverables with a clear role
+  to plan in delivering the final dissertation. The decomposition of
+  the proposed problem/issue into subtasks is sound in the sense that
+  it constitutes a plan that has a high chance of succeeding and
+  producing deliverables that can be combined to support a passable
+  MSc dissertation. It is also clear that there are no missing tasks -
+  ensure adequate planning for writing up. Clear milestones are
+  identified for each task.
+* Resources are attainable: the sources for any required equipment,
+  funding and human effort are identified. It should be clear that the
+  student will be capable of providing the necessary human effort.
+* Evaluation: The proposal contains a concrete plan for evaluating the
+  proposed work, including description of appropriate benchmark
+  datasets, evaluation measures, gold-standard judgements and
+  baselines to compare against.
+
+Challenges:
+* Overhead: dynamic compilation, machine learning.
+* Convergence time: focused search, dimensionality reduction, search
+  space bounding.
+* Evaluation: selecting representative benchmarks, stochastic systems.
+
+----
+
+Notes on first draft review with Pavlos:
+* The abstract and conclusion need to sell the work better.
+* The methodology is a little vague, and the evaluation a little too
+  specific.
+* The background section should cover a piece of related work
+  paragraph by paragraph:
+  * "[author] did [USP] in [paper], but did not cover [use case]"
+  * "[author] achieved [USP] in [paper], but only for [use case]"
+  * "The [USP] from [paper] can be applied successfully to [use case]"
+* Once the proposal is done, I should focus my effort on background
+  reading. I should aim to get through 40 - 50 papers before
+  Christmas.
