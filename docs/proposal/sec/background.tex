@@ -12,17 +12,17 @@ be predictive, in that they attempt to characterise performance as a
 function of the optimisation parameters and input, or empirical, in
 that they predict performance based on empirical data gathered by
 evaluating many different parameter configurations. In both cases, a
-performance model $f(p,x)$ maps the relationship between a set of
-parameters $p$, a specific problem $x$, and some metric of
-profitability. The purpose of the offline tuning phase is to select
-the set of parameters $p_{optimal}$ which maximises output of the
-performance model:
+performance function $f(p,x)$ models the relationship between a set of
+parameters $p$, a specific problem $x$, and some profitability
+goal. The purpose of the offline tuning phase is to select the set of
+parameters $p_{optimal}$ which maximises the output of the performance
+model:
 \begin{align*}
   p_{optimal} = \argmax_{p}f(p,x)
 \end{align*}
 For predictive models, the quality of results is limited by the
-ability of the prediction model to accurately capture the behaviour of
-a real world system. Given the complexities of modern architectures
+ability of the prediction function to accurately capture the behaviour
+of a real world system. Given the complexities of modern architectures
 and software stacks, such models have become increasingly hard to
 develop.
 % TODO: good for unknown inputs.
@@ -33,8 +33,9 @@ data when faced with new unknown inputs.
 An example of an empirical approach to offline tuning is iterative
 compilation, which uses an offline training phase to perform an
 extensive search of the optimisation space of a program by compiling
-programs with different combinations of compiler transforms in order
-to select the set which provides the best performance.
+and evaluating the same program with different combinations of
+compiler transforms in order to select the set that provides the best
+performance.
 
 Iterative compilation techniques has been successfully applied to a
 range of optimisation challenges, particularly when combined with
@@ -43,20 +44,21 @@ training programs which are required~\cite{Agakov}. MILEPOST GCC is a
 research compiler that uses iterative compilation to adjust compiler
 heuristics for optimising programs on different
 architectures~\cite{Fursin2008}. Machine learning techniques are
-applied to model the large optimisation space, based on static
-features extracted from the source code of training programs. A
-classifier predicts optimisation parameters for new programs by
-comparing the static program features against the training data.
+applied to model the large optimisation space based on static features
+extracted from the source code of training programs. A classifier
+predicts optimisation parameters for new programs by comparing the
+extracted program features against the training data.
 
 An alternative approach to the problem of gathering sufficient
 training data is to distribute the task of collecting it by enabling
 the results of different program evaluations to be shared with a
 central remote database. This has been successfully applied to offline
-autotuners, in which the overhead of a round trip to a remote server
-is performed offline~\cite{Fursin2014, Auler2014}. A typical 150ms
-network round trip time in the performance critical path of a dynamic
-autotuner will cause a serious degradation of performance, given
-typical system performance in excess of 100 MIPS.
+autotuners, in which a remote server is used to store and retrieve
+training data~\cite{Fursin2014, Auler2014}. The overhead of
+communicating with this remote server would be too great to use
+dynamically, a typical 150ms network round trip time in the
+performance critical path of a dynamic autotuner will cause a serious
+degradation of performance.
 
 An offline tuning tool with particular relevance to this work is
 MaSiF~\cite{Collins2013}, a static autotuner which uses iterative
@@ -64,10 +66,7 @@ compilation techniques to perform a focused search of the optimisation
 space of FastFlow and Intel Thread Building Blocks, two popular
 Algorithmic Skeleton libraries. While sharing the same goal as MaSiF,
 the approach of this project focuses on performing optimisation space
-searching at runtime.
-
-% TODO: one more paragraph to fill the page
-\newpage
+searching at runtime, and targets multi-GPU programming.
 
 \subsection{Dynamic optimisation}\label{subsec:dynamic-optimisation}
 Dynamic optimisation is a very different approach to the problem of
@@ -106,13 +105,13 @@ the thousands of different versions of a subroutine that are tested
 using offline tuning.
 
 Many existing dynamic optimisation systems do not store the results of
-their efforts persistently, allowing the work to die along with the
-host process. This approach relies on the assumption that either that
-the convergence time to reach an optimal set of parameters is short
-enough to have negligible performance impact, or that the runtime of
-the host process is sufficiently long to reach an optimal set of
-parameters in good time. Neither assumption can be shown to fit the
-general case. This has led to the development of collective
+their efforts persistently, allowing the training data to be lost when
+the host process terminates. This approach relies on the assumption
+that either the convergence time to reach an optimal set of parameters
+is short enough to have negligible performance impact, or that the
+runtime of the host process is sufficiently long to reach an optimal
+set of parameters in good time. Neither assumption can be shown to fit
+the general case. This has led to the development of collective
 compilation techniques, which involve persistently storing the results
 of successive optimisation runs using a database~\cite{Fursin2010}.
 
@@ -137,6 +136,3 @@ evaluate vastly suboptimal configurations while still providing
 adequate performance for the user. However, a large runtime penalty is
 incurred by dividing the available resources in half.
 % TODO: reword this week last sentence ^^
-
-% TODO: one more paragraph to fill this page
-\newpage

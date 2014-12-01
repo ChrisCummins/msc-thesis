@@ -3,39 +3,45 @@ improved by using dynamic autotuning. This hypothesis will be
 supported or rejected by empirical evidence collected from an
 evaluation of the prototype implementation. Experimental evidence and
 standard empirical methods will be used to evaluate the performance of
-SkelCL across range of representative benchmarks.
+SkelCL across a range of representative benchmarks.
 
 Experimental performance results will be compared against: baseline
 performance provided by an unmodified SkelCL implementation;\ and a
 hand-tuned ``oracle'' implementation using an optimal configuration
 discovered through an offline exhaustive search of the optimisation
-space. Performance could also be compared against a hand tuned OpenCL
-implementation, in order to compare the performance cost of using the
+space. Performance can also be compared against a hand tuned OpenCL
+implementation in order to compare the performance cost of using the
 high-level Algorithmic Skeleton abstractions against the programmer
 effort required to implement the equivalent program in pure OpenCL.
 
+To gather empirical performance data, an experimental setup will be
+used in which the same benchmark is executed multiple times using the
+baseline and oracle configurations. Then, the benchmark will be
+repeated with the dynamic autotuner. The results of dynamic autotuning
+will be expected to improve with each iteration as the size of
+training data increases, so the evaluation will include a discussion
+on the convergence time towards optimum parameters, after repeating a
+fixed series of iterations.
+
 An important factor in the quality of the evaluation will be selecting
-performance benchmarks so that they are representative of a range of
-real world use cases. These benchmarks should be chosen at an early
-stage in the project, as there will be a tight feedback loop between
+performance benchmarks that are representative of a range of real
+world use cases. These benchmarks should be chosen at an early stage
+in the project, as there will be a tight feedback loop between
 implementation and evaluation during the prototype development.
 
-The stochastic nature of autotuning and machine learning techniques,
-the performance evaluation of these representative benchmarks must be
-performed with strict statistical rigour, using appropriate techniques
-for detecting outliers and inferring confidence intervals of
-performance results \cite{Georges2007}. The evaluation approach must
-carefully isolate independent variables and provide a controlled
+The stochastic nature of autotuning and machine learning techniques
+means that the performance evaluation of representative benchmarks
+must be performed with strict statistical rigour, using appropriate
+techniques for detecting outliers and inferring confidence intervals
+of performance results~\cite{Georges2007}. The evaluation approach
+must carefully isolate independent variables and provide a controlled
 environment for testing the effects of altering them.
 
-The basic evaluation approach will
-
-Other measurable success metrics include: the overhead introduced by
-the runtime; the amount of time required to converge to a sufficiently
-good configuration; and the ability of the dynamic optimiser to adapt
-to changes in dynamic features (e.g.\ system load). All of these
-metrics will be evaluated by profiling performance benchmarks.
-
-
-There will be a tight feedback loop between implementation and
-evaluation throughout the lifetime of the project.
+In addition to the overall performance evaluation of the dynamic
+autotuner, additional measurements can be made to isolate and record
+the overhead introduced by the runtime, the amount of time required to
+converge on optimal configurations, and the ability of the dynamic
+optimiser to adapt to changes in the runtime environment. This last
+measurement may require execution of the benchmarks on multiple
+different hardware configurations so as to measure the system's
+ability to adapt to different environments.

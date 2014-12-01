@@ -4,9 +4,9 @@ platform upon which a dynamic autotuner will be developed. Michel
 Steuwer, a research associate at the University of Edinburgh,
 developed SkelCL as an approach to high-level programming for
 multi-GPU systems~\cite{Steuwer2011,
-Steuwer2013a}. \citeauthor{Steuwer2012} demonstrated an $11\times$
+  Steuwer2013a}. \citeauthor{Steuwer2012} demonstrated an $11\times$
 reduction in programmer effort compared to equivalent programs
-implemented with pure OpenCL, while suffering only a modest 5\%
+implemented using pure OpenCL, while suffering only a modest 5\%
 overhead~\cite{Steuwer2012}.
 
 The core of SkelCL comprises a set of parallel container data types
@@ -15,19 +15,19 @@ performs implicit transfer of these data structures between the host
 and device memory. Application programmers express computations on
 these data structures using Algorithmic Skeletons that are
 parameterised with small sections of OpenCL code. At runtime, SkelCL
-compiles the OpenCL code into compute kernels for execution on
-GPUs. This makes SkelCL an excellent candidate for dynamic autotuning,
-as it exposes both the optimisation space of the OpenCL compiler, and
-the high level tunable parameters provided by the structure of
-Algorithmic Skeletons.
+compiles the Algorithmic Skeletons into compute kernels for execution
+on GPUs. This makes SkelCL an excellent candidate for dynamic
+autotuning, as it exposes both the optimisation space of the OpenCL
+compiler, and the high level tunable parameters provided by the
+structure of Algorithmic Skeletons.
 % TODO: is this next sentence necessary?
 SkelCL offers the unique advantage of being able to amortise many of
 the costs associated with dynamic compilation due to its JIT-like
 nature of compiling OpenCL kernels immediately before execution.
 % TODO: UML sequence diagram of SkelCL
 
-The methodology used in this research will approach the problem in
-three stages:
+The work required to complete this research can be divided into three
+stages:
 
 \begin{enumerate}
 \item Modify SkelCL to enable the runtime configuration of
@@ -42,7 +42,7 @@ of this optimisation space at runtime.
 In the first stage, the SkelCL library will be changed to support
 dynamic parameter setting. This will involve a number of modifications
 to replace compile-time constant parameters such as the mapping of
-threads to work groups and the OpenCL compiler configuration with
+work items to threads and the OpenCL compiler configuration with
 equivalent variable parameters which can be set at runtime.
 
 Pilot experiments will then be used to evaluate the effect of
@@ -81,27 +81,27 @@ optimisers.
 
 Implementing a dynamic autotuner poses a number of difficult
 implementation challenges. The primary challenge is to minimise the
-runtime overhead of the dynamic autotuner so that it does not outweigh
-the performance gains of the optimisations themselves. The proposed
-approach to dynamically autotune SkelCL will overcome one of the most
-significant overheads associated with dynamic optimising: that of
-instrumenting the code for the purpose of profiling and tracing. Since
-Algorithmic Skeletons coordinate muscle functions, it is possible to
-forgo many of the profiling counters that dynamic optimisers require
-by making assumptions about the execution frequency of certain code
-paths, given the nature of the skeleton. Additionally, the placement
-of profiling counters can be optimised manually.
+runtime overhead so that it does not outweigh the performance gains of
+the optimisations themselves. The proposed approach to dynamically
+autotune SkelCL will overcome one of the most significant overheads
+associated with dynamic optimising: that of instrumenting the code for
+the purpose of profiling and tracing. Since Algorithmic Skeletons
+coordinate muscle functions, it is possible to forgo many of the
+profiling counters that dynamic optimisers require by making
+assumptions about the execution frequency of certain code paths, given
+the nature of the skeleton. Additionally, the placement of profiling
+counters can be optimised manually.
 
 The convergence time of autotuning can be improved by saving the
 results of trial configurations persistently in a central
 database. This provides two primary advantages: first, it allows the
-results of autotuning to be used by future invocations of the program;
-second, it allows the result of autotuning to be shared amongst
-different programs. The challenge of implementing this persistent data
-storage is that results must be stored efficiently and compactly, this
-is to allow for indefinite scaling of the dataset as future results
-are added. Increasing the size of the training dataset also increases
-the time required to compute new results, and there is additional
+results of autotuning to be used by future program runs; second, it
+allows the result of autotuning to be shared amongst different
+programs. The challenge of implementing this persistent data storage
+is that results must be stored efficiently and compactly, this is to
+allow for indefinite scaling of the dataset as future results are
+added. Increasing the size of the training dataset also increases the
+time required to compute new results, and there is additional
 latencies associated with reading and writing data to and from disk.
 
 % TODO: inter-skeleton tuning
