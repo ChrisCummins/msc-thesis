@@ -1,31 +1,3 @@
-This research will use the Algorithmic Skeleton library
-SkelCL\footnote{\url{http://skelcl.uni-muenster.de/}} as the base
-platform upon which a dynamic autotuner will be developed. Michel
-Steuwer, a research associate at the University of Edinburgh,
-developed SkelCL as an approach to high-level programming for
-multi-GPU systems~\cite{Steuwer2011,
-  Steuwer2013a}. \citeauthor{Steuwer2012} demonstrated an $11\times$
-reduction in programmer effort compared to equivalent programs
-implemented using pure OpenCL, while suffering only a modest 5\%
-overhead~\cite{Steuwer2012}.
-
-The core of SkelCL comprises a set of parallel container data types
-for vectors and matrices, and an automatic distribution mechanism that
-performs implicit transfer of these data structures between the host
-and device memory. Application programmers express computations on
-these data structures using Algorithmic Skeletons that are
-parameterised with small sections of OpenCL code. At runtime, SkelCL
-compiles the Algorithmic Skeletons into compute kernels for execution
-on GPUs. This makes SkelCL an excellent candidate for dynamic
-autotuning, as it exposes both the optimisation space of the OpenCL
-compiler, and the high-level tunable parameters provided by the
-structure of Algorithmic Skeletons.
-% TODO: is this next sentence necessary?
-SkelCL offers the unique advantage of being able to amortise many of
-the costs associated with dynamic compilation due to its JIT-like
-nature of compiling OpenCL kernels immediately before execution.
-% TODO: UML sequence diagram of SkelCL
-
 The work required to complete this research can be divided into three
 stages:
 
@@ -56,18 +28,26 @@ spaces. This exploratory phase provides opportunities for the novel
 use of dynamic features for the purpose of autotuning Algorithmic
 Skeletons. Previous research has focused on offline tuning and so has
 been restricted to the set of features which can be either statically
-determined or approximated. A dynamic autotuner exposes many new
-features which cannot be statically determined, such as:
+determined or approximated.
 
-\begin{itemize}
-%\itemsep0em
-\item properties of the input data, e.g.\ the size, and data type;
-\item copy-up and copy-down times for transferring data to and from
-  device memory;
-\item the number of cores available on devices;
-\item OpenCL compiler settings and optimisation flags;
-\item runtime environment properties, e.g.\ system load.
-\end{itemize}
+SkelCL offers the unique advantage of being able to amortise many of
+the costs associated with dynamic compilation due to its JIT-like
+nature of compiling OpenCL kernels immediately before execution.
+
+% TODO: UML sequence diagram of SkelCL
+
+% A dynamic autotuner exposes many new features which cannot be
+% statically determined, such as:
+
+% \begin{itemize}
+% %\itemsep0em
+% \item properties of the input data, e.g.\ the size, and data type;
+% \item copy-up and copy-down times for transferring data to and from
+%   device memory;
+% \item the number of cores available on devices;
+% \item OpenCL compiler settings and optimisation flags;
+% \item runtime environment properties, e.g.\ system load.
+% \end{itemize}
 
 The final stage will construct a dynamic autotuner that uses the
 features selected in the exploratory phase. To the best of our

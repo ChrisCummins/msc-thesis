@@ -138,3 +138,24 @@ evaluate vastly suboptimal configurations while still providing
 adequate performance for the user. However, a large runtime penalty is
 incurred by dividing the available resources in half.
 % TODO: reword this week last sentence ^^
+
+\subsection{SkelCL}
+Michel Steuwer, a research associate at the University of Edinburgh,
+developed SkelCL as an approach to high-level programming for
+multi-GPU systems~\cite{Steuwer2011,
+  Steuwer2013a}. \citeauthor{Steuwer2012} demonstrated an $11\times$
+reduction in programmer effort compared to equivalent programs
+implemented using pure OpenCL, while suffering only a modest 5\%
+overhead~\cite{Steuwer2012}.
+
+The core of SkelCL comprises a set of parallel container data types
+for vectors and matrices, and an automatic distribution mechanism that
+performs implicit transfer of these data structures between the host
+and device memory. Application programmers express computations on
+these data structures using Algorithmic Skeletons that are
+parameterised with small sections of OpenCL code. At runtime, SkelCL
+compiles the Algorithmic Skeletons into compute kernels for execution
+on GPUs. This makes SkelCL an excellent candidate for dynamic
+autotuning, as it exposes both the optimisation space of the OpenCL
+compiler, and the high-level tunable parameters provided by the
+structure of Algorithmic Skeletons.
