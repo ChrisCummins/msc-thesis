@@ -10,15 +10,13 @@ and reducing programmer effort~\cite{Cole1989, Cole2004}. Tuning the
 performance of these Algorithmic Skeletons is a manual process which
 requires exhaustively searching the optimisation space to select
 optimal parameters.
-% TODO: how big are these optimisation spaces?
 
 The aim of this project is to demonstrate that the tuning of
 optimisation parameters can be successfully performed at runtime. This
 will enable self-tuning programs which adapt to their execution
 environment by selecting optimal parameters dynamically. Such
 configurations of parameters can be learned over time, allowing each
-successive iteration of a program to benefit from its predecessors.
-% TODO: this last sentence is weak ^^
+successive program run to improve upon its predecessors.
 
 The case for dynamically autotuning applications is strong. There are
 many factors which contribute to the performance of programs which
@@ -26,8 +24,8 @@ cannot be determined by program developers.
 % TODO: the case of self-tuning systems: TCP/IP.
 As a result, performance optimisation requires the programmer to
 either overfit the choice of parameters to optimise for a specific
-task and environment, or laboriously create heuristics which segment
-the optimisation space into regions of identical configurations. Both
+task and environment, or laboriously segment the optimisation space
+into regions of identical configurations using static heuristics. Both
 approaches have significant drawbacks: optimising for a specific task
 and environment creates brittle and non-portable optimisations that do
 not generalise to other architectures and inputs, and the task of
@@ -38,35 +36,41 @@ is prohibitively time consuming for developers.
 This project proposes two hypotheses about the performance of
 Algorithmic Skeletons:
 \begin{itemize}
-\item a dynamic autotuner will improve the performance of Algorithmic
-  Skeletons in the general case, by selecting optimisations which
-  target specific dynamic features;
-\item a dynamic autotuner will provide better average performance than
-  a statically tuned equivalent implementation across different
-  inputs, by adapting to features which can only be determined
-  dynamically.
+\item a dynamic autotuner will provide improved performance over a
+  baseline Algorithmic Skeleton implementation, by selecting
+  optimisations which specifically target runtime features;
+\item a dynamic autotuner will provide improved performance over a
+  hand-tuned OpenCL implementation across a range of different inputs,
+  by adapting to changes in the inputs dynamically.
 \end{itemize}
 
 These hypotheses can be referred to respectively as the claims
-\emph{specialisation} and \emph{generalisation}. It can be inferred
-from these that a dynamic autotuner cannot provide better performance
-than a statically tuned equivalent implementation for a \emph{fixed}
-input, since the extra instructions that implement the dynamic
-autotuning behaviour present a performance overhead. The reduction of
-this overhead is one of the greatest challenges facing the development
-of dynamic autotuners. The novelty of my solution is to reduce
-parameter convergence time by implementing a dynamic autotuner for
-Algorithmic Skeletons which can store the results of successive
-iterations persistently, across program runs.
-% TODO: parameter convergence time? This is a totally new topic
-An evaluation of a successful implementation will contribute empirical
-evidence supporting the two hypotheses.
-% TODO: reword. This is too passive ^^
+\emph{specialisation} and \emph{generalisation}. We can infer from
+these that a dynamic autotuner cannot provide better performance than
+an equivalent OpenCL implementation which has been tuned for a
+\emph{fixed} input, since the extra instructions required to implement
+the dynamic autotuner present an unavoidable performance overhead. The
+reduction of this overhead is one of the greatest challenges facing
+the development of dynamic autotuners. The novelty of my solution is
+to apply the concepts of persistent training data across program runs
+to a dynamic autotuner, which exposes many new features which cannot
+be statically determined, such as:
 
-% The rest of the document is structured as follows:
-% Section~\ref{sec:motivation} contains the motivation for this
-% research; Section~\ref{sec:background} briefly outlines related work;
-% Sections~\ref{sec:methodology} and~\ref{sec:evaluation} describe the
-% methodology and evaluation plans for this research;
-% Section~\ref{sec:work-plan} contains the work plan; followed by the
-% conclusion in Section~\ref{sec:conclusions}.
+\begin{itemize}
+\itemsep0em
+\item properties of the input data, e.g.\ the size, and data type;
+\item copy-up and copy-down times for transferring data to and from
+  device memory;
+\item the number of cores available on devices;
+\item OpenCL compiler settings and optimisation flags;
+\item runtime environment properties, e.g.\ system load.
+\end{itemize}
+
+\subsection{Structure}
+The rest of the document is structured as follows:
+Section~\ref{sec:motivation} contains the motivation for this
+research; Section~\ref{sec:background} briefly outlines related work;
+Sections~\ref{sec:methodology} and~\ref{sec:evaluation} describe the
+methodology and evaluation plans for this research;
+Section~\ref{sec:work-plan} contains the work plan; followed by the
+conclusion in Section~\ref{sec:conclusions}.
