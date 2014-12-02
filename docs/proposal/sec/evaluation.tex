@@ -5,37 +5,44 @@ evaluation of the prototype implementation. Experimental evidence and
 standard empirical methods will be used to evaluate the performance of
 SkelCL across a range of representative benchmarks.
 
-Experimental performance results will be compared against: baseline
-performance provided by an unmodified SkelCL implementation;\ and a
-hand-tuned ``oracle'' implementation using an optimal configuration
-discovered through an offline exhaustive search of the optimisation
-space. Performance can also be compared against a hand tuned OpenCL
-implementation in order to compare the performance cost of using the
-high-level Algorithmic Skeleton abstractions against the programmer
-effort required to implement the equivalent program in pure OpenCL.
+Experimental performance results will be compared against:
 
-To gather empirical performance data, an experimental setup will be
-used in which the same benchmark is executed multiple times using the
-baseline and oracle configurations. Then, the benchmark will be
-repeated with the dynamic autotuner. The results of dynamic autotuning
-will be expected to improve with each iteration as the size of
-training data increases, so the evaluation will include a discussion
-on the convergence time towards optimum parameters, after repeating a
-fixed series of iterations.
+\begin{itemize}
+\item a baseline implementation provided by an unmodified SkelCL
+implementation. This will compare the speedup of the autotuned version
+over the baseline;
+\item a hand-tuned ``oracle'' implementation using an optimal
+configuration discovered through an offline exhaustive search of the
+optimisation space. This will measure the autotuner's ability to
+converge towards optimal parameters over time;
+\item a ``gold standard'' implementation using hand tuned OpenCL
+without the SkelCL abstractions. This will compare the performance
+cost of using the high-level Algorithmic Skeleton abstractions against
+the reduction in programmer effort required to implement the
+equivalent program in pure OpenCL.
+\end{itemize}
 
 An important factor in the quality of the evaluation will be selecting
 performance benchmarks that are representative of a range of real
-world use cases. These benchmarks should be chosen at an early stage
-in the project, as there will be a tight feedback loop between
-implementation and evaluation during the prototype development.
+world use cases. For this purpose, I will use existing SkelCL
+benchmarks which have been used in previous research: Mandelbrot
+sets~\cite{Steuwer2011}, Sobel Edge Detection~\cite{Steuwer2013a}, and
+List-mode Ordered Subset Expectation
+Maximisation~\cite{Steuwer2013}. Additionally, a standard benchmark
+suite for heterogeneous computing such as Rodinia~\cite{Che2009} can
+be used by first porting the implementations to use the SkelCL
+library.
+
+% There will be a tight feedback loop between implementation and
+% evaluation during the prototype development.
 
 The stochastic nature of autotuning and machine learning techniques
 means that the performance evaluation of representative benchmarks
 must be performed with strict statistical rigour, using appropriate
-techniques for detecting outliers and inferring confidence intervals
-of performance results~\cite{Georges2007}. The evaluation approach
-must carefully isolate independent variables and provide a controlled
-environment for testing the effects of altering them.
+techniques for profiling benchmark performance over multiple
+iterations~\cite{Georges2007}. The evaluation approach must carefully
+isolate independent variables and provide a controlled environment for
+testing the effects of altering them.
 
 In addition to the overall performance evaluation of the dynamic
 autotuner, additional measurements can be made to isolate and record
