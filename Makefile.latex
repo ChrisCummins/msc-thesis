@@ -118,41 +118,74 @@ endif
 # If we have texcount then we can perform word counts.
 if HAVE_TEXCOUNT
 PhonyTargets += wc
-wc:
+
+wc: $(Document).wc
+	$(AM_V_at)$(SED) '1,/total/Id' < $<				\
+		| $(EGREP) --color=never '^(Words|Number)'
+
+# Generate a word count file.
+$(Document).wc: $(DocumentSources)
 	$(AM_V_at)if [ -f $(DocumentPDF) ]; then			\
-		$(TEXCOUNT) $(DocumentSources) | $(SED) '1,/total/Id' 	\
-			| $(EGREP) --color=never '^(Words|Number)'; 	\
+		$(TEXCOUNT) $(DocumentSources) > $(Document).wc; 	\
 	else								\
 		$(MAKE) $(DocumentPDF);					\
 		$(MAKE) $@;						\
 	fi
+
+MOSTLYCLEANFILES += $(Document.wc)
 endif
 
 # If we have checkcites then we can perform citation checks.
 if HAVE_CHECKCITES
 PhonyTargets += cite
-cite:
+
+cite: $(Document).cite
+	$(AM_V_at)cat $<
+
+# Generate a citation check file.
+$(Document).cite: $(DocumentSources)
 	$(AM_V_at)if [ -f $(DocumentPDF) ]; then			\
-		$(CHECKCITES) --undefined $(DocumentAux);		\
+		$(CHECKCITES) --undefined $(DocumentAux) > $@;		\
 	else								\
 		$(MAKE) $(DocumentPDF);					\
 		$(MAKE) $@;						\
 	fi
+
+MOSTLYCLEANFILES += $(Document).cite
 endif
 
 # If we have textlint then we can perform writing style checks.
 if HAVE_TEXTLINT
 PhonyTargets += style lint
-style lint:
+
+# The process for caching the result of textlint is a little bit more
+# complicated than the "wc" or "cite" rules. Since textlint is a slow
+# process to run, we invoke it while using the "tee" command in order
+# to simultaneously print the results to stdout while caching them for
+# future retrieval. As a result, a use the file .$(Document).lint to
+# indicate whether we have just generated the files, so that cache-hit
+# rule doesn't print the cached results that we've just generated.
+style lint: $(Document).lint
+	$(AM_V_at)if [ ! -f .$(Document).lint ]; then			\
+		cat $(Document).lint;					\
+	fi
+	$(AM_V_at)$(RM) .$(Document).lint
+
+# Run textlint and cache results.
+$(Document).lint: $(DocumentSources)
 	$(AM_V_at)if [ -f $(DocumentPDF) ]; then			\
-		for f in $(DocumentSources); do 			\
-			echo -e "\n*** $$f ***"; 			\
-			$(TEXTLINT) $$f; 				\
+		$(RM) $(Document).lint;					\
+		for f in $(DocumentSources); do				\
+			echo -e "\n*** $$f ***" | tee --append $@;	\
+			$(TEXTLINT) $$f | tee --append $@;		\
 		done;							\
+		touch .$(Document).lint;				\
 	else								\
 		$(MAKE) $(DocumentPDF);					\
 		$(MAKE) $@;						\
 	fi
+
+MOSTLYCLEANFILES += $(Document).lint .$(Document).lint
 endif
 
 # Print make targets.
