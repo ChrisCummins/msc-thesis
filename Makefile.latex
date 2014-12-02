@@ -107,32 +107,51 @@ MOSTLYCLEANFILES +=                     \
 if HAVE_XDG_OPEN
 PhonyTargets += open
 open:
-	$(AM_V_at)test -f $(DocumentPDF) || echo "File '$(DocumentPDF)' not found, is it compiled?"
-	$(AM_V_at)test ! -f $(DocumentPDF) || $(XDG_OPEN) $(DocumentPDF) >/dev/null 2>&1 &
+	$(AM_V_at)if [ -f $(DocumentPDF) ]; then			\
+		$(XDG_OPEN) $(DocumentPDF) >/dev/null 2>&1 &		\
+	else								\
+		$(MAKE) $(DocumentPDF);					\
+		$(MAKE) $@;						\
+	fi
 endif
 
 # If we have texcount then we can perform word counts.
 if HAVE_TEXCOUNT
 PhonyTargets += wc
 wc:
-	$(AM_V_at)$(TEXCOUNT) $(DocumentSources) | $(SED) '1,/total/Id' \
-		| $(EGREP) --color=never '^(Words|Number)'
+	$(AM_V_at)if [ -f $(DocumentPDF) ]; then			\
+		$(TEXCOUNT) $(DocumentSources) | $(SED) '1,/total/Id' 	\
+			| $(EGREP) --color=never '^(Words|Number)'; 	\
+	else								\
+		$(MAKE) $(DocumentPDF);					\
+		$(MAKE) $@;						\
+	fi
 endif
 
 # If we have checkcites then we can perform citation checks.
 if HAVE_CHECKCITES
 PhonyTargets += cite
 cite:
-	$(AM_V_at)$(CHECKCITES) --undefined $(DocumentAux)
+	$(AM_V_at)if [ -f $(DocumentPDF) ]; then			\
+		$(CHECKCITES) --undefined $(DocumentAux);		\
+	else								\
+		$(MAKE) $(DocumentPDF);					\
+		$(MAKE) $@;						\
+	fi
 endif
 
 if HAVE_TEXTLINT
 PhonyTargets += style lint
 style lint:
-	$(AM_V_at)for f in $(sort $(DocumentSources)); do \
-		echo 'Textlint: $(DocumentTex)'; \
-		$(TEXTLINT) $$f; \
-	done
+	$(AM_V_at)if [ -f $(DocumentPDF) ]; then			\
+		for f in $(DocumentSources); do 			\
+			echo -e "\n*** $$f ***"; 			\
+			$(TEXTLINT) $$f; 				\
+		done;							\
+	else								\
+		$(MAKE) $(DocumentPDF);					\
+		$(MAKE) $@;						\
+	fi
 endif
 
 # Print make targets.
