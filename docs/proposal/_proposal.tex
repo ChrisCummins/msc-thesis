@@ -46,7 +46,7 @@
 
 % Uncomment the following line to remove column separation:
 %
-% \setlength{\columnsep}{0pt}
+\setlength{\columnsep}{5mm}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -865,6 +865,9 @@
 \usepackage{enumitem}
 \setenumerate{itemsep=0pt}
 
+% Use no left margin for lists:
+\setlist{leftmargin=*}
+
 \usepackage{longtable}
 
 % Define column types L, C, R with known text justification and fixed
@@ -886,6 +889,9 @@
 \titleformat*{\subsubsection}{\normalsize}
 \titleformat*{\paragraph}{\large\bfseries}
 \titleformat*{\subparagraph}{\large\bfseries}
+
+% Set paragraph indentation size. Default is 15pt.
+\setlength{\parindent}{10pt}
 
 % The line spacing can be globally set using \linespread:
 %
@@ -970,3 +976,5 @@
 \input{cover}
 
 \pagenumbering{arabic} % Page numbers: 1 2 3 ...
+
+\begin{multicols}{2}
