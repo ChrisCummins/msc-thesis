@@ -1,3 +1,14 @@
+#define INPUT_TYPE int
+#define INPUT_SIZE 1000000
+#define THRESHOLD 200
+#define PAR_DEPTH 1
+
+// Debug level.
+#define DEBUG 0
+
+// Use Intel Thread Building Blocks, or C++11 thread library.
+#define USE_TBB 1
+
 #include <sys/time.h>
 
 #include <algorithm>
@@ -6,15 +17,11 @@
 #include <iostream>
 #include <vector>
 
-#include "tbb/tbb.h"
-
-#define INPUT_TYPE int
-#define INPUT_SIZE 1e6
-#define THRESHOLD 100
-#define PAR_DEPTH 2
-
-// Debug level.
-#define DEBUG 0
+#if USE_TBB == 0
+# include <thread>  // C++11 thread.
+#else
+# include "tbb/tbb.h"  // Intel TBB.
+#endif
 
 #if DEBUG > 0
 # define DPRINT(x) std::cout << x;
@@ -46,8 +53,19 @@ void stable_sort(T *const start, T *const end, int depth = 0) {
         // in parallel. Else, execute sequentially.
         if (depth < PAR_DEPTH) {
             DPRINT("p");
+
+#if USE_TBB > 0
+            // Intel TBB backend.
             tbb::parallel_invoke([=]{stable_sort(start, middle, next_depth);},
                                  [=]{stable_sort(middle, end, next_depth);});
+#else
+            // C++11 thread backend.
+            std::thread threads[2];
+            threads[0] = std::thread(stable_sort<T>, start, middle, next_depth);
+            threads[1] = std::thread(stable_sort<T>, middle, end, next_depth);
+            for (auto& thread : threads)
+                thread.join();
+#endif
         } else {
             DPRINT("-");
             stable_sort(start, middle, next_depth);
