@@ -2612,3 +2612,12 @@ Notes on first draft review with Pavlos:
 * Once the proposal is done, I should focus my effort on background
   reading. I should aim to get through 40 - 50 papers before
   Christmas.
+
+
+## Wednesday 3rd
+
+Hugh's comments on my proposal draft is that it's too dense and needs
+pictures and graphs. A paper has two narratives: the potentially
+boring words, and the pictures. The pictures narrative must stand up
+without requiring the words (the captions must be
+self-contained). Also, the Gantt chart item labels are not specific.
