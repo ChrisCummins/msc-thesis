@@ -16,6 +16,12 @@
 // Debug level.
 #define DEBUG 0
 
+#if DEBUG > 0
+# define DPRINT(x) std::cout << x;
+#else
+# define DPRINT(x)
+#endif
+
 template<typename T>
 void insertion_sort(T *const start, T *const end);
 
@@ -39,15 +45,11 @@ void stable_sort(T *const start, T *const end, int depth = 0) {
         // If we haven't recursed deeper than PAR_DEPTH, then recurse
         // in parallel. Else, execute sequentially.
         if (depth < PAR_DEPTH) {
-#if DEBUG > 0
-            std::cout << "p";
-#endif
+            DPRINT("p");
             tbb::parallel_invoke([=]{stable_sort(start, middle, next_depth);},
                                  [=]{stable_sort(middle, end, next_depth);});
         } else {
-#if DEBUG > 0
-            std::cout << "-";
-#endif
+            DPRINT("-");
             stable_sort(start, middle, next_depth);
             stable_sort(middle, end, next_depth);
         }
@@ -147,9 +149,7 @@ void run_test() {
     stable_sort(start, end);
     int64_t end_time = now();
 
-#if DEBUG > 0
-    std::cout << "\n";
-#endif
+    DPRINT("\n");
 
     assert_sorted(start, end);
 
