@@ -43,7 +43,7 @@ void stable_sort(T *const start, T *const end, int depth = 0) {
     // then sort it directly using an insertion sort. Otherwise, split
     // the array in half and solve recursively, before merging the two
     // halves.
-    if (length < THRESHOLD) {
+    if (length < THRESHOLD || length < 2) {
         insertion_sort(start, end);
     } else {
         T *const middle = start + (end - start) / 2;
