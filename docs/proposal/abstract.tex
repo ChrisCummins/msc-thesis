@@ -1,17 +1,17 @@
-The rapid pace of change in modern computer hardware has led to the
-development of automated empirical approaches to optimisation. This
-approach provides significant performance benefits over traditional
-model-drive optimisations, at the expense of huge offline training
-periods in which empirical data is collected. Previously, attempts to
-reduce the length of offline training periods have focused on reducing
-the size of the search space, and using machine learning techniques to
-focus the search. This paper proposes the development of an always-on
+The rapid transition towards multicore hardware which has left
+application programmers requiring higher-level abstractions for
+dealing with the complexity of parallel programming. Algorithmic
+Skeletons provide such abstractions, but typically cannot compete with
+the performance of hand tuned parallel algorithms.
+% TODO: why?
+This paper proposes the development of a dynamic, ``always-on''
 autotuner for SkelCL, an Algorithmic Skeleton library which enables
-high-level programming of multi-GPU systems. Such a system will
-overcome the prohibitive cost of offline training by creating a
-feedback cycle of constant testing and evaluation. This will provide
-the additional advantage of being able to respond to the runtime
-environment.
-% TODO: Stress the importance of parallelism. Algorithmic Skeletons
-% are *not* just an afterthought. What about my approach is *unique*
-% to skeletons?
+high-level programming of multi-GPU systems. Such a system would use
+empirical optimisation techniques to select the optimisation
+parameters which provide the greatest performance, but without
+requiring the huge offline training periods typically associated with
+static autotuning. The proposed system will use online tuning with
+persistent training data to create a feedback loop of constant testing
+and evaluation, and will be able to adapt to runtime properties which
+cannot be determined by static autotuners, such as the input dataset
+and dynamic state of the system.
