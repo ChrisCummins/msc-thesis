@@ -1,0 +1,51 @@
+\begin{tikzpicture}[%
+    auto,
+    thick,
+    scale=1,
+    every node/.style={scale=0.65},
+    node distance = 3cm,
+    % Database shape:
+    database/.style={%
+      draw,
+      cylinder,
+      cylinder uses custom fill,
+      shape border rotate=90,
+      aspect=0.25
+    }
+  ]
+
+% Nodes:
+\node (t-start) [block, fill=gray!10] {\textbf{User program}};
+\node (t-arch) [block, below of=t-start, yshift=.8cm] {Architecture};
+\node (t-features) [block, right of=t-start] {Extract static features};
+\node (t-procs) [block, right of=t-features, xshift=.4cm] {Clone procedures};
+\node (t-compile) [block, right of=t-procs] {Compile};
+\node (t-binary3) [block, fill=gray!10, right of=t-compile, text width=3cm, xshift=.5cm, yshift=.2cm] {};
+\node (t-binary2) [block, fill=gray!10, right of=t-compile, text width=3cm, xshift=.6cm, yshift=.1cm] {};
+\node (t-binary) [block, fill=gray!10, right of=t-compile, text width=3cm, xshift=.7cm] {\textbf{Multiversioned binary}};
+
+\node (training-set) [database, fill=gray!10, below of=t-procs]
+  {\textbf{\begin{tabular}{c}Training\\data\end{tabular}}};
+
+\node (t-dispatch) [block, right of=t-binary, xshift=.7cm] {Procedure dispatcher};
+\node (t-exec) [block, right of=t-dispatch] {Execute procedure};
+
+\node (runtime) [draw, dashed, color=gray, yshift=.5cm,
+                 inner ysep=1.5cm, inner xsep=1.3cm,
+                 label={[yshift=-.7cm]\textbf{Runtime}},
+                 fit=(t-dispatch) (t-exec)] {};
+
+% Connectors:
+\draw[->] (t-start) -- (t-features);
+\draw[->] (t-arch) -- (t-features);
+\draw[->] (t-procs) -- (t-compile);
+\draw[->] (t-compile) -- (t-binary);
+\draw[->] (t-binary) -- (t-dispatch);
+\draw[->] (t-dispatch) -- (t-exec);
+\draw[->,dotted] (t-exec.north) |- (10.92cm,1.0cm) -- (t-dispatch.north);
+
+\draw[->,dotted] (t-features) -- (training-set);
+\draw[->,dotted] (t-exec.south) |- (training-set);
+\draw[->] (training-set) -- (t-procs);
+
+\end{tikzpicture}

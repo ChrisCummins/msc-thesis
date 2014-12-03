@@ -1,0 +1,61 @@
+\begin{tikzpicture}[%
+    auto,
+    thick,
+    scale=1,
+    every node/.style={scale=0.65},
+    node distance = 3cm,
+    % Database shape:
+    database/.style={%
+      draw,
+      cylinder,
+      cylinder uses custom fill,
+      shape border rotate=90,
+      aspect=0.25
+    }
+  ]
+
+% Nodes:
+\node (t-start3) [block, fill=gray!10, xshift=-.2cm, yshift=.2cm] {};
+\node (t-start2) [block, fill=gray!10, xshift=-.1cm, yshift=.1cm] {};
+\node (t-start) [block, fill=gray!10] {\textbf{Training programs}};
+\node (t-features) [block, right of=t-start] {Extract static features};
+\node (t-params) [block, right of=t-features, text width=3cm, xshift=.4cm] {Set parameter configuration};
+\node (t-compile) [block, right of=t-params, xshift=.7cm] {Compile};
+\node (t-binary) [block, fill=gray!10, right of=t-compile] {\textbf{Binary}};
+\node (t-execute) [block, right of=t-binary] {Execute};
+\node (t-arch) [block, below of=t-start, yshift=.8cm] {Architecture};
+
+\node (runtime) [draw, dashed, color=gray, yshift=.5cm,
+                 inner ysep=2cm, inner xsep=4cm,
+                 label={[yshift=-.7cm]\textbf{Training phase}},
+                 fit=(t-start) (t-arch) (t-execute)] {};
+
+\node (training-set) [database, fill=gray!10, below of=t-params, yshift=-1cm]
+  {\textbf{\begin{tabular}{c}Training\\data\end{tabular}}};
+
+\node (p-arch) [block, below of=t-arch] {Architecture};
+\node (p-start) [block, fill=gray!10, below of=p-arch, yshift=.8cm] {\textbf{User program}};
+\node (p-features) [block, right of=p-start] {Extract static features};
+\node (p-params) [block, right of=p-features, text width=3cm, xshift=.4cm] {Set parameter configuration};
+\node (p-compile) [block, right of=p-params, xshift=1cm] {Compile};
+\node (p-binary) [block, fill=gray!10, right of=p-compile, xshift=1cm] {\textbf{Binary}};
+
+% Connectors:
+\draw[->] (t-start) -- (t-features);
+\draw[->] (t-arch) -- (t-features);
+\draw[->] (t-params) -- (t-compile);
+\draw[->] (t-compile) -- (t-binary);
+\draw[->] (t-binary) -- (t-execute);
+\draw[->] (t-execute) |- (4.157cm,1.0cm) -- (t-params.north);
+
+\draw[->,dotted] (t-features) -- (training-set);
+\draw[->,dotted] (t-execute) -- (training-set);
+\draw[->] (training-set) -- (t-params);
+\draw[->] (training-set) -- (p-params);
+\draw[->,dotted] (p-features) -- (training-set);
+
+\draw[->] (p-start) -- (p-features);
+\draw[->] (p-arch) -- (p-features);
+\draw[->] (p-params) -- (p-compile);
+\draw[->] (p-compile) -- (p-binary);
+\end{tikzpicture}

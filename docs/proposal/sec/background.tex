@@ -24,9 +24,10 @@ For predictive models, the quality of results is limited by the
 ability of the prediction function to accurately capture the behaviour
 of a real world system. Given the complexities of modern architectures
 and software stacks, such models have become increasingly hard to
-develop, although \citeauthor{Yotov2003} have demonstrated that under
-certain scenarios, the performance of accurately generated hand-tuned
-models can approach that of empirical optimisations~\cite{Yotov2003}.
+develop, although \citeauthor{Yotov2003} demonstrated
+in~\cite{Yotov2003} that under certain scenarios, the performance of
+accurately generated hand-tuned models can approach that of empirical
+optimisations.
 
 The quality of empirical models is limited by the amount of training
 data available to it, and the ability to interpolate between training
@@ -69,6 +70,20 @@ space of FastFlow and Intel Thread Building Blocks, two popular
 Algorithmic Skeleton libraries. While sharing the same goal as MaSiF,
 the approach of this project focuses on performing optimisation space
 searching at runtime, and targets multi-GPU programming.
+
+\begin{figure}[t]
+\input{fig/autotuners}
+\caption{Two approaches to static autotuning:
+  \ref{subfig:autotuner-offline}.\ offline autotuning using a separate
+  training phase, as used in~\cite{Agakov, Fursin2011, Collins2013};
+  \ref{subfig:autotuner-online}.\ online autotuning using procedure
+  multiversioning, as used in~\cite{Fursin2005}. In offline
+  autotuning, training programs are used to populate the training
+  data. In online autotuning, multiple versions of procedures and
+  compiled and switched between using a procedure dispatcher at
+  runtime.}
+\label{fig:autotuners}
+\end{figure}
 
 \subsection{Dynamic optimisation}\label{subsec:dynamic-optimisation}
 Dynamic optimisation is a very different approach to the problem of

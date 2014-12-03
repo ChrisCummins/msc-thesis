@@ -142,7 +142,12 @@
 \restylefloat{figure}
 
 % Use bold ``(Figure|Table|Listing)'' caption text.
-\usepackage[labelfont=bf]{caption}
+\usepackage[margin=1cm]{caption}
+
+% Set the font for captions.
+\renewcommand{\captionfont}{\footnotesize}
+% Set the font for caption labels.
+\renewcommand{\captionlabelfont}{\footnotesize\bf}
 
 % Use arabic numbers for footnote.
 \renewcommand{\thefootnote}{\arabic{footnote}}
@@ -764,6 +769,8 @@
 \usepackage{tikz}
 \usepackage{tikz-qtree}
 
+\usepackage{subcaption}
+
 % Define additional operators:
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
@@ -792,7 +799,7 @@
 }
 
 % Tikz flowchart configuration.
-\usetikzlibrary{shapes,arrows,shadows}
+\usetikzlibrary{shapes,arrows,shadows,fit}
 \tikzstyle{decision} = [diamond,
                         draw,
                         text width=4.5em,
@@ -804,8 +811,8 @@
                         text width=5em,
                         text centered,
                         node distance=3cm,
-                        rounded corners,
-                        minimum height=4em]
+                        minimum height=4em,
+                        inner sep=.2cm]
 \tikzstyle{line}     = [draw, -latex']
 
 % Add dirtree picture style, see:
