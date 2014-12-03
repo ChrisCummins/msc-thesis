@@ -13,6 +13,9 @@
 #define THRESHOLD 100
 #define PAR_DEPTH 2
 
+// Debug level.
+#define DEBUG 0
+
 template<typename T>
 void insertion_sort(T *const start, T *const end);
 
@@ -36,9 +39,15 @@ void stable_sort(T *const start, T *const end, int depth = 0) {
         // If we haven't recursed deeper than PAR_DEPTH, then recurse
         // in parallel. Else, execute sequentially.
         if (depth < PAR_DEPTH) {
+#if DEBUG > 0
+            std::cout << "p";
+#endif
             tbb::parallel_invoke([=]{stable_sort(start, middle, next_depth);},
                                  [=]{stable_sort(middle, end, next_depth);});
         } else {
+#if DEBUG > 0
+            std::cout << "-";
+#endif
             stable_sort(start, middle, next_depth);
             stable_sort(middle, end, next_depth);
         }
@@ -137,6 +146,10 @@ void run_test() {
     int64_t start_time = now();
     stable_sort(start, end);
     int64_t end_time = now();
+
+#if DEBUG > 0
+    std::cout << "\n";
+#endif
 
     assert_sorted(start, end);
 
