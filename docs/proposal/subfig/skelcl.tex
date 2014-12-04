@@ -1,0 +1,31 @@
+\begin{tikzpicture}[%
+    thick,
+    scale=.65,
+    every node/.style={scale=0.65},
+    node distance = 3cm,
+    % Database shape:
+    database/.style={%
+      draw,
+      cylinder,
+      cylinder uses custom fill,
+      shape border rotate=90,
+      aspect=0.25
+    }
+  ]
+
+% Nodes:
+\node (start) [block, text width=2.5cm] {\textbf{Invoke skeleton object}};
+\node (compile) [block, right of=start, xshift=.5cm] {OpenCL Compiler};
+\node (kernel) [block, fill=gray!10, right of=compile] {\textbf{OpenCL kenerl}};
+\node (exec) [block, right of=kernel] {Execute};
+
+\node (runtime) [draw, dashed, color=gray, yshift=.15cm,
+                 inner ysep=1cm, inner xsep=2.6cm,
+                 label={[yshift=-.7cm]\textbf{Runtime}},
+                 fit=(start) (exec)] {};
+
+% Connectors:
+\draw[->] (start) -- (compile);
+\draw[->] (compile) -- (kernel);
+\draw[->] (kernel) -- (exec);
+\end{tikzpicture}

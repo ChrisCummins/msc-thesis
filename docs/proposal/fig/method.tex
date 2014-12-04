@@ -1,53 +1,15 @@
+\begin{subfigure}{\textwidth}
 \centering
-\begin{tikzpicture}[%
-    auto,
-    thick,
-    scale=1,
-    every node/.style={scale=0.65},
-    node distance = 3cm,
-    % Database shape:
-    database/.style={%
-      draw,
-      cylinder,
-      cylinder uses custom fill,
-      shape border rotate=90,
-      aspect=0.25
-    }
-  ]
+\input{subfig/skelcl}
+\caption{}
+\label{subfig:skelcl}
+\end{subfigure}
 
-% Nodes:
-\node (start) [block, fill=gray!10, text width=2.5cm] {\textbf{Invoke skeleton object}};
-\node (arch) [block, below of=start, yshift=.8cm, text width=2.5cm] {Architecture};
-\node (features) [block, right of=start, xshift=.5cm] {Extract dynamic features};
-\node (params) [block, right of=features, xshift=.3cm] {Set parameters};
-\node (compile) [block, right of=params] {OpenCL Compiler};
-\node (kernel) [block, fill=gray!10, right of=compile, text width=3cm, xshift=.7cm] {\textbf{OpenCL kenerl}};
-\node (exec) [block, right of=kernel, xshift=.7cm] {Execute};
+\vspace{1em}
 
-\node (training-set) [database, fill=gray!10, below of=params]
-  {\textbf{\begin{tabular}{c}Training\\data\end{tabular}}};
-
-\node (persistent) [database, fill=gray!10, below of=training-set, yshift=-.5cm]
-  {\textbf{\begin{tabular}{c}Persistent\\data\end{tabular}}};
-
-
-\node (runtime) [draw, dashed, color=gray, yshift=-1.3cm,
-                 inner ysep=2.7cm, inner xsep=4cm,
-                 label={[yshift=-.7cm]\textbf{Runtime}},
-                 fit=(start) (exec)] {};
-
-% Connectors:
-\draw[->] (start) -- (features);
-\draw[->] (arch) -- (features);
-\draw[->] (features) -- (params);
-\draw[->] (params) -- (compile);
-\draw[->] (compile) -- (kernel);
-\draw[->] (kernel) -- (exec);
-
-\draw[->,dotted] (features) -- (training-set);
-\draw[->,dotted] (exec.south) -- (training-set);
-\draw[->] (training-set) -- (params);
-
-\draw[<->] (training-set) -- (persistent);
-
-\end{tikzpicture}
+\begin{subfigure}{\textwidth}
+\centering
+\input{subfig/skelcl-autotune}
+\caption{}
+\label{subfig:skelcl-autotune}
+\end{subfigure}

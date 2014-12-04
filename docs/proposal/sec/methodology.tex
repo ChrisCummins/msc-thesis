@@ -49,13 +49,17 @@ dynamic optimisers, in much multiple versions of a subroutine are
 included in a compiled binary.
 
 \begin{figure}[t]
+\centering
 \input{fig/method}
-\caption{Dynamically autotuning the SkelCL library. When invoked, the
-  dynamic features of an Algorithmic Skeleton are extracted and
-  matched against the training data to recommend optimal
-  parameters. The OpenCL compiler is invoked on this parameterised
-  skeleton to generate an OpenCL kernel for execution on
-  device. Profiler information is added to the training dataset.}
+\caption{The skeleton invocation behaviour of current SkelCL
+  % TODO: neaten up these subfigure references.
+  (\ref{subfig:skelcl}), and with dynamic autotuning
+  (\ref{subfig:skelcl-autotune}). When invoked, the dynamic features
+  of a skeleton object are extracted and matched against the training
+  data to recommend optimal parameters. The OpenCL compiler is invoked
+  on this parameterised skeleton to generate an OpenCL kernel for
+  execution on device. Profiler information is added to the training
+  dataset.}
 \label{fig:method}
 \end{figure}
 
