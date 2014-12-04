@@ -2621,3 +2621,32 @@ pictures and graphs. A paper has two narratives: the potentially
 boring words, and the pictures. The pictures narrative must stand up
 without requiring the words (the captions must be
 self-contained). Also, the Gantt chart item labels are not specific.
+
+
+## Thursday 4th
+
+Online machine learning:
+1. Receive an instance
+1. Predict the label of the instance
+1. Receive the true label of the instance
+
+The goal is to minimise some performance characteristic: e.g. the
+difference RMSE between predicted labels and true labels.
+
+The difficult of online machine learning for skeletons is in balancing
+three potentially conflicting desires:
+
+1. To delivery configurations that provide the best performance.
+2. To search the space as widely as possible.
+3. To gain confidence in data points through repeated execution.
+
+A model-based approach:
+```
+MBest(P,C)  # Predicted best configuration
+PTBest(P,C) # Predicted time for best configuration
+CTBest(P,C) # Confidence in predicted time for best configuration
+
+Rand(P,C)   # Random new configuration
+PTRand(P,C) # Predicted time for random configuration
+CTRand(P,C) # Confidence in predicted time for random configuration
+```
