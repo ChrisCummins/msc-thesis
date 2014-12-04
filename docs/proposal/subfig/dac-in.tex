@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+\tikzstyle{every node}=[font=\small]
+\begin{axis}[%
+  width=\linewidth, height=\linewidth,
+  xlabel={Parallelisation depth},
+  ylabel={Speedup}
+]table {
+  \addplot+ table {dat/in-int-n6.dat}; \addlegendentry{$10^6$ ints}
+  \addplot+ table {dat/in-int-n4.dat}; \addlegendentry{$10^4$ ints}
+  \addplot+ table {dat/in-char-n3.dat}; \addlegendentry{$10^3$ bytes}
+}
+\end{axis}
+\end{tikzpicture}

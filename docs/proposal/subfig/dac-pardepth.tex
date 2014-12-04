@@ -1,0 +1,14 @@
+\begin{tikzpicture}
+\tikzstyle{every node}=[font=\small]
+\begin{axis}[%
+  width=\linewidth,
+  height=\linewidth,
+  xlabel={Parallelisation depth},
+  ylabel={Speedup}
+]table {
+  \addplot+ table {dat/10.dat};   \addlegendentry{$n_s=10$}
+  \addplot+ table {dat/1010.dat}; \addlegendentry{$n_s=1010$}
+  \addplot+ table {dat/2010.dat}; \addlegendentry{$n_s=2010$}
+}
+\end{axis}
+\end{tikzpicture}

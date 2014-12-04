@@ -14,7 +14,6 @@ into three stages:
 This section outlines the work required for each stage, listing some
 of the possible challenges and reasons that these will be overcome.
 
-
 \subsection{SkelCL Optimisation parameters}
 In the first stage, I will replace compile-time constant parameters in
 the SkelCL library with variable parameters, and add an API to support
@@ -55,8 +54,8 @@ included in a compiled binary.
   % TODO: neaten up these subfigure references.
   (\ref{subfig:skelcl}), and with dynamic autotuning
   (\ref{subfig:skelcl-autotune}). When invoked, the dynamic features
-  of a skeleton object are extracted and matched against the training
-  data to recommend optimal parameters. The OpenCL compiler is invoked
+  of a skeleton object are extracted and an online machine learning
+  model recommends optimal parameters. The OpenCL compiler is invoked
   on this parameterised skeleton to generate an OpenCL kernel for
   execution on device. Profiler information is added to the training
   dataset.}
