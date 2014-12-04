@@ -1,5 +1,5 @@
-The work required to complete this research can be divided into three
-stages:
+The work required to complete this research has been broadly divided
+into three stages:
 
 \begin{enumerate}
 \item Modify SkelCL to enable the runtime configuration of
@@ -11,17 +11,22 @@ stages:
   persistent model of this optimisation space at runtime.
 \end{enumerate}
 
+This section outlines the work required for each stage, listing some
+of the possible challenges and reasons that these will be overcome.
+
+
+\subsection{SkelCL Optimisation parameters}
 In the first stage, I will replace compile-time constant parameters in
 the SkelCL library with variable parameters, and add an API to support
 dynamically setting these parameters. Examples of parameters which can
 be set dynamically include the mapping of work items to threads and
 the OpenCL compiler configuration. I will also modify the container
 types of SkelCL so that dynamic features of input data structures can
-be extracted at runtime.
-% TODO: complete this sentence:
-% Examples of dynamic features include the distribution of elements
-% within a container and the data type of elements.
+be extracted at runtime. Examples of dynamic features include the
+distribution of elements within a container and the data type of
+elements.
 
+\subsection{Feature and parameter evaluation}
 Pilot experiments will then be used to evaluate the effect of
 different parameters and features on performance by varying manually
 controlled stimuli across a range of different inputs and measuring
@@ -54,6 +59,7 @@ included in a compiled binary.
 \label{fig:method}
 \end{figure}
 
+\subsection{Dynamic autotuner implementation}
 In the final stage, I will construct a dynamic autotuner that uses the
 features and parameters selected in the exploratory phase. To the best
 of our knowledge, this will be the first attempt to develop a dynamic
