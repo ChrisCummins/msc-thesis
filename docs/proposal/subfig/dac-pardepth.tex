@@ -4,11 +4,12 @@
   width=\linewidth,
   height=\linewidth,
   xlabel={Parallelisation depth},
-  ylabel={Speedup}
+  ylabel={Speedup},
+  cycle list name=black white
 ]table {
-  \addplot+ table {dat/10.dat};   \addlegendentry{$n_s=10$}
-  \addplot+ table {dat/1010.dat}; \addlegendentry{$n_s=1010$}
-  \addplot+ table {dat/2010.dat}; \addlegendentry{$n_s=2010$}
+  \addplot+[mark=square] table {dat/10.dat};   \addlegendentry{$n_s=10$}
+  \addplot+[mark=o]      table {dat/1010.dat}; \addlegendentry{$n_s=1010$}
+  \addplot+[mark=x]      table {dat/2010.dat}; \addlegendentry{$n_s=2010$}
 }
 \end{axis}
 \end{tikzpicture}
