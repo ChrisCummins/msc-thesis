@@ -7,37 +7,41 @@ level of abstractions available to programmers.
 Algorithmic Skeletons address this issue by providing reusable
 patterns for parallel programming, offering higher-level abstractions
 and reducing programmer effort~\cite{Cole1989, Cole2004}. Tuning the
-performance of these Algorithmic Skeletons requires exhaustively
-searching the optimisation space to select optimal parameters.
+performance of these Algorithmic Skeletons requires programmers to
+either manually set optimisation parameters based on intuition, or to
+use an offline training technique to search the space of optimisation
+parameters and select the optimal configuration.
 
 The aim of this project is to demonstrate that the tuning of
-optimisation parameters can be successfully performed at runtime. This
-will enable self-tuning programs which adapt to their execution
-environment by selecting optimal parameters dynamically. Such
-configurations of parameters can be learned over time, allowing each
-successive program run to improve upon its predecessors.
+optimisation parameters can be successfully performed at runtime
+without needing offline training. This will enable self-tuning
+programs which adapt to their execution environment by selecting
+optimal parameters dynamically. Dynamic optimisation training will be
+achieved using online machine learning, allowing successive program
+runs to improve upon its predecessors.
 
-The case for dynamically autotuning applications is strong. There are
-many factors which contribute to the performance of programs which
-cannot be determined by program developers.
-% TODO: the case of self-tuning systems: TCP/IP.
-As a result, performance optimisation requires the programmer to
-either overfit the choice of parameters to optimise for a specific
-task and environment, or laboriously segment the optimisation space
-into regions of identical configurations using static heuristics. Both
-approaches have significant drawbacks: optimising for a specific task
-and environment creates brittle and non-portable optimisations that do
-not generalise to other architectures and inputs, and the task of
-creating heuristics which cover every possible combination of factors
-is prohibitively time consuming for developers.
+% TODO: discard this paragraph?
+%
+% The case for dynamically autotuning applications is strong. There are
+% many factors which contribute to the performance of programs which
+% cannot be determined by program developers. As a result, performance
+% optimisation requires a programmer to either overfit the choice of
+% parameters to optimise for a specific task and environment, or
+% laboriously segment the optimisation space into regions of identical
+% configurations using static heuristics. Both approaches have
+% significant drawbacks: optimising for a specific task and environment
+% creates brittle and non-portable optimisations that do not generalise
+% to other architectures and inputs, and the task of creating heuristics
+% which cover every possible combination of factors is prohibitively
+% time consuming.
 
 \subsection{Hypotheses}
 This project proposes two hypotheses about the performance of
 Algorithmic Skeletons:
 \begin{itemize}
-\item a dynamic autotuner will provide improved performance over a
-  baseline Algorithmic Skeleton implementation, by selecting
-  optimisations which specifically target runtime features;
+\item a dynamic autotuner will select optimisations that provide
+  improved performance over a baseline Algorithmic Skeleton
+  implementation;
 \item a dynamic autotuner will provide improved performance over a
   hand-tuned OpenCL implementation across a range of different inputs,
   by adapting to changes in the inputs dynamically.
@@ -50,7 +54,12 @@ an equivalent OpenCL implementation which has been tuned for a
 \emph{fixed} input, since the extra instructions required to implement
 the dynamic autotuner present an unavoidable performance overhead. The
 reduction of this overhead is one of the greatest challenges facing
-the development of dynamic autotuners. The novelty of my solution is
+the development of dynamic autotuners.
+
+\subsection{Contributions}
+
+The novelty of my solution is
+% TODO: EXCELLENT ^^. BULLSHIT vv
 to apply the concepts of persistent training data across program runs
 to a dynamic autotuner, which exposes many new features which cannot
 be statically determined, such as:
