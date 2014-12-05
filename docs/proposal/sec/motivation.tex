@@ -10,16 +10,16 @@
 \end{figure*}
 
 Consider a recursive merge sort algorithm. The algorithm takes an
-input list $T_i$ and returns a sorted permutation by determining
-whether the input list is short enough to be solved directly using a
-linear sorting method, or whether it should split it into multiple
-sub-lists and sort them by recursing on each sub-list before combining
-the results. This computational pattern is abstracted by the Divide
-and Conquer skeleton, which, when parameterised with four muscle
-functions, can effectively parallelise this task by considering each
-recursion as a new task to be executed concurrently. The four muscle
-functions operate on an input type $T_i$, return an object of type
-$T_o$, and can be formally defined as:
+input list, and returns a sorted permutation by determining whether
+the input list is short enough to be solved directly using a linear
+sorting method, or whether it should split it into multiple sub-lists
+and sort them recursively before combining the results. This
+computational pattern is abstracted by the Divide and Conquer
+skeleton, which, when parameterised with four muscle functions, can
+effectively parallelise this task by considering each recursion as a
+new task to be executed in parallel. The four muscle functions operate
+on an input type $T_i$, return an object of type $T_o$, and can be
+formally defined as:
 
 \begin{myalignat}{3}
 should\_divide &: T_i & &\rightarrow boolean\\
@@ -29,15 +29,15 @@ combine &: [T_o] & &\rightarrow T_o
 \end{myalignat}
 
 The degree of a Divide and Conquer skeleton is the number of
-sub-problems that the $divide$ function splits an input $T_i$. For a
-given degree $k$, the number of tasks $n$ grows exponentially with
-depth $d$:
+sub-problems that a problem is divided into by the $divide$
+function. For a given degree $k$, the number of tasks $n$ grows
+exponentially with depth $d$:
 
 \[n = k^{d} - 1\]
 
 On a given machine, the number of tasks which can be effectively
 executed in parallel is limited by the number of available cores.
-Since a Divide and Conquer pattern does not constrain the maximum
+Since the Divide and Conquer pattern does not constrain the maximum
 depth that an algorithm may expand to, the negative performance of
 task switching cost can be avoided by imposing a maximum
 ``parallelisation depth''. Recursion above this depth causes the
