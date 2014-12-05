@@ -1,3 +1,18 @@
+\begin{figure*}[t!]
+\centering
+\input{fig/method}
+\caption{The skeleton invocation behaviour of current SkelCL
+  % TODO: neaten up these subfigure references.
+  (\ref{subfig:skelcl}), and with dynamic autotuning
+  (\ref{subfig:skelcl-autotune}). When invoked, the dynamic features
+  of a skeleton object are extracted and an online machine learning
+  model recommends optimal parameters. The OpenCL compiler is invoked
+  on this parameterised skeleton to generate an OpenCL kernel for
+  execution on device. Profiler information is added to the training
+  dataset.}
+\label{fig:method}
+\end{figure*}
+
 The work required to complete this research has been broadly divided
 into three stages:
 
@@ -46,21 +61,6 @@ enables the setting of arbitrary optimisation parameters without
 having to use the multi-versioning techniques of many state of the art
 dynamic optimisers, in much multiple versions of a subroutine are
 included in a compiled binary.
-
-\begin{figure*}[t]
-\centering
-\input{fig/method}
-\caption{The skeleton invocation behaviour of current SkelCL
-  % TODO: neaten up these subfigure references.
-  (\ref{subfig:skelcl}), and with dynamic autotuning
-  (\ref{subfig:skelcl-autotune}). When invoked, the dynamic features
-  of a skeleton object are extracted and an online machine learning
-  model recommends optimal parameters. The OpenCL compiler is invoked
-  on this parameterised skeleton to generate an OpenCL kernel for
-  execution on device. Profiler information is added to the training
-  dataset.}
-\label{fig:method}
-\end{figure*}
 
 \subsection{Dynamic autotuner implementation}
 In the final stage, I will construct a dynamic autotuner that uses the

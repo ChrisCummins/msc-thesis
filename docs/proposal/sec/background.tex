@@ -1,3 +1,17 @@
+\begin{figure*}[t]
+\input{fig/autotuners}
+\caption{Two approaches to static autotuning:
+  \ref{subfig:autotuner-offline}.\ offline autotuning using a separate
+  training phase, as used in~\cite{Agakov, Fursin2011, Collins2013};
+  \ref{subfig:autotuner-online}.\ online autotuning using procedure
+  multiversioning, as used in~\cite{Fursin2005}. In offline
+  autotuning, training programs are used to populate the training
+  data. In online autotuning, multiple versions of procedures and
+  compiled and switched between using a procedure dispatcher at
+  runtime.}
+\label{fig:autotuners}
+\end{figure*}
+
 Relevant approaches to the problem of selecting optimisation property
 values can be broadly categorised as either offline tuning or dynamic
 optimisation. This section outlines some of the most important works
@@ -69,20 +83,6 @@ space of FastFlow and Intel Thread Building Blocks, two popular
 Algorithmic Skeleton libraries. While sharing the same goal as MaSiF,
 the approach of this project focuses on performing optimisation space
 searching at runtime, and targets multi-GPU programming.
-
-\begin{figure*}[t]
-\input{fig/autotuners}
-\caption{Two approaches to static autotuning:
-  \ref{subfig:autotuner-offline}.\ offline autotuning using a separate
-  training phase, as used in~\cite{Agakov, Fursin2011, Collins2013};
-  \ref{subfig:autotuner-online}.\ online autotuning using procedure
-  multiversioning, as used in~\cite{Fursin2005}. In offline
-  autotuning, training programs are used to populate the training
-  data. In online autotuning, multiple versions of procedures and
-  compiled and switched between using a procedure dispatcher at
-  runtime.}
-\label{fig:autotuners}
-\end{figure*}
 
 \subsection{Dynamic optimisation}\label{subsec:dynamic-optimisation}
 Dynamic optimisation is a very different approach to the problem of
