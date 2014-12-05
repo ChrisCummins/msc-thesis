@@ -22,7 +22,7 @@
 \node (t-params) [block, right of=t-features, text width=3cm, xshift=.4cm] {Set parameter configuration};
 \node (t-compile) [block, right of=t-params, xshift=.7cm] {Compile};
 \node (t-binary) [block, fill=green!10, right of=t-compile] {\textbf{Binary}};
-\node (t-execute) [block, right of=t-binary] {Execute};
+\node (t-execute) [block, fill=white, right of=t-binary] {Execute};
 \node (t-arch) [block, below of=t-start, yshift=.8cm] {Architecture};
 
 \node (runtime) [draw, dashed, color=gray, yshift=.5cm,
@@ -49,7 +49,9 @@
 \draw[->] (t-execute) |- (4.157cm,1.0cm) -- (t-params.north);
 
 \draw[->,dotted] (t-features) -- (training-set);
-\draw[->,dotted] (t-execute) -- (training-set);
+\begin{pgfonlayer}{background} % Don't draw line on top of node
+\draw[->,dotted] (t-execute) |- ([yshift=3cm]training-set);
+\end{pgfonlayer}
 \draw[->] (training-set) -- (t-params);
 \draw[->] (training-set) -- (p-params);
 \draw[->,dotted] (p-features) -- (training-set);
