@@ -20,21 +20,6 @@ optimal parameters dynamically. Dynamic optimisation training will be
 achieved using online machine learning, allowing successive program
 runs to improve upon its predecessors.
 
-% TODO: discard this paragraph?
-%
-% The case for dynamically autotuning applications is strong. There are
-% many factors which contribute to the performance of programs which
-% cannot be determined by program developers. As a result, performance
-% optimisation requires a programmer to either overfit the choice of
-% parameters to optimise for a specific task and environment, or
-% laboriously segment the optimisation space into regions of identical
-% configurations using static heuristics. Both approaches have
-% significant drawbacks: optimising for a specific task and environment
-% creates brittle and non-portable optimisations that do not generalise
-% to other architectures and inputs, and the task of creating heuristics
-% which cover every possible combination of factors is prohibitively
-% time consuming.
-
 \subsection{Hypotheses}
 This project proposes two hypotheses about the performance of
 Algorithmic Skeletons:
@@ -58,27 +43,28 @@ the development of dynamic autotuners.
 
 \subsection{Contributions}
 
-The novelty of my solution is
-% TODO: EXCELLENT ^^. BULLSHIT vv
-to apply the concepts of persistent training data across program runs
-to a dynamic autotuner, which exposes many new features which cannot
-be statically determined, such as:
+The novelty of my solution is to apply online machine learning
+techniques to the problem of optimisation parameter selection for
+Algorithmic Skeletons. Targeting the high-level abstractions of
+Algorithmic Skeletons at runtime exposes many features which cannot be
+statically determined, such as:
 
 \begin{itemize}
 \itemsep0em
-\item properties of the input data, e.g.\ the size, and data type;
+\item properties of the input data, e.g.\ the size, data type, and
+  dimensionality;
 \item copy-up and copy-down times for transferring data to and from
   device memory;
-\item the number of cores available on devices;
+\item the available devices and number of cores;
 \item OpenCL compiler settings and optimisation flags;
-\item runtime environment properties, e.g.\ system load.
+\item system state information, e.g.\ system load.
 \end{itemize}
 
-\subsection{Structure}
-The rest of the document is structured as follows:
-Section~\ref{sec:motivation} contains the motivation for this
-research; Section~\ref{sec:background} briefly outlines related work;
-Sections~\ref{sec:methodology} and~\ref{sec:evaluation} describe the
-methodology and evaluation plans for this research;
-Section~\ref{sec:work-plan} contains the work plan; followed by the
-conclusion in Section~\ref{sec:conclusions}.
+% \subsection{Structure}
+% The rest of the document is structured as follows:
+% Section~\ref{sec:motivation} contains a motivating example;
+% Section~\ref{sec:background} briefly outlines related work and
+% background; Sections~\ref{sec:methodology} and~\ref{sec:evaluation}
+% describe the methodology and evaluation; Section~\ref{sec:work-plan}
+% contains the work plan; followed by the conclusion in
+% Section~\ref{sec:conclusions}.
