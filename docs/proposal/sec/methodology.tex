@@ -8,8 +8,8 @@
   of a skeleton object are extracted and an online machine learning
   model recommends optimal parameters. The OpenCL compiler is invoked
   on this parameterised skeleton to generate an OpenCL kernel for
-  execution on device. Profiler information is added to the training
-  dataset.}
+  execution on device. Profiling information is gathered during
+  execution and added to the training dataset.}
 \label{fig:method}
 \end{figure*}
 
@@ -18,16 +18,16 @@ into three stages:
 
 \begin{enumerate}
 \item Modify SkelCL to enable the runtime configuration of
-  optimisation parameters.
-\item Evaluate the significance of dynamic features and different
-  optimisation parameters to select the parameters which provide the
-  most profitable optimisation space.
-\item Implement a dynamic autotuner which searches and builds a
-  persistent model of this optimisation space at runtime.
+  optimisation parameters, and the extraction of dynamic features.
+\item Evaluate the significance of optimisation parameters and dynamic
+  features to select the parameters which provide the most profitable
+  optimisation space.
+\item Implement a dynamic autotuner which searches and builds an
+  online model of this optimisation space at runtime.
 \end{enumerate}
 
 This section outlines the work required for each stage, listing some
-of the possible challenges and reasons that these will be overcome.
+of the possible challenges and approaches to overcoming them.
 
 \subsection{SkelCL Optimisation parameters}
 In the first stage, I will replace compile-time constant parameters in
