@@ -1,11 +1,11 @@
 My hypothesis is that the performance of Algorithmic Skeletons can be
 improved using dynamic autotuning. This hypothesis will be supported
 or rejected by empirical evidence collected from an evaluation of the
-implemented prototype. Experimental evidence and standard empirical
-methods will be used to evaluate the performance of SkelCL across a
-range of representative benchmarks.
+implemented prototype. I will use experimental evidence and standard
+empirical methods to evaluate the performance of SkelCL across a range
+of representative benchmarks.
 
-Experimental performance results will be compared against:
+I will compare experimental performance results against:
 
 \begin{itemize}
 \item a baseline implementation provided by an unmodified SkelCL
@@ -13,8 +13,8 @@ implementation. This will compare the speedup of the autotuned version
 over the baseline;
 \item a hand-tuned ``oracle'' implementation using an optimal
 configuration discovered through an exhaustive search of the
-optimisation space. This will measure the autotuner's ability to
-converge towards optimal parameters over time;
+optimisation space. This will measure the ability of the autotuner
+to converge towards optimal parameters over time;
 \item a ``gold standard'' implementation using hand tuned OpenCL
 without the SkelCL abstractions. This will compare the performance
 cost of using the high-level Algorithmic Skeleton abstractions against
@@ -35,7 +35,7 @@ library.
 
 The stochastic nature of autotuning and machine learning techniques
 means that the performance evaluation of representative benchmarks
-must be performed with strict statistical rigour, using appropriate
+must be performed with statistical rigour, using appropriate
 techniques for profiling benchmark performance over multiple
 iterations~\cite{Georges2007}. The evaluation approach must carefully
 isolate independent variables and provide a controlled environment for
@@ -47,5 +47,5 @@ the overhead introduced by the runtime, the amount of time required to
 converge on optimal configurations, and the ability of the dynamic
 optimiser to adapt to changes in the runtime environment. This last
 measurement may require execution of the benchmarks on multiple
-different hardware configurations so as to measure the system's
-ability to adapt to different environments.
+different hardware configurations so as to measure the ability of the
+autotuner to adapt to different environments.

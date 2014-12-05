@@ -19,7 +19,7 @@ computational pattern is abstracted by the Divide and Conquer
 skeleton, which can be effectively parallelised by executing each
 recursion as a new parallel task. The Divide and Conquer skeleton
 takes an input of type $T_i$ and returns an output of type $T_o$, and
-is parameterised with definitions for four muscle functions:
+ is parameterised with definitions for four muscle functions:
 
 \begin{myalignat}{3}
 should\_divide &: T_i & &\rightarrow boolean\\
@@ -38,23 +38,23 @@ recursion depth $d$:
 On real hardware, the number of available processing units limits the
 number of tasks which can be effectively executed in parallel. Since
 the Divide and Conquer pattern does not constrain the maximum depth
-that an algorithm may recurse to, the skeleton author must impost a
-maximum ``parallelisation depth'' to prevent the negative performance
-of task switching costs for skeletons which recurse deeply. Recursion
-above the parallelisation depth causes the creation of parallel tasks,
-below this depth, recursion occurs sequentially.
+that an algorithm may recurse to, the skeleton author must impose a
+maximum ``parallelisation depth'' to prevent the task switching costs
+skeletons which recurse deeply. Recursion above the parallelisation
+depth causes the creation of parallel tasks, below this depth,
+recursion occurs sequentially.
 
 The remainder of this section describes experimental data that
-considers the effect of varying input conditions on the optimal
+consider the effect of varying input conditions on the optimal
 parallelisation depth.
 
 \subsection{Experimental setup}
-A Divide and Conquer skeleton was implemented and parameterised with
-muscle functions to implement merge sort. The skeleton was
-parallelised using the C++11 Thread Support Library, and a testbench
-recorded the mean time to sort a vector of random unsorted data over
-30 iterations. The parallelisation depth was varied over a range 0
-(sequential) to 10.
+I implemented a Divide and Conquer skeleton and parameterised it with
+muscle functions to implement merge sort. I parallelised the skeleton
+using the C++11 Thread Support Library, and a testbench recorded the
+mean time to sort a vector of random unsorted data over 30
+iterations. I varied the parallelisation depth over the range 0
+(sequential) through 10.
 
 \subsection{Results}
 Figure~\ref{fig:dac} shows the mean performance speedup of different
@@ -62,15 +62,15 @@ parallelisation depths over sequential
 execution. Figure~\ref{subfig:dac-pardepth} shows the effect of
 varying the split size, which is a property of the $should\_divide$
 muscle function that determines the maximum list size at which
-recursive sort should bottom out and insertion sort should be
+recursive sort should bottom out and insertion sort is
 used. Figure~\ref{subfig:dac-in} shows the effect of varying the size
 and data type of the input vector.
 
-In both cases we observe that changes in the input and muscle function
-definitions can have a significant impact when determining the optimal
-parallelisation depth parameter. Since the types and values of inputs
-cannot be known \emph{a priori}, the skeleton author must resort to
-picking a value which they expect to provide best average case
-performance, or devising a technique which allows this optimisation
-parameter to be set at runtime as a response to different inputs. This
-proposal describes an approach to the latter solution.
+We observe that changes in the input and muscle function definitions
+can have a significant impact when determining the optimal
+parallelisation depth parameter. Since the skeleton author cannot
+determine the types and values of inputs \emph{a priori}, they must
+resort to picking a value which they expect to provide best average
+case performance, or devising a technique which sets this optimisation
+parameter at runtime as a response to different inputs. This proposal
+describes a solution using the latter approach.
