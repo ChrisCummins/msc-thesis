@@ -20,10 +20,10 @@ into three stages:
 \item Modify SkelCL to enable the runtime configuration of
   optimisation parameters, and the extraction of dynamic features.
 \item Evaluate the significance of optimisation parameters and dynamic
-  features to select the parameters which provide the most profitable
-  optimisation space.
-\item Implement a dynamic autotuner which uses online machine learning
-  to searches and builds a model of this optimisation space at
+  features. Use the results of this evaluation to select an online
+  machine learning algorithm for parameter tuning.
+\item Implement a low overhead dynamic autotuner which uses this
+  online machine learning model to select optimisation parameters at
   runtime.
 \end{enumerate}
 
@@ -33,50 +33,44 @@ of the possible challenges and approaches to overcoming them.
 \subsection{Model features and parameters}
 In the first stage, I will replace compile-time constant parameters in
 the SkelCL library with variable parameters, and add an API to support
-dynamically setting these parameters. Examples of parameters which can
-be set dynamically include the mapping of work items to threads and
-the OpenCL compiler configuration. I will also modify the container
-types of SkelCL so that dynamic features of input data structures can
-be extracted at runtime. Examples of dynamic features include the
-distribution of elements within a container and the data type of
-elements.
+dynamically setting these parameters. This will provide the set of
+actions that can be taken based on performance predictions of the
+machine learning model. Examples of parameters which can be set
+dynamically include the mapping of work items to threads and the
+OpenCL compiler configuration. I will then modify the container types
+of SkelCL so that properties of input data structures can be extracted
+at runtime. These will provide the input features to the machine
+learning model. Examples of dynamic features include the distribution
+of elements within a container and the data type of elements.
 
-\subsection{Feature and parameter evaluation}
-Pilot experiments will then be used to evaluate the effect of
-different parameters and features on performance by varying test
-stimuli across a range of different inputs and measuring their impact
-on performance. Statistical methods will be used to analyse these
-results in order to isolate the parameters and features with the
-greatest performance impact. Principle Component Analysis can be used
-to reduce the dimensionality of this optimisation space by orientating
-the space along the directions of greatest variance.
+\subsection{Online machine learning}
+Exploratory experiments will then be used to evaluate the effect of
+different parameters and features by varying test stimuli across a
+range of different inputs and measuring their impact on
+performance. Statistical methods will be used to analyse these results
+in order to isolate the parameters and features with the greatest
+performance impact. Principle Component Analysis can be used to reduce
+the dimensionality of this optimisation space by orientating the space
+along the directions of greatest variance.
 
-This exploratory phase provides opportunities for the novel use of
-dynamic features for the purpose of autotuning Algorithmic Skeletons,
-since previous research has focused on offline tuning and so has been
-restricted to the set of features which can be either statically
-determined or approximated. In addition to dynamic features, SkelCL
-compiles OpenCL kernels at runtime immediately before execution. This
-enables the setting of arbitrary optimisation parameters without
-having to use the multi-versioning techniques of many state of the art
-dynamic optimisers.
+The purpose of this exploratory phase is to identify the identify the
+parameters and features which can be used to most effectively search
+the optimisation space, and to guide the choice of online machine
+learning algorithm. The goal of the online machine learning algorithm
+is to generate parameter configurations which will provide the best
+performance for a given skeleton and input dataset. Each time a
+skeleton object is invoked, the machine learning algorithm must:
 
-\subsection{Dynamic autotuner implementation}
-In the final stage, I will construct a dynamic autotuner by
-implementing an online machine learning model that uses the features
-and parameters selected in the exploratory phase. To the best of our
-knowledge, this will be the first attempt to develop a dynamic
-autotuner using online machine learning for Algorithmic Skeletons. The
-goal of the implementation will be to exploit the advantages of
-dynamic features to provide improved performance over existing static
-Algorithmic Skeleton autotuners, and to exploit the high-level
-abstractions of Algorithmic Skeletons to provide improved performance
-over existing dynamic optimisers.
+\begin{enumerate}
+\item Predict the parameter configuration which will provide the best
+  performance based on the features.
+\item Compile and execute the skeleton with this configuration.
+\item Measure the true performance of the skeleton and use this result
+  to improve the refine future predictions.
+\end{enumerate}
 
-Implementing a dynamic autotuner poses a number of difficult
-challenges. The primary challenge is in developing an online machine
-learning model which balances the potentially conflicting requirements
-to:
+The primary challenge in developing the machine learning algorithm is
+to balance the potentially conflicting requirements to:
 
 \begin{itemize}
 \item offer the best performance configurations to maximise
@@ -87,36 +81,46 @@ to:
   invocations of identical configurations.
 \end{itemize}
 
-\noindent
-\textbf{\textit{TODO: reinforcement learning!}}
+\subsection{Dynamic autotuner implementation}
+In the final stage, I will implement a dynamic autotuner by which uses
+the online machine learning algorithm, features, and parameters
+selected in the exploratory phase. To the best of our knowledge, this
+will be the first attempt to develop a dynamic autotuner using online
+machine learning for Algorithmic Skeletons. The goal of the
+implementation will be to exploit the advantages of dynamic features
+to provide improved performance over existing static Algorithmic
+Skeleton autotuners, and to exploit the high-level abstractions of
+Algorithmic Skeletons to provide improved performance over existing
+dynamic optimisers. Figure~\ref{subfig:skelcl-autotune} shows a
+system-level overview of dynamically autotuned SkelCL.
 
-% \begin{enumerate}
-% \item Receive an instance
-% \item Predict the label of the instance
-% \item Receive the true label of the instance
-% \end{enumerate}
+A major challenge when implementing online autotuning is to minimise
+the runtime overhead so that it does not outweigh the performance
+gains of the optimisations themselves. The proposed approach to
+dynamically autotune SkelCL will overcome one of the most significant
+overheads associated with dynamic optimising: that of instrumenting
+the code for the purpose of profiling and tracing. Since Algorithmic
+Skeletons coordinate muscle functions, it is possible to forgo many of
+the counters required for performance profiling by making assumptions
+about the execution frequency of certain code paths given the nature
+of the skeleton. Profiling counters will be placed by hand at critical
+points in the code, allowing the frequency of counter increments to be
+minimised.
 
-% A unique challenge of online autotuning is in minimising the runtime
-% overhead so that it does not outweigh the performance gains of the
-% optimisations themselves. The proposed approach to dynamically
-% autotune SkelCL will overcome one of the most significant overheads
-% associated with dynamic optimising: that of instrumenting the code
-% for the purpose of profiling and tracing. Since Algorithmic
-% Skeletons coordinate muscle functions, it is possible to forgo many
-% of the profiling counters that dynamic optimisers require by making
-% assumptions about the execution frequency of certain code paths,
-% given the nature of the skeleton. Profiling counters will be placed
-% by hand at critical points in the code, allowing the frequency of
-% counter increments to be minimised.
+\begin{figure*}[t!]
+\makebox[\textwidth][c]{\input{fig/gantt}}
+\caption{Project schedule Gantt chart.}
+\label{fig:gantt}
+\end{figure*}
 
-The convergence time of autotuning can be improved by saving the
-results of trial configurations persistently in a central
-database. This provides two advantages: first, it allows the results
-of autotuning to be used by future program runs; second, it allows the
-result of autotuning to be shared amongst any program which uses the
-SkelCL library. The challenge of implementing this persistent data
-storage is that results must be stored efficiently and compactly, to
-allow for indefinite scaling of the dataset as future results are
+The convergence time of autotuning can be improved by using a
+persistent central database to store optimisation results. This
+provides two advantages: first, it allows the results of autotuning to
+be used by future program runs; second, it allows the result of
+autotuning to be shared across any program which uses the SkelCL
+library. The challenge of implementing this persistent data storage is
+that results must be stored efficiently and compactly, to allow for
+indefinite scaling of the dataset as future results are
 added. Increasing the size of the training dataset also increases the
 time required to compute new results, and there is additional
 latencies associated with reading and writing data to and from disk.

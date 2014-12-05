@@ -12,15 +12,14 @@
 \label{fig:autotuners}
 \end{figure*}
 
-Relevant approaches to the problem of optimisation parameter
-performance can be broadly categorised as either offline tuning or
-dynamic optimisation. This section outlines some of the most important
-works in each category, followed by an introduction to the SkelCL
-library.
+Relevant approaches to the problem of optimisation parameter tuning
+can be broadly categorised as either offline tuning or dynamic
+optimisation. This section outlines some of the most important works
+in each category, followed by an introduction to the SkelCL library.
 
 \subsection{Offline tuning}\label{subsec:offline-tuning}
 Offline tuning involves selecting the set of parameters that provides
-the best performance for a given input, based on some model of
+the best performance for a given input based on some model of
 performance that is generated offline. Performance models can either
 be predictive, in that they attempt to characterise performance as a
 function of the optimisation parameters and input, or empirical, in
@@ -29,8 +28,8 @@ gathered from prior evaluation of many different parameter
 configurations. In both cases, a performance function $f(c,p)$ models
 the relationship between a parameter configuration $c$, a program $p$,
 and some profitability goal. The purpose of the offline tuning phase
-is to select the set of configuration $c_{optimal}$ which maximises
-the output of the performance model:
+is to select the configuration $c_{optimal}$ which maximises the
+output of the performance model:
 \begin{align*}
   c_{optimal} = \argmax_{p}f(c,p)
 \end{align*}
@@ -44,32 +43,25 @@ hand-tuned models can approach that of empirical optimisations.
 
 The quality of empirical models is limited by the amount of training
 data available to it, and the ability to interpolate between training
-data when faced with new unknown inputs.
+data when faced with new unknown inputs. Offline machine learning
+techniques have proven popular as an approach to reducing the number
+of evaluations of training programs which are required, such as
+in~\cite{Agakov}, where \citeauthor{Agakov} use Markov Chains to learn
+the most profitable areas of the optimisation space of source to
+source transformations.
 
-Iterative compilation is an example of empirical optimisation that
-uses an offline training phase to perform an extensive search of the
-optimisation space of a program by compiling and evaluating the same
-program with different configurations in order to select the set that
-provides the best performance.
-
-Iterative compilation techniques has been successfully applied to a
-range of optimisation challenges. Offline machine learning has proven
-popular as a technique for reducing the number of evaluations of
-training programs which are required, such as in~\cite{Agakov}, where
-\citeauthor{Agakov} use Markov Chains to learn the most profitable
-areas of the optimisation space of source to source
-transformations. In~\cite{Fursin2011}, \citeauthor{Fursin2011} present
-Milepost GCC, a self-tuning research compiler that selects
-optimisations based on static program features. The approach taken in
-this paper differs by performing this search of the optimisation space
-during normal program runs, instead of requiring costly offline
-training.
+In~\cite{Fursin2011}, \citeauthor{Fursin2011} present Milepost GCC, a
+self-tuning research compiler that selects optimisations based on
+static program features. The approach proposed in this paper differs by
+performing this search of the optimisation space during normal program
+runs, instead of requiring costly offline training.
 
 The task of collecting training data for offline autotuners has been
 effectively distributed in~\cite{Fursin2014, Auler2014}. A remote
 server contains a central store of training data which is retrieved
-and contributed to by distributed clients. The overhead of
-communicating with this remote server would be too great to use
+and contributed to by distributed clients; this allows multiple
+clients to share the results of optimisations. The overhead of
+communicating with a remote server would be too great to use
 dynamically, a typical 150ms network round trip time in the critical
 path of a program would cause a serious performance degradation.
 
@@ -87,16 +79,15 @@ Figure~\ref{subfig:autotuner-offline}.
 
 \subsection{Dynamic optimisation}\label{subsec:dynamic-optimisation}
 The goal of dynamic optimisers is to improve the performance of a
-program during execution, by performing an exploration of the
-optimisation space at runtime. It allows programs to respond to
-dynamic properties ``online''. Implementing an effective dynamic
-optimiser is a challenging task, as the need to search the
-optimisation space must be balanced against the need to provide
-quality of service by avoid suboptimal configurations. In a real world
-system, evaluating many suboptimal configurations will cause a
-significant slowdown of the program. Thus a requirement of dynamic
-optimisers is that convergence time towards optimal parameters must be
-minimised.
+program during execution by exploring the optimisation space at
+runtime. It allows programs to respond to dynamic properties
+``online''. Implementing an effective dynamic optimiser is a
+challenging task, as the need to search the optimisation space must be
+balanced against the need to provide quality of service by avoiding
+suboptimal configurations. In a real world system, evaluating many
+suboptimal configurations will cause a significant slowdown of the
+program. Thus a requirement of dynamic optimisers is that convergence
+time towards optimal parameters must be minimised.
 
 Existing dynamic optimisation research has typically taken a low level
 approach to performing optimisations. Dynamo is a dynamic optimiser
@@ -106,7 +97,7 @@ tracing~\cite{Bala2000}. While this provides the ability to respond to
 dynamic features, it restricts the range of optimisations that can be
 applied to binary transformations such as function inlining, and
 cannot offer the performance gains that higher-level parameter tuning
-provides such as setting the number of threads to execute.
+such as setting the size of thread pools provides.
 
 One of the biggest challenges facing the implementation of dynamic
 optimisers is to minimise the runtime overhead so that it does not
@@ -115,24 +106,26 @@ significant contributor to this runtime overhead is the requirement to
 compile code dynamically. \citeauthor{Fursin2005} negated this cost
 in~\cite{Fursin2005} by compiling multiple versions of target
 subroutines ahead of time. At runtime, execution is switched between
-the available versions. Figure~\ref{subfig:autotuner-online} shows a
-system-level overview of this approach. In practice, this technique
-massively reduces the size of the optimisation space which can be
-searched as it is unfeasible to insert the thousands of different
-versions of a subroutine that are tested using offline tuning. The
-approach taken in this paper enables online searching of the entire
-optimisation space by compiling OpenCL kernels at runtime.
+the available versions which are ranked by
+performance. Figure~\ref{subfig:autotuner-online} shows a system-level
+overview of this approach. In practice, this technique massively
+reduces the size of the optimisation space which can be searched as it
+is unfeasible to insert the thousands of different versions of a
+subroutine that are tested using offline tuning. The approach proposed
+in this paper enables online searching of the entire optimisation
+space by compiling OpenCL kernels at runtime.
 
 Many existing dynamic optimisation systems do not store the results of
 their efforts persistently, allowing the training data to be lost when
 the host process terminates. This approach relies on the assumption
 that either the convergence time to reach an optimal set of parameters
-is short enough to have negligible performance impact, or that the
-runtime of the host process is sufficiently long to reach an optimal
-set of parameters in good time. Neither assumption can be shown to fit
-the general case. This has led to the development of collective
-compilation techniques, which involve persistently storing the results
-of successive optimisation runs using a database~\cite{Fursin2010}.
+is short enough to have negligible cost, or that the run time of the
+process is sufficiently long to reach an optimal set of parameters in
+good time. Neither assumption can be shown to fit the general
+case. This has led to the development of collective compilation
+techniques, which involve persistently storing the results of
+successive optimisation runs in a persistent
+database~\cite{Fursin2010}.
 
 In~\cite{Ansel2009a}, \citeauthor{Ansel2009a} attempts to capture
 high-level algorithmic choices using PetaBricks, a language and
@@ -142,8 +135,8 @@ runtime. This has the disadvantage of increasing programmer effort by
 requiring them to implement multiple versions of an algorithm tailored
 to different optimisation parameters. A dynamic autotuner for
 Algorithmic Skeletons would be able to exploit these high-level
-optimisations without increasing programmer effort, by embedding the
-optimisations within the SkelCL library.
+optimisations without increasing programmer effort, by hiding the
+complexity of optimisations within the SkelCL library.
 
 SiblingRivalry~\cite{Ansel2012} is a dynamic optimiser that provides
 sustained quality of service by dividing the available processing

@@ -1,23 +1,30 @@
+This paper proposes the development of a dynamic autotuner for SkelCL
+which uses online machine learning techniques to explore the space of
+optimisation parameters and recommend optimal configurations based on
+dynamic features. This will be the first attempt to implement a
+dynamic autotuner using online machine learning for Algorithmic
+Skeletons, and will enable runtime performance tuning without the
+requirement of long offline training periods associated with state of
+the art Algorithmic Skeletons autotuners.
+
+Our approach will be to first modify SkelCL so that it enables runtime
+configuration of optimisation parameters and dynamic extraction of
+features, then to evaluate the significance of dynamic features and
+optimisation parameters in order to develop an effective online
+machine learning technique, before implementing a dynamic autotuner
+which searches and builds a persistent model of this optimisation
+space at runtime. The performance of this dynamic autotuner will be
+compared across a number of benchmarks against a baseline unmodified
+SkelCL, and a gold standard hand-tuned OpenCL implementation.
+
 Algorithmic Skeletons have been shown to improve programmer
 effectiveness by providing the necessary high-level abstractions for
 parallel programming. The SkelCL library has been used to implement
 high performance medical imaging applications using shorter, better
 structured programs that perform within 5\% of a hand tuned OpenCL
-implementation~\cite{Steuwer2012}.
-
-A dynamic autotuner for SkelCL will improve the performance of these
-applications by providing optimisations which, while targeting
-specific applications and inputs, are transferable across problem
-domains. Through the novel combination of persistent training data
-with the dynamic compilation of OpenCL kernels and runtime features,
-it will be possible to implement a dynamic autotuner for SkelCL with
-minimal runtime overhead.
-
-Our approach will be to first modify SkelCL so that it enables runtime
-configuration of optimisation parameters, then to evaluate the
-significance of dynamic features and optimisation parameters, before
-implementing a dynamic autotuner which searches and builds a
-persistent model of this optimisation space at run.
+implementation~\cite{Steuwer2012}. As the trend towards increasingly
+parallel hardware continues, the demand for high-performance parallel
+programming abstractions will continue.
 
 We are ideally suited for tackling this difficult problem at
 University of Edinburgh, with expert researchers in the fields of

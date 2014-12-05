@@ -1,4 +1,4 @@
-Parallelism is increasingly being seen as the only viable approach to
+Parallelism is increasingly seen as the only viable approach to
 maintaining continued performance improvements in a multicore
 world. Despite this, the adoption of parallel programming practises
 has been slow and awkward, due to the prohibitive complexity and low
@@ -9,16 +9,17 @@ patterns for parallel programming, offering higher-level abstractions
 and reducing programmer effort~\cite{Cole1989, Cole2004}. Tuning the
 performance of these Algorithmic Skeletons requires programmers to
 either manually set optimisation parameters based on intuition, or to
-use an offline training technique to search the space of optimisation
-parameters and select the optimal configuration.
+search the huge space of possible optimisation parameters by
+repeatedly evaluating different configurations to select the
+configuration which gives the best performance.
 
 The aim of this project is to demonstrate that the tuning of
 optimisation parameters can be successfully performed at runtime
 without needing offline training. This will enable self-tuning
 programs which adapt to their execution environment by selecting
-optimal parameters dynamically. Dynamic optimisation training will be
-achieved using online machine learning, allowing successive program
-runs to improve upon its predecessors.
+optimal parameters dynamically. Online machine learning will enable
+the runtime exploration of the optimisation space while selecting
+configurations that maximise performance.
 
 \subsection{Hypotheses}
 This project proposes two hypotheses about the performance of
@@ -45,19 +46,18 @@ the development of dynamic autotuners.
 
 The novelty of my solution is to apply online machine learning
 techniques to the problem of optimisation parameter selection for
-Algorithmic Skeletons. Targeting the high-level abstractions of
-Algorithmic Skeletons at runtime exposes many features which cannot be
-statically determined, such as:
+Algorithmic Skeletons. Contributions of a successful project will
+include:
 
 \begin{itemize}
-\itemsep0em
-\item properties of the input data, e.g.\ the size, data type, and
-  dimensionality;
-\item copy-up and copy-down times for transferring data to and from
-  device memory;
-\item the available devices and number of cores;
-\item OpenCL compiler settings and optimisation flags;
-\item system state information, e.g.\ system load.
+\item a first attempt to apply the principles of online machine
+  learning to the runtime selection of Algorithmic Skeleton
+  optimisation parameters;
+\item a dynamic autotuner which specifically targets features relevant
+  to multi-GPU parallelism;
+\item experimental results comparing the performance of dynamically
+  autotuned SkelCL against hand tuned OpenCL across multiple
+  benchmarks.
 \end{itemize}
 
 % \subsection{Structure}
