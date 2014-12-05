@@ -2,16 +2,14 @@ The rapid transition towards multicore hardware which has left
 application programmers requiring higher-level abstractions for
 dealing with the complexity of parallel programming. Algorithmic
 Skeletons provide such abstractions, but typically cannot compete with
-the performance of hand tuned parallel algorithms.
-% TODO: why?
-This paper proposes the development of a dynamic, ``always-on''
-autotuner for SkelCL, an Algorithmic Skeleton library which enables
-high-level programming of multi-GPU systems. Such a system would use
-empirical optimisation techniques to select the optimisation
-parameters which provide the greatest performance, but without
-requiring the huge offline training periods typically associated with
-static autotuning. The proposed system will use online tuning with
-persistent training data to create a feedback loop of constant testing
-and evaluation, and will be able to adapt to runtime properties which
-cannot be determined by static autotuners, such as the input dataset
-and dynamic state of the system.
+the performance of hand optimised parallel algorithms without
+extensive tuning. This paper proposes the development of a dynamic,
+``always-on'' autotuner for SkelCL, an Algorithmic Skeleton library
+which enables high-level programming of multi-GPU systems. An online
+machine learning system will create a feedback loop of constant
+testing and evaluation of skeleton parameters across the lifespan of
+programs. Dynamically extracted features will characterise muscle
+functions and input data, and runtime performance data will be used to
+select optimisation parameters. Such a system will extend the state of
+the art by enabling empirical optimisation without the huge offline
+training phases associated with iterative compilation.
