@@ -15,16 +15,16 @@
   ]
 
 % Nodes:
-\node (t-start) [block, fill=gray!10] {\textbf{User program}};
+\node (t-start) [block, fill=red!10] {\textbf{User program}};
 \node (t-arch) [block, below of=t-start, yshift=.8cm] {Architecture};
 \node (t-features) [block, right of=t-start] {Extract static features};
 \node (t-procs) [block, right of=t-features, xshift=.4cm] {Clone procedures};
 \node (t-compile) [block, right of=t-procs] {Compile};
-\node (t-binary3) [block, fill=gray!10, right of=t-compile, text width=3cm, xshift=.5cm, yshift=.2cm] {};
-\node (t-binary2) [block, fill=gray!10, right of=t-compile, text width=3cm, xshift=.6cm, yshift=.1cm] {};
-\node (t-binary) [block, fill=gray!10, right of=t-compile, text width=3cm, xshift=.7cm] {\textbf{Multiversioned binary}};
+\node (t-binary3) [block, fill=green!10, right of=t-compile, text width=3cm, xshift=.5cm, yshift=.2cm] {};
+\node (t-binary2) [block, fill=green!10, right of=t-compile, text width=3cm, xshift=.6cm, yshift=.1cm] {};
+\node (t-binary) [block, fill=green!10, right of=t-compile, text width=3cm, xshift=.7cm] {\textbf{Multiversioned binary}};
 
-\node (training-set) [database, fill=gray!10, below of=t-procs]
+\node (training-set) [database, fill=orange!10, below of=t-procs]
   {\textbf{\begin{tabular}{c}Training\\data\end{tabular}}};
 
 \node (t-dispatch) [block, right of=t-binary, xshift=.7cm] {Procedure dispatcher};

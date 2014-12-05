@@ -14,9 +14,10 @@
   ]
 
 % Nodes:
-\node (start) [block, text width=2.5cm] {\textbf{Invoke skeleton object}};
+\node (start) [block, fill=red!10, text width=3.5cm]
+  {\textbf{\begin{tabular}{c}Invoke\\skeleton object\end{tabular}}};
 \node (compile) [block, right of=start, xshift=.5cm] {OpenCL Compiler};
-\node (kernel) [block, fill=gray!10, right of=compile] {\textbf{OpenCL kenerl}};
+\node (kernel) [block, fill=green!10, right of=compile] {\textbf{OpenCL kenerl}};
 \node (exec) [block, right of=kernel] {Execute};
 
 \node (runtime) [draw, dashed, color=gray, yshift=.15cm,

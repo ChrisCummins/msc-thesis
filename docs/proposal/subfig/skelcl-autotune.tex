@@ -14,18 +14,19 @@
   ]
 
 % Nodes:
-\node (start) [block, text width=2.5cm] {\textbf{Invoke skeleton object}};
-\node (arch) [block, below of=start, yshift=.8cm, text width=2.5cm] {Architecture};
+\node (start) [block, fill=red!10, text width=3.5cm]
+  {\textbf{\begin{tabular}{c}Invoke\\skeleton object\end{tabular}}};
+\node (arch) [block, below of=start, yshift=.8cm, text width=3.5cm] {Architecture};
 \node (features) [block, right of=start, xshift=.5cm] {Extract dynamic features};
 \node (params) [block, right of=features, xshift=.3cm] {Set parameters};
 \node (compile) [block, right of=params] {OpenCL Compiler};
-\node (kernel) [block, fill=gray!10, right of=compile, text width=3cm, xshift=.7cm] {\textbf{OpenCL kenerl}};
-\node (exec) [block, right of=kernel, xshift=.7cm] {Execute};
+\node (kernel) [block, fill=green!10, right of=compile] {\textbf{OpenCL kenerl}};
+\node (exec) [block, right of=kernel] {Execute};
 
-\node (training-set) [database, fill=gray!10, below of=params]
+\node (training-set) [database, fill=orange!10, below of=params]
   {\textbf{\begin{tabular}{c}Training\\data\end{tabular}}};
 
-\node (persistent) [database, fill=gray!10, below of=training-set, yshift=-.5cm]
+\node (persistent) [database, fill=orange!10, below of=training-set, yshift=-.5cm]
   {\textbf{\begin{tabular}{c}Persistent\\data\end{tabular}}};
 
 

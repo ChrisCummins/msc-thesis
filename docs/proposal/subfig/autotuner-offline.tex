@@ -15,13 +15,13 @@
   ]
 
 % Nodes:
-\node (t-start3) [block, fill=gray!10, xshift=-.2cm, yshift=.2cm] {};
-\node (t-start2) [block, fill=gray!10, xshift=-.1cm, yshift=.1cm] {};
-\node (t-start) [block, fill=gray!10] {\textbf{Training programs}};
+\node (t-start3) [block, fill=red!10, xshift=-.2cm, yshift=.2cm] {};
+\node (t-start2) [block, fill=red!10, xshift=-.1cm, yshift=.1cm] {};
+\node (t-start) [block, fill=red!10] {\textbf{Training programs}};
 \node (t-features) [block, right of=t-start] {Extract static features};
 \node (t-params) [block, right of=t-features, text width=3cm, xshift=.4cm] {Set parameter configuration};
 \node (t-compile) [block, right of=t-params, xshift=.7cm] {Compile};
-\node (t-binary) [block, fill=gray!10, right of=t-compile] {\textbf{Binary}};
+\node (t-binary) [block, fill=green!10, right of=t-compile] {\textbf{Binary}};
 \node (t-execute) [block, right of=t-binary] {Execute};
 \node (t-arch) [block, below of=t-start, yshift=.8cm] {Architecture};
 
@@ -30,15 +30,15 @@
                  label={[yshift=-.7cm]\textbf{Training phase}},
                  fit=(t-start) (t-arch) (t-execute)] {};
 
-\node (training-set) [database, fill=gray!10, below of=t-params, yshift=-1cm]
+\node (training-set) [database, fill=orange!10, below of=t-params, yshift=-1cm]
   {\textbf{\begin{tabular}{c}Training\\data\end{tabular}}};
 
 \node (p-arch) [block, below of=t-arch] {Architecture};
-\node (p-start) [block, fill=gray!10, below of=p-arch, yshift=.8cm] {\textbf{User program}};
+\node (p-start) [block, fill=red!10, below of=p-arch, yshift=.8cm] {\textbf{User program}};
 \node (p-features) [block, right of=p-start] {Extract static features};
 \node (p-params) [block, right of=p-features, text width=3cm, xshift=.4cm] {Set parameter configuration};
 \node (p-compile) [block, right of=p-params, xshift=1cm] {Compile};
-\node (p-binary) [block, fill=gray!10, right of=p-compile, xshift=1cm] {\textbf{Binary}};
+\node (p-binary) [block, fill=green!10, right of=p-compile, xshift=1cm] {\textbf{Binary}};
 
 % Connectors:
 \draw[->] (t-start) -- (t-features);
