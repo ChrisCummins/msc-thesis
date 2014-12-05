@@ -2650,3 +2650,8 @@ Rand(P,C)   # Random new configuration
 PTRand(P,C) # Predicted time for random configuration
 CTRand(P,C) # Confidence in predicted time for random configuration
 ```
+
+
+## Friday 5th
+
+Hugh suggested I mark my own research proposal.
