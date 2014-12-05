@@ -771,6 +771,16 @@
 
 \usepackage{subcaption}
 
+% Define an 'myalignat' command which behave as 'alignat' without the
+% vertical top and bottom padding. See:
+%     http://www.latex-community.org/forum/viewtopic.php?f=5&t=1890
+\newenvironment{myalignat}[1]{%
+  \setlength{\abovedisplayskip}{-\baselineskip}%
+  \setlength{\abovedisplayshortskip}{\abovedisplayskip}%
+  \start@align\z@\st@rredtrue#1
+}%
+{\endalign}
+
 % Define additional operators:
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
