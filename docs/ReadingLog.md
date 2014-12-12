@@ -52,3 +52,7 @@ reading them.
    Memory Controllers: A Reinforcement Learning Approach,” in Computer
    Architecture, 2008. ISCA’08. 35th International Symposium on, 2008,
    no. June, pp. 39–50.
+1. R. Atre, A. Jannesari, "The Basic Building Blocks of Parallel
+   Tasks".
+1. B. Zhao et. al. "Dependence-Based Code Transformation for
+   Coarse-Grained Parallelism".
