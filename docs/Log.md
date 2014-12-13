@@ -2850,3 +2850,50 @@ Notes for supervisor meeting:
   * Could be adapted into a more a full-on "simulator"? Import
     enumerated search space, evaluate multiple algorithms, report
     fitness.
+
+
+## Saturday 14th
+
+* Project plan:
+  * *Final draft* should have been finished a week earlier to allow
+    for minor structural revisions.
+  * For future pieces of work, get drafts of sections out the door
+    earlier, rather than waiting to review an entire first draft in
+    one go. Structure meetings in the same way, so have the high level
+    discussions early.
+  * Pavlos has my self-assessed project plan.
+* SkelCL:
+  * My proposed work plan is to first get familiar with SkelCL (< 1k
+    SLOC) and modify it to enable runtime setting of two parameters
+    (OpenCL compilation options & mapping of items to threads).
+  * Next will be exploratory experiments to try and enumerate an
+    optimisation space.
+  * I'll need to consider what benchmarks to run, and whether it's
+    worth porting a benchmark suite to use SkelCL.
+* "Space Explorer":
+  * There's no real science to be done in writing an "iterative
+    compilation simulator", and user requirements would be too broad
+    to write a single tool rather than a toolkit. Related work at
+    Edinburgh which may be of interest: "Colo".
+  * A standard approach for iterative compilation research is (when
+    possible) to fully enumerate the optimisation space and then trial
+    a few different search techniques in order to demonstrate theirs
+    is the most successful.
+* Online ML:
+  * Start with a pretty broad investigation of works using Online ML.
+  * Charles Sutton is the resident ML guru who may be able to help me
+    if I can condense my problem down to a simple mathematical
+    explanation.
+* Pavlos has given me SSH access to his server with a
+  [GTX 690](http://www.geforce.co.uk/hardware/desktop-gpus/geforce-gtx-690).
+  I'll need to check with him about availability.
+* There is budget for buying dedicated hardware. It's stored in 19"
+  racks. Height is a consideration (1U preferable). The offer expires
+  in a year.
+* Some things which may be worth reading about:
+  * No free lunch theorem
+  * Tournament selection
+  * Fitness proportionate selection
+  * Roulette selection
+  * Genetic programming
+* Anechoic chambers are *strange*.
