@@ -2824,3 +2824,29 @@ Data : {}
 Predict : History, Data -> Parameters
 Evaluate : Parameters -> Reward
 ```
+
+
+## Friday 13th
+
+Notes for supervisor meeting:
+
+* Project plan self-assessment
+  * Unclear writing style.
+  * Structural problems raised by last-minute (re)writes.
+  * Needed to finish a week earlier to allow for proof reading from
+    "fresh".
+
+* SkelCL
+  * Common-denominator activity: crash course in OpenCL programming
+    and SkelCL codebase (not large, < 1k SLOC).
+  * Modify SkelCL to allow configurable mapping of threads, and
+    configurable OpenCL compiler invocation.
+  * Establish the "experimental setup". Run a whole bunch of
+    benchmarks and try to enumerate a search space.
+
+* Space Explorer
+  * Visualising search algorithms over random "terrain".
+  * Low cost way for trying out different approaches.
+  * Could be adapted into a more a full-on "simulator"? Import
+    enumerated search space, evaluate multiple algorithms, report
+    fitness.
