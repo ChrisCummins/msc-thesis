@@ -2897,3 +2897,23 @@ Notes for supervisor meeting:
   * Roulette selection
   * Genetic programming
 * Anechoic chambers are *strange*.
+
+
+# January 2015
+
+## Monday 5th
+
+A new year, it's time to do some research! I'm feeling a little
+overwhelmed by the size of the challenge. I've split it into 4
+separate sets of tasks, based on the broad areas of knowledge, which
+I'll need to perform concurrently:
+
+* **GPGPU Programming**: Practical OpenCL programming and GPU
+  programming principles.
+* **SkelCL**: Become familiar with the SkelCL codebase and its
+  usage. Write a ~1000 word summary of how it works and the areas for
+  improvement.
+* **Machine Learning**: Read lots of papers about practical
+  applications of online machine learning for optimisation.
+* **Search Algorithms**: Develop a genetic algorithm back-end for
+  Space Explorer.
