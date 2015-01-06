@@ -2917,3 +2917,32 @@ I'll need to perform concurrently:
   applications of online machine learning for optimisation.
 * **Search Algorithms**: Develop a genetic algorithm back-end for
   Space Explorer.
+
+
+## Tuesday 6th
+
+Some relevant advice about
+[how to study](http://www.reddit.com/r/AskReddit/comments/2b0yf8/good_students_how_do_you_go_about_getting_good/cj0qre2?context=3).
+
+I've been reflecting on my
+[undergrad FYP](https://github.com/ChrisCummins/pip-db), and what made
+it such a productive successful project. I can boil it down to two key
+points:
+
+* **Accountability**: every single task that I had to perform was
+  categorised using GitHub's issue tracker, allowing me a constant
+  visual reminder of the list of things which still needed doing, and
+  giving a rough indication of the amount of work (i.e. number of
+  issues) remaining. In addition, I made sure that I always had
+  something to talk about at my weekly 30 minute weekly meeting with
+  my supervisor.
+* **Early success**: by this time last year I already had a
+  feature-complete, working prototype, allowing the last 4 months of
+  work to be focused on innovation and refining the solution. Getting
+  something "out the door" at an early stage is incredibly reassuring
+  and motivating.
+
+For this project, I will use GitHub issues in the same way to ensure
+accountability, along with at-least fortnightly meetings with Pavlos,
+Hugh, or both. The early success will be achieved at the end of the M1
+milestone by completing exploratory experiments.
