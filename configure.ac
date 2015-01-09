@@ -314,6 +314,7 @@ AC_CONFIG_FILES([
         docs/maths/Makefile
         docs/proposal/Makefile
         docs/summary/Makefile
+        docs/thesis/Makefile
         exercises/Makefile
         exercises/algos/Makefile
         exercises/llvm/Makefile

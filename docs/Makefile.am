@@ -8,5 +8,6 @@ SUBDIRS += 		\
 	maths		\
 	proposal	\
 	summary		\
+	thesis		\
 	$(NULL)
 endif
