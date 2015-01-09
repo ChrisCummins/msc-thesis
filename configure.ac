@@ -82,7 +82,7 @@ AC_SUBST([LLVM_DIS],[$LLVM_DIS])
 test -f "$CXX" || {
      echo "Running one-time build of llvm...";
      cd llvm;
-     ./configure --enable-optimisations;
+     ./configure --enable-optimized;
      make;
      cd ..;
 }
