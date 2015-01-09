@@ -2946,3 +2946,10 @@ For this project, I will use GitHub issues in the same way to ensure
 accountability, along with at-least fortnightly meetings with Pavlos,
 Hugh, or both. The early success will be achieved at the end of the M1
 milestone by completing exploratory experiments.
+
+
+## Wednesday 7th
+
+Mendeley reports that I have read **167** of my 276 documents and
+papers. My goal by 7/1/2016 is to read 500 academic papers or works,
+raising this value to **667**.
