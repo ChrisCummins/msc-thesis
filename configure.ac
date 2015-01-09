@@ -306,6 +306,21 @@ AC_SUBST([LDFLAGS],[$LDFLAGS])
 
 
 dnl ================================================================
+dnl Configure SkelCL build
+dnl ================================================================
+dnl Export skelcl paths.
+SKELCL_DIR="$(pwd)/skelcl"
+SKELCL_BUILD_DIR="$SKELCL_DIR/build"
+
+AC_SUBST([SKELCL_DIR],[$SKELCL_DIR])
+AC_SUBST([SKELCL_BUILD_DIR],[$SKELCL_BUILD_DIR])
+
+dnl Create skelcl build directory if needed.
+AS_IF([test ! -d "$SKELCL_BUILD_DIR"],
+      [mkdir -v "$SKELCL_BUILD_DIR";])
+
+
+dnl ================================================================
 dnl Generate files
 dnl ================================================================
 AC_CONFIG_FILES([
@@ -330,4 +345,8 @@ AC_CONFIG_FILES([
 AC_OUTPUT
 
 echo ""
-echo "You can now run \`make'."
+dnl Use the "build/test" directory to determine whether we have a
+dnl built version of SkelCL.
+AS_IF([test -d "$SKELCL_BUILD_DIR/test"],
+      [echo "You can now run \`make'."],
+      [echo "You must now configure and build skelcl."])
