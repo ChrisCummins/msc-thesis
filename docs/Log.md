@@ -2953,3 +2953,36 @@ milestone by completing exploratory experiments.
 Mendeley reports that I have read **167** of my 276 documents and
 papers. My goal by 7/1/2016 is to read 500 academic papers or works,
 raising this value to **667**.
+
+
+## Sunday 11th
+
+Feedback from PPar proposal:
+
+1. The methodology part of the proposal is not as clear as it should
+   be. More information would be useful especially regarding how the
+   online machine learning and the auto-tuner are going to work.
+1. The motivation section does not discuss enough how the example
+   motivates the proposed research. Also, a less trivial example would
+   make the significance of the proposed research more clear.
+1. The work plan is too short and doesn't define its tasks and
+   deliverables very clearly. While some of this information can be
+   found in other sections of the proposal and especially the
+   methodology section, it would be better to have it restated clearly
+   and explicitly in the work plan section.
+
+All of the comments seem entirely fair and justified. A quick recap on
+my own thoughts on how I can overcome these shortcomings in future
+work:
+
+* Organise supervisor meetings to discuss high-level structure and
+  ideas *before* starting writing.
+* Get the first draft out of the door *earlier*, and ensure
+  supervisors know what sections that I need feedback on most.
+* *Start* with the motivation section. This makes intuitive sense, as
+  a solid motivation underpins all good research. Starting with the
+  motivation section would have also highlighted the uncertainties in
+  my methodology, causing me to iron out those details early in the
+  writing process.
+* Don't underestimate the value of a proper work plan. Don't just
+  throw in an arbitrary Gantt chart.
