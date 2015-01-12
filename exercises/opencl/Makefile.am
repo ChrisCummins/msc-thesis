@@ -34,5 +34,5 @@ info_SOURCES = info.cc
 run-local: $(noinst_PROGRAMS)
 	@for bin in $^; do			\
 		echo ./$$bin;			\
-		LD_LIBRARY_PATH=$(CL_LIB) ./$$bin; \
+		./$$bin; 			\
 	done
