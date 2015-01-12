@@ -24,7 +24,7 @@ int GROUP_SIZE = 1;
 unsigned int _seed = 1234;
 unsigned int *seed = &_seed;
 
-class PropagateNBodySystem {
+class NBodySimulation {
  private:
     cl::Context      *const context;
     cl::CommandQueue *queue;
@@ -42,16 +42,16 @@ class PropagateNBodySystem {
     float *hvelnew;
 
  public:
-    explicit PropagateNBodySystem(cl::Context *const context);
+    explicit NBodySimulation(cl::Context *const context);
     void init();
-    void PropagateDoubleStep(float DeltaTime);
-    void PutElectrons(int NumBodies, float *hposnew, float *hvelnew);
-    void GetElectrons(int NumBodies, float *hposnew, float *hvelnew);
-    void WriteState(const char* filename);
-    void RunSimulation(void);
+    void step(float DeltaTime);
+    void write(int NumBodies, float *hposnew, float *hvelnew);
+    void read(int NumBodies, float *hposnew, float *hvelnew);
+    void toFile(const char* filename);
+    void run();
 };
 
-PropagateNBodySystem::PropagateNBodySystem(cl::Context *const context)
+NBodySimulation::NBodySimulation(cl::Context *const context)
         : context(context) {
     hposold = new float[4 * NUMPART];
     hvelold = new float[4 * NUMPART];
@@ -71,7 +71,7 @@ PropagateNBodySystem::PropagateNBodySystem(cl::Context *const context)
 }
 
 
-void PropagateNBodySystem::init() {
+void NBodySimulation::init() {
     // Initialise.
     for (int ip = 0; ip < NUMPART; ip++) {
         // generate two random variables
@@ -126,7 +126,7 @@ void PropagateNBodySystem::init() {
     }
 }
 
-void PropagateNBodySystem::PropagateDoubleStep(float DeltaTime) {
+void NBodySimulation::step(float DeltaTime) {
     try {
         // Set arguments to kernel
         kernel_eom->setArg(0, *gposold);
@@ -163,7 +163,7 @@ void PropagateNBodySystem::PropagateDoubleStep(float DeltaTime) {
     }
 }
 
-void PropagateNBodySystem::WriteState(const char* filename) {
+void NBodySimulation::toFile(const char* filename) {
     // transfer memory back to CPU
     queue->enqueueReadBuffer(*gposold, CL_TRUE, 0,
                              4 * NUMPART * sizeof(float), hposold);
@@ -185,7 +185,9 @@ void PropagateNBodySystem::WriteState(const char* filename) {
     fclose(fd);
 }
 
-void PropagateNBodySystem::GetElectrons(int NumBodies, float *pos, float *vel) {
+void NBodySimulation::read(int NumBodies,
+                                         float *pos,
+                                         float *vel) {
     // transfer memory from GPU to CPU
     queue->enqueueReadBuffer(*gposold, CL_TRUE, 0,
                              4 * NumBodies * sizeof(float), pos);
@@ -194,7 +196,9 @@ void PropagateNBodySystem::GetElectrons(int NumBodies, float *pos, float *vel) {
     queue->finish();
 }
 
-void PropagateNBodySystem::PutElectrons(int NumBodies, float *pos, float *vel) {
+void NBodySimulation::write(int NumBodies,
+                                          float *pos,
+                                          float *vel) {
     // transfer memory from CPU to GPU
     queue->enqueueWriteBuffer(*gposold, CL_TRUE, 0,
                               4 * NumBodies * sizeof(float), pos);
@@ -203,18 +207,18 @@ void PropagateNBodySystem::PutElectrons(int NumBodies, float *pos, float *vel) {
     queue->finish();
 }
 
-void PropagateNBodySystem::RunSimulation(void) {
+void NBodySimulation::run() {
     float deltaTime = 1.0e-3f;
     int nt = 1001;
 
     time_t c0, c1;
 
     init();
-    PutElectrons(NUMPART, hposold, hvelold);
+    write(NUMPART, hposold, hvelold);
 
     time(&c0);
     for (int it = 0; it < nt; it++)  // Main propagation loop.
-        PropagateDoubleStep(deltaTime);
+        step(deltaTime);
 
     time(&c1);
 #ifdef GPU
@@ -254,9 +258,9 @@ int main(int argc, char *argv[]) {
     context = new cl::Context(CL_DEVICE_TYPE_CPU, cps);
 #endif
 
-    PropagateNBodySystem Plasma(context);
+    NBodySimulation Plasma(context);
 
-    Plasma.RunSimulation();
+    Plasma.run();
 
     return 0;
 }
