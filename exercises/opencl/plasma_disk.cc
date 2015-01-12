@@ -116,7 +116,6 @@ void PropagateNBodySystem::InitializeOpenCL() {
         program_eom->build(devices, "-I.");
         // Make kernel
         kernel_eom = new cl::Kernel(*program_eom, "integrate_eom");
-        fprintf(stderr, "integrate_eom done\n");
 
         // Create memory buffers on GPU and populate them with the initial data
         gposold = new cl::Buffer(*context, CL_MEM_READ_WRITE,
