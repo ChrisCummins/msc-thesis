@@ -13,7 +13,8 @@
 
 #include "./opencl_error.h"
 
-int NUMPART = 256;
+int NTICKS = 1000;  // Number of ticks.
+int NPARTICLES = 256;  // Number of particles.
 
 #ifdef GPU
 int GROUP_SIZE = 256;
@@ -43,46 +44,57 @@ class NBodySimulation {
 
  public:
     explicit NBodySimulation(cl::Context *const context);
+    ~NBodySimulation();
     void init();
     void step(float DeltaTime);
     void write(int NumBodies, float *hposnew, float *hvelnew);
     void read(int NumBodies, float *hposnew, float *hvelnew);
     void toFile(const char* filename);
-    void run();
+    void run(const int ticks);
 };
 
+// Constructor.
 NBodySimulation::NBodySimulation(cl::Context *const context)
         : context(context) {
-    hposold = new float[4 * NUMPART];
-    hvelold = new float[4 * NUMPART];
-    hposnew = new float[4 * NUMPART];
-    hvelnew = new float[4 * NUMPART];
+    hposold = new float[4 * NPARTICLES];
+    hvelold = new float[4 * NPARTICLES];
+    hposnew = new float[4 * NPARTICLES];
+    hvelnew = new float[4 * NPARTICLES];
 
-    // Create memory buffers on GPU and populate them with the initial
-    // data.
+    // Allocate buffers in device memory.
     gposold = new cl::Buffer(*context, CL_MEM_READ_WRITE,
-                             4 * NUMPART * sizeof(float));
+                             4 * NPARTICLES * sizeof(float));
     gvelold = new cl::Buffer(*context, CL_MEM_READ_WRITE,
-                             4 * NUMPART * sizeof(float));
+                             4 * NPARTICLES * sizeof(float));
     gposnew = new cl::Buffer(*context, CL_MEM_READ_WRITE,
-                             4 * NUMPART * sizeof(float));
+                             4 * NPARTICLES * sizeof(float));
     gvelnew = new cl::Buffer(*context, CL_MEM_READ_WRITE,
-                             4 * NUMPART * sizeof(float));
+                             4 * NPARTICLES * sizeof(float));
 }
 
 
+// Destructor.
+NBodySimulation::~NBodySimulation() {
+    delete gposold;
+    delete gvelold;
+    delete gposnew;
+    delete gvelnew;
+}
+
+
+// Initialise data.
 void NBodySimulation::init() {
     // Initialise.
-    for (int ip = 0; ip < NUMPART; ip++) {
+    for (int ip = 0; ip < NPARTICLES; ip++) {
         // generate two random variables
         float rand_zerotoone = static_cast<float>(rand_r(seed)) /
                 static_cast<float>(RAND_MAX);
         float rand_zeroto2pi = static_cast<float>(rand_r(seed)) /
                 static_cast<float>(RAND_MAX) * M_PI * 2.0;
 
-        hposold[ip * 4] = sqrt(2.0 * NUMPART * rand_zerotoone)
+        hposold[ip * 4] = sqrt(2.0 * NPARTICLES * rand_zerotoone)
                 * cos(rand_zeroto2pi);
-        hposold[ip * 4 + 1] = sqrt(2.0 * NUMPART * rand_zerotoone)
+        hposold[ip * 4 + 1] = sqrt(2.0 * NPARTICLES * rand_zerotoone)
                 * sin(rand_zeroto2pi);
         hposold[ip * 4 + 2] = 0.0f;
         hposold[ip * 4 + 3] = 1.0f;
@@ -115,9 +127,9 @@ void NBodySimulation::init() {
 
         // Create memory buffers on GPU and populate them with the initial data
         queue->enqueueWriteBuffer(*gposold, CL_TRUE, 0,
-                                  4 * NUMPART * sizeof(float), hposold);
+                                  4 * NPARTICLES * sizeof(float), hposold);
         queue->enqueueWriteBuffer(*gvelold, CL_TRUE, 0,
-                                  4 * NUMPART * sizeof(float), hvelold);
+                                  4 * NPARTICLES * sizeof(float), hvelold);
     } catch(cl::Error error) {
         std::cerr << error.what()
                   << "(" << oclErrorString(error.err()) << ")"
@@ -126,6 +138,7 @@ void NBodySimulation::init() {
     }
 }
 
+// Perform a single step of simulation.
 void NBodySimulation::step(float DeltaTime) {
     try {
         // Set arguments to kernel
@@ -134,11 +147,11 @@ void NBodySimulation::step(float DeltaTime) {
         kernel_eom->setArg(2, *gposnew);
         kernel_eom->setArg(3, *gvelnew);
         kernel_eom->setArg(4, cl::Local(GROUP_SIZE * 4 * sizeof(float)));
-        kernel_eom->setArg(5, NUMPART);
+        kernel_eom->setArg(5, NPARTICLES);
         kernel_eom->setArg(6, DeltaTime);
 
         // Run the kernel on specific ND range
-        cl::NDRange global(NUMPART);
+        cl::NDRange global(NPARTICLES);
         cl::NDRange local(GROUP_SIZE);
 
         cl::Event eventA;
@@ -163,14 +176,15 @@ void NBodySimulation::step(float DeltaTime) {
     }
 }
 
+// Dump state to file.
 void NBodySimulation::toFile(const char* filename) {
-    // transfer memory back to CPU
     queue->enqueueReadBuffer(*gposold, CL_TRUE, 0,
-                             4 * NUMPART * sizeof(float), hposold);
+                             4 * NPARTICLES * sizeof(float), hposold);
     queue->enqueueReadBuffer(*gvelold, CL_TRUE, 0,
-                             4 * NUMPART * sizeof(float), hvelold);
+                             4 * NPARTICLES * sizeof(float), hvelold);
+
     FILE *fd = fopen(filename, "w");
-    for (int i = 0; i < NUMPART; i++) {
+    for (int i = 0; i < NPARTICLES; i++) {
         fprintf(fd, "%e %e %e %e",
                 hposold[i * 4],
                 hposold[i * 4 + 1],
@@ -185,9 +199,10 @@ void NBodySimulation::toFile(const char* filename) {
     fclose(fd);
 }
 
+// Read state from device memory to CPU.
 void NBodySimulation::read(int NumBodies,
-                                         float *pos,
-                                         float *vel) {
+                           float *pos,
+                           float *vel) {
     // transfer memory from GPU to CPU
     queue->enqueueReadBuffer(*gposold, CL_TRUE, 0,
                              4 * NumBodies * sizeof(float), pos);
@@ -196,10 +211,10 @@ void NBodySimulation::read(int NumBodies,
     queue->finish();
 }
 
+// Write state from CPU to device memory.
 void NBodySimulation::write(int NumBodies,
-                                          float *pos,
-                                          float *vel) {
-    // transfer memory from CPU to GPU
+                            float *pos,
+                            float *vel) {
     queue->enqueueWriteBuffer(*gposold, CL_TRUE, 0,
                               4 * NumBodies * sizeof(float), pos);
     queue->enqueueWriteBuffer(*gvelold, CL_TRUE, 0,
@@ -207,17 +222,17 @@ void NBodySimulation::write(int NumBodies,
     queue->finish();
 }
 
-void NBodySimulation::run() {
+// Run simulation.
+void NBodySimulation::run(const int ticks) {
     float deltaTime = 1.0e-3f;
-    int nt = 1001;
 
     time_t c0, c1;
 
     init();
-    write(NUMPART, hposold, hvelold);
+    write(NPARTICLES, hposold, hvelold);
 
     time(&c0);
-    for (int it = 0; it < nt; it++)  // Main propagation loop.
+    for (int it = 0; it < ticks; it++)  // Main propagation loop.
         step(deltaTime);
 
     time(&c1);
@@ -225,21 +240,22 @@ void NBodySimulation::run() {
     fprintf(stderr,
             "GPU propagation for %d particles "
             "over %d doublesteps took %.0f s\n",
-            NUMPART, nt, difftime(c1, c0));
+            NPARTICLES, ticks, difftime(c1, c0));
 #else
     fprintf(stderr,
             "CPU propagation for %d particles "
             "over %d doublesteps took %.0f s\n",
-            NUMPART, nt, difftime(c1, c0));
+            NPARTICLES, ticks, difftime(c1, c0));
 #endif
 }
 
 int main(int argc, char *argv[]) {
     cl::Context *context;
 
-    if (argc == 3) {
-        GROUP_SIZE = atoi(argv[1]);
-        NUMPART = GROUP_SIZE * atoi(argv[2]);
+    if (argc == 4) {
+        NTICKS = atoi(argv[1]);
+        GROUP_SIZE = atoi(argv[2]);
+        NPARTICLES = GROUP_SIZE * atoi(argv[3]);
     }
 
     // Get available platforms
@@ -258,9 +274,9 @@ int main(int argc, char *argv[]) {
     context = new cl::Context(CL_DEVICE_TYPE_CPU, cps);
 #endif
 
-    NBodySimulation Plasma(context);
+    NBodySimulation simulation(context);
 
-    Plasma.run();
+    simulation.run(NTICKS);
 
     return 0;
 }
