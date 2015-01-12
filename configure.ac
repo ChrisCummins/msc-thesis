@@ -321,6 +321,15 @@ AS_IF([test ! -d "$SKELCL_BUILD_DIR"],
 
 
 dnl ================================================================
+dnl Export OpenCL path
+dnl ================================================================
+CL=/opt/intel/opencl-sdk
+AC_SUBST([CL],[$CL])
+
+AC_CHECK_FILE([$CL],[],[AC_MSG_ERROR([OpenCL lib not found!])])
+
+
+dnl ================================================================
 dnl Generate files
 dnl ================================================================
 AC_CONFIG_FILES([

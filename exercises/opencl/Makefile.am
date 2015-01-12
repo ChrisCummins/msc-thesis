@@ -5,7 +5,6 @@ include $(top_srcdir)/Makefile.common
 # Build targets and configuration.
 ###############################################################################
 
-CL = /opt/intel/opencl-sdk
 CL_INCLUDE = $(CL)/include
 CL_LIB = $(CL)/lib64
 
