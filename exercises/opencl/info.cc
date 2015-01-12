@@ -1,10 +1,7 @@
 /*
  * info.cc - Print OpenCL platform and device info.
  */
-#include <iostream>
-#include <vector>
-
-#include <CL/cl.hpp>  // NOLINT(build/include_order)
+#include "./common.h"
 
 // Display Device information.
 void printDeviceInfo(const int index, const cl::Device &device) {
