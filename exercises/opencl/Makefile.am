@@ -9,7 +9,7 @@ CL_INCLUDE = $(CL)/include
 CL_LIB = $(CL)/lib64
 
 # Local compiler and linker flags.
-AM_CXXFLAGS = -I$(CL_INCLUDE)
+AM_CXXFLAGS = -isystem $(CL_INCLUDE)
 AM_LDFLAGS  = -L$(CL_LIB) -lOpenCL
 
 #------------------------------------------------------------------------
