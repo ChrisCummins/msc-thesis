@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cmath>
 #include <cstdlib>
+
 #include "./opencl_error.h"
 
 int NUMPART = 256;
@@ -25,7 +26,7 @@ unsigned int *seed = &_seed;
 
 class PropagateNBodySystem {
  private:
-    cl::Context      *context;
+    cl::Context      *const context;
     cl::CommandQueue *queue;
     cl::Kernel       *kernel_eom;
     cl::Program      *program_eom;
@@ -41,9 +42,8 @@ class PropagateNBodySystem {
     float *hvelnew;
 
  public:
-    PropagateNBodySystem(void);
-    void Initialize();
-    void InitializeOpenCL();
+    explicit PropagateNBodySystem(cl::Context *const context);
+    void init();
     void PropagateDoubleStep(float DeltaTime);
     void PutElectrons(int NumBodies, float *hposnew, float *hvelnew);
     void GetElectrons(int NumBodies, float *hposnew, float *hvelnew);
@@ -51,18 +51,28 @@ class PropagateNBodySystem {
     void RunSimulation(void);
 };
 
-PropagateNBodySystem::PropagateNBodySystem(void) {
-    //
+PropagateNBodySystem::PropagateNBodySystem(cl::Context *const context)
+        : context(context) {
+    hposold = new float[4 * NUMPART];
+    hvelold = new float[4 * NUMPART];
+    hposnew = new float[4 * NUMPART];
+    hvelnew = new float[4 * NUMPART];
+
+    // Create memory buffers on GPU and populate them with the initial
+    // data.
+    gposold = new cl::Buffer(*context, CL_MEM_READ_WRITE,
+                             4 * NUMPART * sizeof(float));
+    gvelold = new cl::Buffer(*context, CL_MEM_READ_WRITE,
+                             4 * NUMPART * sizeof(float));
+    gposnew = new cl::Buffer(*context, CL_MEM_READ_WRITE,
+                             4 * NUMPART * sizeof(float));
+    gvelnew = new cl::Buffer(*context, CL_MEM_READ_WRITE,
+                             4 * NUMPART * sizeof(float));
 }
 
-void PropagateNBodySystem::Initialize() {
-    hposold = new float[4*NUMPART];
-    hvelold = new float[4*NUMPART];
-    hposnew = new float[4*NUMPART];
-    hvelnew = new float[4*NUMPART];
 
-    srandom(0);
-
+void PropagateNBodySystem::init() {
+    // Initialise.
     for (int ip = 0; ip < NUMPART; ip++) {
         // generate two random variables
         float rand_zerotoone = static_cast<float>(rand_r(seed)) /
@@ -70,30 +80,16 @@ void PropagateNBodySystem::Initialize() {
         float rand_zeroto2pi = static_cast<float>(rand_r(seed)) /
                 static_cast<float>(RAND_MAX) * M_PI * 2.0;
 
-        hposold[ip*4+0]=sqrt(2.0*NUMPART*rand_zerotoone)*cos(rand_zeroto2pi);
-        hposold[ip*4+1]=sqrt(2.0*NUMPART*rand_zerotoone)*sin(rand_zeroto2pi);
-        hposold[ip*4+2]=0.0f;
-        hposold[ip*4+3]=1.0f;
+        hposold[ip * 4] = sqrt(2.0 * NUMPART * rand_zerotoone)
+                * cos(rand_zeroto2pi);
+        hposold[ip * 4 + 1] = sqrt(2.0 * NUMPART * rand_zerotoone)
+                * sin(rand_zeroto2pi);
+        hposold[ip * 4 + 2] = 0.0f;
+        hposold[ip * 4 + 3] = 1.0f;
     }
-}
 
-void PropagateNBodySystem::InitializeOpenCL() {
+    // Initialise OpenCL.
     try {
-        // Get available platforms
-        std::vector<cl::Platform> platforms;
-        cl::Platform::get(&platforms);
-        // Select the default platform and create a context using this
-        // platform and the GPU.
-        cl_context_properties cps[3] = {
-            CL_CONTEXT_PLATFORM,
-            (cl_context_properties)(platforms[0])(),
-            0
-        };
-#ifdef GPU
-        context = new cl::Context(CL_DEVICE_TYPE_GPU, cps);
-#else
-        context = new cl::Context(CL_DEVICE_TYPE_CPU, cps);
-#endif
         // Get a list of devices on this platform
         std::vector<cl::Device> devices =
                 context->getInfo<CL_CONTEXT_DEVICES>();
@@ -118,14 +114,6 @@ void PropagateNBodySystem::InitializeOpenCL() {
         kernel_eom = new cl::Kernel(*program_eom, "integrate_eom");
 
         // Create memory buffers on GPU and populate them with the initial data
-        gposold = new cl::Buffer(*context, CL_MEM_READ_WRITE,
-                                 4 * NUMPART * sizeof(float));
-        gvelold = new cl::Buffer(*context, CL_MEM_READ_WRITE,
-                                 4 * NUMPART * sizeof(float));
-        gposnew = new cl::Buffer(*context, CL_MEM_READ_WRITE,
-                                 4 * NUMPART * sizeof(float));
-        gvelnew = new cl::Buffer(*context, CL_MEM_READ_WRITE,
-                                 4 * NUMPART * sizeof(float));
         queue->enqueueWriteBuffer(*gposold, CL_TRUE, 0,
                                   4 * NUMPART * sizeof(float), hposold);
         queue->enqueueWriteBuffer(*gvelold, CL_TRUE, 0,
@@ -221,8 +209,7 @@ void PropagateNBodySystem::RunSimulation(void) {
 
     time_t c0, c1;
 
-    Initialize();
-    InitializeOpenCL();
+    init();
     PutElectrons(NUMPART, hposold, hvelold);
 
     time(&c0);
@@ -244,12 +231,30 @@ void PropagateNBodySystem::RunSimulation(void) {
 }
 
 int main(int argc, char *argv[]) {
-    PropagateNBodySystem Plasma;
+    cl::Context *context;
 
     if (argc == 3) {
         GROUP_SIZE = atoi(argv[1]);
         NUMPART = GROUP_SIZE * atoi(argv[2]);
     }
+
+    // Get available platforms
+    std::vector<cl::Platform> platforms;
+    cl::Platform::get(&platforms);
+    // Select the default platform and create a context using this
+    // platform and the GPU.
+    cl_context_properties cps[3] = {
+        CL_CONTEXT_PLATFORM,
+        (cl_context_properties)(platforms[0])(),
+        0
+    };
+#ifdef GPU
+    context = new cl::Context(CL_DEVICE_TYPE_GPU, cps);
+#else
+    context = new cl::Context(CL_DEVICE_TYPE_CPU, cps);
+#endif
+
+    PropagateNBodySystem Plasma(context);
 
     Plasma.RunSimulation();
 
