@@ -78,5 +78,8 @@ int main(int argc, char *argv[]) {
   checkError(err, "CommandQueue::enqueueReadBuffer()");
   std::cout << buffer;
 
+  // Free buffer.
+  delete[] buffer;
+
   return EXIT_SUCCESS;
 }
