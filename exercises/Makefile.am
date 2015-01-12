@@ -4,6 +4,7 @@ include $(top_srcdir)/Makefile.common
 SUBDIRS = 				\
 	algos				\
 	llvm				\
+	opencl				\
 	tbb				\
 	templates			\
 	$(NULL)

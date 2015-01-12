@@ -321,6 +321,15 @@ AS_IF([test ! -d "$SKELCL_BUILD_DIR"],
 
 
 dnl ================================================================
+dnl Export OpenCL path
+dnl ================================================================
+CL=/opt/intel/opencl-sdk
+AC_SUBST([CL],[$CL])
+
+AC_CHECK_FILE([$CL],[],[AC_MSG_ERROR([OpenCL lib not found!])])
+
+
+dnl ================================================================
 dnl Generate files
 dnl ================================================================
 AC_CONFIG_FILES([
@@ -334,6 +343,7 @@ AC_CONFIG_FILES([
         exercises/algos/Makefile
         exercises/llvm/Makefile
         exercises/mpi/Makefile
+        exercises/opencl/Makefile
         exercises/tbb/Makefile
         exercises/templates/Makefile
         exercises/templates/dac/Makefile
