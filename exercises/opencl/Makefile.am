@@ -18,6 +18,7 @@ AM_LDFLAGS  = -L$(CL_LIB) -lOpenCL
 noinst_PROGRAMS = 			\
 	hello				\
 	info				\
+	plasma_disk			\
 	$(NULL)
 
 #------------------------------------------------------------------------
@@ -25,6 +26,7 @@ noinst_PROGRAMS = 			\
 #------------------------------------------------------------------------
 hello_SOURCES = hello.cc
 info_SOURCES = info.cc
+plasma_disk_SOURCES = plasma_disk.cc
 
 #------------------------------------------------------------------------
 # Auxiliary build targets.
