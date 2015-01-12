@@ -1,3 +1,6 @@
+/*
+ * info.cc - Print OpenCL platform and device info.
+ */
 #include <iostream>
 #include <vector>
 
