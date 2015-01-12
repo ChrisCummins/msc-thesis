@@ -1,6 +1,12 @@
 /* opencl_error.h */
-const char* oclErrorString(cl_int error)
-{
+#ifndef EXERCISES_OPENCL_OPENCL_ERROR_H_
+#define EXERCISES_OPENCL_OPENCL_ERROR_H_
+
+#include <utility>
+
+#include <CL/cl.hpp>  // NOLINT(build/include_order)
+
+const char* oclErrorString(int error) {
     static const char* errorString[] = {
         "CL_SUCCESS",
         "CL_DEVICE_NOT_FOUND",
@@ -69,5 +75,8 @@ const char* oclErrorString(cl_int error)
     };
     const int errorCount = sizeof(errorString) / sizeof(errorString[0]);
     const int index = -error;
-    return (index >= 0 && index < errorCount) ? errorString[index] : "Unspecified Error";
+    return (index >= 0 && index < errorCount)
+            ? errorString[index] : "Unspecified Error";
 }
+
+#endif  // EXERCISES_OPENCL_OPENCL_ERROR_H_
