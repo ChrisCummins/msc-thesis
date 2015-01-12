@@ -137,7 +137,7 @@ void PropagateNBodySystem::PropagateDoubleStep( float DeltaTime )
       kernel_eom->setArg( 1, *gvelold);
       kernel_eom->setArg( 2, *gposnew);
       kernel_eom->setArg( 3, *gvelnew);
-      kernel_eom->setArg( 4, __local(GROUP_SIZE*4*sizeof(float)));
+      kernel_eom->setArg( 4, Local(GROUP_SIZE*4*sizeof(float)));
       kernel_eom->setArg( 5, NUMPART);
       kernel_eom->setArg( 6, DeltaTime);
 
