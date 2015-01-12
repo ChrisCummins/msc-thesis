@@ -43,7 +43,7 @@ class PropagateNBodySystem {
  public:
     PropagateNBodySystem(void);
     void Initialize();
-    void InitializeOpenCL(bool talky);
+    void InitializeOpenCL();
     void PropagateDoubleStep(float DeltaTime);
     void PutElectrons(int NumBodies, float *hposnew, float *hvelnew);
     void GetElectrons(int NumBodies, float *hposnew, float *hvelnew);
@@ -77,7 +77,7 @@ void PropagateNBodySystem::Initialize() {
     }
 }
 
-void PropagateNBodySystem::InitializeOpenCL(bool talky) {
+void PropagateNBodySystem::InitializeOpenCL() {
     try {
         // Get available platforms
         std::vector<cl::Platform> platforms;
@@ -97,10 +97,7 @@ void PropagateNBodySystem::InitializeOpenCL(bool talky) {
         // Get a list of devices on this platform
         std::vector<cl::Device> devices =
                 context->getInfo<CL_CONTEXT_DEVICES>();
-        // Print out information about the device
-        if (talky) {
-#include "./print_info.h"
-        }
+
         // Create a command queue and use the first device
         queue = new cl::CommandQueue(*context, devices[0]);
 
@@ -226,7 +223,7 @@ void PropagateNBodySystem::RunSimulation(void) {
     time_t c0, c1;
 
     Initialize();
-    InitializeOpenCL(false);
+    InitializeOpenCL();
     PutElectrons(NUMPART, hposold, hvelold);
 
     time(&c0);
