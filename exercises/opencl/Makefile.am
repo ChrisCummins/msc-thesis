@@ -17,7 +17,7 @@ AM_LDFLAGS  = -L$(CL_LIB) -lOpenCL
 #------------------------------------------------------------------------
 noinst_PROGRAMS = 			\
 	hello				\
-	info				\
+	opencl_info			\
 	plasma_disk			\
 	$(NULL)
 
@@ -25,7 +25,7 @@ noinst_PROGRAMS = 			\
 # Build target requisites.
 #------------------------------------------------------------------------
 hello_SOURCES = hello.cc
-info_SOURCES = info.cc
+opencl_info_SOURCES = opencl_info.cc
 plasma_disk_SOURCES = plasma_disk.cc
 
 #------------------------------------------------------------------------
