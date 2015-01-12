@@ -2986,3 +2986,18 @@ work:
   writing process.
 * Don't underestimate the value of a proper work plan. Don't just
   throw in an arbitrary Gantt chart.
+
+
+## Monday 12th
+
+**N-body simulations**
+
+N-body simulations are dynamic particle simulations, usually under of
+physical forces (e.g. n-body problem). For example, in gravitational
+N-body simulations, the equations of motion of a system of N particles
+under the influence of their mutual gravitational forces are
+integrated numerically without any simplifying
+approximations. Typically, such simulations require O(N^2)
+computational time. The Particle mesh and tree optimisation methods
+can reduce this computational complexity to O(NlogN) or less, by
+reducing the number of required calculations through approximation.
