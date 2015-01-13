@@ -3013,3 +3013,16 @@ TODO:
 * Add OpenCL location arguments to configure script - DONE.
 * Read an Online Machine Learning paper.
 * Add test coverage report to SkelCL.
+
+Even though this is a one-developer project, I should still use GitHub
+Pull Requests to provide a basic code review process and to allow a
+bit of cool off time between hacking and merging. My workflow is now:
+
+1. Create an issue on [Issue Tracker](https://github.com/ChrisCummins/msc-thesis/issues).
+1. Create a local working branch: `git flow feature start <ISSUE-NUMBER>`.
+1. Publish working branch: `git flow feature publish`.
+1. Write and commit patch to address issue. All commit messages must
+   end with the line `Issue #<ISSUE-NUMBER>`.
+1. Submit [pull request](https://github.com/ChrisCummins/msc-thesis/pulls).
+1. Wait...
+1. At next 'merge window', review pull requests and merge as required.
