@@ -353,6 +353,7 @@ AC_CONFIG_FILES([
         exercises/llvm/Makefile
         exercises/mpi/Makefile
         exercises/opencl/Makefile
+        exercises/skelcl/Makefile
         exercises/tbb/Makefile
         exercises/templates/Makefile
         exercises/templates/dac/Makefile
