@@ -3001,3 +3001,15 @@ approximations. Typically, such simulations require O(N^2)
 computational time. The Particle mesh and tree optimisation methods
 can reduce this computational complexity to O(NlogN) or less, by
 reducing the number of required calculations through approximation.
+
+
+## Tuesday 13th
+
+TODO:
+* Write an overview of SkelCL directory structure - DONE.
+* Build a "Hello, World!" SkelCL example - DONE.
+* Update Gantt chart - DONE.
+* Pull upstream SkelCL changes - DONE.
+* Add OpenCL location arguments to configure script - DONE.
+* Read an Online Machine Learning paper.
+* Add test coverage report to SkelCL.
