@@ -323,10 +323,19 @@ AS_IF([test ! -d "$SKELCL_BUILD_DIR"],
 dnl ================================================================
 dnl Export OpenCL path
 dnl ================================================================
-CL=/opt/intel/opencl-sdk
+AC_ARG_WITH(opencl,
+            AS_HELP_STRING([--with-opencl=DIR],
+                           [OpenCL header and library location]),
+            [opencl="$withval"],
+            [AC_MSG_WARN([using default OpenCL location.])
+             opencl="/opt/intel/opencl-sdk"])
+
+CL="$opencl"
 AC_SUBST([CL],[$CL])
 
-AC_CHECK_FILE([$CL],[],[AC_MSG_ERROR([OpenCL lib not found!])])
+dnl Check for OpenCL header and shared object.
+AC_CHECK_FILE([$CL/include/CL/cl.h],[],[AC_MSG_ERROR([OpenCL headers not found!])])
+AC_CHECK_FILE([$CL/lib64/libOpenCL.so],[],[AC_MSG_ERROR([OpenCL library not found!])])
 
 
 dnl ================================================================
