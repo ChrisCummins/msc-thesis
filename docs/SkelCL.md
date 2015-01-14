@@ -42,8 +42,8 @@ int main(int argc, char* argv[]) {
         *b = rand() % n; ++b;
     }
 
-    // Calculate the dot product.
-    int AdotB = *sum(mult(A, B)).begin();
+    // Dot product: x = A . B
+    int x = sum(mult(A, B)).first();
 
     return 0;
 }
@@ -52,13 +52,23 @@ int main(int argc, char* argv[]) {
 
 ## Features
 
-TODO
+* 6 data-parallel Algorithmic Skeletons for multi-GPU execution.
+* Object-orientated design with classes for Map, Reduce, Scan, Zip,
+  MapOverlap, and AllPairs Skeletons.
+* Supports one or two dimensional datasets using container classes for
+  Vectors and Maps.
+* Container classes provide automatic communication between host and
+  device memory.
+* Skeleton classes are instantiated with kernel functions represented
+  as strings.
+* Reduces OpenCL boilerplate, resulting in lower SLOC programs.
 
 
 ## Authors
 
 Research Group Parallel and Distributed Systems, Department of
 Mathematics and Computer Science, University of Münster, Germany.
+
 
 ## License
 
@@ -67,22 +77,28 @@ Multi-license using
 and a (seemingly custom tailored)
 [academic license](https://github.com/skelcl/skelcl/blob/master/LICENSE-academic.txt).
 
+
 ## Directory Overview
 
 * `cmake-modules/` Contains the `FindOpenCL` cmake module.
 * `examples/` SkelCL implementations of Dot product, Gaussian blur,
   Mandelbrot set, Matrix Multiplication and SAXPY.
 * `include/CL/` Khronos' OpenCL 1.1 headers.
-* `include/SkelCL/` SkelCL headers.
-* `include/SkelCL/detail/` Implementation details, e.g. template
-  definitions.
+* `include/SkelCL/` SkelCL header files. Contains files for each of
+  the skeleton template classes: `AllPairs`, `Map`, `MapOverlap`,
+  `Reduce`, `Scan`, and `Zip`. Contains files for each of the data
+  structure template classes: `Vector`, and `Matrix`.
+* `include/SkelCL/detail/` "Private" implementation headers,
+  containing utility template classes and macros.
 * `libraries/` pvsutil, and 3rd party libraries: gtest, and llvm.
 * `libraries/pvsutil` Utility classes and functions, e.g. Logger, Timer.
 * `libraries/stooling` TODO
 * `msvc/` IDE-specific config (Microsoft Visual Studio).
-* `src/` SkelCL implementation.
+* `src/` SkelCL implementation code. Contains implementations for
+  classess representing devices, programs, events, skeletons, etc.
 * `test/` Unit tests for source files.
 * `xcode/` IDE-specific config (Xcode).
+
 
 ## Installation
 
@@ -100,8 +116,56 @@ $ make
 
 ## How It Works
 
-TODO
+Each of the 6 Skeletons is represented it's own Header file
+`include/SkelCL/<name>.h`, which defines a template class of the same
+name. For example, in `include/SkelCL/Reduce.h`:
 
+```
+template<typename T>
+class Reduce<T(T)> : public detail::Skelton { /* implementation */ }
+```
+
+Each Skeleton class extends the class `detail::Skeleton`, which
+defines the common interface for all Skeletons. The definition of the
+Skeleton templates themselves are located in the header files
+`include/SkelCL/detail/<name>Def.h`, which are included at foot of the
+public header. For example:
+
+```
+// including the definition of the templates
+#include "detail/ReduceDef.h
+```
+
+The OpenCL kernel for each Skeleton is located in
+`include/SkelCL/detail<name>Kernel.cl`. These files contain
+implementations for the various kernels, for example:
+
+```
+// ------------------------------------ Kernel 1 -----------------------------------------------
+
+__kernel void SCL_REDUCE_1 (
+    const __global SCL_TYPE_0* SCL_IN,
+          __global SCL_TYPE_0* SCL_OUT,
+    const unsigned int  DATA_SIZE,
+    const unsigned int  GLOBAL_SIZE)
+{
+    const int my_pos = get_global_id(0);
+    if (my_pos > DATA_SIZE) return;
+
+    const unsigned int modul = GLOBAL_SIZE;
+
+    SCL_TYPE_0 res = SCL_IN[my_pos];
+    int        i   = my_pos + modul;
+
+    while ( i < DATA_SIZE )
+    {
+      res = SCL_FUNC( res, SCL_IN[i] );
+      i = i + modul;
+    }
+
+    SCL_OUT[my_pos] = res;
+}
+```
 
 ## Publications
 
