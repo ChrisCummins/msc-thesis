@@ -11,7 +11,7 @@ the level of abstraction for heterogeneous programming.
 
 ## Example usage
 
-A simply dot product implementation using the
+A simple vector dot product implementation using the
 [Zip](http://skelcl.uni-muenster.de/doc/classskelcl_1_1Zip_3_01Tout_07Tleft_00_01Tright_08_4.html)
 and
 [Reduce](http://skelcl.uni-muenster.de/doc/classskelcl_1_1Reduce_3_01T_07T_08_4.html)
@@ -87,8 +87,8 @@ and a (seemingly custom tailored)
 ## Installation
 
 Varies between different systems, but generally it uses an out-of-tree
-cmake build system, with a system-specific boostrap script to download
-the necessary dependencies:
+cmake build system, with a system-specific bootstrap script to
+download the necessary dependencies:
 
 ```
 $ ./installDependencies<SYSTEM>.sh
