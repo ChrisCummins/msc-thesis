@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Calculate the dot product.
-    int x = *sum(mult(A, B)).begin();
+    int x = sum(mult(A, B)).front();
 
     return x ^ x;
 }
