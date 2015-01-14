@@ -3026,3 +3026,27 @@ bit of cool off time between hacking and merging. My workflow is now:
 1. Submit [pull request](https://github.com/ChrisCummins/msc-thesis/pulls).
 1. Wait...
 1. At next 'merge window', review pull requests and merge as required.
+
+
+## Wednesday 14th
+
+Michel has pushed a change to SkelCL to enable installing headers and
+compiled libraries into a user specified path:
+
+```
+$ cd build
+$ cmake ..
+$ ccmake . # TUI for configuring options. Set CMAKE_INSTALL_PREFIX.
+$ make
+$ sudo make install
+```
+
+**Backus-Naur Form (BNF)**
+
+One of the two main notiations for context-free grammars. Describes
+the syntax of languages used in computing. A BNF specification is a
+set of derivation rules:
+
+```
+<symbol> ::= __expresion__
+```
