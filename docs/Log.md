@@ -3050,3 +3050,8 @@ set of derivation rules:
 ```
 <symbol> ::= __expresion__
 ```
+
+
+## Thursday 15th
+
+The drivers on Pavlos' server are from Nvidia's site, version 340.65.
