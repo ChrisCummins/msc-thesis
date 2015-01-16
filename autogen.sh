@@ -115,7 +115,7 @@ if [ x"$missing" != x ]; then
 
 	cat <<EOF
 
-Building pip-db requires the following specialised programs:
+The following programs are required:
 EOF
 
 	for prog in $progs; do
