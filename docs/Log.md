@@ -3055,3 +3055,10 @@ set of derivation rules:
 ## Thursday 15th
 
 The drivers on Pavlos' server are from Nvidia's site, version 340.65.
+
+
+## Firday 16th
+
+I need to install autoconf (minimum version 2.65) and automake
+(minimum version 1.11) on Pavlos' server to build `msc-thesis`. I
+don't have sudo permission.
