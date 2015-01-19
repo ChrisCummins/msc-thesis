@@ -26,7 +26,7 @@ dnl Project details (i.e. the "meta" stuff)
 dnl ================================================================
 m4_define([author],[chrisc.101@gmail.com])
 
-AC_INIT([report],[report_version],[author]) : ${CXXFLAGS=""}
+AC_INIT([report],[report_version],[author])
 AC_CONFIG_AUX_DIR([build])
 
 dnl Support for --program-prefix, --program-suffix and
@@ -288,7 +288,7 @@ CXX_STDLIB=-stdlib=$CXX_STDLIB
 AC_SUBST([CXX_STDLIB],[$CXX_STDLIB])
 
 dnl Set and export CXXFLAGS
-CXXFLAGS="$CXX_STD $CXX_STDLIB $CXX_OLEVEL"
+CXXFLAGS="$CXXFLAGS $CXX_STD $CXX_STDLIB $CXX_OLEVEL"
 while read -r flag; do
       CXXFLAGS="$CXXFLAGS $flag"
 done <<< "$cxx_flags"
@@ -297,7 +297,7 @@ AC_SUBST([CXXFLAGS],[$CXXFLAGS])
 AC_MSG_NOTICE([Using C++ optimisation flags: $CXX_OLEVEL])
 
 dnl Set and export LDFLAGS
-LDFLAGS="$CXX_STD $CXX_STDLIB"
+LDFLAGS="$LDFLAGS $CXX_STD $CXX_STDLIB"
 while read -r flag; do
       LDFLAGS="$LDFLAGS $flag"
 done <<< "$ld_flags"
