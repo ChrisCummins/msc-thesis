@@ -94,26 +94,55 @@ AC_SUBST([LLVM_TARGET],[$LLVM_TARGET])
 LLVM_BUILD_PATH="$(pwd)/llvm/$LLVM_TARGET"
 AC_SUBST([LLVM_BUILD_PATH],[$LLVM_BUILD_PATH])
 
-CC="$LLVM_BUILD_PATH/bin/clang"
-dnl CC is exported by the AC_PROG_CC macro, called below.
-CXX="$LLVM_BUILD_PATH/bin/clang++"
-dnl CXX is exported by the AC_PROG_CXX macro, called below.
+dnl Add an argument to enable or disable building and using a local
+dnl compiler toolchain.
+AC_ARG_ENABLE([local-cc],
+              [AS_HELP_STRING([--enable-local-cc],
+                              [Build local compiler toolchain (default: yes)])],,
+              [enable_local_cc=yes])
+AM_CONDITIONAL(ENABLE_LOCAL_CC,[test "x$enable_local_cc" = xyes])
 
+dnl Export paths to local compilers if required.
+AS_IF([test "x$enable_local_cc" = xyes],
+      [CC="$LLVM_BUILD_PATH/bin/clang"
+       CXX="$LLVM_BUILD_PATH/bin/clang++"])
+
+dnl Export whether we're using the local compiler, and if required,
+dnl build it.
+AS_IF([test "x$CXX" = "x$LLVM_BUILD_PATH/bin/clang++"],
+      [HAVE_LOCAL_CXX=yes
+       AS_IF([test -f "$CXX"],[],
+             [echo "Running one-time build of llvm...";
+              cd llvm;
+              ./configure --enable-optimized;
+              make -j$NUM_PROC;
+              cd ..;
+              AS_IF([test -f "$CXX"],[],
+                    [AC_MSG_ERROR([Failed to build llvm.
+Build llvm manually using --enable-optimised, and then re-run this script.])])])],
+      [HAVE_LOCAL_CXX=no])
+AC_SUBST([HAVE_LOCAL_CXX],[$HAVE_LOCAL_CXX])
+AM_CONDITIONAL([HAVE_LOCAL_CXX],[test "x$HAVE_LOCAL_CXX" = xyes])
+
+dnl Export whether we have clang or not.
+AS_IF([test "xclang" = "x$(basename $CC 2>/dev/null)"],
+      [HAVE_CLANG=yes],
+      [HANVE_CLANG=no])
+AC_SUBST([HAVE_CLANG],[$HAVE_CLANG])
+AM_CONDITIONAL([HAVE_CLANG],[test "x$HAVE_CLANG" = xyes])
+
+AS_IF([test "xclang++" = "x$(basename $CXX 2>/dev/null)"],
+      [HAVE_CLANGXX=yes],
+      [HANVE_CLANGXX=no])
+AC_SUBST([HAVE_CLANGXX],[$HAVE_CLANGXX])
+AM_CONDITIONAL([HAVE_CLANGXX],[test "x$HAVE_CLANGXX" = xyes])
+
+dnl Export opt and llvm-dis binary paths.
 OPT="$LLVM_BUILD_PATH/bin/opt"
 AC_SUBST([OPT],[$OPT])
 
 LLVM_DIS="$LLVM_BUILD_PATH/bin/llvm-dis"
 AC_SUBST([LLVM_DIS],[$LLVM_DIS])
-
-AS_IF([test -f "$CXX"],[],
-      [echo "Running one-time build of llvm...";
-       cd llvm;
-       ./configure --enable-optimized;
-       make -j$NUM_PROC;
-       cd ..;
-       AS_IF([test -f "$CXX"],[],
-             [AC_MSG_ERROR([Failed to build llvm.
-Build llvm manually using --enable-optimised, and then re-run this script.])])])
 
 AC_PROG_CXX
 AC_PROG_CC
@@ -277,7 +306,7 @@ AM_CONDITIONAL(ENABLE_MEMORY_COUNTER,[test "x$enable_memory_counter" = xyes])
 
 # Configurable options:
 CXX_STD=c++11
-CXX_STDLIB=libstdc++
+_CXX_STDLIB=libstdc++
 CXX_OLEVEL="-O0"
 
 # Flags for C++ compilation
@@ -296,10 +325,14 @@ AS_IF([test "x$CXX_OLEVEL" = x-O0],
 dnl Export CXX_STD flag
 AC_SUBST([CXX_STD],[-std=$CXX_STD])
 
-dnl Export CXX_STDLIB flag
-AC_MSG_NOTICE([Using C++ standard library: $CXX_STDLIB])
-CXX_STDLIB=-stdlib=$CXX_STDLIB
-AC_SUBST([CXX_STDLIB],[$CXX_STDLIB])
+AC_MSG_NOTICE([Using C compiler: $CC])
+AC_MSG_NOTICE([Using C++ compiler: $CXX])
+
+dnl Export CXX_STDLIB flag if we're using clang
+AS_IF([test "x$HAVE_CLANGXX" = xyes],
+      [AC_MSG_NOTICE([Using C++ standard library: $CXX_STDLIB])
+       CXX_STDLIB=-stdlib=$_CXX_STDLIB
+       AC_SUBST([CXX_STDLIB],[$CXX_STDLIB])])
 
 dnl Set and export CXXFLAGS
 CXXFLAGS="$CXX_STD $CXX_STDLIB $CXX_OLEVEL"
