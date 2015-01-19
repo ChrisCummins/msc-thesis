@@ -34,7 +34,7 @@ dnl --program-transform-name options
 AC_ARG_PROGRAM
 
 dnl Fairly arbitrary, older versions might work too.
-AM_INIT_AUTOMAKE([1.11 foreign -Wno-portability])
+AM_INIT_AUTOMAKE([1.13 foreign -Wno-portability])
 AM_SILENT_RULES([yes])
 
 AM_EXTRA_RECURSIVE_TARGETS([help run todo fixme])
