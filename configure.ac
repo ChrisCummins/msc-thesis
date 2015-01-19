@@ -321,21 +321,31 @@ AS_IF([test ! -d "$SKELCL_BUILD_DIR"],
 
 
 dnl ================================================================
-dnl Export OpenCL path
+dnl Export OpenCL paths
 dnl ================================================================
-AC_ARG_WITH(opencl,
-            AS_HELP_STRING([--with-opencl=DIR],
-                           [OpenCL header and library location]),
-            [opencl="$withval"],
-            [AC_MSG_WARN([using default OpenCL location.])
-             opencl="/opt/intel/opencl-sdk"])
+dnl libOpenCL.so
+AC_ARG_WITH(opencl-lib,
+            AS_HELP_STRING([--with-opencl-lib=DIR],
+                           [Location of libOpenCL.so]),
+            [opencl_lib="$withval"],
+            [AC_MSG_WARN([using default OpenCL library location.])
+             opencl_lib="/opt/intel/opencl-sdk/lib64"])
 
-CL="$opencl"
-AC_SUBST([CL],[$CL])
+OPENCL_LIB="$opencl_lib"
+AC_CHECK_FILE([$OPENCL_LIB/libOpenCL.so],[],[AC_MSG_ERROR([OpenCL library not found!])])
+AC_SUBST([OPENCL_LIB],[$OPENCL_LIB])
 
-dnl Check for OpenCL header and shared object.
-AC_CHECK_FILE([$CL/include/CL/cl.h],[],[AC_MSG_ERROR([OpenCL headers not found!])])
-AC_CHECK_FILE([$CL/lib64/libOpenCL.so],[],[AC_MSG_ERROR([OpenCL library not found!])])
+dnl OpenCL headers
+AC_ARG_WITH(opencl-headers,
+            AS_HELP_STRING([--with-opencl-headers=DIR],
+                           [Location of OpenCL include files.]),
+            [opencl_headers="$withval"],
+            [AC_MSG_WARN([using default OpenCL header location.])
+opencl_headers="/opt/intel/opencl-sdk/include"])
+
+OPENCL_HEADERS="$opencl_headers"
+AC_CHECK_FILE([$OPENCL_HEADERS/CL/cl.h],[],[AC_MSG_ERROR([OpenCL headers not found!])])
+AC_SUBST([OPENCL_HEADERS],[$OPENCL_HEADERS])
 
 
 dnl ================================================================
