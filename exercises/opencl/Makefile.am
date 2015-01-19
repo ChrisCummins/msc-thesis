@@ -7,7 +7,7 @@ include $(top_srcdir)/Makefile.common
 
 # Local compiler and linker flags.
 AM_CXXFLAGS = -isystem $(OPENCL_HEADERS)
-AM_LDFLAGS  = -L$(OPENCL_LIB) -lOpenCL
+LDADD = -L$(OPENCL_LIB) -lOpenCL
 
 #------------------------------------------------------------------------
 # Build targets.

@@ -55,31 +55,40 @@ MAKEFLAGS = "-j $(NumberOfThreads)"
 
 #------------------------------------------------------------------------
 # Static analysis of C and C++ files.
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# Only clang offers static analysis. If we're building with clang,
+# then we can generate plists.
+if HAVE_CLANG
+CPlists = $(addsuffix $(PlistExtension),$(CSources) $(CHeaders))
 
-# The clang static analyser generates .plist files.
-CPlists           = $(addsuffix $(PlistExtension),$(CSources) $(CHeaders))
-CxxPlists         = $(addsuffix $(PlistExtension),$(CxxSources) $(CxxHeaders))
-Plists            = $(CPlists) $(CxxPlists)
-MOSTLYCLEANFILES += $(Plists)
-
-# Explicit targets for static analysis.
+# Explicit target for static analysis.
 $(CPlists): %$(PlistExtension): %
 	@if ! $(AM_V_P); then echo '  CSA      $<'; fi
 	$(AM_V_at)$(call create-c-plist,$<,$@)
 
+# Function for generating plist files from C sources.
+define create-c-plist
+	$(COMPILE) --analyze $1 -o $2;
+endef
+endif
+
+if HAVE_CLANGXX
+CxxPlists = $(addsuffix $(PlistExtension),$(CxxSources) $(CxxHeaders))
+
+# Explicit target for static analysis.
 $(CxxPlists): %$(PlistExtension): %
 	@if ! $(AM_V_P); then echo '  CXXSA    $<'; fi
 	$(AM_V_at)$(call create-cxx-plist,$<,$@)
 
-# Functions for generating plist files.
-define create-c-plist
-	$(COMPILE) --analyze $1 -o $2;
-endef
-
+# Function for generating plist files from C++ sources.
 define create-cxx-plist
 	$(CXXCOMPILE) -xc++ --analyze $1 -o $2;
 endef
+endif
+
+# Export our plists.
+Plists            = $(CPlists) $(CxxPlists)
+MOSTLYCLEANFILES += $(Plists)
 
 #------------------------------------------------------------------------
 # Style checking C++ files.
@@ -182,11 +191,14 @@ all-local: $(Plists) $(Cpplints)
 # after this, generating additional source listings and performing
 # static analysis and linting.
 %.o: %.cc $(TagsFiles)
+if HAVE_CLANGXX
 	$(AM_V_CXX)$(CXXCOMPILE) -emit-llvm -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c $< -o $*$(BitCodeExtension)
 	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+if HAVE_LOCAL_CXX
 if ENABLE_MEMORY_COUNTER
 	$(AM_V_at)$(OPT) -load $(LLVM_BUILD_PATH)/lib/LLVMMemoryCounter.so -memorycounter < $*$(BitCodeExtension) > $*$(BitCodeExtension).out
 	$(AM_V_at)mv $*$(BitCodeExtension).out $*$(BitCodeExtension)
+endif
 endif
 	$(AM_V_at)$(LLVM_DIS) $*$(BitCodeExtension) -o $*$(ByteCodeExtension)
 	$(AM_V_at)$(CXX) -c $*$(BitCodeExtension) -o $@
@@ -194,6 +206,10 @@ endif
 	$(AM_V_at)$(call emit-cxx-asm,      $*$(BitCodeExtension), $*$(AsmExtension))
 	$(AM_V_at)$(call create-cxx-plist,  $<, $<$(PlistExtension))
 	$(AM_V_at)$(call cpplint,           $<, $<$(CpplintExtension))
+else
+	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c $< -o $*.o
+	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+endif
 
 #------------------------------------------------------------------------
 # Generating TAGS files for C and C++ sources.
