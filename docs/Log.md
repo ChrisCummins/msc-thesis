@@ -3062,3 +3062,283 @@ The drivers on Pavlos' server are from Nvidia's site, version 340.65.
 I need to install autoconf (minimum version 2.65) and automake
 (minimum version 1.11) on Pavlos' server to build `msc-thesis`. I
 don't have sudo permission.
+
+
+## Monday 19th
+
+TODO:
+* Test `exercises/skelcl` and `exercises/opencl` on Pavlos' server.
+* Update Makefile.am in `wip/8` skelcl dir.
+
+A list of papers read since Dec 8, organised by amount of time spent
+reading them.
+
+###### < 5 min
+
+1. K. E. Coons, B. Robatmili, M. E. Taylor, B. a. Maher, D. Burger,
+   and K. S. McKinley, “Feature selection and policy optimization for
+   distributed instruction placement using reinforcement learning,” in
+   Proceedings of the 17th international conference on Parallel
+   architectures and compilation techniques - PACT ’08, 2008,
+   pp. 32–42.
+1. J. Peters, S. Vijayakumar, and S. Schaal, “Natural Actor Critic,”
+   Neurocomputing, vol. 71, no. 7, pp. 1180–1190, 2008.
+1. M. Frigo and S. G. Johnson, “FFTW: An adaptive software
+   architecture for the FFT,” in Acoustics, Speech and Signal
+   Processing, 1998. Proceedings of the 1998 IEEE International
+   Conference on, 1998, pp. 1381–1384.
+1. H. Hoffmann, M. Maggio, D. Marco, A. Leva, and A. Agarwal, “SEEC: A
+   Framework for Self-aware Management of Multicore Resources,” 2011.
+1. C. W. Fletcher, R. Harding, O. Khan, and S. Devadas, “A framework
+   to accelerate sequential programs on homogeneous multicores,” in
+   Very Large Scale Integration (VLSI-SoC), 2013 IFIP/IEEE 21st
+   International Conference on, 2013, pp. 344–347.
+
+###### 5-12 min
+
+1. S. Whiteson and P. Stone, “Adaptive Job Routing and Scheduling,”
+   Eng. Appl. Artif. Intell., vol. 17, no. 7, pp. 855–869, 2004.
+1. E. Hielscher, A. Rubinsteyn, and D. Shasha, “Locality Optimization
+   for Data Parallel Programs,” arXiv Prepr. arXiv1304.1835, vol. 1,
+   Apr. 2013.
+1. G. Fursin and O. Temam, “Collective Optimization: A Practical
+   Collaborative Approach,” ACM Trans. Archit. Code Optim., vol. 7,
+   no. 4, p. 20, 2010.
+
+###### 12-30 min
+
+1. D. Hill and M. R. Marty, “Amdahl’s Law in the Multicore Era,”
+   IEEE Comput., vol. 41, no. 7, pp. 33–38, 2007.
+1. G. Fursin, J. Cavazos, M. O. Boyle, and O. Temam, “MiDataSets:
+   Creating the Conditions for a More Realistic Evaluation of
+   Iterative Optimization,” High Perform. Embed. Archit. Compil.,
+   pp. 245–260, 2007.
+
+###### > 30 min
+
+1. J. Eastep, D. Wingate, and A. Agarwal, “Smart Data Structures: An
+   Online Machine Learning Approach to Multicore Data Structures,” in
+   Proceedings of the 8th ACM International Conference on Autonomic
+   Computing, 2011, pp. 11–20.a
+1. E. Iped, O. Mutlu, J. F. Martinez, and R. Caruana, “Self-Optimizing
+   Memory Controllers: A Reinforcement Learning Approach,” in Computer
+   Architecture, 2008. ISCA’08. 35th International Symposium on, 2008,
+   no. June, pp. 39–50.
+1. R. Atre, A. Jannesari, "The Basic Building Blocks of Parallel
+   Tasks".
+1. B. Zhao et. al. "Dependence-Based Code Transformation for
+   Coarse-Grained Parallelism".
+
+#### Notes on work on Pavlos' server
+
+[Documentation for NVidia drivers](http://us.download.nvidia.com/XFree86/Linux-x86_64/340.65/README/index.html).
+
+Packages installed:
+* autoconf
+* autotools-dev
+* clang
+* cmake-curses-gui
+* cpp-4.9
+* gcc-4.9
+* libasan1
+* libcilkrts5
+* libclang-3.3-dev
+* libclang-common-3.3-dev
+* libclang-common-dev
+* libclang1-3.3
+* libffi-dev
+* libgcc-4.9-dev
+* libgl1-mesa-dev
+* libglu1-mesa-dev
+* libllvm3.3
+* liblsan0
+* libltdl-dev
+* libtool
+* libubsan
+* llvm-3.0
+* llvm-3.0-dev
+* llvm-3.0-runtime
+* llvm-3.3
+* llvm-3.3-dev
+* llvm-3.3-runtime
+* mesa-common-dev
+* zsh
+
+I've added `~/.local/bin` to `$PATH` for local builds of required packages.
+
+Configuring `automake-1.14`:
+
+```
+./configure --prefix=/home/chris/.local
+```
+
+Configuring `msc-thesis`:
+
+```
+./configure --with-opencl-lib=/usr/lib --with-opencl-headers=/home/chris/.local/include CC=clang CXX=clang++
+```
+
+Configuring `msc-thesis/llvm`:
+
+```
+./configure CC=gcc-4.9 CXX=g++-4.8 --enable-optimized
+```
+
+The compiled LLVM really does not want to play nice.
+
+```
+$ clang++ -print-search-dirs
+
+/usr/bin
+/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../../x86_64-pc-linux-gnu/bin
+
+/usr/bin/../lib/clang/3.0
+/usr/lib/gcc/x86_64-linux-gnu/4.6
+/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../x86_64-linux-gnu
+/lib/x86_64-linux-gnu
+/lib/../lib64
+/usr/lib/x86_64-linux-gnu
+/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../x86_64-linux-gnu
+/usr/lib/gcc/x86_64-linux-gnu/4.6/../../..
+/lib/x86_64-linux-gnu
+/lib
+/usr/lib/x86_64-linux-gnu
+/usr/lib
+```
+
+```
+$ ../../llvm/Release+Asserts/bin/clang++ -print-search-dirs
+
+/home/chris/msc-thesis/exercises/algos/../../llvm/Release+Asserts/bin
+/home/chris/msc-thesis/llvm/Release+Asserts/bin
+/usr/lib/gcc/x86_64-linux-gnu/4.9/../../../../x86_64-linux-gnu/bin
+
+/home/chris/msc-thesis/llvm/Release+Asserts/bin/../lib/clang/3.6.0
+/usr/lib/gcc/x86_64-linux-gnu/4.9
+/usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu
+/lib/x86_64-linux-gnu
+/lib/../lib64
+/usr/lib/x86_64-linux-gnu
+/usr/lib/gcc/x86_64-linux-gnu/4.9/../../..
+/home/chris/msc-thesis/llvm/Release+Asserts/bin/../lib
+/lib
+/usr/lib
+```
+
+```
+$ echo | gcc -xc++ -E -v -                                                                                                                                                                                 13:47:16
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/4.6/lto-wrapper
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu/Linaro 4.6.4-1ubuntu1~12.04' --with-bugurl=file:///usr/share/doc/gcc-4.6/README.Bugs --enable-languages=c,c++,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-4.6 --enable-shared --enable-linker-build-id --with-system-zlib --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/4.6 --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --enable-gnu-unique-object --enable-plugin --enable-objc-gc --disable-werror --with-arch-32=i686 --with-tune=generic --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 4.6.4 (Ubuntu/Linaro 4.6.4-1ubuntu1~12.04)
+COLLECT_GCC_OPTIONS='-E' '-v' '-mtune=generic' '-march=x86-64'
+ /usr/lib/gcc/x86_64-linux-gnu/4.6/cc1plus -E -quiet -v -imultilib . -imultiarch x86_64-linux-gnu -D_GNU_SOURCE - -mtune=generic -march=x86-64 -fstack-protector
+ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../../x86_64-linux-gnu/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/include/c++/4.6
+ /usr/include/c++/4.6/x86_64-linux-gnu/.
+ /usr/include/c++/4.6/backward
+ /usr/lib/gcc/x86_64-linux-gnu/4.6/include
+ /usr/local/include
+ /usr/lib/gcc/x86_64-linux-gnu/4.6/include-fixed
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+End of search list.
+# 1 "<stdin>"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "<stdin>"
+COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/4.6/:/usr/lib/gcc/x86_64-linux-gnu/4.6/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/4.6/:/usr/lib/gcc/x86_64-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/4.6/:/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-E' '-v' '-mtune=generic' '-march=x86-64'
+```
+
+```
+$ echo | clang -xc++ -E -v -                                                                                                                                                                               13:47:16
+Ubuntu clang version 3.0-6ubuntu3 (tags/RELEASE_30/final) (based on LLVM 3.0)
+Target: x86_64-pc-linux-gnu
+Thread model: posix
+ "/usr/bin/clang" -cc1 -triple x86_64-pc-linux-gnu -E -disable-free -disable-llvm-verifier -main-file-name - -mrelocation-model static -mdisable-fp-elim -masm-verbose -mconstructor-aliases -munwind-tables -target-cpu x86-64 -target-linker-version 2.22 -momit-leaf-frame-pointer -v -resource-dir /usr/bin/../lib/clang/3.0 -fmodule-cache-path /var/tmp/clang-module-cache -internal-isystem /usr/include/c++/4.6 -internal-isystem /usr/include/c++/4.6/x86_64-linux-gnu -internal-isystem /usr/include/c++/4.6/backward -internal-isystem /usr/local/include -internal-isystem /usr/bin/../lib/clang/3.0/include -internal-externc-isystem /usr/include/x86_64-linux-gnu -internal-externc-isystem /usr/include -fdeprecated-macro -ferror-limit 19 -fmessage-length 213 -fgnu-runtime -fobjc-runtime-has-arc -fobjc-runtime-has-weak -fobjc-fragile-abi -fcxx-exceptions -fexceptions -fdiagnostics-show-option -fcolor-diagnostics -o - -x c++ -
+clang -cc1 version 3.0 based upon llvm 3.0 hosted on x86_64-pc-linux-gnu
+ignoring nonexistent directory "/usr/bin/../lib/clang/3.0/include"
+ignoring nonexistent directory "/usr/include/c++/4.6//x86_64-linux-gnu/64"
+ignoring nonexistent directory "/usr/bin/../lib/clang/3.0/include"
+ignoring duplicate directory "/usr/include/c++/4.6"
+ignoring duplicate directory "/usr/include/c++/4.6/backward"
+ignoring duplicate directory "/usr/include/c++/4.6"
+ignoring duplicate directory "/usr/include/c++/4.6/x86_64-linux-gnu"
+ignoring duplicate directory "/usr/include/c++/4.6/backward"
+ignoring duplicate directory "/usr/include/c++/4.6"
+ignoring duplicate directory "/usr/include/c++/4.6/x86_64-linux-gnu"
+ignoring duplicate directory "/usr/include/c++/4.6/backward"
+ignoring duplicate directory "/usr/local/include"
+ignoring duplicate directory "/usr/include/x86_64-linux-gnu"
+ignoring duplicate directory "/usr/include/x86_64-linux-gnu"
+ignoring duplicate directory "/usr/include/x86_64-linux-gnu"
+ignoring duplicate directory "/usr/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/include/c++/4.6
+ /usr/include/c++/4.6/x86_64-linux-gnu
+ /usr/include/c++/4.6/backward
+ /usr/local/include
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+ /usr/include/clang/3.0/include/
+ /usr/lib/gcc/x86_64-linux-gnu/4.6/include/
+ /usr/lib/gcc/x86_64-linux-gnu/4.6/include-fixed/
+End of search list.
+# 1 "<stdin>"
+# 1 "<stdin>" 1
+# 1 "<built-in>" 1
+# 1 "<built-in>" 3
+# 138 "<built-in>" 3
+# 1 "<command line>" 1
+# 1 "<built-in>" 2
+# 1 "<stdin>" 2
+```
+
+```
+$ echo | Release+Asserts/bin/clang -xc++ -E -v -                                                                                                                                                           13:47:16
+clang version 3.6.0
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+Found candidate GCC installation: /usr/lib/gcc/i686-linux-gnu/4.6
+Found candidate GCC installation: /usr/lib/gcc/i686-linux-gnu/4.6.4
+Found candidate GCC installation: /usr/lib/gcc/i686-linux-gnu/4.9
+Found candidate GCC installation: /usr/lib/gcc/i686-linux-gnu/4.9.2
+Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/4.6
+Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/4.6.4
+Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/4.8
+Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/4.8.1
+Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/4.9
+Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/4.9.2
+Selected GCC installation: /usr/lib/gcc/x86_64-linux-gnu/4.9
+Candidate multilib: .;@m64
+Selected multilib: .;@m64
+ "/home/chris/msc-thesis/llvm/Release+Asserts/bin/clang" -cc1 -triple x86_64-unknown-linux-gnu -E -disable-free -main-file-name - -mrelocation-model static -mthread-model posix -mdisable-fp-elim -fmath-errno -masm-verbose -mconstructor-aliases -munwind-tables -fuse-init-array -target-cpu x86-64 -target-linker-version 2.22 -v -dwarf-column-info -resource-dir /home/chris/msc-thesis/llvm/Release+Asserts/bin/../lib/clang/3.6.0 -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../../include/c++ -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../../include/c++/x86_64-linux-gnu -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../../include/c++/backward -internal-isystem /usr/local/include -internal-isystem /home/chris/msc-thesis/llvm/Release+Asserts/bin/../lib/clang/3.6.0/include -internal-externc-isystem /usr/include/x86_64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -fdeprecated-macro -fdebug-compilation-dir /home/chris/msc-thesis/llvm -ferror-limit 19 -fmessage-length 213 -mstackrealign -fobjc-runtime=gcc -fcxx-exceptions -fexceptions -fdiagnostics-show-option -o - -x c++ -
+clang -cc1 version 3.6.0 based upon LLVM 3.6.0svn default target x86_64-unknown-linux-gnu
+ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/4.9/../../../../include/c++/x86_64-linux-gnu"
+ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/4.9/../../../../include/c++/backward"
+ignoring nonexistent directory "/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../../include/c++
+ /usr/local/include
+ /home/chris/msc-thesis/llvm/Release+Asserts/bin/../lib/clang/3.6.0/include
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+End of search list.
+# 1 "<stdin>"
+# 1 "<built-in>" 1
+# 1 "<built-in>" 3
+# 318 "<built-in>" 3
+# 1 "<command line>" 1
+# 1 "<built-in>" 2
+# 1 "<stdin>" 2
+```
