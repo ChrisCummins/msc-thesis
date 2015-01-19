@@ -119,6 +119,18 @@ AM_CONDITIONAL([HAVE_MPI_TOOLS],[test "x$HAVE_MPI_TOOLS" = xyes])
 
 
 dnl ================================================================
+dnl Do we have etags installed?
+dnl ================================================================
+AC_CHECK_PROG([ETAGS],[etags],[etags])
+AS_IF([test "x$ETAGS" != x],
+      [HAVE_ETAGS=yes],
+      [HAVE_ETAGS=no
+       AC_MSG_WARN([Unable to build tags files for source code.])])
+AC_SUBST([HAVE_ETAGS],[$HAVE_ETAGS])
+AM_CONDITIONAL([HAVE_ETAGS],[test "x$HAVE_ETAGS" = xyes])
+
+
+dnl ================================================================
 dnl Do we have pdflatex installed?
 dnl ================================================================
 AC_CHECK_PROG([PDFLATEX],[pdflatex],[pdflatex])
