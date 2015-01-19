@@ -5,12 +5,9 @@ include $(top_srcdir)/Makefile.common
 # Build targets and configuration.
 ###############################################################################
 
-CL_INCLUDE = $(CL)/include
-CL_LIB = $(CL)/lib64
-
 # Local compiler and linker flags.
-AM_CXXFLAGS = -isystem $(CL_INCLUDE)
-AM_LDFLAGS  = -L$(CL_LIB) -lOpenCL
+AM_CXXFLAGS = -isystem $(OPENCL_HEADERS)
+AM_LDFLAGS  = -L$(OPENCL_LIB) -lOpenCL
 
 #------------------------------------------------------------------------
 # Build targets.
