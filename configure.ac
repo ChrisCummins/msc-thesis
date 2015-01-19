@@ -105,13 +105,15 @@ AC_SUBST([OPT],[$OPT])
 LLVM_DIS="$LLVM_BUILD_PATH/bin/llvm-dis"
 AC_SUBST([LLVM_DIS],[$LLVM_DIS])
 
-test -f "$CXX" || {
-     echo "Running one-time build of llvm...";
-     cd llvm;
-     ./configure --enable-optimized;
-     make;
-     cd ..;
-}
+AS_IF([test -f "$CXX"],[],
+      [echo "Running one-time build of llvm...";
+       cd llvm;
+       ./configure --enable-optimized;
+       make -j$NUM_PROC;
+       cd ..;
+       AS_IF([test -f "$CXX"],[],
+             [AC_MSG_ERROR([Failed to build llvm.
+Build llvm manually using --enable-optimised, and then re-run this script.])])])
 
 AC_PROG_CXX
 AC_PROG_CC
