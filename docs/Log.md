@@ -3350,3 +3350,50 @@ End of search list.
 # 1 "<built-in>" 2
 # 1 "<stdin>" 2
 ```
+
+
+## Thursday 22nd
+
+Meeting with Michel @ 4pm. Questions:
+ * How to see `LOG_DEBUG_INFO` output?
+ * What are "detail" and "Stirling" directories?
+ * Any existing benchmarks?
+ * Mapping items to threads
+ * Compiler optimisation flags
+
+TODO: Look through the paper's that have cited SkelCL papers:
+* [paper 1](http://scholar.google.co.uk/scholar?cites=13253042717318334763&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 2](http://scholar.google.co.uk/scholar?cites=11230371144014982582&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 3](http://scholar.google.co.uk/scholar?cites=11230371144014982582&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 4](http://scholar.google.co.uk/scholar?cites=7183249435400786017&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 5](http://scholar.google.co.uk/scholar?cites=14508132928289698598&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 6](http://scholar.google.co.uk/scholar?cites=14508132928289698598&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 7](http://scholar.google.co.uk/scholar?cites=607833590153704299&as_sdt=2005&sciodt=0,5&hl=en)
+
+Looking at the implementation of the simplest
+[Map](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/MapDef.h#L170)
+skeleton, it seems like it would be fairly straightforward to
+introduce a mapping between elements and work items. This could be a
+good starting point for creating a tunable know for optimising.
+
+
+#### Notes from meeting with Michel
+
+* Logging is enabled pragmatically using `pvsutil` library (named
+  after Michel's previous research group pvs). See
+  `examples/mandelbrot/main.cpp`:
+
+```
+pvsutil::defaultLogger.setLoggingLevel(pvsutil::Logger::Severity::DebugInfo);
+```
+
+   Severity levels are defined in
+   [Logger.h](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/libraries/pvsutil/include/pvsutil/Logger.h#L56).
+
+* For benchmarks, check paper 2014 micro. Ask Murray about benchmarking suite
+
+* Map items to thread, change of function prototype
+* OpenCL compiler options - single point of entry in Program::build()
+* stooling is "simple tooling", encapsulates LLVM and provides API to
+  perform limited AST manipulation
+*
