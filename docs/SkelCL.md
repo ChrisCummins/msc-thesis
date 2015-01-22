@@ -7,12 +7,18 @@
 
 SkelCL provides a high-level wrapper around OpenCL which aims to raise
 the level of abstraction for heterogeneous programming. It provides a
-set of algorithmic skeletons for data parallel operations: Map,
-Reduce, Scan, Zip, MapOverlap, and AllPairs. Each Skeleton is
-parameterised with muscle functions by the user, and is compiled into
-an OpenCL kernel for execution on device hardware. Communication
-between the host and device memory is performed lazily and is hidden
-from the user.
+set of algorithmic skeletons for data parallel operations:
+[Map](http://en.wikipedia.org/wiki/Map_%28higher-order_function%29),
+[Reduce](http://en.wikipedia.org/wiki/Fold_%28higher-order_function%29),
+[Scan](http://en.wikipedia.org/wiki/Prefix_sum),
+[Zip](http://en.wikipedia.org/wiki/Map_(higher-order_function)),
+[MapOverlap]((http://en.wikipedia.org/wiki/Map_(higher-order_function)),
+and
+[AllPairs](http://link.springer.com/article/10.1007%2Fs10766-013-0265-6#page-1). Each
+Skeleton is parameterised with muscle functions by the user, and is
+compiled into an OpenCL kernel for execution on device
+hardware. Communication between the host and device memory is
+performed lazily and is hidden from the user.
 
 
 ## Example usage
@@ -183,9 +189,13 @@ skelcl::detail::Program Reduce<T(T)>::createPrepareAndBuildProgram()
 }
 ```
 
-Each Skeleton has one or more associated OpenCL kernels, located in
-`include/SkelCL/detail<name>Kernel.cl`. These files contain
-implementations for the various kernels.
+This function generates a program by instantiating a
+[`Program`](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/Program.h#L61)
+objecting by concatenating a set of
+[`CommonDefinitions`](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/Source.h#L122),
+the user supplied muscle functions, and one or more associated OpenCL
+kernels located in `include/SkelCL/detail<name>Kernel.cl`. These files
+contain implementations for the various kernels.
 [For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/ReduceKernel.cl#L49):
 
 ```
