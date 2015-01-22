@@ -6,7 +6,13 @@
 * Source code: https://github.com/skelcl/skelcl
 
 SkelCL provides a high-level wrapper around OpenCL which aims to raise
-the level of abstraction for heterogeneous programming.
+the level of abstraction for heterogeneous programming. It provides a
+set of algorithmic skeletons for data parallel operations: Map,
+Reduce, Scan, Zip, MapOverlap, and AllPairs. Each Skeleton is
+parameterised with muscle functions by the user, and is compiled into
+an OpenCL kernel for execution on device hardware. Communication
+between the host and device memory is performed lazily and is hidden
+from the user.
 
 
 ## Example usage
@@ -32,8 +38,7 @@ int main(int argc, char* argv[]) {
     skelcl::Reduce<int(int)>   sum("int func(int x, int y) { return x + y; }", "0");
 
     // Define two vectors A and B of length "n".
-    const int n = 1024;
-    skelcl::Vector<int> A(n), B(n);
+    const int n = 1024; skelcl::Vector<int> A(n), B(n);
 
     // Populate A and B with random numbers.
     skelcl::Vector<int>::iterator a = A.begin(), b = B.begin();
@@ -52,16 +57,16 @@ int main(int argc, char* argv[]) {
 
 ## Features
 
+* Reduces OpenCL boilerplate, resulting in lower SLOC programs.
 * 6 data-parallel Algorithmic Skeletons for multi-GPU execution.
 * Object-orientated design with classes for Map, Reduce, Scan, Zip,
   MapOverlap, and AllPairs Skeletons.
-* Supports one or two dimensional datasets using container classes for
-  Vectors and Maps.
-* Container classes provide automatic communication between host and
-  device memory.
+* Supports one and two dimensional datasets using Vector and Matrix
+  container classes.
+* Lazy (i.e. copy on read) communication between host and device
+  memory is performed automatically.
 * Skeleton classes are instantiated with kernel functions represented
   as strings.
-* Reduces OpenCL boilerplate, resulting in lower SLOC programs.
 
 
 ## Authors
@@ -82,21 +87,22 @@ and a (seemingly custom tailored)
 
 * `cmake-modules/` Contains the `FindOpenCL` cmake module.
 * `examples/` SkelCL implementations of Dot product, Gaussian blur,
-  Mandelbrot set, Matrix Multiplication and SAXPY.
+  Mandelbrot set, Matrix Multiplication, and SAXPY.
 * `include/CL/` Khronos' OpenCL 1.1 headers.
 * `include/SkelCL/` SkelCL header files. Contains files for each of
   the skeleton template classes: `AllPairs`, `Map`, `MapOverlap`,
-  `Reduce`, `Scan`, and `Zip`. Contains files for each of the data
-  structure template classes: `Vector`, and `Matrix`.
+  `Reduce`, `Scan`, and `Zip`; and data structures: `Vector`, and
+  `Matrix`.
 * `include/SkelCL/detail/` "Private" implementation headers,
-  containing utility template classes and macros.
+  containing utility template classes and macros, and skeleton
+  definitions.
 * `libraries/` pvsutil, and 3rd party libraries: gtest, and llvm.
 * `libraries/pvsutil` Utility classes and functions, e.g. Logger, Timer.
 * `libraries/stooling` TODO
 * `msvc/` IDE-specific config (Microsoft Visual Studio).
 * `src/` SkelCL implementation code. Contains implementations for
   classess representing devices, programs, events, skeletons, etc.
-* `test/` Unit tests for source files.
+* `test/` Unit tests.
 * `xcode/` IDE-specific config (Xcode).
 
 
@@ -113,24 +119,26 @@ $ cmake ..
 $ make
 ```
 
+To run the test suite: `make test`.
 
 ## How It Works
 
 Each of the 6 Skeletons is represented it's own Header file
 `include/SkelCL/<name>.h`, which defines a template class of the same
-name. For example, in
-[`include/SkelCL/Reduce.h`](https://github.com/ChrisCummins/skelcl/blob/master/include/SkelCL/Reduce.h):
+name. [For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/Reduce.h#L95):
 
 ```
 template<typename T>
 class Reduce<T(T)> : public detail::Skelton { /* implementation */ }
 ```
 
-Each Skeleton class extends the class `detail::Skeleton`, which
-defines the common interface for all Skeletons. The definition of the
-Skeleton templates themselves are located in the header files
+Each Skeleton class extends the class
+[`detail::Skeleton`](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/Skeleton.h#L52),
+which defines the common interface for all Skeletons. The definition
+of the Skeleton templates themselves are located in the header files
 `include/SkelCL/detail/<name>Def.h`, which are included at foot of the
-public header. For example:
+public header.
+[For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/Reduce.h#L221):
 
 ```
 // including the definition of the templates
@@ -139,7 +147,8 @@ public header. For example:
 
 The OpenCL kernel for each Skeleton is located in
 `include/SkelCL/detail<name>Kernel.cl`. These files contain
-implementations for the various kernels, for example:
+implementations for the various kernels.
+[For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/ReduceKernel.cl#L49):
 
 ```
 // ------------------------------------ Kernel 1 -----------------------------------------------
