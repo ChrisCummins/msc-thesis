@@ -125,19 +125,20 @@ To run the test suite: `make test`.
 
 Each of the 6 Skeletons is represented it's own Header file
 `include/SkelCL/<name>.h`, which defines a template class of the same
-name. [For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/Reduce.h#L95):
+name.
+[For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/Reduce.h#L95):
 
 ```
 template<typename T>
-class Reduce<T(T)> : public detail::Skelton { /* implementation */ }
+class Reduce<T(T)> : public detail::Skelton { /* methods declarations */ }
 ```
 
 Each Skeleton class extends the class
 [`detail::Skeleton`](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/Skeleton.h#L52),
-which defines the common interface for all Skeletons. The definition
-of the Skeleton templates themselves are located in the header files
-`include/SkelCL/detail/<name>Def.h`, which are included at foot of the
-public header.
+which defines the common interface for all Skeletons. The main header
+files declare the class methods, while the definitions themselves are
+located in the header files `include/SkelCL/detail/<name>Def.h`, which
+are included at foot of the public headers.
 [For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/Reduce.h#L221):
 
 ```
@@ -145,7 +146,44 @@ public header.
 #include "detail/ReduceDef.h
 ```
 
-The OpenCL kernel for each Skeleton is located in
+These definition files contain definitions of class methods
+responsible for processing input, compiling OpenCL kernels, and
+preparing output.
+[For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/ReduceDef.h#L247):
+
+```
+template <typename T>
+skelcl::detail::Program Reduce<T(T)>::createPrepareAndBuildProgram()
+{
+  ASSERT_MESSAGE(!_userSource.empty(),
+                 "Tried to create program with empty user source.");
+  // first: device specific functions
+  std::string s(detail::CommonDefinitions::getSource());
+  // second: user defined source
+  s.append(_userSource);
+  // last: append skeleton implementation source
+  s.append(
+#include "ReduceKernel.cl"
+      );
+
+  auto program =
+      detail::Program(s, skelcl::detail::util::hash("//Reduce\n" + s));
+  if (!program.loadBinary()) {
+    // append parameters from user function to kernels
+    program.transferParameters(_funcName, 2, "SCL_REDUCE_1");
+    program.transferParameters(_funcName, 2, "SCL_REDUCE_2");
+    program.transferArguments(_funcName, 2, "SCL_FUNC");
+    // rename user function
+    program.renameFunction(_funcName, "SCL_FUNC");
+    // rename typedefs
+    program.adjustTypes<T>();
+  }
+  program.build();
+  return program;
+}
+```
+
+Each Skeleton has one or more associated OpenCL kernels, located in
 `include/SkelCL/detail<name>Kernel.cl`. These files contain
 implementations for the various kernels.
 [For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/ReduceKernel.cl#L49):
@@ -174,6 +212,46 @@ __kernel void SCL_REDUCE_1 (
     }
 
     SCL_OUT[my_pos] = res;
+}
+```
+
+A definition for the `()` operator is also provided in each Defs
+header, which performs the "useful" work of processing the supplied
+args, preparing the input and returning the output.
+[For example](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/ReduceDef.h#L96):
+
+```
+template <typename T>
+template <typename... Args>
+Vector<T>& Reduce<T(T)>::operator()(Out<Vector<T>> output,
+                                    const Vector<T>& input, Args&&... args)
+{
+  const size_t global_size = 8192;
+
+  prepareInput(input);
+  ASSERT(input.distribution().devices().size() == 1);
+
+  // TODO: relax to multiple devices later
+  auto &device = *(input.distribution().devices().front());
+
+  Vector<T> tmpOutput;
+  prepareOutput(tmpOutput, input, global_size);
+  prepareOutput(output.container(), tmpOutput, 1);
+
+  execute_first_step(device, input.deviceBuffer(device),
+                     tmpOutput.deviceBuffer(device), input.size(), global_size,
+                     args...);
+
+  size_t new_data_size = std::min(global_size, input.size());
+
+  execute_second_step(device, tmpOutput.deviceBuffer(device),
+                      output.container().deviceBuffer(device), new_data_size,
+                      args...);
+
+  // ... finally update modification status.
+  updateModifiedStatus(output, std::forward<Args>(args)...);
+
+  return output.container();
 }
 ```
 
