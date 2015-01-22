@@ -3350,3 +3350,54 @@ End of search list.
 # 1 "<built-in>" 2
 # 1 "<stdin>" 2
 ```
+
+
+## Thursday 22nd
+
+Meeting with Michel @ 4pm. Questions:
+ * How to see `LOG_DEBUG_INFO` output?
+ * What are "detail" and "Stirling" directories?
+ * Any existing benchmarks?
+ * Mapping items to threads
+ * Compiler optimisation flags
+
+TODO: Look through the paper's that have cited SkelCL papers:
+* [paper 1](http://scholar.google.co.uk/scholar?cites=13253042717318334763&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 2](http://scholar.google.co.uk/scholar?cites=11230371144014982582&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 3](http://scholar.google.co.uk/scholar?cites=11230371144014982582&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 4](http://scholar.google.co.uk/scholar?cites=7183249435400786017&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 5](http://scholar.google.co.uk/scholar?cites=14508132928289698598&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 6](http://scholar.google.co.uk/scholar?cites=14508132928289698598&as_sdt=2005&sciodt=0,5&hl=en)
+* [paper 7](http://scholar.google.co.uk/scholar?cites=607833590153704299&as_sdt=2005&sciodt=0,5&hl=en)
+
+Looking at the implementation of the simplest
+[Map](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/MapDef.h#L170)
+skeleton, it seems like it would be fairly straightforward to
+introduce a mapping between elements and work items. This could be a
+good starting point for creating a tunable know for optimising.
+
+
+#### Notes from meeting with Michel
+
+* Logging is enabled pragmatically using `pvsutil` library (named
+  after Michel's previous research group PVS). See
+  `examples/mandelbrot/main.cpp`:
+```
+pvsutil::defaultLogger.setLoggingLevel(pvsutil::Logger::Severity::DebugInfo);
+```
+   Severity levels are defined in
+   [Logger.h](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/libraries/pvsutil/include/pvsutil/Logger.h#L56).
+
+* For benchmarks, look up a paper in the 2014 Micro journal about
+  creating a benchmark suite for heterogeneous parallelism using
+  patterns based programming. Also ask Murray about some possible
+  similar work he was involved in.
+* Changing the mapping of items to threads is pretty
+  straightforward. It'll involve changing the SkelCL kernel definition
+  and the calling code.
+* Setting OpenCL compiler options could be interesting. There's a
+  single point of compilation for all kernels in `Program::build()`.
+* stooling means "simple tooling", and encapsulates LLVM and provides
+  an API for performing the limited AST manipulation used in SkelCL
+  (changing the name and arguments of user functions and skeleton
+  definitions so that they match.
