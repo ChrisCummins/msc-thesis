@@ -118,7 +118,8 @@ $ make
 
 Each of the 6 Skeletons is represented it's own Header file
 `include/SkelCL/<name>.h`, which defines a template class of the same
-name. For example, in `include/SkelCL/Reduce.h`:
+name. For example, in
+[`include/SkelCL/Reduce.h`](https://github.com/ChrisCummins/skelcl/blob/master/include/SkelCL/Reduce.h):
 
 ```
 template<typename T>
