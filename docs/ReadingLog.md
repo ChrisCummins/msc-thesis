@@ -33,5 +33,7 @@ reading them.
    Length Reduction via Interpreter-level Specialization,” in
    Proceedings of Annual IEEE/ACM International Symposium on Code
    Generation and Optimization, 2014, pp. 295–305.
+1. G. Tesauro, “Online Resource Allocation Using Decompositional
+   Reinforcement Learning,” in AAAI, 2005, pp. 886–891.
 
 # > 30 min

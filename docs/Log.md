@@ -3151,6 +3151,8 @@ Packages installed:
 * libgl1-mesa-dev
 * libglu1-mesa-dev
 * libllvm3.3
+* python3-numpy
+* python3-scipy
 * liblsan0
 * libltdl-dev
 * libtool
@@ -3162,6 +3164,12 @@ Packages installed:
 * llvm-3.3-dev
 * llvm-3.3-runtime
 * mesa-common-dev
+* python3
+* python3-minimal
+* python3-pkg-resources
+* python3-setuptools
+* python3.2
+* python3.2-minimal
 * zsh
 
 I've added `~/.local/bin` to `$PATH` for local builds of required packages.
