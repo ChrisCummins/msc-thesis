@@ -70,4 +70,7 @@ sed 's/^# /###### /' "$reading_log" >> "$report"
 grep '^# ' "$reading_log" | sed 's/$/\n/' | head -n-1 > "$reading_log".tmp
 mv "$reading_log".tmp "$reading_log"
 
+# Stage new changes.
+git add "$reading_log"
+
 $editor "$report" &
