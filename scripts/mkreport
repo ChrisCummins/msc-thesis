@@ -29,6 +29,31 @@ fi
 
 set -eu
 
+# Get the name of the current branch.
+current_branch="$(git symbolic-ref HEAD 2>/dev/null)" ||
+    current_branch="(unnamed branch)" # detached HEAD
+current_branch=${current_branch##refs/heads/}
+
+# If we're already on a report branch, then finish up.
+echo "$current_branch" | grep -v '^wip/report-' || {
+    report_name=$(echo "$current_branch" | sed 's/^wip\/report-//')
+    report="$report_dir/$report_name.md"
+
+    if [ ! -f "$report" ]; then
+        echo "Could not find report file '$report'" >&2
+        exit 1
+    fi
+
+    # Commit weekly report.
+    git add "$report"
+    git commit -m "docs: Add weekly report"
+
+    git checkout master
+    git merge --no-ff "$current_branch"
+    git branch -d "$current_branch"
+    exit
+}
+
 # Report file name.
 report="$report_dir/$report_name.md"
 
