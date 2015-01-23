@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+## CONFIGURATION.
+
+# The name of the feature branch.
+feature_branch="report-$report_name"
+
+# Report date format.
+date_format="%y-%m-%d"
+
+# Directory to store generated reports.
+report_dir="docs/reports"
+
+# Path to the template file.
+template="docs/reports/template.md"
+
+# Path to the reading log.
+reading_log="docs/ReadingLog.md"
+
+editor="emacsclient -n"
+
+## END OF CONFIGURATION.
+
+
+# If there is an argument, use that as the report name. Otherwise, use
+# the current date.
+if [ -n "$1" ]; then
+    report_name="$1"
+else
+    report_name=$(date "+$date_format")
+fi
+
+set -eu
+
+# Report file name.
+report="$report_dir/$report_name.md"
+
+# Check for the presence of $test_file. If it is not found, then
+# abort.
+test_file="./configure.ac"
+if [ ! -f "$test_file" ]; then
+    echo "Could not find file '$test_file'." >&2
+    echo "Are you running this script from the correct directory?" >&2
+    exit 1
+fi
+
+# Check for the presence of $reading_log. If it is not found, then
+# abort.
+if [ ! -f "$reading_log" ]; then
+    echo "Could not find the reading log '$reading_log'. Aborting." >&2
+    exit 1
+fi
+
+git flow feature start $feature_branch
+
+echo "Generating file: '$report'"
+
+# Create the report base on the template, substituting the @NAME@
+# placeholder for the report name.
+sed "s/@NAME@/$report_name/" "$template" > "$report"
+
+echo "Flushing reading log: '$reading_log'"
+
+# Append the reading log to the end of the report.
+sed 's/^# /###### /' "$reading_log" >> "$report"
+
+# Generate a new reading log by stripping out everything by the lines
+# beginning with "# ", and inserting blank lines after every line but
+# the last.
+grep '^# ' "$reading_log" | sed 's/$/\n/' | head -n-1 > "$reading_log".tmp
+mv "$reading_log".tmp "$reading_log"
+
+$editor "$report" &

@@ -1,4 +1,4 @@
-# dd/mm/yyyy Weekly Report
+# @NAME@ Weekly Report
 
 ## What I had planned to do this week
 
