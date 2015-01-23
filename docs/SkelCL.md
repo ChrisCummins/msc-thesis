@@ -225,6 +225,13 @@ __kernel void SCL_REDUCE_1 (
 }
 ```
 
+The user functions and the SkelCL functions are matched together by
+creating an AST of the concatenated kernel, and manipulating the
+user/SkelCL function names, typedefs, and arguments appropriately so
+that they match. This AST manipulation is performed by the `stooling`
+library, which exposes a limited API for performing the necessary
+transforms, and encapsulates the LLVM/clang APIs.
+
 A definition for the `()` operator is also provided in each Defs
 header, which performs the "useful" work of processing the supplied
 args, preparing the input and returning the output.
@@ -264,6 +271,14 @@ Vector<T>& Reduce<T(T)>::operator()(Out<Vector<T>> output,
   return output.container();
 }
 ```
+
+When a skeleton is invoked, user data is copied to the device memory,
+and the kernel job is enqueued on the device. The SkelCL API is
+asynchronous, and operates in the same style as a "future"
+API. E.g. reading from a data structure will block until the
+computation has completed and the data has been transformed back from
+the device to the host memory.
+
 
 ## Publications
 
