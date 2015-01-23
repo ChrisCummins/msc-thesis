@@ -1,6 +1,3 @@
-A list of papers read since Jan 19, organised by amount of time spent
-reading them.
-
 # < 5 min
 
 1. M. Danelutto and R. Di Cosmo, “A ‘Minimal Disruption’ Skeleton
