@@ -3624,3 +3624,8 @@ __kernel void SCL_MAP(
 I tracked down the issue, which was caused by an incorrect index to
 the `setArg()` function. Map partitioning support is now complete, and
 ready to test.
+
+I've started adding an API for setting OpenCL compiler
+flags. Documentation for available options is:
+
+https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
