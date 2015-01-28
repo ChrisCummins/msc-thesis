@@ -22,6 +22,7 @@ AM_LDFLAGS  = \
 #------------------------------------------------------------------------
 noinst_PROGRAMS = 			\
 	dot_product			\
+	map				\
 	map_reduce			\
 	$(NULL)
 
@@ -29,6 +30,7 @@ noinst_PROGRAMS = 			\
 # Build target requisites.
 #------------------------------------------------------------------------
 dot_product_SOURCES = dot_product.cc
+map_SOURCES = map.cc
 map_reduce_SOURCES = map_reduce.cc
 
 #------------------------------------------------------------------------
