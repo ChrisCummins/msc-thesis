@@ -3401,3 +3401,226 @@ pvsutil::defaultLogger.setLoggingLevel(pvsutil::Logger::Severity::DebugInfo);
   an API for performing the limited AST manipulation used in SkelCL
   (changing the name and arguments of user functions and skeleton
   definitions so that they match.
+
+
+## Wednesday 28th
+
+#### Notes from hacking on SkelCL's Map implementation
+
+The aim is to change the behaviour of SkelCL's map skeleton so that
+each work item processes more than one element of the data
+structure. This will provide coarse grained control over the number of
+threads spawned, by enabling an *N* to *1* relationship between
+elements in the dataset and the number of work items. This is the
+default Map kernel:
+
+```
+__kernel void SCL_MAP(
+    const __global SCL_TYPE_0*  SCL_IN,
+          __global SCL_TYPE_1*  SCL_OUT,
+    const unsigned int          SCL_ELEMENTS)
+{
+  if (get_global_id(0) < SCL_ELEMENTS) {
+    SCL_OUT[get_global_id(0)] = SCL_FUNC(SCL_IN[get_global_id(0)]);
+  }
+}
+```
+
+And this is my modified version. I have added a `PARITION_SIZE`
+parameter to support different numbers of partitions:
+
+```
+__kernel void SCL_MAP(
+    const __global SCL_TYPE_0*  SCL_IN,
+          __global SCL_TYPE_1*  SCL_OUT,
+    const unsigned int          SCL_ELEMENTS,
+    const unsigned int          PARTITION_SIZE)
+{
+  size_t i = get_global_id(0);
+
+  while (i < SCL_ELEMENTS) {
+    SCL_OUT[i] = SCL_FUNC(SCL_IN[i]);
+    i += PARTITION_SIZE;
+  }
+}
+```
+
+I wonder if the cost of this extra branching and conditional logic
+will exceed the threading overhead of having a single thread per
+element.
+
+So the additional argument support has broken. Here's the output of my
+`map.cc` test on upstream SkelCL:
+
+
+```
+[==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
+[======Device.cpp:117  000.140s  INFO] Using device `Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz' with id: 0
+[==DeviceList.cpp:122  000.140s  INFO] Using 1 OpenCL device(s) in total
+[=====Program.cpp:91   000.140s DINFO] Program instance created with source:
+
+
+
+int func(int x, int foo) { return x * foo; }
+
+typedef float SCL_TYPE_0;
+typedef float SCL_TYPE_1;
+
+__kernel void SCL_MAP(
+    const __global SCL_TYPE_0*  SCL_IN,
+          __global SCL_TYPE_1*  SCL_OUT,
+    const unsigned int          SCL_ELEMENTS)
+{
+  if (get_global_id(0) < SCL_ELEMENTS) {
+    SCL_OUT[get_global_id(0)] = SCL_FUNC(SCL_IN[get_global_id(0)]);
+  }
+}
+
+
+[=====Program.cpp:230  000.178s DINFO] Create cl::Program for device 0 with source:
+#define skelcl_get_device_id() 0
+
+
+
+int SCL_FUNC(int x, int foo) { return x * foo; }
+
+typedef int SCL_TYPE_0;
+typedef int SCL_TYPE_1;
+
+__kernel void SCL_MAP(
+    const __global SCL_TYPE_0*  SCL_IN,
+          __global SCL_TYPE_1*  SCL_OUT,
+    const unsigned int          SCL_ELEMENTS, int foo)
+{
+  if (get_global_id(0) < SCL_ELEMENTS) {
+    SCL_OUT[get_global_id(0)] = SCL_FUNC(SCL_IN[get_global_id(0)], foo);
+  }
+}
+
+
+[========MapDef.h:81   000.200s DINFO] Create new Map object (0x7fff94bff200)
+[=====VectorDef.h:101  000.200s DINFO] Created new Vector object (0x7fff94bff250) with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2c95cc0
+[=====VectorDef.h:147  000.200s DINFO] Created new Vector object (0x7fff94bff3b0) by copying (0x7fff94bff250) with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2248c30
+[ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ... ]
+[=====VectorDef.h:203  000.200s DINFO] Vector object (0x7fff94bff3b0) with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2248c30 destroyed
+[=====VectorDef.h:85   000.200s DINFO] Created new Vector object (0x7fff94bff2b0) with size: 0, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: true, hostBuffer: 0
+[=====VectorDef.h:512  000.200s DINFO] Vector object (0x7fff94bff250) assigned new distribution, now with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2c95cc0
+[DeviceBuffer.cpp:95   000.200s DINFO] Created new DeviceBuffer object (0x7fff94bfef30) with device: 0, size: 100, flags: 1, buffer: 0x1630f48
+[DeviceBuffer.cpp:124  000.200s DINFO] Created new DeviceBuffer object (0x7fff94bff018) by moving with device: 0, size: 100, flags: 1, buffer: 0x1630f48
+[DeviceBuffer.cpp:163  000.200s DINFO] Empty DeviceBuffer object (0x7fff94bfef30) destroyed
+[DeviceBuffer.cpp:124  000.200s DINFO] Created new DeviceBuffer object (0x7fff94bfefd8) by moving with device: 0, size: 100, flags: 1, buffer: 0x1630f48
+[DeviceBuffer.cpp:124  000.200s DINFO] Created new DeviceBuffer object (0x2c32cc8) by moving with device: 0, size: 100, flags: 1, buffer: 0x1630f48
+[DeviceBuffer.cpp:163  000.200s DINFO] Empty DeviceBuffer object (0x7fff94bfefd8) destroyed
+[DeviceBuffer.cpp:163  000.200s DINFO] Empty DeviceBuffer object (0x7fff94bff018) destroyed
+[======Device.cpp:193  000.200s DINFO] Enqueued write buffer for device 0 (size: 400, clBuffer: 0x1630f48, deviceOffset: 0, hostPointer: 0x2c95cc0, hostOffset: 0)
+[=====VectorDef.h:567  000.201s DINFO] Started data upload to 1 devices (size: 100)
+[=====VectorDef.h:296  000.201s DINFO] Vector object (0x7fff94bff2b0) resized, now with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2248c30
+[=====VectorDef.h:512  000.201s DINFO] Vector object (0x7fff94bff2b0) assigned new distribution, now with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2248c30
+[DeviceBuffer.cpp:95   000.201s DINFO] Created new DeviceBuffer object (0x7fff94bfef80) with device: 0, size: 100, flags: 1, buffer: 0x17071e8
+[DeviceBuffer.cpp:124  000.201s DINFO] Created new DeviceBuffer object (0x7fff94bff068) by moving with device: 0, size: 100, flags: 1, buffer: 0x17071e8
+[DeviceBuffer.cpp:163  000.201s DINFO] Empty DeviceBuffer object (0x7fff94bfef80) destroyed
+[DeviceBuffer.cpp:124  000.201s DINFO] Created new DeviceBuffer object (0x7fff94bff028) by moving with device: 0, size: 100, flags: 1, buffer: 0x17071e8
+[DeviceBuffer.cpp:124  000.201s DINFO] Created new DeviceBuffer object (0x17079c8) by moving with device: 0, size: 100, flags: 1, buffer: 0x17071e8
+[DeviceBuffer.cpp:163  000.201s DINFO] Empty DeviceBuffer object (0x7fff94bff028) destroyed
+[DeviceBuffer.cpp:163  000.201s DINFO] Empty DeviceBuffer object (0x7fff94bff068) destroyed
+[======Device.cpp:161  000.201s DINFO] Kernel for device 0 enqueued with global range: { 256 }, local: { 256 }, offset: {  }
+[========MapDef.h:165  000.201s DINFO] Map kernel started
+[=====VectorDef.h:617  000.201s DINFO] Data on devices marked as modified
+[======Device.cpp:323  000.201s DINFO] Enqueued copy buffer for device 0 (from: 0x17071e8, to: 0x224b208, size: 400, fromOffset: 0, toOffset: 0)
+[DeviceBuffer.cpp:110  000.201s DINFO] Created new DeviceBuffer object (0x14d9ff8) by copying (0x17079c8) with device: 0, size: 100, flags: 1, buffer: 0x224b208
+[=====VectorDef.h:147  000.201s DINFO] Created new Vector object (0x7fff94bff410) by copying (0x7fff94bff2b0) with size: 100, deviceBuffersCreated: true, hostBufferUpToDate: false, deviceBuffersUpToDate: true, hostBuffer: 0x14d9e30
+[======Device.cpp:259  000.201s DINFO] Enqueued read buffer for device 0 (size: 400, clBuffer: 0x224b208, deviceOffset: 0, hostPointer: 0x14d9e30, hostOffset: 0)
+[=====VectorDef.h:599  000.202s DINFO] Started data download from 1 devices (size: 100)
+[ 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 ... ]
+[=====VectorDef.h:203  000.202s DINFO] Vector object (0x7fff94bff410) with size: 100, deviceBuffersCreated: true, hostBufferUpToDate: true, deviceBuffersUpToDate: true, hostBuffer: 0x14d9e30 destroyed
+[DeviceBuffer.cpp:165  000.202s DINFO] DeviceBuffer object (0x14d9ff8) destroyed
+[=====VectorDef.h:203  000.202s DINFO] Vector object (0x7fff94bff2b0) with size: 100, deviceBuffersCreated: true, hostBufferUpToDate: false, deviceBuffersUpToDate: true, hostBuffer: 0x2248c30 destroyed
+[DeviceBuffer.cpp:165  000.202s DINFO] DeviceBuffer object (0x17079c8) destroyed
+[=====VectorDef.h:203  000.202s DINFO] Vector object (0x7fff94bff250) with size: 100, deviceBuffersCreated: true, hostBufferUpToDate: true, deviceBuffersUpToDate: true, hostBuffer: 0x2c95cc0 destroyed
+[DeviceBuffer.cpp:165  000.202s DINFO] DeviceBuffer object (0x2c32cc8) destroyed
+```
+
+And on my development branch:
+
+```
+[==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
+[======Device.cpp:117  000.150s  INFO] Using device `Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz' with id: 0
+[==DeviceList.cpp:122  000.151s  INFO] Using 1 OpenCL device(s) in total
+[=====Program.cpp:91   000.151s DINFO] Program instance created with source:
+
+
+
+int func(int x, int foo) { return x * foo; }
+
+typedef float SCL_TYPE_0;
+typedef float SCL_TYPE_1;
+
+__kernel void SCL_MAP(
+    const __global SCL_TYPE_0*  SCL_IN,
+          __global SCL_TYPE_1*  SCL_OUT,
+    const unsigned int          SCL_ELEMENTS,
+    const unsigned int          PARTITION_SIZE)
+{
+  if (get_global_id(0) < SCL_ELEMENTS) {
+    SCL_OUT[get_global_id(0)] = SCL_FUNC(SCL_IN[get_global_id(0)]);
+  }
+}
+
+
+[=====Program.cpp:230  000.189s DINFO] Create cl::Program for device 0 with source:
+#define skelcl_get_device_id() 0
+
+
+
+int SCL_FUNC(int x, int foo) { return x * foo; }
+
+typedef int SCL_TYPE_0;
+typedef int SCL_TYPE_1;
+
+__kernel void SCL_MAP(
+    const __global SCL_TYPE_0*  SCL_IN,
+          __global SCL_TYPE_1*  SCL_OUT,
+    const unsigned int          SCL_ELEMENTS,
+    const unsigned int          PARTITION_SIZE, int foo)
+{
+  if (get_global_id(0) < SCL_ELEMENTS) {
+    SCL_OUT[get_global_id(0)] = SCL_FUNC(SCL_IN[get_global_id(0)], foo);
+  }
+}
+
+
+[========MapDef.h:82   000.211s DINFO] Create new Map object (0x7ffff1b40e10)
+[=====VectorDef.h:101  000.211s DINFO] Created new Vector object (0x7ffff1b40e60) with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2387c40
+[=====VectorDef.h:147  000.211s DINFO] Created new Vector object (0x7ffff1b40fc0) by copying (0x7ffff1b40e60) with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2d56200
+[ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ... ]
+[=====VectorDef.h:203  000.211s DINFO] Vector object (0x7ffff1b40fc0) with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2d56200 destroyed
+[=====VectorDef.h:85   000.211s DINFO] Created new Vector object (0x7ffff1b40ec0) with size: 0, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: true, hostBuffer: 0
+[=====VectorDef.h:512  000.212s DINFO] Vector object (0x7ffff1b40e60) assigned new distribution, now with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x2387c40
+[DeviceBuffer.cpp:95   000.212s DINFO] Created new DeviceBuffer object (0x7ffff1b40b40) with device: 0, size: 100, flags: 1, buffer: 0x175bef8
+[DeviceBuffer.cpp:124  000.212s DINFO] Created new DeviceBuffer object (0x7ffff1b40c28) by moving with device: 0, size: 100, flags: 1, buffer: 0x175bef8
+[DeviceBuffer.cpp:163  000.212s DINFO] Empty DeviceBuffer object (0x7ffff1b40b40) destroyed
+[DeviceBuffer.cpp:124  000.212s DINFO] Created new DeviceBuffer object (0x7ffff1b40be8) by moving with device: 0, size: 100, flags: 1, buffer: 0x175bef8
+[DeviceBuffer.cpp:124  000.212s DINFO] Created new DeviceBuffer object (0x2d563f8) by moving with device: 0, size: 100, flags: 1, buffer: 0x175bef8
+[DeviceBuffer.cpp:163  000.212s DINFO] Empty DeviceBuffer object (0x7ffff1b40be8) destroyed
+[DeviceBuffer.cpp:163  000.212s DINFO] Empty DeviceBuffer object (0x7ffff1b40c28) destroyed
+[======Device.cpp:193  000.212s DINFO] Enqueued write buffer for device 0 (size: 400, clBuffer: 0x175bef8, deviceOffset: 0, hostPointer: 0x2387c40, hostOffset: 0)
+[=====VectorDef.h:567  000.212s DINFO] Started data upload to 1 devices (size: 100)
+[=====VectorDef.h:296  000.212s DINFO] Vector object (0x7ffff1b40ec0) resized, now with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x17710c0
+[=====VectorDef.h:512  000.212s DINFO] Vector object (0x7ffff1b40ec0) assigned new distribution, now with size: 100, deviceBuffersCreated: false, hostBufferUpToDate: true, deviceBuffersUpToDate: false, hostBuffer: 0x17710c0
+[DeviceBuffer.cpp:95   000.212s DINFO] Created new DeviceBuffer object (0x7ffff1b40b90) with device: 0, size: 100, flags: 1, buffer: 0x15c8b98
+[DeviceBuffer.cpp:124  000.212s DINFO] Created new DeviceBuffer object (0x7ffff1b40c78) by moving with device: 0, size: 100, flags: 1, buffer: 0x15c8b98
+[DeviceBuffer.cpp:163  000.212s DINFO] Empty DeviceBuffer object (0x7ffff1b40b90) destroyed
+[DeviceBuffer.cpp:124  000.212s DINFO] Created new DeviceBuffer object (0x7ffff1b40c38) by moving with device: 0, size: 100, flags: 1, buffer: 0x15c8b98
+[DeviceBuffer.cpp:124  000.212s DINFO] Created new DeviceBuffer object (0x1847348) by moving with device: 0, size: 100, flags: 1, buffer: 0x15c8b98
+[DeviceBuffer.cpp:163  000.212s DINFO] Empty DeviceBuffer object (0x7ffff1b40c38) destroyed
+[DeviceBuffer.cpp:163  000.212s DINFO] Empty DeviceBuffer object (0x7ffff1b40c78) destroyed
+[========MapDef.h:146  000.212s DINFO] Number of elements: 100, partitions: 2, partition size: 50, local size: 256, global size: 256
+[======Device.cpp:147  000.212s ERROR] OpenCL error: CL_INVALID_KERNEL_ARGS (code: -52) clEnqueueNDRangeKernel
+[1]    19576 abort (core dumped)  ./map
+```
+
+I tracked down the issue, which was caused by an incorrect index to
+the `setArg()` function. Map partitioning support is now complete, and
+ready to test.
