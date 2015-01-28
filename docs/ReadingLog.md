@@ -1,5 +1,23 @@
 # < 5 min
 
+1. M. Lin, S. Cheng, and J. Wawrzynek, “Extracting memory-level
+   parallelism through reconfigurable hardware traces,” in
+   Reconfigurable Computing and FPGAs (ReConFig), 2013 International
+   Conference on, 2013, pp. 1–8.
+1. H. Hoffmann, S. Misailovic, A. Agarwal, and M. Rinard, “Using Code
+   Perforation to Improve Performance, Reduce Energy Consumption, and
+   Respond to Failures,” 2009.
+1. Y. Oleynik, R. Mijakovi, I. A. C. Ureña, M. Firbach, and M. Gerndt,
+   “Recent Advances in Periscope for Performance Analysis and Tuning,”
+   Tools High Perform. Comput. 2013, pp. 39–51, 2014.
+1. C. Dubach, T. M. Jones, E. V. Bonilla, and M. F. P. O’Boyle, “A
+   Predictive Model for Dynamic Microarchitectural Adaptivity
+   Control,” in 2010 43rd Annual IEEE/ACM International Symposium on
+   Microarchitecture, 2010, pp. 485–496.
+1. F. Hutter, H. H. Hoos, K. Leyton-Brown, and T. Stutzle, “ParamILS:
+   An Automatic Algorithm Configuration Framework,”
+   J. Artif. Intell. Res., vol. 36, no. 1, pp. 267–306, 2009.
+
 # 5-12 min
 
 1. J. Bilmes, K. Asanovic, C.-W. Chin, and J. Demmel, “Optimizing
@@ -22,6 +40,9 @@
    Comput. Sci., vol. 18, pp. 749–758, Jan. 2013.
 1. O. Jeffrey and M. David, “The Vision of Autonomic Computing,”
    Computer (Long. Beach. Calif)., vol. 36, no. 1, pp. 41–50, 2003.
+1. C. Nugteren and H. Corporaal, “Bones: An Automatic Skeleton-Based
+   C-to-CUDA Compiler for GPUs,” ACM Trans. Arch. Code Optim.,
+   vol. 11, no. 4, pp. 35:1–35:25, 2014.
 
 # 12-30 min
 
