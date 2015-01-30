@@ -1,5 +1,8 @@
 SUBDIRS = \
 	docs \
-	exercises \
 	experiments \
 	$(NULL)
+
+if ENABLE_EXERCISES
+SUBDIRS += exercises
+endif

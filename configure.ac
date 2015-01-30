@@ -371,29 +371,35 @@ dnl ================================================================
 dnl Export OpenCL paths
 dnl ================================================================
 dnl libOpenCL.so
-AC_ARG_WITH(opencl-lib,
-            AS_HELP_STRING([--with-opencl-lib=DIR],
-                           [Location of libOpenCL.so]),
-            [opencl_lib="$withval"],
-            [AC_MSG_WARN([using default OpenCL library location.])
-             opencl_lib="/opt/intel/opencl-sdk/lib64"])
+AC_ARG_ENABLE([exercises],
+              [AS_HELP_STRING([--enable-exercises],
+                              [Build exercises (default: yes)])],,
+              [enable_exercises=yes])
+AM_CONDITIONAL(ENABLE_EXERCISES,[test "x$enable_exercises" = xyes])
 
-OPENCL_LIB="$opencl_lib"
-AC_CHECK_FILE([$OPENCL_LIB/libOpenCL.so],[],[AC_MSG_ERROR([OpenCL library not found!])])
-AC_SUBST([OPENCL_LIB],[$OPENCL_LIB])
+AS_IF([test "x$enable_exercises" = xyes],
+      [AC_ARG_WITH(opencl-lib,
+                   AS_HELP_STRING([--with-opencl-lib=DIR],
+                                  [Location of libOpenCL.so]),
+                   [opencl_lib="$withval"],
+                   [AC_MSG_WARN([using default OpenCL library location.])
+                    opencl_lib="/opt/intel/opencl-sdk/lib64"])
 
-dnl OpenCL headers
-AC_ARG_WITH(opencl-headers,
-            AS_HELP_STRING([--with-opencl-headers=DIR],
-                           [Location of OpenCL include files.]),
-            [opencl_headers="$withval"],
-            [AC_MSG_WARN([using default OpenCL header location.])
-opencl_headers="/opt/intel/opencl-sdk/include"])
+       OPENCL_LIB="$opencl_lib"
+       AC_CHECK_FILE([$OPENCL_LIB/libOpenCL.so],[],[AC_MSG_ERROR([OpenCL library not found!])])
+       AC_SUBST([OPENCL_LIB],[$OPENCL_LIB])
 
-OPENCL_HEADERS="$opencl_headers"
-AC_CHECK_FILE([$OPENCL_HEADERS/CL/cl.h],[],[AC_MSG_ERROR([OpenCL headers not found!])])
-AC_SUBST([OPENCL_HEADERS],[$OPENCL_HEADERS])
+       dnl OpenCL headers
+       AC_ARG_WITH(opencl-headers,
+                   AS_HELP_STRING([--with-opencl-headers=DIR],
+                                  [Location of OpenCL include files.]),
+                   [opencl_headers="$withval"],
+                   [AC_MSG_WARN([using default OpenCL header location.])
+       opencl_headers="/opt/intel/opencl-sdk/include"])
 
+       OPENCL_HEADERS="$opencl_headers"
+       AC_CHECK_FILE([$OPENCL_HEADERS/CL/cl.h],[],[AC_MSG_ERROR([OpenCL headers not found!])])
+       AC_SUBST([OPENCL_HEADERS],[$OPENCL_HEADERS])])
 
 dnl ================================================================
 dnl Generate files
