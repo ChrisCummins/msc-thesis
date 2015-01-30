@@ -51,5 +51,14 @@
    space pruning for a multithreaded GPU,” in Proceedings of the 6th
    annual IEEE/ACM international symposium on Code generation and
    optimization, 2008, pp. 195–204.
+1. Lee, H., Brown, K. J., Sujeeth, A. K., Rompf, T., & Olukotun,
+   K. (2014). Locality-Aware Mapping of Nested Parallel Patterns on
+   GPUs. In Microarchitecture (MICRO), 2014 47th Annual IEEE/ACM
+   International Symposium on
+   (pp. 63–74). IEEE. doi:10.1109/MICRO.2014.23
 
 # > 30 min
+
+1. Joshi, R., Nelson, G., & Randall, K. (2002). Denali: a
+   goal-directed superoptimizer. ACM SIGPLAN Notices,
+   37(5), 304. doi:10.1145/543552.512566
