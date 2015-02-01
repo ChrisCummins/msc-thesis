@@ -250,7 +250,6 @@ endef
 # 6.  pdflatex
 %.pdf: %.tex
 	$(AM_V_at)echo -e "Build log for `date`\n" >$(DocumentBuildLog)
-	$(AM_V_at)echo -e "\nCOMMAND: $(CLEANBIB)\n" >>$(DocumentBuildLog)
 	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
 	$(AM_V_at)$(call pdflatex, $<)
 	$(AM_V_at)($(GREP) '\\citation' >/dev/null 2>&1 < $*.aux && {	\
