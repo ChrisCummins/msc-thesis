@@ -3629,3 +3629,48 @@ I've started adding an API for setting OpenCL compiler
 flags. Documentation for available options is:
 
 https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
+
+
+# February 2015
+
+
+## Sunday 1st
+
+A video on [game development](http://youtu.be/UvCri1tqIxQ) recommends
+that beginner developers aim for a "Minimum Viable Product" which can
+be created in 3 weeks. I think this could be applied usefully to me by
+specifying a "Minimum Viable Project", with a 3 week completion:
+
+#### Minimum Viable Project, due 22/2/15
+
+The aim is to develop a working prototype of a SkelCL autotuner, which
+can be used as a platform for improving beyond the state of the art of
+iterative compilation.
+
+Requirements:
+1. A set of (i.e. 3+) benchmarks for SkelCL which are "thesis ready" -
+   i.e. based on some reputable existing benchmark suite.
+1. A modified version of SkelCL which has "tunable knobs", and an API
+   for tuning them.
+1. A mechanism for iterating through the space of SkelCL's tunable
+   knobs, collecting execution times of the benchmarks for each
+   configuration.
+1. Preliminary results which contain a (partial) enumeration of this
+   search space.
+
+If I can meet those four requirements within the 3 weeks, then that
+will give me a good feel for the optimisation space of SkelCL, and a
+codebase to begin hacking on in order to implement my dynamic
+autotuner.
+
+Additionally, some extra learning goals to focus my background
+reading:
+
+1. I should have a good understanding of the memory architecture of
+   GPUs.
+1. I should be able to describe the advantages and disadvantages of
+   several approaches to the searching problem, from a range of
+   different approaches: Online/Offline ML, GAs, search algorithms
+   etc.
+1. I should have a solid feel of the state of the art of optimising
+   GPGPU programs.
