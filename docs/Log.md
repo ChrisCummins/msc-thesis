@@ -3681,3 +3681,11 @@ reading:
    etc.
 1. I should have a solid feel of the state of the art of optimising
    GPGPU programs.
+
+
+## Monday 2nd
+
+TODO:
+* Look up GPU courses at Edinburgh.
+* Look up Compiler Techniques lecture notes.
+* Read through EaC (the entire second half is examinable).
