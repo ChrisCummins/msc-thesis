@@ -3631,6 +3631,13 @@ flags. Documentation for available options is:
 https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
 
 
+## Thursday 29th
+
+TODO:
+ * EaC p527
+ * Mathematical symbols
+
+
 # February 2015
 
 
