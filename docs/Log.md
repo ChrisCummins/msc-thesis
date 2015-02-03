@@ -3652,9 +3652,8 @@ specifying a "Minimum Viable Project", with a 3 week completion:
 
 The aim is to develop a working prototype of a SkelCL autotuner, which
 can be used as a platform for improving beyond the state of the art of
-iterative compilation.
+iterative compilation. Requirements:
 
-Requirements:
 1. A set of (i.e. 3+) benchmarks for SkelCL which are "thesis ready" -
    i.e. based on some reputable existing benchmark suite.
 1. A modified version of SkelCL which has "tunable knobs", and an API
@@ -3689,3 +3688,23 @@ TODO:
 * Look up GPU courses at Edinburgh.
 * Look up Compiler Techniques lecture notes.
 * Read through EaC (the entire second half is examinable).
+
+
+## Tuesday 3rd
+
+#### Graph colouring
+
+Graph colouring is a special case of graph labelling, such that no two
+adjacent vertices/edges share the same colour (vertex colouring or
+edge colouring).
+
+#### Deterministic finite automaton (DFA)
+
+A FSM is a DFA if:
+
+* each of its transitions is uniquely determined by its source state
+  and input symbol, and
+* reading an input symbols is required for each state transition.
+
+A nondeterministic finit auotomaton (NFA) doesn't obey these
+restrictions. Every DFA is also an NFA.
