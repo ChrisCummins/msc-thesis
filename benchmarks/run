@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -eu
+
+#./mandelbrot > 
+
+while read flag; do
+    while read benchmark; do
+        datadir=dat/$benchmark
+        checksum=$(echo $flag | sha256sum | cut -d' ' -f1)
+        datafile=$datadir/$checksum
+        
+        mkdir -p $datadir
+        echo "$benchmark $flag $checksum"
+       
+        sed -i -r 's/(CHRIS_OPENCL_FLAG ")(.*)(")/\1'"$flag"'\3/' '../skelcl/include/SkelCL/Chris.h'
+
+        ./$benchmark > $datafile
+    done < benchmarks.txt
+done < flags.txt

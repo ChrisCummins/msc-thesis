@@ -105,9 +105,11 @@ void mandelbrot()
   float dx = (endX - startX) / WIDTH;
   float dy = (endY - startY) / HEIGHT;
 
+  chris::startTimer("benchmark");
   Matrix<Pixel> output = m(positions, startX, startY, dx, dy);
 
   writePPM(output.begin(), output.end(), "mandelbrot.ppm");
+  chris::stopTimer("benchmark");
 }
 
 int main(int argc, char** argv)

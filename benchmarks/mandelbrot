@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-set -eux
+. benchmarks.sh
 
-cd src
-./mandelbrot
-diff mandelbrot.ppm mandelbrot.ppm-out
+run mandelbrot
+diff src/mandelbrot.ppm src/mandelbrot.ppm-out
