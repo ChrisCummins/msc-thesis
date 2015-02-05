@@ -3708,3 +3708,24 @@ A FSM is a DFA if:
 
 A nondeterministic finit auotomaton (NFA) doesn't obey these
 restrictions. Every DFA is also an NFA.
+
+
+## Thursday 5th
+
+Added `chris::(start|stop)Timer()` functions to SkelCL. To run a
+benchmark and report only times:
+
+```
+$ ./benchmark 2>&1 | grep -E 'Timer\[.*\] [0-9]+' | sed -r 's/.*Timer\[(.+)\] ([0-9]+).*/\1\t\2/' | column -t'
+Program::build  14
+exec            1714
+```
+
+#### Notes from meeting with Hugh and Pavlos
+
+* Look further into the MICRO paper where they skeletonized Rodinia,
+  there's probably something of use in there. Perhaps contact authors,
+  if code not available online?
+* Compare against not just SkelCL, but viable competitors, e.g. SkePU.
+* Lit review paper: Coharvey & John - Wrapper Selection.
+* Read Section 5 of book Hugh lent me.
