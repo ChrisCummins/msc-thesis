@@ -4,5 +4,8 @@ SUBDIRS = \
 	$(NULL)
 
 if ENABLE_EXERCISES
-SUBDIRS += exercises
+SUBDIRS += \
+	benchmarks \
+	exercises \
+	$(NULL)
 endif

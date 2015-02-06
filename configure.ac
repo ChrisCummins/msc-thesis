@@ -406,6 +406,8 @@ dnl Generate files
 dnl ================================================================
 AC_CONFIG_FILES([
         Makefile
+        benchmarks/Makefile
+        benchmarks/src/Makefile
         docs/Makefile
         docs/maths/Makefile
         docs/proposal/Makefile
