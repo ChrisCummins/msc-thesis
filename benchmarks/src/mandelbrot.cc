@@ -70,19 +70,17 @@ SKELCL_ADD_DEFINE(CENTER_X)
 SKELCL_ADD_DEFINE(CENTER_Y)
 SKELCL_ADD_DEFINE(ZOOM)
 
-//SKELCL_ADD_DEFINES(ITERATIONS, WIDTH, HEIGHT, CENTER_X, CENTER_Y, ZOOM)
+// SKELCL_ADD_DEFINES(ITERATIONS, WIDTH, HEIGHT, CENTER_X, CENTER_Y, ZOOM)
 
 using namespace skelcl;
 
-std::ostream& operator<< (std::ostream& out, Pixel p)
-{
+std::ostream& operator<< (std::ostream& out, Pixel p) {
   out << p.r << p.g << p.b;
   return out;
 }
 
 template <typename Iterator>
-void writePPM (Iterator first, Iterator last, const std::string& filename)
-{
+void writePPM(Iterator first, Iterator last, const std::string& filename) {
   std::ofstream outputFile(filename.c_str());
 
   outputFile << "P6\n" << WIDTH << " " << HEIGHT << "\n255\n";
@@ -90,17 +88,16 @@ void writePPM (Iterator first, Iterator last, const std::string& filename)
   std::copy(first, last, std::ostream_iterator<Pixel>(outputFile));
 }
 
-void mandelbrot()
-{
+void mandelbrot() {
   IndexMatrix positions({HEIGHT, WIDTH});
 
   Map<Pixel(IndexPoint)> m(std::ifstream("mandelbrot.cl"));
 
-  float startX = CENTER_X - ((float) WIDTH / (ZOOM * 2));
-  float endX = CENTER_X + ((float) WIDTH / (ZOOM * 2));
+  float startX = CENTER_X - (static_cast<float>(WIDTH) / (ZOOM * 2));
+  float endX = CENTER_X + (static_cast<float>(WIDTH) / (ZOOM * 2));
 
-  float startY = CENTER_Y - ((float) HEIGHT / (ZOOM * 2));
-  float endY = CENTER_Y + ((float) HEIGHT / (ZOOM * 2));
+  float startY = CENTER_Y - (static_cast<float>(HEIGHT) / (ZOOM * 2));
+  float endY = CENTER_Y + (static_cast<float>(HEIGHT) / (ZOOM * 2));
 
   float dx = (endX - startX) / WIDTH;
   float dy = (endY - startY) / HEIGHT;
@@ -112,8 +109,7 @@ void mandelbrot()
   chris::stopTimer("benchmark");
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   using namespace pvsutil::cmdline;
   pvsutil::CLArgParser cmd(Description("Computation of the mandelbrot set."));
 
