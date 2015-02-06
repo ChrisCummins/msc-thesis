@@ -27,7 +27,7 @@ else
     report_name=$(date "+$date_format")
 fi
 
-set -eu
+set -eux
 
 # Get the name of the current branch.
 current_branch="$(git symbolic-ref HEAD 2>/dev/null)" ||
@@ -78,11 +78,25 @@ fi
 
 git flow feature start $feature_branch
 
+# Previous report.
+prevreport="$(find "$report_dir" | grep -E '[0-9]{2}-[0-9]{2}-[0-9]{2}.md' | tail -n1)"
+echo "Previous report: '$prevreport'"
+
 echo "Generating file: '$report'"
 
-# Create the report base on the template, substituting the @NAME@
-# placeholder for the report name.
-sed "s/@NAME@/$report_name/" "$template" > "$report"
+# Create the first part of the report based on the template,
+# substituting the @NAME@ placeholder for the report name.
+sed '/## What I had planned to do this week/q' "$template" | sed "s/@NAME@/$report_name/" > "$report"
+
+# Line numbers for last report's section on "What I will do next week"
+startn=$(grep -n '## What I will do next week' "$prevreport" | cut -d':' -f1)
+endn=$(grep -n '## Have I made enough progress this week' "$prevreport" | cut -d':' -f1)
+
+# Append section to template.
+sed -n $((startn+1)),$((endn-1))p "$prevreport" >> "$report"
+
+# Add the rest of the report template.
+sed -n '/## What I actually did this week/,$p' "$template" >> "$report"
 
 echo "Flushing reading log: '$reading_log'"
 
