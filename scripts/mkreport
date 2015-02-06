@@ -27,7 +27,7 @@ else
     report_name=$(date "+$date_format")
 fi
 
-set -eux
+set -eu
 
 # Get the name of the current branch.
 current_branch="$(git symbolic-ref HEAD 2>/dev/null)" ||
