@@ -11,6 +11,7 @@
 #include <SkelCL/SkelCL.h>
 #include <SkelCL/Vector.h>
 #include <SkelCL/Map.h>
+#include <SkelCL/Distributions.h>
 
 #include <pvsutil/Logger.h>
 
@@ -36,22 +37,22 @@ int main(int argc, char* argv[]) {
   // Define the skeleton objects.
   skelcl::Map<int(int)> map("int func(int x) { return x * 2; }");
 
-  // Define vector A of length "n".
+  // Define vector input of length "n".
   const int n = 1e7;
-  skelcl::Vector<int> A(n);
-  for (int i = 1; i <= n; i++) A[i - 1] = i;
+  skelcl::Vector<int> input(n);
+  for (int i = 1; i <= n; i++) input[i - 1] = i;
 
-  print(A);
+  // Set distribution of input.
+  skelcl::distribution::setSingle(input);
+  input.createDeviceBuffers();
 
-  chris::startTimer("benchmark");
-  // Invoke skeleton object.
-  skelcl::Vector<int> B(map(A));
-  print(B);
-  for (int i = 1; i <=n; i++)
-    assert(A[i -1] != i * 2);
+  print(input);
 
-  chris::stopTimer("benchmark");
+  TIME(upload,   input.copyDataToDevices());
+  TIME(exec,     skelcl::Vector<int> output(map(input)));
+  TIME(download, output.copyDataToHost());
 
+  print(output);
 
   return 0;
 }
