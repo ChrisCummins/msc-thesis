@@ -12,6 +12,24 @@
    II video: Expediting the next generation of video systems
    research,” in Electronic Imaging 2005, 2005, vol. 33, no. 4,
    pp. 301–318.
+1. M. Dixon, “A Pattern Oriented Approach for Designing Scalable
+   Analytics Applications (Invited Talk),” in 20th ACM SIGPLAN
+   Symposium on Principles and Practice of Parallel Programming, 2015,
+   pp. 4–8.
+1. M. Carpen-amarie, P. Marlier, P. Felber, and G. Thomas, “A
+   Performance Study of Java Garbage Collectors on Multicore
+   Architectures Categories and Subject Descriptors,” in 20th ACM
+   SIGPLAN Symposium on Principles and Practice of Parallel
+   Programming, 2015, no. 1.
+1. I. Saeed, “A Portable Benchmark Suite for Highly Parallel Data
+   Intensive Query Processing,” in 20th ACM SIGPLAN Symposium on
+   Principles and Practice of Parallel Programming, 2015, pp. 31–38.
+1. C. Radoi and S. Herhut, “Are Web Applications Ready for
+   Parallelism?,” in 20th ACM SIGPLAN Symposium on Principles and
+   Practice of Parallel Programming, 2015, pp. 289–290.
+1. J. Alan, “Debugging Parallel Programs,” in 20th ACM SIGPLAN
+   Symposium on Principles and Practice of Parallel Programming, 2015,
+   pp. 68–75.
 
 # 5-12 min
 
@@ -24,6 +42,10 @@
    of Multiple Interacting Resources in Chip Multiprocessors: A
    Machine Learning Approach,” in 2008 41st IEEE/ACM International
    Symposium on Microarchitecture, 2008, pp. 318–329.
+1. P. Walsh and C. Ryan, “Paragen: A Novel Technique for the
+   Autoparallelisation of Sequential Programs using Genetic
+   Programming,” in Proceedings of the 1st Annual Conference on
+   Genetic Programming, 1996, pp. 406–409.
 
 # 12-30 min
 
