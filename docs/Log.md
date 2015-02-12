@@ -3729,3 +3729,12 @@ exec            1714
 * Compare against not just SkelCL, but viable competitors, e.g. SkePU.
 * Lit review paper: Coharvey & John - Wrapper Selection.
 * Read Section 5 of book Hugh lent me.
+
+
+## Tuesday 9th
+
+To get GitHub pages local development server running again, change the
+version of `safe_yaml` in `Gemfile.lock` to 1.0.4.
+
+For pacman system updrade, remove `yaourt` and `package-query`,
+upgrade, then reinstall.
