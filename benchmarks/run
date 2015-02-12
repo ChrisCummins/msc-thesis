@@ -1,29 +1,38 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python
 
-set -eu
+from os import system,chdir
+from subprocess import check_output
 
-while read flag; do
-    sed -i -r 's/(CHRIS_OPENCL_FLAG ")(.*)(")/\1'"$flag"'\3/' '../skelcl/include/SkelCL/Chris.h'
+def readlines(path):
+    with open(path) as f:
+        return [x.strip() for x in f.readlines()]
 
-    # Build SkelCL.
-    cd ../skelcl/build/
-    make >/dev/null
-    cd ../../benchmarks
+flags = readlines('etc/flags.txt')
+benchmarks = readlines('etc/benchmarks.txt')
+
+for flag in flags:
+    system("sed -i -r 's/(CHRIS_OPENCL_FLAG \")(.*)(\")"
+           "/\1{flag}\3/' '../skelcl/include/SkelCL/Chris.h'"
+           .format(flag=flag))
+
+    # Build SkelCL
+    chdir("../skelcl/build/")
+    system("make >/dev/null")
+    chdir("../../benchmarks/")
 
     # Build benchmarks.
-    cd src/
-    make clean >/dev/null
-    make >/dev/null
-    cd ..
+    chdir("src/")
+    system("make clean >/dev/null")
+    system("make >/dev/null")
+    chris("../")
 
     # Evaluate benchmarks.
-    while read benchmark; do
-        datadir=dat/$benchmark
-        checksum=$(echo $flag | sha256sum | cut -d' ' -f1)
-        datafile=$datadir/$checksum
+    for benchmark in benchmarks:
+        datadir="dat/{0}".format(benchmark)
+        checksum=check_output("echo {0} | sha256sum | cut -d' ' -f1"
+                              .format(flag)).strip()
+        datafile="/".join(datadir, checksum)
 
-        mkdir -p $datadir
-        echo "$benchmark $flag $checksum"
-        ./$benchmark | tee $datafile
-    done < benchmarks.txt
-done < flags.txt
+        system("mkdir -p {0}".format(datadir))
+        print(benchmark, flag, checksum)
+        system("./{0} | tee {1}".format(benchmark, datafile))
