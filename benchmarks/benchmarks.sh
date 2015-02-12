@@ -11,7 +11,7 @@ _exec() {
 run() {
     cd src/
     echo "upload exec download"
-    for i in $(seq 1 5); do
+    for i in $(seq 1 10); do
         _exec $1
     done
     cd ..

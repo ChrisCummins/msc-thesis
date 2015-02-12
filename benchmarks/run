@@ -335,39 +335,33 @@ def main():
                "/\\1{0}/' '../skelcl/include/SkelCL/Chris.h'"
                .format(partitions))
 
-        name = 'vectorsizes-{0}'.format(partitions)
-        #make(dir='../skelcl/build')
-        
-        #MapVectorSize(vectorsizes, open('dat/{0}.csv'.format(name), 'w'))
-        GraphResults('No. partitions: {0}'.format(partitions),
-                     'dat/{0}.csv'.format(name),
-                     file='img/{0}.png'.format(name))
-        
-        # for flag in flags:
-        #     system("sed -i -r 's/(CHRIS_OPENCL_FLAG \").*(\")"
-        #            "/\\1{0}\\2/' '../skelcl/include/SkelCL/Chris.h'"
-        #            .format(flag))
+        for flag in flags:
+            system("sed -i -r 's/(CHRIS_OPENCL_FLAG \").*(\")"
+                   "/\\1{0}\\2/' '../skelcl/include/SkelCL/Chris.h'"
+                   .format(flag))
     
-        #     # Build SkelCL
-        #     print('Building SkelCL with OpenCL flag: "{0}"'.format(flag))
-        #     make(dir='../skelcl/build')
+            # Build SkelCL
+            print('Building SkelCL with OpenCL flag: "{0}"'.format(flag))
+            make(dir='../skelcl/build')
     
-        #     for t,v in [['int', '100']]:#, ['float', '150.5f']]:
-        #         system("sed -i -r 's/(#define VECTOR_TYPE ).*"
-        #                "/\\1{0}/' 'src/testmap.cc'"
-        #                .format(t))
-        #         system("sed -i -r 's/(#define VECTOR_VAL ).*"
-        #                "/\\1{0}/' 'src/testmap.cc'"
-        #                .format(v))
+            for t,v in [['int', '100']]:#, ['float', '150.5f']]:
+                system("sed -i -r 's/(#define VECTOR_TYPE ).*"
+                       "/\\1{0}/' 'src/testmap.cc'"
+                       .format(t))
+                system("sed -i -r 's/(#define VECTOR_VAL ).*"
+                       "/\\1{0}/' 'src/testmap.cc'"
+                       .format(v))
     
-        #         name = 'vectorsizes-{0}{1}'.format(t, flag)
+                name = 'vectorsizes-{0}{1}{2}'.format(partitions, t, flag)
     
-        #         MapVectorSize(vectorsizes, open('dat/{0}.csv'.format(name), 'w'))
-        #         GraphResults('Vectors of {0}s, OpenCL flags: {1}'
-        #                      .format(t, flag), 'dat/{0}.csv'.format(name),
-        #                      file='img/{0}.png'.format(name))
-        #         system('git add .')
-        #         system('git commit -m "BOT: results for {0}"'.format(name))
+                MapVectorSize(vectorsizes, open('dat/{0}.csv'.format(name), 'w'))
+                GraphResults('Num partitions: {0}, OpenCL flags: "{1}"'
+                             .format(partitions, flag), 'dat/{0}.csv'.format(name),
+                             file='img/{0}.png'.format(name))
+                
+                system('git add .')
+                system('git commit --allow-empty -m "BOT: results for {0}"'.format(name))
+                system('git push origin bot')
 
 
 def test():
