@@ -15,7 +15,7 @@
 
 #include <pvsutil/Logger.h>
 
-#define VECTOR_SIZE 250000000
+#define VECTOR_SIZE 225000000
 #define VECTOR_TYPE int
 #define VECTOR_VAL 100
 
