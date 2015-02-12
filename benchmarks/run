@@ -1,38 +1,383 @@
 #!/usr/bin/env python
 
+# graphing gear
+from warnings import catch_warnings,filterwarnings
+from math import sqrt
+from scipy import stats
 from os import system,chdir
-from subprocess import check_output
+from os.path import abspath,dirname,realpath,isfile
+from subprocess import check_output,DEVNULL,Popen
+from re import match
+from sys import stdout
+from six import string_types
 
+# from hashlib import sha256
+from json import dumps
+# from socket import gethostname
+
+from matplotlib import cm
+from matplotlib.figure import Figure
+from matplotlib.mlab import griddata
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.cm as cm
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
+import numpy as np
+import sys
+
+# Return a list of all of the lines in file 'path', excluding comments
+# (delimited by '#' symbol).
 def readlines(path):
     with open(path) as f:
-        return [x.strip() for x in f.readlines()]
+        return [match('[^#]+', x).group(0).strip()
+                for x in f.readlines() if not match('\s*#', x)]
 
+
+def path(*directories):
+    return "/".join(directories)
+
+
+# Run
+def run(benchmark, file=stdout):
+    print(check_output("./{0}".format(benchmark)).decode('UTF-8'), file=file)
+
+
+def variance(l):
+    if len(l) > 1:
+        differences = []
+        for n in l:
+            differences.append((n - mean(l)) ** 2)
+        return sum(differences) / (len(differences) - 1)
+    else:
+        return 0
+
+
+def stdev(l):
+    return sqrt(variance(l))
+
+
+# ##### LOOKUP #####
+
+# __hostname = gethostname()
+
+# __indexp = 'dat/index.dat' # Path to index
+# if not isfile(__indexp):
+#     open(__indexp, 'a').close()
+# __indexf = open(__indexp, 'r+') # Index file
+
+
+# __index = {} # Index
+
+
+# def checksum(benchmark='', flags='', car='', hostname=__hostname):
+#     config = dict(**locals())
+#     return sha256(dumps(config).encode('UTF-8')).hexdigest()
+
+
+# lc = []
+# lcn = len(lc)
+# def __lookup(checksum):
+#     if not lcn:
+#         return False
+    
+#     i = int(lcn / 2) # Start in the middle
+
+#     while lc[i][0] != checksum:
+#         if sorted(lc[i][0], checksum) == checksum:
+#             i = min(i * 2, lcn - 1)
+#         else:
+#             i = i / 2
+
+#     return True
+
+
+
+def confinterval(l, c=0.95):
+    if len(l) > 1:
+        scale = stdev(l) / sqrt(len(l))
+
+        # Confidence interval using a t-distribution:
+        with catch_warnings():
+            filterwarnings('error')
+            try:
+                return stats.t.interval(c, len(l) - 1, loc=mean(l), scale=scale)
+            except:
+                return mean(l), mean(l)
+    else:
+        return 0, 0
+
+
+# def record(time, checksum):
+#     if __lookup(checksum):
+#         __append(checksum, time)
+#     else:
+#         __addnew(checksum, time)
+
+
+# Return the mean value of a list
+def mean(l):
+    if len(l):
+        return sum(l) / len(l)
+    else:
+        return 0
+
+
+##### DIRECTORY NAVIGATION #####
+
+# Directory history.
+__cdhist = [dirname(realpath(__file__))]
+
+# Change to directory "path".
+def cd(path):
+    cwd = pwd()
+    apath = abspath(path)
+    __cdhist.append(apath)
+    if apath != cwd:
+        chdir(apath)
+    return apath
+
+
+# Change to previous directory.
+def cdpop():
+    if len(__cdhist) > 1:
+        __cdhist.pop() # Pop current directory
+        chdir(__cdhist[-1]) # Change to last directory
+        return __cdhist[-1]
+    else:
+        return pwd()
+
+
+# Change back to the starting directory.
+def cdstart():
+    while len(__cdhist) > 2:
+        cdpop()
+    return cdpop()
+
+
+# Change to the system root directory.
+def cdroot():
+    i, maxi = 0, 1000
+    while cd("..") != "/" and i < maxi:
+        i += 1
+    if i == maxi:
+        Exception("Unable to find root directory!")
+    return pwd()
+
+# Return the current working directory.
+def pwd():
+    return __cdhist[-1]
+
+##### MAKE #####
+
+def make(target="all", dir=pwd(), file=DEVNULL):
+    cd(dir)
+    p = Popen(['make', target], stdout=file, stderr=file)
+    e = p.wait()
+    if e:
+        Exception("`make {0}' in directory '{1}' failed!"
+                  .format(target, dir))
+    cdpop()
+    pass
+
+
+def printfile(file):
+    if isinstance(file, string_types):
+        print("Writing '{0}'...".format(file))
+    elif file != stdout:
+        print("Writing '{0}'...".format(file.name))
+
+def OpenCLFlags(benchmarks, flags, file=stdout):
+    printfile(file)
+
+    for flag in flags:
+        print("prep")
+        system("sed -i -r 's/(CHRIS_OPENCL_FLAG \").*(\")"
+               "/\\1{flag}\\2/' '../skelcl/include/SkelCL/Chris.h'"
+               .format(flag=flag))
+
+        # Build SkelCL
+        print("prep")
+        make(dir='../skelcl/build')
+
+        # Build benchmarks.
+        make(dir='src')
+
+        # Evaluate benchmarks.
+        for benchmark in benchmarks:
+            datadir = path("dat", benchmark)
+            system("mkdir -p {0}".format(datadir))
+            checksum=check_output("echo {0} | sha256sum | cut -d' ' -f1"
+                                  .format(flag)).strip()
+            datafile=path(datadir, checksum)
+
+            run(benchmark, open(datafile, 'w'))
+
+
+def pprint(data):
+    print(dumps(data, sort_keys=True, indent=2, separators=(',', ': ')))
+
+
+def load(path):
+    lines = [x.strip().split(',') for x in path.readlines()]
+
+    results = {}
+    try:
+        for t in ['upload', 'exec', 'download']:
+            results[t] = [{x[0]: x[2:]} for x in [x for x in lines if x[1] == t]]
+    except:
+        pass
+
+    return results
+
+
+def store(data, file=stdout):
+    printfile(file)
+    
+    print(', '.join(['vectorsize','type','mean','c']), file=file)
+    for t in ['upload', 'exec', 'download']:
+        for v in data[t]:
+            for x in v:
+                print(', '.join([x, t] + v[x]), file=file)
+  
+    
+def MapVectorSize(vectorsizes, file=stdout):
+    printfile(file)
+
+    # if file != stdout:
+    #     data = load(file)
+    # else:
+    #     data = {'download': [], 'exec': [], 'upload': []}
+
+    # if file != stdout:
+    #     file.seek(0)
+            
+    print(','.join(['vectorsize','type']), file=file)
+    for vectorsize in vectorsizes:
+        if file != stdout:
+            print("vectorsize:", vectorsize)
+
+        # Prepare source.
+        system("sed -i -r 's/(#define VECTOR_SIZE ).*"
+               "/\\1{size}/' 'src/testmap.cc'"
+               .format(size=vectorsize))
+
+        # Build benchmark.
+        make('testmap', dir='src')
+
+        output = check_output("./testmap").decode('UTF-8')
+        lines = [x.strip().split() for x in output.split('\n')
+                 if x.strip() != '' and x.split()[0] != 'upload']
+        uploadt = [int(x[0]) for x in lines]
+        exect = [int(x[1]) for x in lines]
+        downloadt = [int(x[2]) for x in lines]
+
+        # Print results.
+        for i,j in [['upload', uploadt], ['exec', exect], ['download', downloadt]]:
+            print(','.join([str(x) for x in [vectorsize, i] + j]), file=file)
+
+    # if file != stdout:
+    #     file.truncate()
+            
+def graph(title, plots, file=None):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    for plot in plots:
+        name = plot[0]
+        data = plot[1]
+        x = [x[0] for x in data]
+        times = [x[1:] for x in data]
+        for i in range(len(times)):
+            times[i] = [int(x) for x in times[i]]
+        
+        y = [mean(x) for x in times]
+        yerr = [confinterval(x)[1] for x in times]
+        for i in range(len(y)):
+            yerr[i] -= y[i]
+
+        plt.errorbar(x, y, yerr=yerr, label=name)
+
+    plt.legend()
+    plt.title(title)
+    plt.xlabel('Number of elements')
+    plt.ylabel('Time (ms)')
+    ax.set_ylim(0)
+
+    if file:
+        printfile(file)
+        plt.savefig(file)
+    else:
+        plt.show()
+
+
+
+def GraphResults(title, src, file=None):
+    lines = [x.strip().split(',') for x in open(src).readlines()]
+
+    uploadt   = [[x[0]] + x[2:] for x in [x for x in lines if x[1] == 'upload']]
+    exect     = [[x[0]] + x[2:] for x in [x for x in lines if x[1] == 'exec']]
+    downloadt = [[x[0]] + x[2:] for x in [x for x in lines if x[1] == 'download']]
+    graph(title, [['upload', uploadt], ['exec', exect], ['download', downloadt]], file=file)
+
+
+##### GLOBAL #####
 flags = readlines('etc/flags.txt')
 benchmarks = readlines('etc/benchmarks.txt')
+vectorsizes = [int(float(x)) for x in readlines('etc/vectorsizes.txt')]
 
-for flag in flags:
-    system("sed -i -r 's/(CHRIS_OPENCL_FLAG \")(.*)(\")"
-           "/\1{flag}\3/' '../skelcl/include/SkelCL/Chris.h'"
-           .format(flag=flag))
 
-    # Build SkelCL
-    chdir("../skelcl/build/")
-    system("make >/dev/null")
-    chdir("../../benchmarks/")
+def main():
+    #OpenCLFlags(benchmarks, flags)
 
-    # Build benchmarks.
-    chdir("src/")
-    system("make clean >/dev/null")
-    system("make >/dev/null")
-    chris("../")
+    for partitions in [1, 2, 3, 4, 8, 16, 32, 64, 128, 256]:
+        system("sed -i -r 's/(#define CHRIS_NUM_PARTITIONS ).*"
+               "/\\1{0}/' '../skelcl/include/SkelCL/Chris.h'"
+               .format(partitions))
 
-    # Evaluate benchmarks.
-    for benchmark in benchmarks:
-        datadir="dat/{0}".format(benchmark)
-        checksum=check_output("echo {0} | sha256sum | cut -d' ' -f1"
-                              .format(flag)).strip()
-        datafile="/".join(datadir, checksum)
+        name = 'vectorsizes-{0}'.format(partitions)
+        #make(dir='../skelcl/build')
+        
+        #MapVectorSize(vectorsizes, open('dat/{0}.csv'.format(name), 'w'))
+        GraphResults('No. partitions: {0}'.format(partitions),
+                     'dat/{0}.csv'.format(name),
+                     file='img/{0}.png'.format(name))
+        
+        # for flag in flags:
+        #     system("sed -i -r 's/(CHRIS_OPENCL_FLAG \").*(\")"
+        #            "/\\1{0}\\2/' '../skelcl/include/SkelCL/Chris.h'"
+        #            .format(flag))
+    
+        #     # Build SkelCL
+        #     print('Building SkelCL with OpenCL flag: "{0}"'.format(flag))
+        #     make(dir='../skelcl/build')
+    
+        #     for t,v in [['int', '100']]:#, ['float', '150.5f']]:
+        #         system("sed -i -r 's/(#define VECTOR_TYPE ).*"
+        #                "/\\1{0}/' 'src/testmap.cc'"
+        #                .format(t))
+        #         system("sed -i -r 's/(#define VECTOR_VAL ).*"
+        #                "/\\1{0}/' 'src/testmap.cc'"
+        #                .format(v))
+    
+        #         name = 'vectorsizes-{0}{1}'.format(t, flag)
+    
+        #         MapVectorSize(vectorsizes, open('dat/{0}.csv'.format(name), 'w'))
+        #         GraphResults('Vectors of {0}s, OpenCL flags: {1}'
+        #                      .format(t, flag), 'dat/{0}.csv'.format(name),
+        #                      file='img/{0}.png'.format(name))
+        #         system('git add .')
+        #         system('git commit -m "BOT: results for {0}"'.format(name))
 
-        system("mkdir -p {0}".format(datadir))
-        print(benchmark, flag, checksum)
-        system("./{0} | tee {1}".format(benchmark, datafile))
+
+def test():
+    print('Flags:', ', '.join(['"{0}"'.format(x) for x in flags]))
+    print('Benchmarks:', ', '.join(['"{0}"'.format(x) for x in benchmarks]))
+    print('Vectorsizes:', ', '.join([str(x) for x in vectorsizes]))
+    MapVectorSize(vectorsizes[0:3], open('test.csv', 'r+'))
+    
+
+if __name__ == "__main__":
+    main()
+    #test()
+    

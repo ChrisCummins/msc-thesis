@@ -22,14 +22,14 @@ AM_LDFLAGS  = \
 #------------------------------------------------------------------------
 noinst_PROGRAMS = 			\
 	mandelbrot			\
-	map				\
+	testmap				\
 	$(NULL)
 
 #------------------------------------------------------------------------
 # Build target requisites.
 #------------------------------------------------------------------------
 mandelbrot_SOURCES = mandelbrot.cc
-map_SOURCES = map.cc
+testmap_SOURCES = testmap.cc
 
 #------------------------------------------------------------------------
 # Auxiliary build targets.
