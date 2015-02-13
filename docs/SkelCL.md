@@ -12,7 +12,7 @@ set of algorithmic skeletons for data parallel operations:
 [Reduce](http://en.wikipedia.org/wiki/Fold_%28higher-order_function%29),
 [Scan](http://en.wikipedia.org/wiki/Prefix_sum),
 [Zip](http://en.wikipedia.org/wiki/Map_(higher-order_function)),
-[MapOverlap]((http://en.wikipedia.org/wiki/Map_(higher-order_function)),
+[MapOverlap](http://en.wikipedia.org/wiki/Map_(higher-order_function)),
 and
 [AllPairs](http://link.springer.com/article/10.1007%2Fs10766-013-0265-6#page-1). Each
 Skeleton is parameterised with muscle functions by the user, and is
@@ -104,7 +104,8 @@ and a (seemingly custom tailored)
   definitions.
 * `libraries/` pvsutil, and 3rd party libraries: gtest, and llvm.
 * `libraries/pvsutil` Utility classes and functions, e.g. Logger, Timer.
-* `libraries/stooling` TODO
+* `libraries/stooling` Simple tooling library, which wraps LLVM API
+  and exposes a set of methods for AST manipulation.
 * `msvc/` IDE-specific config (Microsoft Visual Studio).
 * `src/` SkelCL implementation code. Contains implementations for
   classess representing devices, programs, events, skeletons, etc.
@@ -189,9 +190,9 @@ skelcl::detail::Program Reduce<T(T)>::createPrepareAndBuildProgram()
 }
 ```
 
-This function generates a program by instantiating a
+This function instantiates a
 [`Program`](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/detail/Program.h#L61)
-objecting by concatenating a set of
+object by concatenating a set of
 [`CommonDefinitions`](https://github.com/ChrisCummins/skelcl/blob/ae14347ba48bad8a93327ef6db357e0182003d85/include/SkelCL/Source.h#L122),
 the user supplied muscle functions, and one or more associated OpenCL
 kernels located in `include/SkelCL/detail<name>Kernel.cl`. These files
@@ -274,10 +275,10 @@ Vector<T>& Reduce<T(T)>::operator()(Out<Vector<T>> output,
 
 When a skeleton is invoked, user data is copied to the device memory,
 and the kernel job is enqueued on the device. The SkelCL API is
-asynchronous, and operates in the same style as a "future"
-API. E.g. reading from a data structure will block until the
-computation has completed and the data has been transformed back from
-the device to the host memory.
+asynchronous, and operates in the same style as a "future" API. E.g. a
+call to a skeleton will return an output immediately, but reading the
+output will block until the computation has completed and the data has
+been transformed back from the device to the host memory.
 
 
 ## Publications
