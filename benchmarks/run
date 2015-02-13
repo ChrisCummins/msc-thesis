@@ -15,16 +15,6 @@ from six import string_types
 from json import dumps
 # from socket import gethostname
 
-from matplotlib import cm
-from matplotlib.figure import Figure
-from matplotlib.mlab import griddata
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.cm as cm
-import matplotlib.mlab as mlab
-import matplotlib.pyplot as plt
-import numpy as np
-import sys
 
 # Return a list of all of the lines in file 'path', excluding comments
 # (delimited by '#' symbol).
@@ -355,10 +345,6 @@ def main():
                 name = 'vectorsizes-{0}{1}{2}'.format(partitions, t, flag)
     
                 MapVectorSize(vectorsizes, open('dat/{0}.csv'.format(name), 'w'))
-                GraphResults('Num partitions: {0}, OpenCL flags: "{1}"'
-                             .format(partitions, flag), 'dat/{0}.csv'.format(name),
-                             file='img/{0}.png'.format(name))
-                
                 system('git add .')
                 system('git commit --allow-empty -m "BOT: results for {0}"'.format(name))
                 system('git push origin bot')
