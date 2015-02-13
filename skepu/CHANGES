@@ -1,0 +1,72 @@
+Version 1.1
+
+- Temporarily removed the tests directory as it lacks one API for 
+  CUDA in the matrix container. To be fixed and reenabled soon.
+  [22/08/2014 CK,LL]
+
+- Added auto-tuning support for map, reduce, maparray, mapoverlap and mapreduce skeletons. See our APPT-2013 paper for more information
+
+- Implemented new memory management mechanism inside Vector and Matrix containers. See our HLPP-2014 paper for more information
+
+- Made library 64-bit compatible (size_t etc.)
+
+- Made several bugs fixes and small changes.
+
+=============================
+
+Version 1.0
+
+- Added support for SparseMatrix skeleton operations including map, reduce 
+  and maparray that can be used for e.g., sparse matrix-vector computations.
+  
+- Added  support for 2D reduction with both dense and sparse matrix,
+  both row- and/or column-wise.
+
+- Added multi-GPU execution support for all skeleton operations including 2D mapoverlap
+  operations for both CUDA and OpenCL. Support for 2D convolution using a user-supplied
+  user function is also added. 
+  
+- Improved CUDA execution using pinned memory allocation for all skeleton operations.
+  Fermi and CUDA 2.0 features such as 16 streams per Fermi GPU are used to achieve better performance.
+
+- Added application examples including coulombic potential, nbody simulation, taylor series as 
+  well as dense/sparse matrix-vector multiplication. Examples also show how to use user-defined 
+  element-types with skepu library with all backends.
+
+- Added/improved test cases to thoroughly test the functionality offered in the SkePU library.
+
+- Corrected several bugs in source-, examples- and test-code as well as in documentation.
+
+=============================
+
+Version 0.7
+
+- Added support for two-dimensional skeleton operations with Matrix data type including 2D MapOverlap.
+
+- Support for using multiple CUDA devices inside a single host thread in an efficient manner.
+
+- Support for asynchronous CUDA execution by enabling pinned memory allocation
+
+- Added some more examples.
+
+- Corrected some small bugs.
+
+=============================
+
+Version 0.6
+
+- First public release.
+
+- Added an execution plan which can be used to specify various execution parameters.
+
+- Updated the skeletons to use the execution plan as default. (Not Multi-GPU CUDA)
+
+- Added an execution plan example.
+
+- Corrected some small bugs.
+
+============================
+
+Version 0.5
+
+- First real release.
