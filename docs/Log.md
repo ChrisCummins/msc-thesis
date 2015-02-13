@@ -3738,3 +3738,64 @@ version of `safe_yaml` in `Gemfile.lock` to 1.0.4.
 
 For pacman system updrade, remove `yaourt` and `package-query`,
 upgrade, then reinstall.
+
+
+## Friday 13th
+
+Assessing the Rodinia 3.0 source code.
+
+```
+file=$(mktemp)
+count() {
+    local c=$(find $1 -type f -name '*.'$2 | xargs sloccount 2>/dev/null | \
+                     grep 'Total Physical Source Lines of Code (SLOC)' | \
+                     awk '{print $9}' | tr -d ',')
+    if [ -n "$c" ]; then
+        echo $c
+    else
+        echo 0
+    fi
+}
+cd opencl
+echo "BENCHMARK C C++ HEADER OPENCL TOTAL" > $file
+for d in $(find . -maxdepth 1 -type d); do
+    c=$(count $d c)
+    cpp=$(count $d cpp)
+    h=$(count $d h)
+    cl=$(count $d cl)
+    total=$((c+cpp+h+cl))
+
+    echo -n "$(echo $d | sed 's/^.\///' | sed 's/^.$/TOTAL/') " >> $file
+    echo "$c $cpp $h $cl $total" >> $file
+done
+
+column -t $file
+rm $file
+```
+
+Line counts:
+
+```
+BENCHMARK       C      C++   HEADER  OPENCL  TOTAL
+TOTAL           36306  6768  9154    6674    58902
+cfd             0      315   1208    244     1767
+hotspot         272    0     50      94      416
+backprop        390    187   42      66      685
+srad            1356   0     84      277     1717
+lud             390    228   44      126     788
+hybridsort      1018   0     696     281     1995
+nn              0      1228  161     18      1407
+b+tree          2473   0     337     181     2991
+heartwall       2549   0     410     1776    4735
+gaussian        132    1375  145     41      1693
+leukocyte       24529  0     3317    478     28324
+pathfinder      0      391   44      93      528
+bfs             0      225   822     46      1093
+nw              311    0     0       139     450
+particlefilter  0      2015  0       634     2649
+kmeans          1132   206   839     48      2225
+dwt2d           0      791   33      565     1389
+streamcluster   0      777   1591    60      2428
+lavaMD          571    0     97      217     885
+myocyte         1225   0     40      1290    2555
+```
