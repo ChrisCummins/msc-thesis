@@ -3773,8 +3773,7 @@ column -t $file
 rm $file
 ```
 
-Line counts:
-
+Rodinia SLOC:
 ```
 BENCHMARK       C      C++   HEADER  OPENCL  TOTAL
 TOTAL           36306  6768  9154    6674    58902
@@ -3799,3 +3798,48 @@ streamcluster   0      777   1591    60      2428
 lavaMD          571    0     97      217     885
 myocyte         1225   0     40      1290    2555
 ```
+
+SkePU SLOC:
+```
+BENCHMARK  C  C++  HEADER  OPENCL  TOTAL
+TOTAL      0  961  12164   27      13152
+examples   0  961  128     27      1116
+include    0  0    12036   0       12036
+```
+
+#### Notes from meeting with Hugh and Pavlos
+
+* Benchmarks:
+  * "Locality-aware mapping of nested parallel patterns on GPUs" uses
+    an IR which compiles down to CUDA. Not clear whether this IR is
+    generated or hand-rolled.
+  * I should email *all* authors of paper about IR source code.
+  * Rodinia is a sizeable code base and it would be an expensive port
+    to SkelCL (I'd need to sift through the code, identify the
+    patterns, *then* skeletonise it).
+  * Talk to Michel about getting the datasets and benchmarks used in
+    his publications (which?).
+  * Are there any skeleton lirbaries which have benchmark suites?
+    Intel TBB?
+* Tunable knobs:
+  * First set of results show no correlation between my tunable knobs
+    and execution time. Most likely because:
+    * I am running on Intel's OpenCL without a powerful GPU or PCI
+      memory bottlenecks.
+    * The "benchmark" had a trivial compute kernel, so is likely
+      insensitive to optimisation.
+* I wrote up my understanding of SkelCL, I could turn that into a
+  section of thesis' background chapter.
+* Hugh has sent me the email trail for the auto parallelisation paper.
+* I'm not tied down to SkelCL. If another skeleton library has
+  significant benefits over it, I can switch. If so, I should know by
+  the end of the month if that's what I'm going to do.
+
+TODO:
+* Re-run my SkelCL experiment on Pavlos' server.
+* Email nested GPU paper folks.
+* Ask Michel about dataset and benchmarks.
+* Build SkePU and run examples.
+* Add partition logic to *all* Map and Reduce kernels.
+* Email Usman about SkePU downloads.
+* Port example programs from SkePU to SkelCL.
