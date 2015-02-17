@@ -3731,7 +3731,7 @@ exec            1714
 * Read Section 5 of book Hugh lent me.
 
 
-## Tuesday 9th
+## Tuesday 10th
 
 To get GitHub pages local development server running again, change the
 version of `safe_yaml` in `Gemfile.lock` to 1.0.4.
@@ -3843,3 +3843,11 @@ TODO:
 * Add partition logic to *all* Map and Reduce kernels.
 * Email Usman about SkePU downloads.
 * Port example programs from SkePU to SkelCL.
+
+
+## Tuesday 17th
+
+I've collected the first set of data from Pavlos' server running the
+simple Map partition / OpenCL flags exploration. The results are
+stored in `benchmarks/results/ps-sk` (where `ps` = Pavlos' server, `sk` =
+small kernel).
