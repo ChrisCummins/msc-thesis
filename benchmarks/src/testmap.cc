@@ -15,6 +15,10 @@
 
 #include <pvsutil/Logger.h>
 
+#define VECTOR_SIZE 150000000
+#define VECTOR_TYPE int
+#define VECTOR_VAL 100
+
 void print(skelcl::Vector<int> A) {
   unsigned int i;
   unsigned int max = std::min(static_cast<unsigned int>(A.size()),
@@ -38,20 +42,19 @@ int main(int argc, char* argv[]) {
   skelcl::Map<int(int)> map("int func(int x) { return x * 2; }");
 
   // Define vector input of length "n".
-  const int n = 1e7;
-  skelcl::Vector<int> input(n);
-  for (int i = 1; i <= n; i++) input[i - 1] = i;
+  const int n = VECTOR_SIZE;
+  skelcl::Vector<VECTOR_TYPE> input(n);
+  std::fill(input.begin(), input.end(), VECTOR_VAL);
 
   // Set distribution of input.
   skelcl::distribution::setSingle(input);
   input.createDeviceBuffers();
 
-  print(input);
-
   TIME(upload,   input.copyDataToDevices());
-  TIME(exec,     skelcl::Vector<int> output(map(input)));
+  TIME(exec,     skelcl::Vector<VECTOR_TYPE> output(map(input)));
   TIME(download, output.copyDataToHost());
 
+  print(input);
   print(output);
 
   return 0;
