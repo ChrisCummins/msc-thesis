@@ -29,7 +29,7 @@ AM_LDFLAGS  = -L$(CL)/lib64 -lOpenCL
 #     mapoverlap_SOURCES = mapoverlap.cpp
 #
 noinst_PROGRAMS = 			\
-	map				\
+	map_test			\
 	mapreduce			\
 	generate			\
 	2dmapoverlap			\
@@ -41,7 +41,7 @@ noinst_PROGRAMS = 			\
 #------------------------------------------------------------------------
 # Build target requisites.
 #------------------------------------------------------------------------
-map_SOURCES = map.cpp
+map_test_SOURCES = map.cpp
 mapreduce_SOURCES = mapreduce.cpp
 generate_SOURCES = generate.cpp
 2dmapoverlap_SOURCES = 2dmapoverlap.cpp
