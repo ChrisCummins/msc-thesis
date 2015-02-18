@@ -3851,3 +3851,47 @@ I've collected the first set of data from Pavlos' server running the
 simple Map partition / OpenCL flags exploration. The results are
 stored in `benchmarks/results/ps-sk` (where `ps` = Pavlos' server, `sk` =
 small kernel).
+
+
+## Wednesday 18th
+
+#### SkelCL application studies
+
+The programs used, and the papers they're used in:
+
+* Mandelbrot set [1,6]
+* LM OSEM [1,2,7]
+* Matrix multiply [3]
+* Gaussian blur [4]
+* Canny edge detection [4]
+* Sobel edge detection [5,6]
+
+[1] M. Steuwer, P. Kegel, and S. Gorlatch, “SkelCL - A Portable
+Skeleton Library for High-Level GPU Programming,” in Parallel and
+Distributed Processing Workshops and Phd Forum (IPDPSW), 2011 IEEE
+International Symposium on, 2011, pp. 1176–1182.
+
+[2] M. Steuwer, P. Kegel, and S. Gorlatch, “Towards High-Level
+Programming of Multi-GPU Systems Using the SkelCL Library,” in
+Parallel and Distributed Processing Symposium Workshops & PhD Forum
+(IPDPSW), 2012 IEEE 26th International, 2012, pp. 1858–1865.
+
+[3] M. Steuwer, M. Friese, S. Albers, and S. Gorlatch, “Introducing
+and implementing the allpairs skeleton for programming multi-GPU
+Systems,” Int. J. Parallel Program., vol. 42, pp. 601–618, 2014.
+
+[4] S. Breuer, M. Steuwer, and S. Gorlatch, “Extending the SkelCL
+Skeleton Library for Stencil Computations on Multi-GPU Systems,”
+HiStencils 2014, pp. 23–30, 2014.
+
+[5] Steuwer, Michel, et al. "Using the SkelCL library for high-level
+GPU programming of 2d applications." Euro-Par 2012: Parallel
+Processing Workshops. Springer Berlin Heidelberg, 2013.
+
+[6] M. Steuwer and S. Gorlatch, “SkelCL: Enhancing OpenCL for
+High-Level Programming of Multi-GPU Systems,” Parallel
+Comput. Technol., vol. 7979, pp. 258–272, 2013.
+
+[7] M. Steuwer and S. Gorlatch, “High-level Programming for Medical
+Imaging on Multi-GPU Systems Using the SkelCL Library,” Procedia
+Comput. Sci., vol. 18, pp. 749–758, Jan. 2013.
