@@ -7,7 +7,7 @@ include $(top_srcdir)/Makefile.common
 
 # Local compiler and linker flags.
 AM_CXXFLAGS =
-AM_LDFLAGS  = -ltbb_debug
+LDADD       = -ltbb_debug
 
 #------------------------------------------------------------------------
 # Build targets.

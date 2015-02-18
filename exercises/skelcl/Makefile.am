@@ -10,7 +10,7 @@ AM_CXXFLAGS = \
 	-I $(SKELCL_DIR)/include \
 	-I $(SKELCL_DIR)/libraries/pvsutil/include \
 	-I $(SKELCL_DIR)/libraries/stooling/include
-AM_LDFLAGS  = \
+LDADD       = \
 	-L$(SKELCL_BUILD_DIR)/src \
 	-L$(SKELCL_BUILD_DIR)/libraries/pvsutil/src \
 	-L$(SKELCL_BUILD_DIR)/libraries/stooling/src \
