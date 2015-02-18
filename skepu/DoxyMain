@@ -1,0 +1,95 @@
+/*! \mainpage SkePU Documentation
+ *
+ *  \section geninfo_sec General Information
+ *
+ *  This is a template library with all objects being either templated or in some cases inlined.
+ *  Therefore there is no need to link against any precompile libraries, just simply add the library
+ *  to the compilers include path and include the header files of choice.
+ *
+ *  \subsection struct_sec Basic Structure
+ *
+ *  SkePU consists of a few main classes that constitutes its functionality and interface.
+ *  \li skepu::Vector - vector.h
+ *  \li skepu::Map - map.h
+ *  \li skepu::Reduce - reduce.h
+ *  \li skepu::MapReduce - mapreduce.h
+ *  \li skepu::MapOverlap - mapoverlap.h
+ *  \li skepu::MapArray - maparray.h
+ *  \li skepu::Generate - generate.h
+ *  \li skepu::Scan - scan.h
+ *  \li skepu::Matrix - matrix.h
+ *  \li skepu::SparseMatrix - sparse_matrix.h
+ *  \li skepu::Tuner - tuner.h
+ *
+ *  Apart from these, SkePU also uses a few other internally as helpers.
+ *
+ *  \subsection comp_sec Compilation and Preprocessor Symbols.
+ *
+ *  Since SkePU is a multi-backend library, it shields parts of the code with the help
+ *  of preprocessor directives. Entities whose name ends in \p _CL are only included in
+ *  the compilation if \p SKEPU_OPENCL is defined for the preprocessor. In a similar way
+ *  entities ending in \p _CU are only included if \p SKEPU_CUDA is defined and \p _OMP
+ *  for \p SKEPU_OPENMP. This way SkePU can be compiled even though you are missing some
+ *  of the backends. CPU backend is always compiled.
+ *
+ *  
+ * \subsection new_feat New Features.
+ * In version 1.0, support for parse matrix skeleton operation is implemented. Also, 2D (two-dimesional) skeleton 
+ * operations such as 2D-convolution is provided with the help of newly created matrix 
+ * data type. Moreover, support for using multiple CUDA devices inside a single host thread is implemented 
+ * that is available with CUDA 4.0. This is enabled by allocating page-locked memory that allows asyncrhonous CUDA operations.
+ * The support for multi-CUDA execution can be easily enabled in a skeleton program by defining USE_PINNED_MEMORY flag. 
+ *
+ *  Please see the 'CHANGES' file and examples/tests provided with the source code for more description.
+ */
+
+/*!
+ *  \namespace skepu
+ *
+ *  \brief The main namespace for SkePU library.
+ *
+ *  All classes and functions in the SkePU library are in this namespace.
+ */
+
+/*!
+ *  \defgroup skeletons Skeletons
+ *
+ *  The skeletons that SkePU currently supports.
+ *
+ */
+
+/*!
+ *  \defgroup userfunc User Functions
+ *
+ *  Macros that generate user functions that can be used togeher with the Skeletons.
+ *
+ */
+
+/*!
+ *  \defgroup kernels Kernels
+ *
+ *  Definitions of CUDA and OpenCL kernels. OpenCL kernels are in the form of strings and CUDA kernels as
+ *  __global__ functions.
+ *
+ */
+
+/*!
+ *  \defgroup helpers Helpers
+ *
+ *  Various internal helper classes and functions. A user of SkePU does not have to use these.
+ *
+ */
+
+/*!
+ *  \defgroup testing Testing
+ *
+ *  Various classes that can be used to simplify testing of SkePU.
+ *
+ */
+
+/*!
+ *  \defgroup tuning Tuning
+ *
+ *  Functionality which helps with (auto) tuning of the library.
+ *
+ */

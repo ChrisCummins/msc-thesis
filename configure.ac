@@ -425,6 +425,8 @@ AC_CONFIG_FILES([
         experiments/Makefile
         experiments/20141105-skel-opt-space/Makefile
         experiments/20141120-stable-sort/Makefile
+        skepu/Makefile
+        skepu/examples/Makefile
 ])
 
 AC_OUTPUT
