@@ -3895,3 +3895,31 @@ Comput. Technol., vol. 7979, pp. 258–272, 2013.
 [7] M. Steuwer and S. Gorlatch, “High-level Programming for Medical
 Imaging on Multi-GPU Systems Using the SkelCL Library,” Procedia
 Comput. Sci., vol. 18, pp. 749–758, Jan. 2013.
+
+
+## Friday 20th
+
+Bosch, R., & Trick, M. (2005). Integer Programming. In Search
+methodologies (pp. 69–95). Springer:
+
+> In a linear program, there are variables, constraints, and an
+> objective function. The variables, or decisions, take on numerical
+> values. Constraints are used to limit the values to a feasible
+> region. These constraints must be linear in the decision
+> variables. The objective function then defines which particu- lar
+> assignment of feasible values to the variables is optimal: it is the
+> one that maximizes (or minimizes, depending on the type of the
+> objective) the objec- tive function. The objective function must
+> also be linear in the variables.
+>
+> ...
+>
+> Integer programming adds additional constraints to linear
+> programming. An integer program begins with a linear program, and
+> adds the requirement that some or all of the variables take on
+> integer values. This seemingly innocu- ous change greatly increases
+> the number of problems that can be modeled, but also makes the
+> models more difficult to solve.
+
+**Fourier–Motzkin elimination** - An algorithm for eliminating
+  variables from a system of linear inequalities.
