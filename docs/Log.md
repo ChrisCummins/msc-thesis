@@ -3921,8 +3921,16 @@ methodologies (pp. 69–95). Springer:
 > the number of problems that can be modeled, but also makes the
 > models more difficult to solve.
 
-**Fourier–Motzkin elimination** - An algorithm for eliminating
+**Fourier–Motzkin elimination**: an algorithm for eliminating
   variables from a system of linear inequalities.
+
+**Fermat's Last Theorem**: no three integers *a, b, c* can satisfy the
+equation *a^n b^n = c^n* for any *n > 2*, where *abc != 0*.
+
+**Diophantine equation**: a polynomial equation in two or more
+  unknowns such that only the integer solutions are
+  searched. Examples: *ax + by = 1* (linear Diophantine equation),
+  *x^n + y^n = z^n*.
 
 #### SkelCL benchmarks:
 
@@ -3931,3 +3939,8 @@ repository. Canny and Sobel edge detection are in the private
 bitbucket repo, 'stencilMutliGPU' branch. They may need some tweaking
 to merge with the GitHub version. There's also an FDTD
 application. The LM OSEM application is closed-source.
+
+Add upstream bitbucket repo:
+```
+git remote add private git@bitbucket.org:skelcl/skelcl.git
+```
