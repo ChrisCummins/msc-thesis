@@ -3923,3 +3923,11 @@ methodologies (pp. 69–95). Springer:
 
 **Fourier–Motzkin elimination** - An algorithm for eliminating
   variables from a system of linear inequalities.
+
+#### SkelCL benchmarks:
+
+Gaussian blur, Mandelbrot set, and Matrix multiply are in the GitHub
+repository. Canny and Sobel edge detection are in the private
+bitbucket repo, 'stencilMutliGPU' branch. They may need some tweaking
+to merge with the GitHub version. There's also an FDTD
+application. The LM OSEM application is closed-source.
