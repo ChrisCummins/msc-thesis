@@ -3944,3 +3944,89 @@ Add upstream bitbucket repo:
 ```
 git remote add private git@bitbucket.org:skelcl/skelcl.git
 ```
+
+
+## Monday 23rd
+
+Benchmarks successfully imported from SkelCL codebase:
+
+* ~~CannyEdgeDetection~~
+* DotProduct
+* ~~FiniteDifferenceTimeDomain~~
+* GameOfLife
+* GaussianBlur
+* HeatSimulation
+* MandelbrotSet
+* MatrixMultiply
+* SAXPY
+
+I still need to copy across the Sobel algorithm implementation.
+
+The Canny edge detection algorithm fails:
+
+```
+$ ./benchmark
+[=======Chris.cpp:58   000.000s  INFO] Using Chris' modifications
+[==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
+[======Device.cpp:117  000.134s  INFO] Using device `Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz' with id: 0
+[==DeviceList.cpp:122  000.134s  INFO] Using 1 OpenCL device(s) in total
+[1]    6197 floating point exception (core dumped)  ./benchmark
+```
+
+FDTD also fails: (note this also requires the Stencil headers. How should I proceed merging against master?)
+
+```
+$ ./benchmark                                                                                   12:14:44
+[=======Chris.cpp:58   000.000s  INFO] Using Chris' modifications
+[==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
+[======Device.cpp:117  000.142s  INFO] Using device `Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz' with id: 0
+[==DeviceList.cpp:122  000.142s  INFO] Using 1 OpenCL device(s) in total
+#define Pr 1.000000e+13f
+#define eps_r 4.000000e+00f
+#define eps_b 1.000000e+00f
+#define abs_cell_size 32
+#define array_size 2048
+#define array_size_2 1024
+#define log_2 6.931472e-01f
+#define pi 3.141593e+00f
+#define dt_r 1.667820e-17f
+#define k 1.192011e-03f
+#define a1 1.580421e+04f
+#define a2 -1.530277e-03f
+#define omega_a2 1.421223e+31f
+#define Nges 3.311000e+24f
+#define dt_tau10 1.667820e-05f
+#define dt_tau32 1.667820e-04f
+#define dt_tau21 1.667820e-07f
+#define sqrt_eps0_mu0 2.654419e-03f
+#define c 2.997924e+08f
+#define src_x 50
+#define src_y 50
+#define idx_x (get_global_id(0))
+#define idx_y (get_global_id(1))
+
+
+data_t motionEquation(data_t N, data_t_matrix_t mE)
+{
+	if (N.w > 0.0f)
+	{
+		data_t E = get(mE, idx_y, idx_x);
+
+		float N0 = (Nges - (N.x + N.y + N.z));
+		N.x = (1.0f - dt_tau32)  * N.x + ((N0 < 0.0f) ? 0.0f : N0) * (N.w * dt_r);
+		N.y = (1.0f - dt_tau21)  * N.y + N.x * dt_tau32 + a1 * (E.z * E.w);
+		N.z = (1.0f - dt_tau10)  * N.z + N.y * dt_tau21 - a1 * (E.z * E.w);
+
+		E.w = a2 * E.w - omega_a2 * E.x * dt_r + k * (N.z - N.y) * E.z * dt_r;
+
+		E.x = E.x + E.w * dt_r;
+
+		set(mE, idx_y, idx_x, E);
+	}
+	return N;
+}
+
+[1]    6407 abort (core dumped)  ./benchmark
+```

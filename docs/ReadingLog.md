@@ -19,4 +19,8 @@
 
 # 12-30 min
 
+1. S. Breuer, M. Steuwer, and S. Gorlatch, “High-Level Programming of
+   Stencil Computations on Multi-GPU Systems Using the SkelCL
+   Library,” HiStencils 2014, vol. 24, no. 3, pp. 23–30, 2014.
+
 # > 30 min
