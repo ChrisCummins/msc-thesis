@@ -1,4 +1,5 @@
 SUBDIRS =					\
+	GameOfLife				\
 	GaussianBlur				\
 	MandelbrotSet				\
 	MatrixMultiply				\
