@@ -1,4 +1,4 @@
-set -eu
+set -e
 
 # Internal state.
 __flags__=""
@@ -14,11 +14,7 @@ append() {
 
 # If $1 == 1, then add flags.
 append_if_1() {
-    set +u
-    _1="$1"
-    set -u
-
-    if [[ "$_1" -eq 1 ]]; then
+    if [[ "$1" -eq 1 ]]; then
         shift
         append $@
     fi
@@ -27,11 +23,7 @@ append_if_1() {
 
 # If $2 is set, then add flags.
 append_option_if_set() {
-    set +u
-    _2="$2"
-    set -u
-
-    if [[ -n "$_2" ]]; then
+    if [[ -n "$2" ]]; then
         append $@
     fi
 }

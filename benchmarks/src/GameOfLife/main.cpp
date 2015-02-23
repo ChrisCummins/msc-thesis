@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <climits>
 
 #include <pvsutil/CLArgParser.h>
 #include <pvsutil/Logger.h>
@@ -15,8 +16,8 @@
 #include <SkelCL/SkelCL.h>
 #include <SkelCL/IndexMatrix.h>
 #include <SkelCL/MapOverlap.h>
-#include <SkelCL/Stencil.h>
 #include <SkelCL/detail/Padding.h>
+#include <SkelCL/Chris.h>
 
 #include <chrono>
 
@@ -76,8 +77,8 @@ int main(int argc, char** argv)
                                  detail::Padding::NEUTRAL, 0, "func");
 
   for (auto iter = 0; iter < iterationen; iter++) {
-    inputImage = s(inputImage);
-    inputImage.copyDataToHost();
+    TIME(upload,   inputImage.copyDataToHost());
+    TIME(exec,     inputImage = s(inputImage));
     inputImage.resize(inputImage.size());
   }
 
