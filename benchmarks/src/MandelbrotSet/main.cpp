@@ -46,6 +46,7 @@
 #include <SkelCL/SkelCL.h>
 #include <SkelCL/IndexMatrix.h>
 #include <SkelCL/Map.h>
+#include <SkelCL/Chris.h>
 
 SKELCL_COMMON_DEFINITION(
 typedef struct {    \
@@ -105,7 +106,10 @@ void mandelbrot()
   float dx = (endX - startX) / WIDTH;
   float dy = (endY - startY) / HEIGHT;
 
-  Matrix<Pixel> output = m(positions, startX, startY, dx, dy);
+  Matrix<Pixel> output;
+
+  TIME(exec, output = m(positions, startX, startY, dx, dy));
+  TIME(download, output.copyDataToHost());
 
   writePPM(output.begin(), output.end(), "mandelbrot.ppm");
 }
@@ -141,4 +145,3 @@ int main(int argc, char** argv)
   mandelbrot();
   return 0;
 }
-
