@@ -412,6 +412,7 @@ AC_CONFIG_FILES([
         benchmarks/src/FiniteDifferenceTimeDomain/Makefile
         benchmarks/src/GameOfLife/Makefile
         benchmarks/src/GaussianBlur/Makefile
+        benchmarks/src/HeatSimulation/Makefile
         benchmarks/src/MandelbrotSet/Makefile
         benchmarks/src/MatrixMultiply/Makefile
         docs/Makefile
