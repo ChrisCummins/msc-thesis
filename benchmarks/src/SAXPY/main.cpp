@@ -49,6 +49,7 @@
 #include <SkelCL/SkelCL.h>
 #include <SkelCL/Vector.h>
 #include <SkelCL/Zip.h>
+#include <SkelCL/Chris.h>
 
 using namespace skelcl;
 
@@ -84,10 +85,16 @@ void saxpy(int size, bool checkResult)
 
   Vector<float> Y_orig(Y); // copy Y for verification later
 
-  pvsutil::Timer timer;
-  Y = saxpy( X, Y, a );
-  Y.copyDataToHost();
-  pvsutil::Timer::time_type time = timer.stop();
+  // Set distribution of inputs.
+  skelcl::distribution::setSingle(X);
+  X.createDeviceBuffers();
+  skelcl::distribution::setSingle(Y);
+  Y.createDeviceBuffers();
+
+  TIME(upload,   X.copyDataToDevices(); Y.copyDataToDevices());
+  for (int i = 0; i < 100; i++)
+    TIME(exec,     Y = saxpy(X, Y, a));
+  TIME(download, Y.copyDataToHost());
 
   if (checkResult) {
     int errors = 0;
@@ -100,8 +107,6 @@ void saxpy(int size, bool checkResult)
       LOG_ERROR(errors, " errors detected.");
     }
   }
-
-  LOG_INFO("Time: ", time, " ms");
 }
 
 int main(int argc, char** argv)
