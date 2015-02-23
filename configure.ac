@@ -409,6 +409,7 @@ AC_CONFIG_FILES([
         benchmarks/Makefile
         benchmarks/src/Makefile
         benchmarks/src/GaussianBlur/Makefile
+        benchmarks/src/MandelbrotSet/Makefile
         docs/Makefile
         docs/maths/Makefile
         docs/proposal/Makefile

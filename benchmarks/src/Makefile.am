@@ -1,3 +1,4 @@
 SUBDIRS =					\
 	GaussianBlur				\
+	MandelbrotSet				\
 	$(NONE)
