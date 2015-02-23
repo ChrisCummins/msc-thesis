@@ -1,5 +1,6 @@
 SUBDIRS =					\
 	CannyEdgeDetection			\
+	FiniteDifferenceTimeDomain		\
 	GameOfLife				\
 	GaussianBlur				\
 	MandelbrotSet				\
