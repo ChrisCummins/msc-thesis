@@ -15,7 +15,6 @@
 #include <SkelCL/SkelCL.h>
 #include <SkelCL/IndexMatrix.h>
 #include <SkelCL/MapOverlap.h>
-#include <SkelCL/Stencil.h>
 #include <SkelCL/detail/Padding.h>
 
 #include <chrono>
