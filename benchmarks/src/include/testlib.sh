@@ -40,9 +40,35 @@ _build_flags() {
 _run_cmd() {
     _build_flags
 
+    # Assemble command.
     cmd="./$bin $__flags__ $@"
+
+    # Print command.
     echo $cmd
-    $cmd
+
+    # Run command, piping all output to "output.log".
+    set +e
+    $cmd > output.log 2>&1
+    ret=$?
+    set -e
+
+    # If program exited with non-zero status code, then dump output
+    # and exit.
+    if [[ $ret -ne 0 ]]; then
+        cat output.log
+        exit $ret
+    fi
+
+    # Create a "times.dat" file.
+    grep -E 'Timer\[.*\] [0-9]' output.log | \
+        sed -r 's/^.*Timer\[(.*)\] ([0-9]+) .*/\1 \2/' > times.dat
+
+    # If verbose, print all the output. Else, print just the times.
+    if [[ "$V" -eq 1 ]]; then
+        cat output.log
+    else
+        column -t times.dat
+    fi
 }
 
 # Run _run_cmd() on script exit.

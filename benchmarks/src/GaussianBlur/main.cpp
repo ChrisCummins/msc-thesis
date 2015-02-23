@@ -46,6 +46,7 @@
 #include <SkelCL/SkelCL.h>
 #include <SkelCL/IndexMatrix.h>
 #include <SkelCL/MapOverlap.h>
+#include <SkelCL/Chris.h>
 
 using namespace skelcl;
 
@@ -84,7 +85,7 @@ Matrix<T> readPPM(const std::string& inFile)
 
   auto line = getNextLine(infile);
   std::stringstream(line) >> numcols >> numrows;
-   
+
   getNextLine(infile); // skip the next line (max value)
 
   Matrix<T> inputImage({numrows, numcols});
@@ -152,8 +153,14 @@ int main(int argc, char** argv)
   skelcl::MapOverlap<int(int)> s(std::ifstream{"./gauss2D.cl"},
                                  range.getValue(), detail::Padding::NEAREST, 0);
 
-  inputImage = s(inputImage, weigths, range.getValue());
+  // Set distribution of inputs.
+  skelcl::distribution::setSingle(inputImage);
+  inputImage.createDeviceBuffers();
+
+  TIME(upload, inputImage.copyDataToDevices());
+  for (int i = 0; i < 100; i++)
+    TIME(exec, inputImage = s(inputImage, weigths, range.getValue()));
+  TIME(download, inputImage.copyDataToHost());
 
   writePPM(inputImage, outFile.str());
 }
-

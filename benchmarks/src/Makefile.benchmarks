@@ -18,7 +18,7 @@ noinst_SCRIPTS = run.sh
 
 run-local:
 	@if [ -f $(noinst_PROGRAMS) ]; then	\
-		./$(noinst_SCRIPTS);		\
+		V=1 ./$(noinst_SCRIPTS);	\
         else                                    \
                 echo "Program '$(noinst_PROGRAMS)' not found!" >&2; \
                 exit 3;                         \
