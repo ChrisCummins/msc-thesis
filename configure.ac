@@ -408,6 +408,7 @@ AC_CONFIG_FILES([
         Makefile
         benchmarks/Makefile
         benchmarks/src/Makefile
+        benchmarks/src/GaussianBlur/Makefile
         docs/Makefile
         docs/maths/Makefile
         docs/proposal/Makefile

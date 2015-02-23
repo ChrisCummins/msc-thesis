@@ -211,6 +211,9 @@ else
 	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
 endif
 
+# Remove files that are generated at runtime.
+MOSTLYCLEANFILES += gmon.out
+
 #------------------------------------------------------------------------
 # Generating TAGS files for C and C++ sources.
 #------------------------------------------------------------------------
