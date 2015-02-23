@@ -1,4 +1,5 @@
 SUBDIRS =					\
+	CannyEdgeDetection			\
 	GameOfLife				\
 	GaussianBlur				\
 	MandelbrotSet				\

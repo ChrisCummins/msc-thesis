@@ -408,6 +408,7 @@ AC_CONFIG_FILES([
         Makefile
         benchmarks/Makefile
         benchmarks/src/Makefile
+        benchmarks/src/CannyEdgeDetection/Makefile
         benchmarks/src/GameOfLife/Makefile
         benchmarks/src/GaussianBlur/Makefile
         benchmarks/src/MandelbrotSet/Makefile
