@@ -46,6 +46,7 @@
 #include <SkelCL/Vector.h>
 #include <SkelCL/Zip.h>
 #include <SkelCL/Reduce.h>
+#include <SkelCL/Chris.h>
 
 using namespace skelcl;
 
@@ -83,7 +84,7 @@ int main(int argc, char** argv) {
       Flags(Short('c'), Long("check"), Long("check_result")),
       Description("Check parallel computed result "
                   "against a sequential computed "
-                  "version."), Default(false));
+                  "version."), Default(true));
 
   cmd.add(&deviceCount, &deviceType, &enableLogging, &size, &checkResult);
   cmd.parse(argc, argv);
@@ -95,25 +96,42 @@ int main(int argc, char** argv) {
 
   skelcl::init(skelcl::nDevices(deviceCount).deviceType(deviceType));
 
-  Zip<int(int, int)> mult("int func(int x, int y){ return x*y; }");
-  Reduce<int(int)> sum("int func(int x, int y){ return x+y; }", "0");
+  Zip<int(int, int)> mult("int func(int x, int y) { return x * y; }");
+  Reduce<int(int)>    sum("int func(int x, int y) { return x + y; }", "0");
 
   Vector<int> A(size);
   Vector<int> B(size);
+  Vector<int> C(size);
+  int result;
 
   init(A.begin(), A.end());
   init(B.begin(), B.end());
 
-  Vector<int> C = sum(mult(A, B));
+  // Set distribution of inputs.
+  skelcl::distribution::setSingle(A);
+  A.createDeviceBuffers();
+  skelcl::distribution::setSingle(B);
+  B.createDeviceBuffers();
 
-  LOG_INFO("skelcl: ", C.front());
+  TIME(upload, A.copyDataToDevices(); B.copyDataToDevices());
+  for (int i = 0; i < 100; i++) // Perform execution multiple times.
+    TIME(exec, C = sum(mult(A, B)));
+  TIME(download, C.copyDataToHost());
+
+  result = C.front();
+  LOG_INFO("Result: ", result);
 
   if (checkResult) {
-    int res = 0;
-    for (size_t i = 0; i < A.size(); ++i) {
-      res += (A[i] * B[i]);
-    }
-    LOG_INFO("gold:   ", res);
+    // CPU-side calculation.
+    int expected = 0;
+
+    for (size_t i = 0; i < A.size(); ++i)
+      expected += (A[i] * B[i]);
+
+    if (result == expected)
+      LOG_INFO("Result is correct.");
+    else
+      LOG_ERROR("Dot product result is incorrect! Expected: ", expected, ", received: ", result);
   }
 
   return 0;
