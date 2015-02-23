@@ -6,4 +6,5 @@ SUBDIRS =					\
 	HeatSimulation				\
 	MandelbrotSet				\
 	MatrixMultiply				\
+	SAXPY					\
 	$(NONE)

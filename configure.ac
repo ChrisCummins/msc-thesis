@@ -415,6 +415,7 @@ AC_CONFIG_FILES([
         benchmarks/src/HeatSimulation/Makefile
         benchmarks/src/MandelbrotSet/Makefile
         benchmarks/src/MatrixMultiply/Makefile
+        benchmarks/src/SAXPY/Makefile
         docs/Makefile
         docs/maths/Makefile
         docs/proposal/Makefile
