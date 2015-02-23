@@ -1,5 +1,6 @@
 SUBDIRS =					\
 	CannyEdgeDetection			\
+	DotProduct				\
 	FiniteDifferenceTimeDomain		\
 	GameOfLife				\
 	GaussianBlur				\
