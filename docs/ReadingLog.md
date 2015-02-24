@@ -27,3 +27,5 @@
 
 1. U. Banerjee, R. Eigenmann, and A. Nicolau, “Automatic program
    parallelization,” Proc. IEEE, vol. 81, pp. 211–243, 1993.
+1. S. Breuer, “Introducing a Skeleton for Stencil Computations to the
+   SkelCL Library,” Westfälische Wilhelms-Universität Münster, 2013.

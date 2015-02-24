@@ -4030,3 +4030,54 @@ data_t motionEquation(data_t N, data_t_matrix_t mE)
 
 [1]    6407 abort (core dumped)  ./benchmark
 ```
+
+
+## Tuesday 24th
+
+Notes from meeting with Michel:
+* Stefan Breuer implemented the Stencil skeleton for his masters
+  project. It differs from the existing MapOverlap by adding support
+  for iterations, and it doesn't add padding elements to the edges of
+  datasets. Michel will send me a copy of his thesis.
+* My first goal should be to get all of the benchmarks in the
+`stencilMultiGPU` branch working correctly.
+* The FDTD example program may require additional datasets.
+
+Only the Stencil skeletons require pointers to `input_matrix_t'. Map
+overlap passes by value.
+
+Notes for meeting with Hugh and Pavlos tomorrow:
+
+* AutoPar paper:
+  * Adam's interested in joining.
+  * Can we get a copy of
+    [this book](https://books.google.co.uk/books?id=PEnln_iwipgC&lpg=PR9&ots=JPjwPt-aQf&lr&pg=PP1#v=onepage&q&f=false)?
+* Benchmarks:
+  * List of SkelCL benchmarks:
+    * ~~CannyEdgeDetection~~
+    * DotProduct
+    * ~~FiniteDifferenceTimeDomain~~
+    * GameOfLife
+    * GaussianBlur
+    * HeatSimulation
+    * MandelbrotSet
+    * MatrixMultiply
+    * SAXPY
+    * ~~SobelEdgeDetection~~
+  * LM OSEM is not publicly available.
+* SkelCL:
+  * There are competing implementations with MapOverlap and
+    Stencil. They have identical interfaces but different
+    implementations. Potential room for tuning?
+
+To run all SkelCL example programs (from `build/examples` directory):
+
+```
+set -e
+for d in $(find . -maxdepth 1 -type d -exec basename {} \; | grep -Ev '(\.|CMake)' | sort); do
+    cd $d
+    echo $(tput bold)$d$(tput sgr0)
+    ./$d
+    cd ..
+done
+```

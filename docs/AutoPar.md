@@ -31,6 +31,20 @@
 1. D. B. Skillicorn and D. Talia, “Models and languages for parallel
    computation,” ACM Comput. Surv., vol. 30, no. 2, pp. 123–169, 1998.
 
+Survey papers:
+
+1. D. a. Padua and M. J. Wolfe, “Advanced compiler optimizations for
+   supercomputers,” Commun. ACM, vol. 29, no. 12, pp. 1184–1201, 1986.
+
+1. D. J. Kuck, D. J. Kuck, R. H. Kuhn, R. H. Kuhn, D. a. Padua,
+   D. a. Padua, B. Leasure, B. Leasure, M. Wolfe, and M. Wolfe,
+   “Dependence graphs and compiler optimizations,” Proc. 8th ACM
+   SIGPLAN-SIGACT Symp. Princ. Program. Lang. - POPL ’81, pp. 207–218,
+   1981.
+
+1. D. H. Bailey, “Automatic Translation of Fortran Programs to
+   Multiprecision,” vol. 9, no. 4, pp. 491–542, 1991.
+
 ###### > 300 citations
 
 A survey paper of auto-parallelization in the early 90's, structured
@@ -88,8 +102,18 @@ transformations, 4 - a review of the effectiveness of implementations:
    systems and software,” ACM Comput. Surv., vol. 34, no. 2,
    pp. 171–210, 2002.
 
+###### > 500 citations
+
+1. E. a Lee, “The Problem with Threads,” Computer
+   (Long. Beach. Calif)., vol. 39, no. 5, pp. 33–42, 2006.
 
 ###### > 150 citations
 
 1. H. Gonz, “A survey of algorithmic skeleton frameworks: high-level
    structured parallel programming enablers,” pp. 1135–1160, 2010.
+
+-----
+
+#### Books:
+
+[Scheduling and Automatic Parallelization](https://books.google.co.uk/books?id=PEnln_iwipgC&lpg=PR9&ots=JPjwPt-aQf&lr&pg=PP1#v=onepage&q&f=false)
