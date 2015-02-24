@@ -24,3 +24,6 @@
    Library,” HiStencils 2014, vol. 24, no. 3, pp. 23–30, 2014.
 
 # > 30 min
+
+1. U. Banerjee, R. Eigenmann, and A. Nicolau, “Automatic program
+   parallelization,” Proc. IEEE, vol. 81, pp. 211–243, 1993.

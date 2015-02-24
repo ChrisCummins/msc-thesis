@@ -33,6 +33,10 @@
 
 ###### > 300 citations
 
+A survey paper of auto-parallelization in the early 90's, structured
+as follows: 2 - Dependence analysis theory, 3 - parallelizing code
+transformations, 4 - a review of the effectiveness of implementations:
+
 1. U. Banerjee, R. Eigenmann, and A. Nicolau, “Automatic program
    parallelization,” Proc. IEEE, vol. 81, pp. 211–243, 1993.
 
