@@ -4054,7 +4054,7 @@ Notes for meeting with Hugh and Pavlos tomorrow:
     [this book](https://books.google.co.uk/books?id=PEnln_iwipgC&lpg=PR9&ots=JPjwPt-aQf&lr&pg=PP1#v=onepage&q&f=false)?
 * Benchmarks:
   * List of SkelCL benchmarks:
-    * ~~CannyEdgeDetection~~
+    * CannyEdgeDetection
     * DotProduct
     * ~~FiniteDifferenceTimeDomain~~
     * GameOfLife
@@ -4081,3 +4081,14 @@ for d in $(find . -maxdepth 1 -type d -exec basename {} \; | grep -Ev '(\.|CMake
     cd ..
 done
 ```
+
+
+## Wednesday 25th
+
+HyouJoon Lee (first author of "Locality-Aware Mapping of Nested
+Parallel Patterns on GPUs") has sent me the source code for their port
+of the Rodinia benchmarks: Backprop, BFS, Hostpot, LUD, Mandel, NN,
+Pathfinder, and SRAD to the
+[Delite](https://github.com/stanford-ppl/Delite) framework.
+
+Notes from meeting with Hugh, Pavlos, and Adam:

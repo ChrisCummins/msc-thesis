@@ -1,6 +1,6 @@
 # Reading list
 
-##### < 1970
+##### Pre 1980
 
 ###### > 300 citations
 
@@ -19,6 +19,11 @@
 1. D. F. Bacon, S. L. Graham, and O. J. Sharp, “Compiler
    transformations for high-performance computing,” ACM Comput. Surv.,
    vol. 26, no. 4, pp. 345–420, 1994.
+
+1. R. D. Blumofe, C. F. Joerg, B. C. Kuszmaul, C. E. Leiserson,
+   K. H. Randall, and Y. Zhou, “Cilk: an efficient multithreaded
+   runtime system,” Proc. ACM SIGPLAN Symp. Princ. Pract. Prallel
+   Program., vol. 30, no. 1, pp. 207–216, 1995.
 
 ###### > 500 citations
 

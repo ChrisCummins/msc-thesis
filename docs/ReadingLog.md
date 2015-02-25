@@ -11,11 +11,19 @@
    31–37.
 1. Zadeh, L. A., Introduction, I., & Navy, U. S. (1965). Fuzzy
    Sets. Information and Control, 8(3), 338–353.
+1. R. D. Blumofe, C. F. Joerg, B. C. Kuszmaul, C. E. Leiserson,
+   K. H. Randall, and Y. Zhou, “Cilk: an efficient multithreaded
+   runtime system,” Proc. ACM SIGPLAN Symp. Princ. Pract. Prallel
+   Program., vol. 30, no. 1, pp. 207–216, 1995.
 
 # 5-12 min
 
 1. Bosch, R., & Trick, M. (2005). Integer Programming. In Search
    methodologies (pp. 69–95). Springer.
+1. K. J. Brown, A. K. Sujeeth, H. J. Lee, T. Rompf, H. Chafi,
+   M. Odersky, and K. Olukotun, “A heterogeneous parallel framework
+   for domain-specific languages,” Parallel Archit. Compil. Tech. -
+   Conf. Proceedings, PACT, pp. 89–100, 2011.
 
 # 12-30 min
 
