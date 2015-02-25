@@ -4091,4 +4091,21 @@ of the Rodinia benchmarks: Backprop, BFS, Hostpot, LUD, Mandel, NN,
 Pathfinder, and SRAD to the
 [Delite](https://github.com/stanford-ppl/Delite) framework.
 
+TODO:
+* Examine Delite implementations of Rodinia benchmarks.
+* Add in plumbing to run SkelCL examples and collect timings.
+* Adjust benchmark parameters to something reasonable.
+* Compare runtimes of MapOverlap vs Stencil benchmarks.
+* Read Stencil thesis.
+
 Notes from meeting with Hugh, Pavlos, and Adam:
+* AutoPar paper:
+  * First step is to get a really thorough understanding of auto
+    parallelisation. What are the techniques? Who has done what? Who
+    was the first person to try <X>?
+  * Lookup: Uniform Transformation List
+  * DEADLINE: Complete a shallow survey draft for END OF MARCH.
+* Research:
+  * I need to get some data *pronto*.
+  * Set myself a personal deadline.
+* Print out a copy of the survey paper for Hugh.
