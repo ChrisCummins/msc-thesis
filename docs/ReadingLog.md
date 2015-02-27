@@ -15,6 +15,8 @@
    K. H. Randall, and Y. Zhou, “Cilk: an efficient multithreaded
    runtime system,” Proc. ACM SIGPLAN Symp. Princ. Pract. Prallel
    Program., vol. 30, no. 1, pp. 207–216, 1995.
+1. R. Glück, “Is there a fourth Futamura projection?,” Proc. 2009 ACM
+   SIGPLAN Work. …, pp. 51–60, 2009.
 
 # 5-12 min
 
@@ -30,6 +32,9 @@
 1. S. Breuer, M. Steuwer, and S. Gorlatch, “High-Level Programming of
    Stencil Computations on Multi-GPU Systems Using the SkelCL
    Library,” HiStencils 2014, vol. 24, no. 3, pp. 23–30, 2014.
+1. Y. Futamura, “Partial Evaluation of Computation Process — An
+   Approach to a Compiler-Compiler,” Higher-Order Symb. Comput.,
+   vol. 12, no. 5, pp. 381–391, 1999.
 
 # > 30 min
 
