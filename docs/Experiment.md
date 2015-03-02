@@ -2,14 +2,11 @@
 
 The goal is to collect data about SkelCL performance under various
 conditions (independent variables) which will be used to identify an
-*optimisation space*.
-
-#### Hardware
-* Intel(R) Core(TM) i7-2600K CPU
-* 16GiB memory
-* GeForce GTX 690 (1536 CUDA cores @ 823 MHz)
+*optimisation space*. Limitations: I don't have access to multi-GPU
+hardware. There's no real "tunable knobs" of interest.
 
 #### Benchmarks
+
 ###### Real world programs
   * Canny edge detection
   * FDTD
@@ -18,6 +15,7 @@ conditions (independent variables) which will be used to identify an
   * Heat simulation
   * Mandelbrot set
   * Sobel edge detection
+
 ###### Standard algorithms
   * Dot product
   * Matrix multiply
@@ -41,3 +39,8 @@ conditions (independent variables) which will be used to identify an
   * Data upload
   * Data download
   * Time spent executing job
+
+#### Hardware
+* Intel(R) Core(TM) i7-2600K CPU
+* 16GiB memory
+* GeForce GTX 690 (1536 CUDA cores @ 823 MHz)
