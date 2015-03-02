@@ -4109,3 +4109,49 @@ Notes from meeting with Hugh, Pavlos, and Adam:
   * I need to get some data *pronto*.
   * Set myself a personal deadline.
 * Print out a copy of the survey paper for Hugh.
+
+
+# March 2015
+
+
+## Monday 2nd
+
+#### Data distributions for vectors & matrices in SkelCL
+For multi-GPU systems, data can be distributed using:
+* single: Store entire structure on single GPU.
+* copy: Copy entire structure to each GPU.
+* block: Each GPU stores a contiguous, disjoint chunk of the structure.
+* overlap: Same as block, but with additional overlapping border
+  elements (in the case of matrices, overlap rows).
+
+#### Plan for first SkelCL experiment:
+
+Hardware:
+* TBD. To test multi-GPUs, I'll need at least 1 machine with at least
+  2 GPUs. Preferably more in order to compare different architectures.
+
+Benchmarks:
+* Real world programs
+  * Canny edge detection
+  * Sobel edge detection
+  * Game of Life
+  * Gaussian blur
+  * Heat simulation
+  * Mandelbrot set
+  * FDTD
+* Standard algorithms
+  * SAXPY
+  * Matrix multiply
+  * Dot product
+
+Independent variables:
+* Execution device: CPU, GPU, how many GPUs?
+* For multi GPUs: data distribution, size of overlap.
+* Hardware properties: Number of cores, memory bandwidth.
+* Skeleton: type of pattern used.
+* Program properties: size of user functions, code properties
+  (i.e. num of branches, load/stores).
+
+Dependent variables:
+* Time: total, subtotals/ratios for: time spent uploading and
+  downloading data, and time spent executing job.
