@@ -16,3 +16,6 @@
    Trans. Archit. Code Optim., vol. 11, pp. 1–32, 2014.
 
 # > 30 min
+
+1. U. Banerjee, R. Eigenmann, and A. Nicolau, “Automatic program
+   parallelization,” Proc. IEEE, vol. 81, no. 2, pp. 211–243, 1993.

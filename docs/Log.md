@@ -4124,6 +4124,11 @@ For multi-GPU systems, data can be distributed using:
 * overlap: Same as block, but with additional overlapping border
   elements (in the case of matrices, overlap rows).
 
+**Forward substitution** Given an expression `v = <expr>`, *forward
+  substitution* replaces some or all occurrences of *v* with the
+  expression. This can be combined with loop unrolling to increase
+  possible parallelism.
+
 #### Plan for first SkelCL experiment:
 
 Hardware:
