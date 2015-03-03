@@ -1,9 +1,8 @@
-# Characterisation of SkelCL performance
+# E1: Characterisation of SkelCL performance
 
 The goal is to collect data about SkelCL performance under various
 conditions (independent variables) which will be used to identify an
-*optimisation space*. Limitations: I don't have access to multi-GPU
-hardware. There's no real "tunable knobs" of interest.
+*optimisation space*.
 
 #### Benchmarks
 
@@ -24,7 +23,8 @@ hardware. There's no real "tunable knobs" of interest.
 #### Independent variables
 * Device type: {CPU, GPU}
 * Number of devices: {1}
-* Distribution: {single}
+* Distribution: {single,copy,block,overlap}
+* Overlap size: NUMERICAL
 * Device properties: number of cores, amount of memory, memory
   bandwidth.
 * Program: (enumerated list of all benchmarks).
