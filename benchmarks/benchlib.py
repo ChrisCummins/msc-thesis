@@ -1,13 +1,17 @@
 from __future__ import print_function
 from datetime import datetime
 from hashlib import sha1
+from itertools import product
+from json import dump,dumps,load
 from math import sqrt
-from os import chdir,getcwd
-from os.path import abspath,dirname
-from re import match
-from subprocess import call
+from os import chdir,getcwd,listdir,makedirs
+from os.path import abspath,dirname,exists
+from random import shuffle
+from re import match,search
+from re import sub
+from socket import gethostname
+from subprocess import call,check_output
 from sys import exit,stdout
-
 
 ##### LOCAL VARIABLES #####
 
@@ -16,6 +20,13 @@ __cdhist = [dirname(__file__)]
 
 
 ##### UTILITIES #####
+
+# Return the ID of the machine, used for identifying results.
+def ID():
+    return gethostname()
+
+def skelcl_version():
+    return check_output(['git', 'rev-parse', 'HEAD']).strip()
 
 # Concatenate all components into a path.
 def path(*components):
@@ -28,6 +39,22 @@ def bindir(name):
 # Return the path to binary file of example program "name".
 def bin(name):
     return path(bindir(name), name)
+
+# Return the path of the results file for "version".
+def resultsfile(version=skelcl_version()):
+    return path(RESULTSDIR, '{0}.json'.format(version))
+
+# Return the results in "file".
+def loadresults(file):
+    if exists(file):
+        return load(open(file))
+    else:
+        return {}
+
+# Store "results" in "file".
+def store(results, file):
+    dump(results, open(file, 'w'),
+         sort_keys=True, indent=2, separators=(',', ': '))
 
 # Change to directory "path".
 def cd(path):
@@ -69,6 +96,14 @@ def cdroot():
 def pwd():
     return __cdhist[-1]
 
+# List all files and directories in "path". If "abspaths", return
+# absolute paths.
+def ls(p=".", abspaths=True):
+    if abspath:
+        return [abspath(path(p, x)) for x in listdir(p)]
+    else:
+        return listdir(p)
+
 # Returns all of the lines in "file" as a list of strings, excluding
 # comments (delimited by '#' symbol).
 def parse(file):
@@ -79,6 +114,7 @@ def parse(file):
 def datestr(format="%I:%M%p on %B %d, %Y"):
     return datetime.now().strftime(format)
 
+# Print the date and current working directory to "file".
 def printheader(file=stdout):
     print('{0} in {1}'.format(datestr(), getcwd()), file=file)
     file.flush()
@@ -125,6 +161,10 @@ def stdev(num):
 ####### CONSTANTS & CONFIG #######
 
 CWD = path(dirname(__file__))
+DATADIR = path(CWD, 'data')
+IMAGES = [x for x in  ls(path(DATADIR, 'img'))
+          if search('\.pgm$', x) and not search('\.out\.pgm$', x)]
+RESULTSDIR = path(CWD, 'results')
 SKELCL = path(CWD, '../skelcl')
 SKELCL_BUILD = path(SKELCL, 'build')
 BUILDLOG = path(CWD, 'make.log')
@@ -160,14 +200,53 @@ def makeSkelCL(configure=True, clean=True):
             system(['make', 'clean'], out=f)
         system(['make'], out=f)
 
-# Run program "prog" and return a dictionary of runtimes.
+# Run program "prog" with arguments "args" and return the runtime.
 #
 #   @side-effect: Changes working dir.
-def time(prog):
+def time(prog, args=[]):
     progdir, progbin = bindir(prog), bin(prog)
 
     cd(progdir)
     with open(RUNLOG, 'w') as f:
         printheader(f)
-        system([progbin], out=f)
-    return {}
+        system([progbin] + args, out=f)
+
+    # Return execution time.
+    for line in reversed(open(RUNLOG).readlines()):
+        match = search('^Elapsed time:\s+([0-9]+)\s+', line)
+        if match:
+            return int(match.group(1))
+
+# Record the runtime of "prog" using "args", under experiment
+# "version".
+def record(prog, args=[], version=skelcl_version()):
+    f = resultsfile(version=version)
+    R = loadresults(f)
+    options = ' '.join(args)
+    id = ID()
+
+    if prog not in R:
+        R[prog] = {}
+
+    if options not in R[prog]:
+        R[prog][options] = {}
+
+    if id not in R[prog][options]:
+        R[prog][options][id] = []
+
+    R[prog][options][id].append(time(prog, args))
+    store(R, f)
+
+# Return all permutations of "options" for "prog"
+def permutations(prog, options=[[]]):
+    return list(product(*options))
+
+# Run "prog" "n" times for all "options", where "options" is a list of
+# lists, and "version" is the index for results.
+def iterate(prog, options=[[]], n=30, version=skelcl_version()):
+    P = permutations(prog, options)
+    for i in range(n):
+        for options in P:
+            args = [item for sublist in [x.split() for x in options] for item in sublist]
+            print(prog, *options)
+            record(prog, args, version=version)
