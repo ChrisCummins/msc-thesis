@@ -22,7 +22,7 @@ An edge detection operator, which applies four steps:
 
 * Runtime: 1.487s
 * SLOC: 212 cpp, 61 cl
-* Skeletons: {MapOverlap<float(float)>, MapOverlap<float(float)>, MapOverlap<float(float)>, MapOverlap<float(float)>}
+* Skeletons: {MapOverlap\<float(float)\>, MapOverlap\<float(float)\>, MapOverlap\<float(float)\>, MapOverlap\<float(float)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.139s  INFO] 1 OpenCL platform(s) found
@@ -48,7 +48,7 @@ Total Total no init time: 0.001169999945
 
 * Runtime: 1.635s
 * SLOC: 199 cpp, 61 cl
-* Skeletons: {Stencil<float(float)>}
+* Skeletons: {Stencil\<float(float)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.170s  INFO] 1 OpenCL platform(s) found
@@ -87,7 +87,7 @@ Standard dot product: `sum([i*j for i,j in A,B])`.
 
 * Runtime: 0.337s
 * SLOC: 121 cpp
-* Skeletons: {Zip<int(int, int)>, Reduce<int(int)>}
+* Skeletons: {Zip\<int(int, int)\>, Reduce\<int(int)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
@@ -104,7 +104,7 @@ Standard dot product: `sum([i*j for i,j in A,B])`.
 
 * Runtime: 0.339s
 * SLOC: 92 cpp 12 cl
-* Skeletons: {MapOverlap<int(int)>}
+* Skeletons: {MapOverlap\<int(int)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
@@ -122,7 +122,7 @@ Total without init time : 0.000235000000
 
 * Runtime: 0.380s
 * SLOC: 98 cpp 12 cl
-* Skeletons: {Stencil<int(int)>}
+* Skeletons: {Stencil\<int(int)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
@@ -162,7 +162,7 @@ dimension.
 
 * Runtime: 0.646s
 * SLOC: 165 cpp 47 cl
-* Skeletons: {MapOverlap<int(int)>}
+* Skeletons: {MapOverlap\<int(int)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
@@ -176,7 +176,7 @@ dimension.
 
 * Runtime: 1.091s
 * SLOC: 210 cpp 16 cl
-* Skeletons: {Stencil<float(float)>}
+* Skeletons: {Stencil\<float(float)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.149s  INFO] 1 OpenCL platform(s) found
@@ -200,7 +200,7 @@ Total without init time : 0.000719000003
 
 * Runtime: 0.780s
 * SLOC: 200 cpp 12 cl
-* Skeletons: {MapOverlap<float(float)>}
+* Skeletons: {MapOverlap\<float(float)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.148s  INFO] 1 OpenCL platform(s) found
@@ -220,7 +220,7 @@ Total without init time : 0.000304999994
 
 * Runtime: 0.910s
 * SLOC: 202 cpp 12 cl
-* Skeletons: {Stencil<float(float)>}
+* Skeletons: {Stencil\<float(float)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.145s  INFO] 1 OpenCL platform(s) found
@@ -245,7 +245,7 @@ Total without init time : 0.000544000010
 
 * Runtime: 0.437s
 * SLOC: 180 cpp 13 cl
-* Skeletons: {MapOverlap<float(float)>}
+* Skeletons: {MapOverlap\<float(float)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.029s  INFO] 1 OpenCL platform(s) found
@@ -262,7 +262,7 @@ Total without init time : 0.000246000011
 
 * Runtime: 0.473s
 * SLOC: 177 cpp 13 cl
-* Skeletons: {Stencil<float(float)>}
+* Skeletons: {Stencil\<float(float)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.030s  INFO] 1 OpenCL platform(s) found
@@ -296,7 +296,7 @@ RGB components.
 
 * Runtime: 1.342s
 * SLOC: 133 cpp 78 cl
-* Skeletons: {Map<struct(IndexPoint)>}
+* Skeletons: {Map\<struct(IndexPoint)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
@@ -316,7 +316,7 @@ RGB components.
 
 * Runtime: 1.231s
 * SLOC: 267 cpp
-* Skeletons: {AllPairs<int(int)>}
+* Skeletons: {AllPairs\<int(int)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.002s  INFO] 1 OpenCL platform(s) found
@@ -338,7 +338,7 @@ RGB components.
 
 * Runtime: 0.311s
 * SLOC: 149 cpp
-* Skeletons: {Zip<float(float, float)>}
+* Skeletons: {Zip\<float(float, float)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
@@ -354,7 +354,7 @@ Also prints output to `log.log`.
 
 * Runtime: 21.105s
 * SLOC: 375 cpp 127 cl
-* Skeletons: {Map<struct(struct)>, Stencil<struct(struct)>, Stencil<struct(struct)>}
+* Skeletons: {Map\<struct(struct)\>, Stencil\<struct(struct)\>, Stencil\<struct(struct)\>}
 * Output:
 ```
 [==DeviceList.cpp:90   000.002s  INFO] 1 OpenCL platform(s) found

@@ -4172,4 +4172,15 @@ different hardware over the weekend.
 
 ## Wednesday 4th
 
-Goal for today is to prep and run all benchmarks.
+Goal for today is to prep and run all benchmarks. I've refactored 3
+benchmarks so far: canny, GoL, and FDTD. JSON schema for results file:
+
+```
+{
+  <prog>: {
+    <options>: {
+      <id>: [<t1>, <t2>, <t3>]
+    }
+  }
+}
+```
