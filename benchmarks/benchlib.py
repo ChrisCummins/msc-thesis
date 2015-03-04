@@ -68,13 +68,13 @@ def cdroot():
 # Return the current working directory.
 def pwd():
     return __cdhist[-1]
-    
+
 # Returns all of the lines in "file" as a list of strings, excluding
 # comments (delimited by '#' symbol).
 def parse(file):
     with open(file) as f:
         return [match('[^#]+', x).group(0).strip() for x in f.readlines() if not match('\s*#', x)]
-    
+
 # Return the current date in style "format".
 def datestr(format="%I:%M%p on %B %d, %Y"):
     return datetime.now().strftime(format)
@@ -116,12 +116,12 @@ def variance(num):
         return sum([(x - m) ** 2 for x in num]) / (len(num) - 1)
     else:
         return 0
-    
+
 # Return the standard deviation of a list of divisible numbers.
 def stdev(num):
     return sqrt(variance(num))
 
-    
+
 ####### CONSTANTS & CONFIG #######
 
 CWD = path(dirname(__file__))
@@ -144,10 +144,22 @@ def make(prog, clean=True):
     with open(BUILDLOG, 'w') as f:
         printheader(f)
         if clean:
-            system(['make', 'clean'], out=f) # make clean
-        system(['make', prog], out=f) # make bin
-    print(__cdhist)
-        
+            system(['make', 'clean'], out=f)
+        system(['make', prog], out=f)
+
+# Build SkelCL. If "configure", run cmake.
+#
+#   @side-effect: Changes working dir.
+def makeSkelCL(configure=True, clean=True):
+    cd(SKELCL_BUILD)
+    with open(BUILDLOG, 'w') as f:
+        printheader(f)
+        if configure:
+            system(['cmake', '..'], out=f)
+        if clean:
+            system(['make', 'clean'], out=f)
+        system(['make'], out=f)
+
 # Run program "prog" and return a dictionary of runtimes.
 #
 #   @side-effect: Changes working dir.

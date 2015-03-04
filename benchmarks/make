@@ -3,6 +3,8 @@
 from sys import argv
 import benchlib as lib
 
-prog = argv[1]
-
-lib.make(prog)
+if len(argv) == 2:
+    prog = argv[1]
+    lib.make(prog)
+else:
+    lib.makeSkelCL()
