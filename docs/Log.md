@@ -4168,3 +4168,8 @@ Started implementing some basic Python plumbing to run experiment
 E1. My goal is to run it overnight tomorrow on Pavlos' server, and
 have preliminary results examined on Thursday, ready for evaluation on
 different hardware over the weekend.
+
+
+## Wednesday 4th
+
+Goal for today is to prep and run all benchmarks.

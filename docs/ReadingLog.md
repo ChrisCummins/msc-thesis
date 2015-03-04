@@ -1,5 +1,9 @@
 # < 5 min
 
+1. P. Prabhu, “Safe Programmable Speculative Parallelism,” in
+   Proceedings of Programming Language Design and Implementation
+   (PLDI), 2010.
+
 # 5-12 min
 
 1. A. Collins, C. Fensch, and H. Leather, “Auto-Tuning Parallel

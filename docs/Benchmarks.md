@@ -1,47 +1,29 @@
 # SkelCL Benchmarks
 
-Runtimes:
-```
-canny             1487
-cannyStencil      1635
-dot_product       337
-gameoflife        399
-gameoflifeStencil 380
-gauss             646
-gaussStencil      1091
-gaussY            780
-gaussYStencil     910
-heat              437
-heatStencil       473
-mandelbrot        1342
-matrix_mult       1231
-saxpy             311
-SkelFDTD          21105
-```
+### Canny Edge Detection
 
-Linecounts:
-```
-benchmark          cpp  cl
-canny              212  61
-cannyStencil       199  61
-dot_product        121  0
-gameoflife         92   12
-gameoflifeStencil  98   12
-gauss              165  47
-gaussStencil       210  16
-gaussY             200  12
-gaussYStencil      202  12
-heat               180  13
-heatStencil        177  13
-mandelbrot         144  78
-matrix_mult        267  0
-saxpy              149  0
-SkelFDTD           375  127
-```
+An edge detection operator, which applies four steps:
 
-## canny
+1. Gaussian blur to smooth the image and reduce noise
+1. Sobel filter edge detection.
+1. Non-maximum suppression to remove spurious response to edge
+   detection.
+1. Threshold operation to produce the final result.
 
-Output:
+###### Cited in:
+* S. Breuer, M. Steuwer, and S. Gorlatch, “Extending the SkelCL
+  Skeleton Library for Stencil Computations on Multi-GPU Systems,”
+  HiStencils 2014, pp. 23–30, 2014.
+* S. Breuer, M. Steuwer, and S. Gorlatch, “High-Level Programming of
+  Stencil Computations on Multi-GPU Systems Using the SkelCL Library,”
+  HiStencils 2014, vol. 24, no. 3, pp. 23–30, 2014.
+
+#### canny
+
+* Runtime: 1.487s
+* SLOC: 212 cpp, 61 cl
+* Skeletons: {MapOverlap<float(float)>, MapOverlap<float(float)>, MapOverlap<float(float)>, MapOverlap<float(float)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.139s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.139s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -62,9 +44,12 @@ Total Total no init time: 0.001169999945
 [======SkelCL.cpp:84   001.469s  INFO] SkelCL terminating. Freeing all resources.
 ```
 
-## cannyStencil
+#### cannyStencil
 
-Output:
+* Runtime: 1.635s
+* SLOC: 199 cpp, 61 cl
+* Skeletons: {Stencil<float(float)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.170s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.170s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -93,9 +78,17 @@ Total no init Total time: 0.001364000025
 [====Skeleton.cpp:79   001.664s  INFO] Event 3 timing: 0.083103ms
 ```
 
-## dot_product
 
-Output:
+### Dot Product
+
+Standard dot product: `sum([i*j for i,j in A,B])`.
+
+#### dot_product
+
+* Runtime: 0.337s
+* SLOC: 121 cpp
+* Skeletons: {Zip<int(int, int)>, Reduce<int(int)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -104,9 +97,15 @@ Output:
 [========main.cpp:109  000.329s  INFO] skelcl: 5023424
 ```
 
-## gameoflife
 
-Output:
+### Conway's Game of Life
+
+#### gameoflife
+
+* Runtime: 0.339s
+* SLOC: 92 cpp 12 cl
+* Skeletons: {MapOverlap<int(int)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -119,9 +118,12 @@ Total without init time : 0.000235000000
 [======SkelCL.cpp:84   000.376s  INFO] SkelCL terminating. Freeing all resources.
 ```
 
-## gameoflifeStencil
+#### gameoflifeStencil
 
-Output:
+* Runtime: 0.380s
+* SLOC: 98 cpp 12 cl
+* Skeletons: {Stencil<int(int)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -140,9 +142,28 @@ Total without init time : 0.000224000003
 [====Skeleton.cpp:79   000.348s  INFO] Event 0 timing: 0.050648ms
 ```
 
-## gauss
 
-Output:
+## Gaussian Blur
+
+Apply Gaussian function to each pixel. The `gauss` and `gaussStencil`
+use a 2D range, `gaussY` and `gaussYStencil` blue in only one
+dimension.
+
+###### Cited in:
+* S. Breuer, M. Steuwer, and S. Gorlatch, “Extending the SkelCL
+  Skeleton Library for Stencil Computations on Multi-GPU Systems,”
+  HiStencils 2014, pp. 23–30, 2014.
+* S. Breuer, M. Steuwer, and S. Gorlatch, “High-Level Programming of
+  Stencil Computations on Multi-GPU Systems Using the SkelCL Library,”
+  HiStencils 2014, vol. 24, no. 3, pp. 23–30, 2014.
+
+
+#### gauss
+
+* Runtime: 0.646s
+* SLOC: 165 cpp 47 cl
+* Skeletons: {MapOverlap<int(int)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -151,9 +172,12 @@ Output:
 [=MapOverlapDef.h:177  000.612s  INFO] MapOverlap kernel started
 ```
 
-## gaussStencil
+#### gaussStencil
 
-Output:
+* Runtime: 1.091s
+* SLOC: 210 cpp 16 cl
+* Skeletons: {Stencil<float(float)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.149s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.149s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -172,9 +196,12 @@ Total without init time : 0.000719000003
 [====Skeleton.cpp:79   001.015s  INFO] Event 0 timing: 3.24317ms
 ```
 
-## gaussY
+#### gaussY
 
-Output:
+* Runtime: 0.780s
+* SLOC: 200 cpp 12 cl
+* Skeletons: {MapOverlap<float(float)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.148s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.148s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -189,9 +216,12 @@ Total without init time : 0.000304999994
 [======SkelCL.cpp:84   000.715s  INFO] SkelCL terminating. Freeing all resources.
 ```
 
-## gaussYStencil
+#### gaussYStencil
 
-Output:
+* Runtime: 0.910s
+* SLOC: 202 cpp 12 cl
+* Skeletons: {Stencil<float(float)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.145s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.145s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -209,9 +239,14 @@ Total without init time : 0.000544000010
 [====Skeleton.cpp:79   000.847s  INFO] Event 0 timing: 0.584592ms
 ```
 
-## heat
+## Heat Simulation
 
-Output:
+#### heat
+
+* Runtime: 0.437s
+* SLOC: 180 cpp 13 cl
+* Skeletons: {MapOverlap<float(float)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.029s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.029s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -223,9 +258,12 @@ Total without init time : 0.000246000011
 [======SkelCL.cpp:84   000.398s  INFO] SkelCL terminating. Freeing all resources.
 ```
 
-## heatStencil
+#### heatStencil
 
-Output:
+* Runtime: 0.473s
+* SLOC: 177 cpp 13 cl
+* Skeletons: {Stencil<float(float)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.030s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.030s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -240,9 +278,26 @@ Total without init time : 0.000237999993
 [====Skeleton.cpp:79   000.392s  INFO] Event 0 timing: 1.90437ms
 ```
 
-## mandelbrot
+### Mandelbrot Set
 
-Output:
+###### Cited in:
+* M. Steuwer, P. Kegel, and S. Gorlatch, “SkelCL - A Portable Skeleton
+  Library for High-Level GPU Programming,” in Parallel and Distributed
+  Processing Workshops and Phd Forum (IPDPSW), 2011 IEEE International
+  Symposium on, 2011, pp. 1176–1182.
+* M. Steuwer and S. Gorlatch, “SkelCL: Enhancing OpenCL for High-Level
+  Programming of Multi-GPU Systems,” Parallel Comput. Technol.,
+  vol. 7979, pp. 258–272, 2013.
+
+#### mandelbrot
+
+Output struct represents a pixel using 3 `unsigned char` variables for
+RGB components.
+
+* Runtime: 1.342s
+* SLOC: 133 cpp 78 cl
+* Skeletons: {Map<struct(IndexPoint)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -250,9 +305,19 @@ Output:
 [==DeviceList.cpp:122  000.133s  INFO] Using 1 OpenCL device(s) in total
 ```
 
-## matrix_mult
+## Matrix Multiply
 
-Output:
+###### Cited in:
+* M. Steuwer, M. Friese, S. Albers, and S. Gorlatch, “Introducing and
+  implementing the allpairs skeleton for programming multi-GPU
+  Systems,” Int. J. Parallel Program., vol. 42, pp. 601–618, 2014.
+
+#### matrix_mult
+
+* Runtime: 1.231s
+* SLOC: 267 cpp
+* Skeletons: {AllPairs<int(int)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.002s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.002s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -267,9 +332,14 @@ Output:
 [========main.cpp:263  001.176s  INFO] sizes: 1024, 1024, 1024; average time: 81 ms
 ```
 
-## saxpy
+## SAXPY
 
-Output:
+#### saxpy
+
+* Runtime: 0.311s
+* SLOC: 149 cpp
+* Skeletons: {Zip<float(float, float)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -278,9 +348,14 @@ Output:
 [========main.cpp:104  000.262s  INFO] Time: 5 ms
 ```
 
-## SkelFDTD
+#### SkelFDTD
 
-Output:
+Also prints output to `log.log`.
+
+* Runtime: 21.105s
+* SLOC: 375 cpp 127 cl
+* Skeletons: {Map<struct(struct)>, Stencil<struct(struct)>, Stencil<struct(struct)>}
+* Output:
 ```
 [==DeviceList.cpp:90   000.002s  INFO] 1 OpenCL platform(s) found
 [==DeviceList.cpp:101  000.002s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found
@@ -331,5 +406,3 @@ data_t motionEquation(data_t N, data_t_matrix_t mE)
 	return N;
 }
 ```
-
-Also prints output to `log.log`.
