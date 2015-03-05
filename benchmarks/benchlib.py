@@ -20,6 +20,18 @@ import json
 # directory history
 __cdhist = [dirname(__file__)]
 
+# Experimental results are stored in-memory in a cache, indexed by the
+# experiment name. Results are read and written using the load() and
+# store() functions, respectively. On a cache miss, the load()
+# function looks up the name of the results file for that experiment
+# and, if found, adds it to the cache. A store() marks that experiment
+# as "cachedirty", and increments the "cachewrites" counter by 1. When
+# the value of "cachewrites" reaches "cachewritethreshold", the cache
+# is emptied and any file in the "cachedirty" set is written.
+_cache = {}
+_cachedirty = set()
+_cachewrites = 0
+_cachewritethreshold = 5
 
 ##### UTILITIES #####
 
@@ -27,6 +39,7 @@ __cdhist = [dirname(__file__)]
 def ID():
     return gethostname()
 
+# Get the current SkelCL git version.
 def skelcl_version():
     return check_output(['git', 'rev-parse', 'HEAD']).strip()
 
@@ -160,19 +173,6 @@ RUNLOG = path(CWD, 'run.log')
 
 ###### EXPERIMENTAL RESULTS #####
 
-# Experimental results are stored in-memory in a cache, indexed by the
-# version. Results are read and written using the load() and store()
-# functions, respectively. On a cache miss, the load() function looks
-# up the name of the results file for that version and, if found, adds
-# it to the cache. A store() marks that version as "cachedirty", and
-# increments the "cachewrites" counter by 1. When the value of
-# "cachewrites" reaches "cachewritethreshold", the cache is emptied
-# and any file in the "cachedirty" set is written.
-_cache = {}
-_cachedirty = set()
-_cachewrites = 0
-_cachewritethreshold = 5
-
 # Return the path of the results file for "version".
 def _versionfile(version=skelcl_version()):
     return path(RESULTSDIR, '{0}.json'.format(version))
@@ -275,35 +275,54 @@ def results(prog, args, id=ID(), version=skelcl_version()):
 
 # Record the runtime of "prog" using "args", under experiment
 # "version".
-def record(prog, args=[], version=skelcl_version(), n=100):
+def record(prog, args=[], version=skelcl_version(), n=-1, count=-1):
     R = load(version)
     options = ' '.join(args)
     id = ID()
 
-    if prog not in R:
-        R[prog] = {}
+    # If we don't have enough results
+    if n < 0 or len(results(prog, args, version=version)) <= n:
+        # Print out header.
+        if count >= 0:
+            print("iteration", count, end=" ")
+        print("[{0}/{1}] {2} {3}"
+              .format(len(results(prog, args, version=version)), n,
+                      prog, options))
 
-    if options not in R[prog]:
-        R[prog][options] = {}
+        t = time(prog, args)
+        if t >= 0:
+            if prog not in R:
+                R[prog] = {}
 
-    if id not in R[prog][options]:
-        R[prog][options][id] = []
+            if options not in R[prog]:
+                R[prog][options] = {}
 
-    print("N:", n, "actual:", len(results(prog, args, version=version)))
-    if len(results(prog, args, version=version)) <= n:
-        R[prog][options][id].append(time(prog, args))
-        store(R, version)
+            if id not in R[prog][options]:
+                R[prog][options][id] = []
+
+            R[prog][options][id].append(t)
+            store(R, version)
 
 # Return all permutations of "options" for "prog"
-def permutations(prog, options=[[]]):
-    return list(product(*options))
+def permutations(options=[[]]):
+    return [[x for z in [x.split() for x in y] for x in z]
+            for y in list(product(*options))]
 
 # Run "prog" "n" times for all "options", where "options" is a list of
 # lists, and "version" is the index for results.
-def iterate(prog, options=[[]], n=30, version=skelcl_version()):
-    P = permutations(prog, options)
-    for i in range(n):
-        for options in P:
-            args = [item for sublist in [x.split() for x in options] for item in sublist]
-            print(prog, *options)
-            record(prog, args, version=version, n=i)
+def iterate(experiment, n=30, version=skelcl_version()):
+    permcount = sum([len(permutations(experiment[p])) for p in experiment])
+    itercount = permcount * n
+
+    print("TOTAL PERMUTATIONS:", permcount)
+    print("TOTAL ITERATIONS:  ", itercount)
+
+    count = 0
+
+    for i in range(1, n + 1):
+        for prog in experiment:
+            P = permutations(experiment[prog])
+
+            for args in P:
+                count += 1
+                record(prog, args, version=version, n=n, count=count)
