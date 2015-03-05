@@ -180,13 +180,18 @@ def _versionfile(version=skelcl_version()):
 # Dump results cache.
 def _dumpcache_():
     global _cachedirty, _cachewrites
+
+    if not _cachewrites: # there may be nothing to dump
+        return
+
     for version in _cachedirty:
         file = _versionfile(version)
         json.dump(_cache[version], open(file, 'w'),
                   sort_keys=True, indent=2, separators=(',', ': '))
         print("Wrote '{0}'...".format(file))
+
     _cachewrites = 0
-    _cachedirt = set()
+    _cachedirty = set()
     print("Results cache clean.")
 
 # Register and exit handler.
@@ -310,19 +315,24 @@ def permutations(options=[[]]):
 
 # Run "prog" "n" times for all "options", where "options" is a list of
 # lists, and "version" is the index for results.
-def iterate(experiment, n=30, version=skelcl_version()):
-    permcount = sum([len(permutations(experiment[p])) for p in experiment])
+def iterate(experiment):
+    progs = experiment['progs']
+    name = experiment['name']
+    n = experiment['iterations']
+
+    permcount = sum([len(permutations(progs[prog])) for prog in progs])
     itercount = permcount * n
-
-    print("TOTAL PERMUTATIONS:", permcount)
-    print("TOTAL ITERATIONS:  ", itercount)
-
     count = 0
 
+    print("========================")
+    print("TOTAL PERMUTATIONS:", permcount)
+    print("TOTAL ITERATIONS:  ", itercount)
+    print("========================\n")
+
     for i in range(1, n + 1):
-        for prog in experiment:
-            P = permutations(experiment[prog])
+        for prog in progs:
+            P = permutations(progs[prog])
 
             for args in P:
                 count += 1
-                record(prog, args, version=version, n=n, count=count)
+                record(prog, args, version=name, n=n, count=count)
