@@ -250,13 +250,17 @@ def time(prog, args=[]):
     cd(progdir)
     with open(RUNLOG, 'w') as f:
         printheader(f)
-        system([progbin] + args, out=f)
+        e = system([progbin] + args, out=f, exit_on_error=False)
+    if e:
+        print("Died.")
+        return -1
 
     # Return execution time.
     for line in reversed(open(RUNLOG).readlines()):
         match = search('^Elapsed time:\s+([0-9]+)\s+', line)
         if match:
             return int(match.group(1))
+    return -1
 
 # Lookup results for "prog" with "args" on "id" under "version".
 def results(prog, args, id=ID(), version=skelcl_version()):
