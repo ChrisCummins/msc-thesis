@@ -55,6 +55,8 @@ def bindir(name):
 def bin(name):
     return path(bindir(name), name)
 
+def pprint(data):
+    return json.dumps(data, sort_keys=True, indent=2, separators=(',', ': '))
 
 # Change to directory "path".
 def cd(path):
@@ -336,3 +338,18 @@ def iterate(experiment):
             for args in P:
                 count += 1
                 record(prog, args, version=name, n=n, count=count)
+
+
+def json2arff(schema, data, relation="data", file=stdout):
+    print("@RELATION {0}".format(relation), file=file)
+    print(file=file)
+
+    for attribute in schema:
+        print("@ATTRIBUTE {0} {1}"
+              .format(attribute[0], attribute[1]), file=file)
+
+    print(file=file)
+    print("@DATA", file=file)
+    for d in data:
+        dd = [str(x) for x in d]
+        print(','.join(dd), file=file)

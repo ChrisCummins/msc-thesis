@@ -1,9 +1,10 @@
 #!/usr/bin/env python2.7
 
 from __future__ import print_function
+from operator import itemgetter
 from re import sub
 
-import benchlib as lib
+from benchlib import *
 
 experiment = {
     'have_data': True,
@@ -14,7 +15,7 @@ experiment = {
             ['', '--map-overlap'],
             ['--radius {0}'.format(x) for x in range(1, 10 + 1, 3)],
             ['--input {0} --output {1}'.format(x, sub('\.pgm', '.out.pgm', x))
-             for x in lib.IMAGES]
+             for x in IMAGES]
         ],
         'GameOfLife': [
             ['', '--map-overlap'],
@@ -28,10 +29,152 @@ experiment = {
     }
 }
 
-if lib.ID() != "cec":
+if ID() != "cec":
     for prog in experiment['progs']:
         experiment['progs'][prog].append(['--device_type {0}'.format(x) for x in ['CPU', 'GPU']])
 
-# Run experiment
+# GATHER DATA
 if not experiment['have_data']:
-    lib.iterate(experiment)
+    iterate(experiment)
+
+name = experiment['name']
+R = load(name)
+
+def FDTD_arff(fdtd, file=stdout):
+    attributes = [
+        ['device_type', '{CPU,GPU}'],
+        ['size', 'NUMERIC'],
+        ['resolution', 'NUMERIC'],
+        ['skel_map', '{0,1}'],
+        ['skel_stencil', '{0,1}'],
+        ['time', 'NUMERIC']
+    ]
+
+    r = []
+    for args in fdtd:
+        for id in fdtd[args]:
+            f = ['CPU'] if id == "cec" else ['GPU']
+            f += [
+                int(search('--size ([0-9]+)', args).group(1)),
+                int(search('--resolution ([0-9]+)', args).group(1)),
+                '1',
+                '1',
+                mean(fdtd[args][id])
+            ]
+            r.append(f)
+
+    json2arff(attributes, sorted(r, key=itemgetter(0)), relation="fdtd", file=file)
+
+def GameOfLife_arff(d, file=stdout):
+    attributes = [
+        ['device_type', '{CPU,GPU}'],
+        ['size', 'NUMERIC'],
+        ['iterations', 'NUMERIC'],
+        ['skel_map', '{0,1}'],
+        ['skel_stencil', '{0,1}'],
+        ['time', 'NUMERIC']
+    ]
+    r = []
+
+    for args in d:
+        for id in d[args]:
+            f = ['CPU'] if id == "cec" else ['GPU']
+            f += [
+                int(search('--size ([0-9]+)', args).group(1)),
+                int(search('--iterations ([0-9]+)', args).group(1)),
+                '0',
+                '1',
+                mean(d[args][id])
+            ]
+
+            if search('--map-overlap', args):
+                f[3] = '1'
+                f[4] = '0'
+
+            r.append(f)
+
+    json2arff(attributes, sorted(r, key=itemgetter(0)), relation="GameOfLife", file=file)
+
+def CannyEdgeDetection_arff(d, file=stdout):
+    attributes = [
+        ['device_type', '{CPU,GPU}'],
+        ['width', 'NUMERIC'],
+        ['height', 'NUMERIC'],
+        ['radius', 'NUMERIC'],
+        ['skel_map', '{0,1}'],
+        ['skel_stencil', '{0,1}'],
+        ['time', 'NUMERIC']
+    ]
+    r = []
+
+    for args in d:
+        for id in d[args]:
+            f = ['CPU'] if id == "cec" else ['GPU']
+            f += [
+                int(search('--input .*-([0-9]+)x', args).group(1)),
+                int(search('--input .*x([0-9]+)', args).group(1)),
+                int(search('--radius ([0-9]+)', args).group(1)),
+                '0',
+                '1',
+                mean(d[args][id])
+            ]
+
+            if search('--map-overlap', args):
+                f[3] = '1'
+                f[4] = '0'
+
+            r.append(f)
+
+    json2arff(attributes, sorted(r, key=itemgetter(0)), relation="CannyEdgeDetection", file=file)
+
+def arff(d, file=stdout):
+    attributes = [
+        ['device_type', '{CPU,GPU}'],
+        ['data_type', '{INT, FLOAT}'],
+        ['container', '{VECTOR, MATRIX}'],
+        ['size', 'NUMERIC'],
+        ['overlap', 'NUMERIC'],
+        ['skeleleton', '{MAP,STENCIL}'],
+        ['program', '{CannyEdgeDetection,GameOfLife,FDTD}'],
+        ['time', 'NUMERIC']
+    ]
+    r = []
+
+    for prog in d:
+        for args in d[prog]:
+            for id in d[prog][args]:
+                f = ['CPU'] if id == "cec" else ['GPU']
+                f += [
+                    'FLOAT',
+                    'MATRIX', # data_type
+                    '1', # size
+                    '1', # overlap
+                    'STENCIL',
+                    prog,
+                    mean(d[prog][args][id])
+                ]
+
+                if prog == "GameOfLife":
+                    f[1] = "INT"
+
+                s = search('--size ([0-9]+)', args)
+                w = search('--input .*-([0-9]+)x', args)
+                h = search('--input .*x([0-9]+)', args)
+                if s:
+                    f[3] = int(s.group(1)) * int(s.group(1))
+elif w and h:
+    f[3] = int(w.group(1)) * int(h.group(1))
+
+                s = search('--radius ([0-9]+)', args)
+                if s:
+                    f[4] = int(s.group(1))
+
+                if search('--map-overlap', args):
+                    f[5] = 'MAP'
+                    r.append(f)
+                    json2arff(attributes, sorted(r, key=itemgetter(0)), relation="All", file=file)
+
+FDTD_arff(R['FDTD'], file=open(path(RESULTSDIR, name, 'FDTD.arff'), 'w'))
+GameOfLife_arff(R['GameOfLife'], file=open(path(RESULTSDIR, name, 'GameOfLife.arff'), 'w'))
+CannyEdgeDetection_arff(R['CannyEdgeDetection'], file=open(path(RESULTSDIR, name, 'CannyEdgeDetection.arff'), 'w'))
+arff(R, file=open(path(RESULTSDIR, name, 'all.arff'), 'w'))
