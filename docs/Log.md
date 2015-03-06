@@ -4184,3 +4184,19 @@ benchmarks so far: canny, GoL, and FDTD. JSON schema for results file:
   }
 }
 ```
+
+
+## Friday 6th
+
+Notes from meeting with Hugh and Pavlos:
+* I need to ask Michel about SkelCL:
+  * What heuristics are there?
+  * At which points did he make *decisions* about how something should
+    be implemented? I.e. in what places are there hard-coded values
+    which could influence performance?
+  * How much change would be required to implement nested skeletons?
+* TODO: Make a list of tunable parameters by WEDNESDAY 11th.
+
+TODO:
+* Identify 3 *new* (to me) tunable parameters for SkelCL.
+* Read PORPLE paper.

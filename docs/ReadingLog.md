@@ -23,6 +23,9 @@
 1. H. Leather, E. Bonilla, and M. O’boyle, “Automatic feature
    generation for machine learning based optimising compilation,” ACM
    Trans. Archit. Code Optim., vol. 11, pp. 1–32, 2014.
+1. G. Chen and B. Wu, “PORPLE: An Extensible Optimizer for Portable
+   Data Placement on GPU,” in Microarchitecture (MICRO), 2014 47th
+   Annual IEEE/ACM International Symposium on, 2014, pp. 88–100.
 
 # > 30 min
 
