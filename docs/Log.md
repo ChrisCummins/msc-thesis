@@ -4200,3 +4200,48 @@ Notes from meeting with Hugh and Pavlos:
 TODO:
 * Identify 3 *new* (to me) tunable parameters for SkelCL.
 * Read PORPLE paper.
+
+
+## Monday 9th
+
+Notes from meeting with Michel:
+
+* Haskell's
+  [accelerate](http://hackage.haskell.org/package/accelerate) is a
+  nice a neat little DSL for expressing data parallel vector
+  operations on GPUs using a CUDA backend.
+* Nesting of skeletons would not be supported in SkelCL without a
+  major rewrite of the architecture. As it stands, SkelCL is never
+  aware of the program outside of the immediate scope (i.e. a Map
+  skeleton is not aware that another map operation follows).
+* It is possible to tune for divergent hardware by twiddling the
+  global & local sizes.
+* Tuning for vectorisation on the CPU is a big
+  possibility. I.e. coalescing read/write operations.
+* Alberto Magni has published 3 papers on thread coarsening using a
+  transformation pass for OpenCL functions in LLVM.
+* It's worth taking a look at and getting my head around
+  [NVIDIA's CUDA GPU Occupancy calculator](https://www.google.co.uk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCIQFjAA&url=http%3A%2F%2Fdeveloper.download.nvidia.com%2Fcompute%2Fcuda%2FCUDA_Occupancy_calculator.xls&ei=Se_9VKuFI6uP7AaAxIG4Cg&usg=AFQjCNG_VhxwvgVBBUZnnincdbTyvYLrKQ&sig2=TEZ93PDSLOIxXTaJxT4vOg).
+  Currently there compiler isn't smart enough to optimise the values
+  for you.
+* NVIDIA architecture:
+  * No cache on earlier generations, so local memory is *very*
+    effective.
+  * With newer generations, additional caches makes exploiting local
+    memory less important.
+* Tunable knob: The AllPairs Skeleton has three integer parameters
+  which control the allocation of local memory for Columns, Rows, and
+  Segments. Currently there are hardcoded values for the two
+  implementations of AllPairs (see `AllPairsDef.h:87`,
+  `AllPairsDef.h:103`). It is a trade-off between exploiting data
+  locality and potential parallelism. Increasing the local memory
+  allocated per work item decreases the number of threads that can be
+  executed concurrently, but reduces memory access times.
+* Stencil: local memory, array access patterns. See
+  `StencilKernelNearest.cl`.
+* Reduce: reduction trees.
+  * NVIDIA has 6 implementations. SkelCL's is effective, but can tune
+    for DATA SIZE.
+
+TODO:
+* Look at the NVIDIA CUDA GPU Occupancy Calculator at home.
