@@ -1,5 +1,9 @@
 # < 5 min
 
+1. J. H. Saltz, R. Mirchandaney, and K. Crowley, “Run-time
+   parallelization and scheduling of loops,” Comput. IEEE Trans.,
+   vol. 40, no. 5, pp. 603–612, 1991.
+
 # 5-12 min
 
 # 12-30 min

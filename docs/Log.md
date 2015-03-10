@@ -4245,3 +4245,12 @@ Notes from meeting with Michel:
 
 TODO:
 * Look at the NVIDIA CUDA GPU Occupancy Calculator at home.
+
+
+## Tuesday 10th
+
+* I opened a ticket with computing support to request a GPU for my
+  self managed machine
+  ([this one](http://www.novatech.co.uk/products/components/nvidiageforcegraphicscards/nvidiagtx750series/gv-n750oc-2gl.html)).
+* A possible heuristic nestled within the Stencil implementation:
+[Iterations between swaps](https://bitbucket.org/skelcl/skelcl/src/bf83f6c82db8a311b77b2ab998cf47c6b790559b/include/SkelCL/detail/StencilDef.h?at=chris/benchmarks-refactor#cl-378)
