@@ -4252,5 +4252,18 @@ TODO:
 * I opened a ticket with computing support to request a GPU for my
   self managed machine
   ([this one](http://www.novatech.co.uk/products/components/nvidiageforcegraphicscards/nvidiagtx750series/gv-n750oc-2gl.html)).
-* A possible heuristic nestled within the Stencil implementation:
-[Iterations between swaps](https://bitbucket.org/skelcl/skelcl/src/bf83f6c82db8a311b77b2ab998cf47c6b790559b/include/SkelCL/detail/StencilDef.h?at=chris/benchmarks-refactor#cl-378)
+* I read through the AllPairs, Stencil, and Reduce skeleton source
+  code, trying to translate the comments from my meeting with Michel
+  yesterday into tangible tunable knobs to begin evaluating.
+* The iterations between swaps using Stencils is currently a
+  [static constant](https://bitbucket.org/skelcl/skelcl/src/bf83f6c82db8a311b77b2ab998cf47c6b790559b/include/SkelCL/detail/StencilDef.h?at=chris/benchmarks-refactor#cl-378).
+* I've complete a *very* preliminary list of tunable knobs for
+  SkelCL. The aim is to get something concrete determined for Friday's
+  meeting so as to start collecting data.
+* On page 79 of Stefan's thesis, there is a direct comparison of
+  multi-GPU performance of MapOverlap and Stencil for iterative game
+  of life problem. GoL using 4x GPU produces a *slowdown* with
+  MapOverlap, but a 3x speedup with Stencil? Since the user code is
+  essentially the same, this could be a nice motivating example of why
+  the suitability of Skeleton implementations is heavily dependent on
+  the use case.
