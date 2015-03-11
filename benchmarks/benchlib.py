@@ -248,10 +248,10 @@ def makeSkelCL(configure=True, clean=True):
             system(['make', 'clean'], out=f)
         system(['make'], out=f)
 
-# Run program "prog" with arguments "args" and return the runtime.
+# Run program "prog" with arguments "args" and an error of runtime(s).
 #
 #   @side-effect: Changes working dir.
-def time(prog, args=[]):
+def times(prog, args=[]):
     progdir, progbin = bindir(prog), bin(prog)
 
     cd(progdir)
@@ -262,12 +262,17 @@ def time(prog, args=[]):
         print("Died.")
         return -1
 
-    # Return execution time.
+    # Return execution times.
+    r = []
     for line in reversed(open(RUNLOG).readlines()):
         match = search('^Elapsed time:\s+([0-9]+)\s+', line)
         if match:
-            return int(match.group(1))
-    return -1
+            r.append(int(match.group(1)))
+
+    if len(r):
+        return r
+    else:
+        return [-1]
 
 # Lookup results for "prog" with "args" on "id" under "version".
 def results(prog, args, id=ID(), version=skelcl_version()):
@@ -280,7 +285,7 @@ def results(prog, args, id=ID(), version=skelcl_version()):
                 return R[prog][options][id]
     return []
 
-# Record the runtime of "prog" using "args", under experiment
+# Record the runtimes of "prog" using "args", under experiment
 # "version".
 def record(prog, args=[], version=skelcl_version(), n=-1, count=-1):
     R = load(version)
@@ -296,8 +301,8 @@ def record(prog, args=[], version=skelcl_version(), n=-1, count=-1):
               .format(len(results(prog, args, version=version)), n,
                       prog, options))
 
-        t = time(prog, args)
-        if t >= 0:
+        t = times(prog, args)
+        if t[0] >= 0:
             if prog not in R:
                 R[prog] = {}
 
@@ -307,7 +312,7 @@ def record(prog, args=[], version=skelcl_version(), n=-1, count=-1):
             if id not in R[prog][options]:
                 R[prog][options][id] = []
 
-            R[prog][options][id].append(t)
+            R[prog][options][id] += t
             store(R, version)
 
 # Return all permutations of "options" for "prog"
