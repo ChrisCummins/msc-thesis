@@ -4267,3 +4267,17 @@ TODO:
   essentially the same, this could be a nice motivating example of why
   the suitability of Skeleton implementations is heavily dependent on
   the use case.
+
+
+## Wednesday 11th
+
+* I talked with Pavlos and he suggested collecting some exploratory
+  results for the existing tunable knobs across different input sizes.
+* Since the stencil operation is iterative, this could be a good
+  opportunity for doing online intra-operation tuning. For example, if
+  a stencil operates for 1 million iterations, the autotuner could
+  stop execution every 1000 iterations and tune performance?
+
+
+Notes for next meeting with Hugh and Pavlos:
+* Poster presentation.
