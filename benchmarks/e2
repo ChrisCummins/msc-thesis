@@ -16,6 +16,7 @@ for c in knobrange:
         for s in knobrange:
 
             cd(CWD)
+            print("SETTING TUNABLE KNOBS [ C:", c, "R:", r, "S:", s, "]")
             os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
                       .format(c))
             os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
