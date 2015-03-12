@@ -20,7 +20,7 @@ import json
 # directory history
 __cdhist = [dirname(__file__)]
 
-# Experimental results are stored in-memory in a cache, indexed by the
+# Experimental results are cached in an dictionary, indexed by the
 # experiment name. Results are read and written using the load() and
 # store() functions, respectively. On a cache miss, the load()
 # function looks up the name of the results file for that experiment
@@ -110,7 +110,8 @@ def ls(p=".", abspaths=True):
 # comments (delimited by '#' symbol).
 def parse(file):
     with open(file) as f:
-        return [match('[^#]+', x).group(0).strip() for x in f.readlines() if not match('\s*#', x)]
+        return [match('[^#]+', x).group(0).strip()
+                for x in f.readlines() if not match('\s*#', x)]
 
 # Return the current date in style "format".
 def datestr(format="%I:%M%p on %B %d, %Y"):
@@ -133,7 +134,7 @@ def system(args, out=None, exit_on_error=True):
     return exitstatus
 
 
-# Returns the secure checksum of "file".
+# Returns the hex checksum of "file".
 def checksum(file):
     return sha1(open(file).read()).hexdigest()
 
@@ -179,100 +180,117 @@ RUNLOG = path(CWD, 'run.log')
 def _versionfile(version=skelcl_version()):
     return path(RESULTSDIR, '{0}.json'.format(version))
 
-# Dump results cache.
-def _dumpcache_():
+# Write cached data for "version" to disk.
+def _writeversion(version=skelcl_version()):
+    file = _versionfile(version)
+    json.dump(_cache[version], open(file, 'w'),
+              sort_keys=True, indent=2, separators=(',', ': '))
+    print("Wrote '{0}'...".format(file))
+
+# Load data for "version" to cache.
+def _loadcache(version=skelcl_version()):
+    file = _versionfile(version)
+    # Load from file, else create empty data.
+    _cache[version] = json.load(open(file)) if exists(file) else {}
+    print("Read '{0}'...".format(file))
+
+# Dump dirty cached data to disk.
+def _dumpdirty():
     global _cachedirty, _cachewrites
 
-    if not _cachewrites: # there may be nothing to dump
-        return
-
     for version in _cachedirty:
-        file = _versionfile(version)
-        json.dump(_cache[version], open(file, 'w'),
-                  sort_keys=True, indent=2, separators=(',', ': '))
-        print("Wrote '{0}'...".format(file))
+        _writeversion(version)
 
     _cachewrites = 0
     _cachedirty = set()
     print("Results cache clean.")
 
-# Register and exit handler.
-register(_dumpcache_)
+# Dump results cache.
+def _dumpcache():
+    if not _cachewrites: # there may be nothing to dump
+        return
+    _dumpdirty()
 
-# Return the results for "file".
+# Mark "version" as cache dirty.
+def _flagdirty(version):
+    global _cachewrites, _cachedirty
+    _cachedirty.add(version)
+    _cachewrites += 1
+
+# Register exit handler.
+register(_dumpcache)
+
+# Return the results for "version".
 def load(version):
-    if version in _cache:
-        return _cache[version]
-    else:
-        file = _versionfile(version)
-        if exists(file):
-            _cache[version] = json.load(open(file))
-        else:
-            _cache[version] = {}
-        return load(version) # recurse
+    if version not in _cache:
+        _loadcache(version)
+    return _cache[version]
 
 # Store "results" for "version".
 def store(results, version):
-    global _cachewrites
-    _cachedirty.add(version)
-    _cachewrites += 1
+    _flagdirty(version)
+    # If there's enough dirty data, dump cache.
     if _cachewrites >= _cachewritethreshold:
-        _dumpcache_()
+        _dumpdirty()
 
 ###### BENCHMARK FUNCTIONS #####
 
-# Build example program "prog". If "clean", then clean before
-# building.
+def buildlog():
+    return open(BUILDLOG, 'w')
+
+# Build example program "prog", an log output to "log". If "clean",
+# then clean before building.
 #
 #   @side-effect: Changes working dir.
-def make(prog, clean=True):
-    progdir, progbin = bindir(prog), bin(prog)
-
-    cd(progdir)
-    with open(BUILDLOG, 'w') as f:
-        printheader(f)
-        if clean:
-            system(['make', 'clean'], out=f)
-        system(['make', prog], out=f)
+def make(prog, clean=True, log=buildlog()):
+    cd(bindir(prog))
+    printheader(log)
+    if clean:
+        system(['make', 'clean'], out=log)
+    system(['make', prog], out=log)
 
 # Build SkelCL. If "configure", run cmake.
 #
 #   @side-effect: Changes working dir.
-def makeSkelCL(configure=True, clean=True):
+def makeSkelCL(configure=True, clean=True, log=buildlog()):
     cd(SKELCL_BUILD)
-    with open(BUILDLOG, 'w') as f:
-        printheader(f)
-        if configure:
-            system(['cmake', '..'], out=f)
-        if clean:
-            system(['make', 'clean'], out=f)
-        system(['make'], out=f)
+    printheader(log)
+    if configure:
+        system(['cmake', '..'], out=log)
+    if clean:
+        system(['make', 'clean'], out=log)
+    system(['make'], out=log)
 
-# Run program "prog" with arguments "args" and an error of runtime(s).
+# Run "prog" with "args", and log output to "log". Returns exit status
+# of program.
 #
 #   @side-effect: Changes working dir.
-def times(prog, args=[]):
-    progdir, progbin = bindir(prog), bin(prog)
+def runprog(prog, args, log=open(RUNLOG, 'w')):
+    cd(bindir(prog))
+    printheader(log)
+    return system([bin(prog)] + args, out=log, exit_on_error=False)
 
-    cd(progdir)
-    with open(RUNLOG, 'w') as f:
-        printheader(f)
-        e = system([progbin] + args, out=f, exit_on_error=False)
-    if e:
-        print("Died.")
-        return -1
-
-    # Return execution times.
+# Parse a program output and return a list of runtimes (in ms).
+def parseruntimes(output):
     r = []
-    for line in reversed(open(RUNLOG).readlines()):
+    for line in output:
         match = search('^Elapsed time:\s+([0-9]+)\s+', line)
         if match:
             r.append(int(match.group(1)))
+    return r
 
-    if len(r):
-        return r
-    else:
-        return [-1]
+# Run program "prog" with arguments "args" and an error of
+# runtime(s). If prog produces no runtimes, return value "ebad".
+#
+#   @side-effect: Changes working dir.
+def times(prog, args=[], ebad=[-1]):
+    e = runprog(prog, args, log=open(RUNLOG, 'w'))
+    if e:
+        print("Died.")
+        return ebad
+    
+    r = parseruntimes(open(RUNLOG).readlines())
+    return r if len(r) else ebad
 
 # Lookup results for "prog" with "args" on "id" under "version".
 def results(prog, args, id=ID(), version=skelcl_version()):

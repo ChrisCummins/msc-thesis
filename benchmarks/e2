@@ -54,12 +54,8 @@ if ID() != "cec":
     for prog in experiment['progs']:
         experiment['progs'][prog].append(['--device-type GPU'])
 
-runexperiment(experiment)
-exit(0)
-
 # GATHER DATA
 if not experiment['have_data']:
-    iterate(experiment)
+    runexperiment(experiment)
 
-name = experiment['name']
 R = load(name)
