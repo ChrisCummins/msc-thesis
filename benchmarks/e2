@@ -30,7 +30,7 @@ def pre_exec_hook(settings):
     os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')
 
 experiment = {
-    'have_data': False,
+    'have_data': True,
     'name': 'e2',
     'iterations': 10 - 1,
     'settings': {
@@ -58,4 +58,40 @@ if ID() != "cec":
 if not experiment['have_data']:
     runexperiment(experiment)
 
-R = load(name)
+attributes = [
+    ['device_type', '{CPU,GPU}'],
+    ['c', 'NUMERIC'],
+    ['r', 'NUMERIC'],
+    ['s', 'NUMERIC'],
+    ['row_count_a', 'NUMERIC'],
+    ['col_count_a', 'NUMERIC'],
+    ['col_count_b', 'NUMERIC'],
+    ['time', 'NUMERIC']
+]
+r = []
+for settings in settingspermutations(experiment['settings']):
+    name = "{0}-{1}".format(experiment['name'],
+                            "-".join([str(settings[x]) for x in settings]))
+    R = load(name)
+    if not R:
+        continue
+
+    mm = R['MatrixMultiply']
+
+    for args in mm:
+        for id in mm[args]:
+            ra = int(search('--row_count_A ([0-9]+)', args).group(1))
+            ca = int(search('--col_count_A ([0-9]+)', args).group(1))
+            cb = int(search('--col_count_B ([0-9]+)', args).group(1))
+            #baseline = mean(load("{0}-32-8-16".format(experiment['name']))[args][id])
+            #speedup = baseline / mean(mm[args][id])
+            speedup = mean(mm[args][id])
+
+            r.append([['CPU'] if id == "cec" else ['GPU'], # device-type
+                      settings['c'], settings['r'], settings['s'], # c/r/s knobs
+                      ra, ca, cb, # row/col counts
+                      speedup])
+
+json2arff(attributes, r, relation="matrixmultiple",
+          file=open(path(RESULTSDIR, experiment['name'],
+                         'MatrixMultiply.arff'), 'w'))

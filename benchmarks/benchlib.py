@@ -190,9 +190,14 @@ def _writeversion(version=skelcl_version()):
 # Load data for "version" to cache.
 def _loadcache(version=skelcl_version()):
     file = _versionfile(version)
-    # Load from file, else create empty data.
-    _cache[version] = json.load(open(file)) if exists(file) else {}
-    print("Read '{0}'...".format(file))
+    if exists(file):
+        data = json.load(open(file))
+        print("Read '{0}'...".format(file))
+    else:
+        data = {}
+
+    _cache[version] = data
+
 
 # Dump dirty cached data to disk.
 def _dumpdirty():
@@ -288,7 +293,7 @@ def times(prog, args=[], ebad=[-1]):
     if e:
         print("Died.")
         return ebad
-    
+
     r = parseruntimes(open(RUNLOG).readlines())
     return r if len(r) else ebad
 
@@ -367,16 +372,15 @@ def iterate(experiment):
                 record(prog, args, version=name, n=n, count=count)
 
 
+def settingspermutations(options):
+    vals = [x for x in options]
+    keys = product(*[options[x] for x in options])
+    return [dict(zip(vals, k)) for k in keys]
+
 def runexperiment(experiment):
-    def permutations(options):
-        vals = [x for x in options]
-        keys = product(*[options[x] for x in options])
-
-        return [dict(zip(vals, k)) for k in keys]
-
     basename = experiment['name']
 
-    for p in permutations(experiment['settings']):
+    for p in settingspermutations(experiment['settings']):
         experiment['pre-exec-hook'](p)
         experiment['name'] = "{0}-{1}".format(basename, "-".join([str(p[x]) for x in p]))
         experiment['settings-val'] = p
@@ -395,3 +399,6 @@ def json2arff(schema, data, relation="data", file=stdout):
     for d in data:
         dd = [str(x) for x in d]
         print(','.join(dd), file=file)
+
+    if file != stdout:
+        print("Wrote '{0}'...".format(file.name))
