@@ -332,6 +332,10 @@ def iterate(experiment):
     count = 0
 
     print("========================")
+    print("SETTINGS:")
+    for s in experiment['settings-val']:
+        print("    {0}: {1}".format(s, experiment['settings-val'][s]))
+    print()
     print("TOTAL PERMUTATIONS:", permcount)
     print("TOTAL ITERATIONS:  ", itercount)
     print("========================\n")
@@ -344,6 +348,21 @@ def iterate(experiment):
                 count += 1
                 record(prog, args, version=name, n=n, count=count)
 
+
+def runexperiment(experiment):
+    def permutations(options):
+        vals = [x for x in options]
+        keys = product(*[options[x] for x in options])
+
+        return [dict(zip(vals, k)) for k in keys]
+
+    basename = experiment['name']
+
+    for p in permutations(experiment['settings']):
+        experiment['pre-exec-hook'](p)
+        experiment['name'] = "{0}-{1}".format(basename, "-".join([str(p[x]) for x in p]))
+        experiment['settings-val'] = p
+        iterate(experiment)
 
 def json2arff(schema, data, relation="data", file=stdout):
     print("@RELATION {0}".format(relation), file=file)

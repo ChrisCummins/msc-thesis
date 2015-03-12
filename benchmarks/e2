@@ -11,43 +11,55 @@ from benchlib import *
 pow2range = [2 ** x for x in range(10, 14)]
 knobrange = [2 ** x for x in range(3, 7)]
 
-for c in knobrange:
-    for r in knobrange:
-        for s in knobrange:
+def pre_exec_hook(settings):
+    cd(CWD)
+    os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['c']))
+    os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['r']))
+    os.system("sed -r -i 's/(define KNOB_S) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['s']))
 
-            cd(CWD)
-            print("SETTING TUNABLE KNOBS [ C:", c, "R:", r, "S:", s, "]")
-            os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
-                      .format(c))
-            os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
-                      .format(r))
-            os.system("sed -r -i 's/(define KNOB_S) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
-                      .format(s))
+    os.system("sed -r -i 's/(define GENERIC_KNOB_C) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['c']))
+    os.system("sed -r -i 's/(define GENERIC_KNOB_R) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['r']))
+    os.system("sed -r -i 's/(define GENERIC_KNOB_S) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['s']))
 
-            os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')
+    os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')
 
-            experiment = {
-                'have_data': False,
-                'name': 'e2-{0}-{1}-{2}'.format(c, r, s),
-                'iterations': 10 - 1,
-                'progs': {
-                    'MatrixMultiply': [
-                        ['-i 10'],
-                        ['', '--generic-kernel'],
-                        ['--row_count_A {0}'.format(x) for x in pow2range],
-                        ['--col_count_A {0}'.format(x) for x in pow2range],
-                        ['--col_count_B {0}'.format(x) for x in pow2range]
-                    ]
-                }
-            }
+experiment = {
+    'have_data': False,
+    'name': 'e2',
+    'iterations': 10 - 1,
+    'settings': {
+        'c': knobrange,
+        'r': knobrange,
+        's': knobrange
+    },
+    'pre-exec-hook': pre_exec_hook,
+    'progs': {
+        'MatrixMultiply': [
+            ['-i 10'],
+            #['', '--generic-kernel'],
+            ['--row_count_A {0}'.format(x) for x in pow2range],
+            ['--col_count_A {0}'.format(x) for x in pow2range],
+            ['--col_count_B {0}'.format(x) for x in pow2range]
+        ]
+    }
+}
 
-            if ID() != "cec":
-                for prog in experiment['progs']:
-                    experiment['progs'][prog].append(['--device-type GPU'])
+if ID() != "cec":
+    for prog in experiment['progs']:
+        experiment['progs'][prog].append(['--device-type GPU'])
 
-            # GATHER DATA
-            if not experiment['have_data']:
-                iterate(experiment)
+runexperiment(experiment)
+exit(0)
+
+# GATHER DATA
+if not experiment['have_data']:
+    iterate(experiment)
 
 name = experiment['name']
 R = load(name)
