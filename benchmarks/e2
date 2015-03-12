@@ -6,6 +6,12 @@ from re import sub
 from sys import exit
 import os
 
+gui = True
+
+if gui:
+    import numpy as np
+    import matplotlib.pyplot as plt
+
 from benchlib import *
 
 pow2range = [2 ** x for x in range(10, 14)]
@@ -68,7 +74,21 @@ attributes = [
     ['col_count_b', 'NUMERIC'],
     ['time', 'NUMERIC']
 ]
-r = []
+r = {
+    'all': [],
+    '2048': [],
+    '4096': [],
+    '8192': []
+}
+
+rr = {}
+for i in pow2range:
+    rr[i] = {}
+    for j in pow2range:
+        rr[i][j] = {}
+        for k in pow2range:
+            rr[i][j][k] = []
+
 for settings in settingspermutations(experiment['settings']):
     name = "{0}-{1}".format(experiment['name'],
                             "-".join([str(settings[x]) for x in settings]))
@@ -87,11 +107,59 @@ for settings in settingspermutations(experiment['settings']):
             #speedup = baseline / mean(mm[args][id])
             speedup = mean(mm[args][id])
 
-            r.append([['CPU'] if id == "cec" else ['GPU'], # device-type
-                      settings['c'], settings['r'], settings['s'], # c/r/s knobs
-                      ra, ca, cb, # row/col counts
-                      speedup])
+            d = ['CPU' if id == "cec" else 'GPU', # device-type
+                 settings['c'], settings['r'], settings['s'], # c/r/s knobs
+                 ra, ca, cb, # row/col counts
+                 speedup]
 
-json2arff(attributes, r, relation="matrixmultiple",
-          file=open(path(RESULTSDIR, experiment['name'],
-                         'MatrixMultiply.arff'), 'w'))
+            r['all'].append(d)
+            if ra == 2048 and ca == 2048 and cb == 2048:
+                r['2048'].append(d)
+            if ra == 4096 and ca == 4096 and cb == 4096:
+                r['4096'].append(d)
+            if ra == 8192 and ca == 8192 and cb == 8192:
+                r['8192'].append(d)
+
+            if d[0] == "GPU":
+                rr[ra][ca][cb].append(d)
+
+if gui:
+    for i in rr:
+        for j in rr[i]:
+            for k in rr[i][j]:
+                params = [[x[1], x[2], x[3]] for x in rr[i][j][k]]
+                times = [x[-1] for x in rr[i][j][k]]
+
+                fig, ax = plt.subplots()
+                x = np.arange(len(times))
+                bars = ax.bar(x, times)
+
+                ax.set_xlabel('Parameter values for [C,R,S]')
+                ax.set_ylabel('Speedup')
+                ax.set_title('Matrix multiplication, size [{0}, {1}] x [{1}, {2}]'
+                             .format(i, j, k))
+                ax.set_xticklabels(['-'.join([str(x) for x in y]) for y in params])
+
+                img = path(RESULTSDIR, experiment['name'],
+                           'MatrixMultiply-{0}-{1}-{2}.png'.format(i, j, k))
+                plt.savefig(img)
+                print("Wrote '{0}'...".format(img))
+
+                plt.close()
+
+for x in ['2048', '4096', '8192']:
+    mintime = 2e32
+    mind = {}
+    for d in r[x]:
+        time = d[-1]
+        if time < mintime:
+            mintime = time
+            mind = d
+
+    print('FOR THIS SIZE, THE FASTEST C,R,S VALS:', mind)
+
+
+for x in sorted(r):
+    json2arff(attributes, r[x], relation="matrixmultiple",
+            file=open(path(RESULTSDIR, experiment['name'],
+                           'MatrixMultiply-{0}.arff'.format(x)), 'w'))
