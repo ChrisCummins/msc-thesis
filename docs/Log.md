@@ -4279,5 +4279,8 @@ TODO:
   stop execution every 1000 iterations and tune performance?
 
 
+## Thursday 12th
+
 Notes for next meeting with Hugh and Pavlos:
 * Poster presentation.
+* GPU
