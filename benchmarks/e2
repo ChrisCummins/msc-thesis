@@ -15,6 +15,7 @@ for c in knobrange:
     for r in knobrange:
         for s in knobrange:
 
+            cd(CWD)
             os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
                       .format(c))
             os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
@@ -22,9 +23,8 @@ for c in knobrange:
             os.system("sed -r -i 's/(define KNOB_S) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
                       .format(s))
 
+            os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')
 
-            os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')            
-            
             experiment = {
                 'have_data': False,
                 'name': 'e2-{0}-{1}-{2}'.format(c, r, s),
