@@ -1,0 +1,200 @@
+#!/usr/bin/env python2.7
+
+from __future__ import print_function
+from operator import itemgetter
+from re import sub
+from sys import exit
+from operator import mul
+import os
+
+gui = True
+
+if gui:
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+from benchlib import *
+
+sizerange = [2 ** x for x in range(11)]
+paramrange = [2 ** x for x in range(8, 10)]
+
+# The default parameter values.
+BASE = [32, 8, 16]
+BASESTRING = '-'.join([str(x) for x in BASE])
+
+def pre_exec_hook(settings):
+    cd(CWD)
+    os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['c']))
+    os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['r']))
+    os.system("sed -r -i 's/(define KNOB_S) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['s']))
+
+    os.system("sed -r -i 's/(define GENERIC_KNOB_C) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['c']))
+    os.system("sed -r -i 's/(define GENERIC_KNOB_R) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['r']))
+    os.system("sed -r -i 's/(define GENERIC_KNOB_S) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
+              .format(settings['s']))
+
+    os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')
+
+experiment = {
+    'have_data': False,
+    'name': 'e2',
+    'iterations': 10 - 1,
+    'settings': {
+        'c': paramrange,
+        'r': paramrange,
+        's': paramrange
+    },
+    'pre-exec-hook': pre_exec_hook,
+    'progs': {
+        'MatrixMultiply': [
+            ['-i 10'],
+            #['', '--generic-kernel'],
+            ['--row_count_A {0}'.format(x) for x in sizerange],
+            ['--col_count_A {0}'.format(x) for x in sizerange],
+            ['--col_count_B {0}'.format(x) for x in sizerange]
+        ]
+    }
+}
+
+if ID() != "cec":
+    for prog in experiment['progs']:
+        experiment['progs'][prog].append(['--device-type GPU'])
+
+# GATHER DATA
+if not experiment['have_data']:
+    runexperiment(experiment)
+
+attributes = [
+    ['device_type', '{CPU,GPU}'],
+    ['c', 'NUMERIC'],
+    ['r', 'NUMERIC'],
+    ['s', 'NUMERIC'],
+    ['row_count_a', 'NUMERIC'],
+    ['col_count_a', 'NUMERIC'],
+    ['col_count_b', 'NUMERIC'],
+    ['speedup', 'NUMERIC']
+]
+r = {
+    'all': [],
+    '2048': [],
+    '4096': [],
+    '8192': []
+}
+
+rr = {}
+for i in sizerange:
+    rr[i] = {}
+    for j in sizerange:
+        rr[i][j] = {}
+        for k in sizerange:
+            rr[i][j][k] = []
+
+for settings in settingspermutations(experiment['settings']):
+    name = "{0}-{1}".format(experiment['name'],
+                            "-".join([str(settings[x]) for x in settings]))
+    R = load(name)
+    if not R:
+        continue
+
+    mm = R['MatrixMultiply']
+
+    for args in mm:
+        for id in mm[args]:
+            ra = int(search('--row_count_A ([0-9]+)', args).group(1))
+            ca = int(search('--col_count_A ([0-9]+)', args).group(1))
+            cb = int(search('--col_count_B ([0-9]+)', args).group(1))
+            baseline = mean(results('MatrixMultiply', args, id=id,
+                                    version="e2-{0}".format(BASESTRING)))
+            times = mm[args][id]
+            speedups = [float(baseline) / float(x) for x in times]
+            err = confinterval(speedups)[1] - mean(speedups)
+
+            speedup = mean(speedups)
+
+            if not baseline:
+                print("ERROR: no baseline found for {0}!"
+                      .format('-'.join([str(x) for x in [ra, ca, cb]])))
+
+            d = ['CPU' if id == "cec" else 'GPU', # device-type
+                 settings['c'], settings['r'], settings['s'], # c/r/s knobs
+                 ra, ca, cb, # row/col counts
+                 speedup]
+
+            r['all'].append(d)
+            if ra == 2048 and ca == 2048 and cb == 2048:
+                r['2048'].append(d)
+            if ra == 4096 and ca == 4096 and cb == 4096:
+                r['4096'].append(d)
+            if ra == 8192 and ca == 8192 and cb == 8192:
+                r['8192'].append(d)
+
+            if d[0] == "GPU":
+                rr[ra][ca][cb].append(d + [err])
+
+if gui:
+    for i in rr:
+        for j in rr[i]:
+            for k in rr[i][j]:
+                params, speedups, errs = zip(*[([x[1], x[2], x[3]], x[-2], x[-1])
+                                               for x in rr[i][j][k]])
+                # BELOW: SORT BY TOTAL MEMORY ALLOCATED:
+                # params, speedups = zip(*sorted([([x[1], x[2], x[3]], x[-2])
+                #                                 for x in rr[i][j][k]],
+                #                                key=lambda z: reduce(mul, z[0], 1)))
+
+                fig, ax = plt.subplots()
+                xvals = range(len(speedups))
+                bars = ax.bar(xvals, speedups, yerr=errs, ecolor='k')
+
+                # FIXME: why the fuck is this offset necessary?
+                MAGICOFFSET = 4
+                defaultindex = params.index(BASE) + MAGICOFFSET
+                greenindexes = [ii + MAGICOFFSET
+                                for ii,v in enumerate(speedups) if v > 1.0]
+
+                # Colour the default value red, and the speedup > 1
+                # values green.
+                for g in greenindexes:
+                    ax.get_children()[g].set_color('g')
+                ax.get_children()[defaultindex].set_color('r')
+
+                ax.set_xlabel('Parameter values for [C,R,S]')
+                ax.set_ylabel('Speedup')
+                ax.set_title('Matrix multiplication, size [{0}, {1}] x [{1}, {2}]'
+                             .format(i, j, k))
+                ax.set_xticks(xvals)
+                ax.set_xticklabels(['-'.join([str(x) for x in y]) for y in params],
+                                   rotation=90, ha='left')
+                ax.get_xaxis().set_tick_params(labelsize=6)
+                ax.axhline(y=1)
+
+                img = path(RESULTSDIR, experiment['name'],
+                           'MatrixMultiply-{0}-{1}-{2}.png'.format(i, j, k))
+
+                plt.gcf().subplots_adjust(bottom=0.15)
+                plt.savefig(img)
+                print("Wrote '{0}'...".format(img))
+
+                plt.close()
+
+for x in ['2048', '4096', '8192']:
+    maxspeedup = 0
+    maxd = {}
+    for d in r[x]:
+        speedup = d[-1]
+        if speedup > maxspeedup:
+            maxspeedup = speedup
+            maxd = d
+
+    print('FOR THIS SIZE, THE FASTEST C,R,S VALS:', maxd)
+
+
+for x in sorted(r):
+    json2arff(attributes, r[x], relation="matrixmultiple",
+            file=open(path(RESULTSDIR, experiment['name'],
+                           'MatrixMultiply-{0}.arff'.format(x)), 'w'))
