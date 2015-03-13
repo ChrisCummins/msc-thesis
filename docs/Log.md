@@ -4284,3 +4284,15 @@ TODO:
 Notes for next meeting with Hugh and Pavlos:
 * Poster presentation.
 * GPU
+
+## Friday 13th
+
+Notes from meeting with Hugh and Pavlos:
+* Organise another meeting with Michel to focus not on low hanging
+  fruit, but to creatively approach tuning Stencils.
+* Extend the max parameter values of the `e2`, and focus on a fixed
+  input size.
+* Spec some testing hardware:
+  * Spec up a rack of 5 machines.
+  * Ideally, use the same mobo/CPU for each, just change the GPU(s).
+* Hugh is away for the next 2 weeks.
