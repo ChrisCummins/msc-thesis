@@ -297,15 +297,17 @@ def times(prog, args=[], ebad=[-1]):
     r = parseruntimes(open(RUNLOG).readlines())
     return r if len(r) else ebad
 
-# Lookup results for "prog" with "args" on "id" under "version".
+# Lookup results for "prog" with "args" (where "args" is either a
+# concatenated string or a list) on "id" under "version".
 def results(prog, args, id=ID(), version=skelcl_version()):
     R = load(version)
-    options = ' '.join(args)
+    if not isinstance(args, basestring):
+        args = ' '.join(args)
 
     if prog in R:
-        if options in R[prog]:
-            if id in R[prog][options]:
-                return R[prog][options][id]
+        if args in R[prog]:
+            if id in R[prog][args]:
+                return R[prog][args][id]
     return []
 
 # Record the runtimes of "prog" using "args", under experiment
