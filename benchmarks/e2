@@ -4,6 +4,7 @@ from __future__ import print_function
 from operator import itemgetter
 from re import sub
 from sys import exit
+from operator import mul
 import os
 
 gui = True
@@ -14,8 +15,12 @@ if gui:
 
 from benchlib import *
 
-pow2range = [2 ** x for x in range(10, 14)]
-knobrange = [2 ** x for x in range(3, 7)]
+sizerange = [2 ** x for x in range(10, 14)]
+paramrange = [2 ** x for x in range(3, 7)]
+
+# The default parameter values.
+BASE = [32, 8, 16]
+BASESTRING = '-'.join([str(x) for x in BASE])
 
 def pre_exec_hook(settings):
     cd(CWD)
@@ -40,18 +45,18 @@ experiment = {
     'name': 'e2',
     'iterations': 10 - 1,
     'settings': {
-        'c': knobrange,
-        'r': knobrange,
-        's': knobrange
+        'c': paramrange,
+        'r': paramrange,
+        's': paramrange
     },
     'pre-exec-hook': pre_exec_hook,
     'progs': {
         'MatrixMultiply': [
             ['-i 10'],
             #['', '--generic-kernel'],
-            ['--row_count_A {0}'.format(x) for x in pow2range],
-            ['--col_count_A {0}'.format(x) for x in pow2range],
-            ['--col_count_B {0}'.format(x) for x in pow2range]
+            ['--row_count_A {0}'.format(x) for x in sizerange],
+            ['--col_count_A {0}'.format(x) for x in sizerange],
+            ['--col_count_B {0}'.format(x) for x in sizerange]
         ]
     }
 }
@@ -72,7 +77,7 @@ attributes = [
     ['row_count_a', 'NUMERIC'],
     ['col_count_a', 'NUMERIC'],
     ['col_count_b', 'NUMERIC'],
-    ['time', 'NUMERIC']
+    ['speedup', 'NUMERIC']
 ]
 r = {
     'all': [],
@@ -82,11 +87,11 @@ r = {
 }
 
 rr = {}
-for i in pow2range:
+for i in sizerange:
     rr[i] = {}
-    for j in pow2range:
+    for j in sizerange:
         rr[i][j] = {}
-        for k in pow2range:
+        for k in sizerange:
             rr[i][j][k] = []
 
 for settings in settingspermutations(experiment['settings']):
@@ -103,9 +108,17 @@ for settings in settingspermutations(experiment['settings']):
             ra = int(search('--row_count_A ([0-9]+)', args).group(1))
             ca = int(search('--col_count_A ([0-9]+)', args).group(1))
             cb = int(search('--col_count_B ([0-9]+)', args).group(1))
-            #baseline = mean(load("{0}-32-8-16".format(experiment['name']))[args][id])
-            #speedup = baseline / mean(mm[args][id])
-            speedup = mean(mm[args][id])
+            baseline = mean(results('MatrixMultiply', args, id=id,
+                                    version="e2-{0}".format(BASESTRING)))
+            times = mm[args][id]
+            speedups = [float(baseline) / float(x) for x in times]
+            err = confinterval(speedups)[1] - mean(speedups)
+
+            speedup = mean(speedups)
+
+            if not baseline:
+                print("ERROR: no baseline found for {0}!"
+                      .format('-'.join([str(x) for x in [ra, ca, cb]])))
 
             d = ['CPU' if id == "cec" else 'GPU', # device-type
                  settings['c'], settings['r'], settings['s'], # c/r/s knobs
@@ -121,42 +134,64 @@ for settings in settingspermutations(experiment['settings']):
                 r['8192'].append(d)
 
             if d[0] == "GPU":
-                rr[ra][ca][cb].append(d)
+                rr[ra][ca][cb].append(d + [err])
 
 if gui:
     for i in rr:
         for j in rr[i]:
             for k in rr[i][j]:
-                params = [[x[1], x[2], x[3]] for x in rr[i][j][k]]
-                times = [x[-1] for x in rr[i][j][k]]
+                params, speedups, errs = zip(*[([x[1], x[2], x[3]], x[-2], x[-1])
+                                               for x in rr[i][j][k]])
+                # BELOW: SORT BY TOTAL MEMORY ALLOCATED:
+                # params, speedups = zip(*sorted([([x[1], x[2], x[3]], x[-2])
+                #                                 for x in rr[i][j][k]],
+                #                                key=lambda z: reduce(mul, z[0], 1)))
 
                 fig, ax = plt.subplots()
-                x = np.arange(len(times))
-                bars = ax.bar(x, times)
+                xvals = range(len(speedups))
+                bars = ax.bar(xvals, speedups, yerr=errs, ecolor='k')
+
+                # FIXME: why the fuck is this offset necessary?
+                MAGICOFFSET = 4
+                defaultindex = params.index(BASE) + MAGICOFFSET
+                greenindexes = [ii + MAGICOFFSET
+                                for ii,v in enumerate(speedups) if v > 1.0]
+
+                # Colour the default value red, and the speedup > 1
+                # values green.
+                for g in greenindexes:
+                    ax.get_children()[g].set_color('g')
+                ax.get_children()[defaultindex].set_color('r')
 
                 ax.set_xlabel('Parameter values for [C,R,S]')
                 ax.set_ylabel('Speedup')
                 ax.set_title('Matrix multiplication, size [{0}, {1}] x [{1}, {2}]'
                              .format(i, j, k))
-                ax.set_xticklabels(['-'.join([str(x) for x in y]) for y in params])
+                ax.set_xticks(xvals)
+                ax.set_xticklabels(['-'.join([str(x) for x in y]) for y in params],
+                                   rotation=90, ha='left')
+                ax.get_xaxis().set_tick_params(labelsize=6)
+                ax.axhline(y=1)
 
                 img = path(RESULTSDIR, experiment['name'],
                            'MatrixMultiply-{0}-{1}-{2}.png'.format(i, j, k))
+
+                plt.gcf().subplots_adjust(bottom=0.15)
                 plt.savefig(img)
                 print("Wrote '{0}'...".format(img))
 
                 plt.close()
 
 for x in ['2048', '4096', '8192']:
-    mintime = 2e32
-    mind = {}
+    maxspeedup = 0
+    maxd = {}
     for d in r[x]:
-        time = d[-1]
-        if time < mintime:
-            mintime = time
-            mind = d
+        speedup = d[-1]
+        if speedup > maxspeedup:
+            maxspeedup = speedup
+            maxd = d
 
-    print('FOR THIS SIZE, THE FASTEST C,R,S VALS:', mind)
+    print('FOR THIS SIZE, THE FASTEST C,R,S VALS:', maxd)
 
 
 for x in sorted(r):
