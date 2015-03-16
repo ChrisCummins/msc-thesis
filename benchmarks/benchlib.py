@@ -310,7 +310,8 @@ def parseruntimes(output):
 def times(prog, args=[], ebad=[-1]):
     e = runprog(prog, args, log=open(RUNLOG, 'w'))
     if e:
-        print("Died.")
+        print("Died, with output:")
+        [print(x.rstrip()) for x in open(RUNLOG).readlines()]
         return ebad
 
     r = parseruntimes(open(RUNLOG).readlines())
