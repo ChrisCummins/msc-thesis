@@ -4302,3 +4302,23 @@ Notes from meeting with Hugh and Pavlos:
 
 TODO:
 * Run `e3` on Pavlos' server.
+
+
+## Tuesday 17th
+
+Call graphs:
+
+* Directed graphs that show relationships between subroutines in a
+  program.
+* Each vertex represents a procedure. Each edge (f, g) indicates that
+  procedure f calls procedure g.
+* A cycle in a graph indicates recursive procedure calls.
+* A *dynamic* call graph is a record of an execution of a program. A
+  static call graph represents every possible run of a program.
+* For languages with dynamic dispatch, computing the static call graph
+  requires accurate alias analysis results.
+
+TODO:
+* Organise meeting with Michel.
+* Request external SSH access to cec.
+* Read up on Unimodular and Polyhedral transformation frameworks.

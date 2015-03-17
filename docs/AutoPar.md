@@ -1,3 +1,50 @@
+# Notes
+
+Approaches to automatic parallelisation:
+
+* Parallelising nested loops:
+  * Transforms and restructures nest loop code for parallel execution.
+  * Relies on accurate dependence analysis to inform the compiler of
+    the legal code transformations. This is a complex problem.
+    * In many cases, dependencies cannot be accurately determined
+      until run-time, leading to over-conservative dependence
+      relations. Approaches to this problem include:
+      * Performing dependence analysis dynamically at runtime,
+        e.g. through speculative parallelisation.
+      * Requiring the programmer to give "hints" to the compiler by
+        annotating their source programs. Bad due to extra effort for
+        the programmer and bit-rot of annotations. Straddles the
+        border of "automatic" parallelisation, in the case of
+        something like OpenMP.
+      * Designing languages and frameworks which minimise static
+        uncertainty about dependencies. E.g. stricter programming
+        languages, Algorithmic Skeletons. See next section.
+    * Assuming accurate dependence information, the next problem is
+      identifying from the set of possible transformations those that
+      will provide legal parallelised code. Approaches to this problem
+      include:
+      * Using a transformation framework (e.g. unimodular, polyhedral)
+        to reason about legal transformations in a purely mathematical
+        way. XXX: What are these frameworks, and how do they work?
+    * Similar to the previous problem, there is also the challenge of
+      identifying the set of transformations provide the greatest
+      performance profit. Another tough problem, as the space of
+      transformations is often huge, and the best sequence of
+      transformations may not be in any way obvious. Approaches to
+      this problem include:
+      * Selecting transformations based on empirical performance data
+        (e.g. iterative compilation, auto-tuning). Big topic, with
+        many approaches to searching the space, reducing
+        dimensionality, using ML to build predictive models, etc.
+      * Using analytic models to calculate cost/benefit ratio for
+        transformations. Often hard to do for arbitrary input
+        programs. Can be combined with empirical data + ML (see
+        above).
+* Speculative parallelisation
+  * XXX:
+* Skeletal programming
+  * XXX:
+
 # Reading list
 
 ##### Pre 1980
