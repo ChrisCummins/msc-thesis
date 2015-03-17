@@ -41,7 +41,7 @@ def pre_exec_hook(settings):
     os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')
 
 experiment = {
-    'have_data': True,
+    'have_data': False,
     'name': EXPERIMENT_NAME,
     'iterations': 10 - 1,
     'settings': {
@@ -118,7 +118,7 @@ if gui:
     for prog in rr:
         # Plot results for each of the tunable knob values.
         params, sizes, speedups, errs, args = zip(*[([x[1]], x[2], x[-3], x[-2], x[-1])
-                                             for x in rr[prog]])
+                                                    for x in rr[prog]])
         fig, ax = plt.subplots()
         xvals = range(len(speedups))
         bars = ax.bar(xvals, speedups, yerr=errs, ecolor='k')
