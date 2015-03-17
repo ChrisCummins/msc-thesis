@@ -10,6 +10,7 @@ from operator import itemgetter
 from re import sub
 from sys import exit
 from operator import mul
+from time import sleep
 import os
 
 EXPERIMENT_NAME = os.path.basename(__file__)
@@ -39,6 +40,7 @@ def pre_exec_hook(settings):
     # Build benchmarks.
     os.system('make -C ../skelcl/build/examples/DotProduct &>/dev/null')
     os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')
+    sleep(15)
 
 experiment = {
     'have_data': False,
