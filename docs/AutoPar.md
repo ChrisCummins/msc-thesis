@@ -2,7 +2,7 @@
 
 Approaches to automatic parallelisation:
 
-* Parallelising nested loops:
+* Loop nest parallelisation:
   * Transforms and restructures nest loop code for parallel execution.
   * Relies on accurate dependence analysis to inform the compiler of
     the legal code transformations. This is a complex problem.

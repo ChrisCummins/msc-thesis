@@ -4318,6 +4318,25 @@ Call graphs:
 * For languages with dynamic dispatch, computing the static call graph
   requires accurate alias analysis results.
 
+Affine transformation:
+
+* Any transformation that preserves collinearity, where collinearity
+  means that for any set of points P1..Pn, n>=2, there exists a single
+  straight line L which passes through each point.
+* Examples: rotation, expansion, reflection, translation.
+
+Polytope:
+
+* An *n* dimensional geometric object with flat sides.
+
+Polyhedral model:
+
+* A mathematical framework for loop nest optimisation which treats
+  each loop iteration within nested loops as lattice points inside
+  polytopes.
+* Affine or non-affine transformations (e.g. tiling) are applied to
+  these polytopes.
+
 TODO:
 * Organise meeting with Michel.
 * Request external SSH access to cec.

@@ -15,3 +15,8 @@
    optimizer. Proceedings of the 2008 ACM SIGPLAN Conference on
    Programming Language Design and Implementation - PLDI
    ’08, 101. doi:10.1145/1375581.1375595
+1. S. Ryoo, C. I. Rodrigues, S. S. Baghsorkhi, S. S. Stone,
+   D. B. Kirk, and W. W. Hwu, “Optimization principles and application
+   performance evaluation of a multithreaded GPU using CUDA,”
+   Proc. 13th ACM SIGPLAN Symp. Princ. Pract. parallel Program. -
+   PPoPP ’08, p. 73, 2008.
