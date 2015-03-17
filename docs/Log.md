@@ -4296,3 +4296,9 @@ Notes from meeting with Hugh and Pavlos:
   * Spec up a rack of 5 machines.
   * Ideally, use the same mobo/CPU for each, just change the GPU(s).
 * Hugh is away for the next 2 weeks.
+
+
+## Monday 16th
+
+TODO:
+* Run `e3` on Pavlos' server.
