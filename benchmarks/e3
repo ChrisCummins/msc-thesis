@@ -23,7 +23,7 @@ if gui:
 from benchlib import *
 
 # List of machines with GPUs installed.
-GPU_IDS = ["dhcp-90-060"]
+GPU_IDS = ["dhcp-90-060"]`
 
 # The default parameter values.
 BASE = [8192]
@@ -43,10 +43,10 @@ def pre_exec_hook(settings):
 experiment = {
     'have_data': False,
     'name': EXPERIMENT_NAME,
-    'iterations': 10 - 1,
+    'iterations': 20,
     'settings': {
          # Reduce kernel global size:
-        'gs': [512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288]
+        'gs': [512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576]
     },
     'pre-exec-hook': pre_exec_hook,
     'progs': {
