@@ -131,8 +131,9 @@ for prog in experiment['progs']:
             for id in R[prog][args]:
                 allids.add(id)
                 baseline = mean(results(prog, args, id=id,
-                                        version="-".join((experiment['name'],
-                                                          BASESTRING))))
+                                        version="-".join([experiment['name'],
+                                                          BASESTRING])))
+
                 if not baseline:
                     print("ERROR: no baseline found for {0}!"
                           .format('-'.join([prog, args, id, '-'.join([str(settings[x]) for x in settings])])))
@@ -141,9 +142,9 @@ for prog in experiment['progs']:
                 times = R[prog][args][id]
 
                 # Derived speedups.
-                speedups = [float(baseline) / float(x) for x in times]
+                speedups = [baseline / float(x) for x in times]
                 # Derive mean and error from CI for speedups.
-                speedup = mean(speedups)
+                speedup = mean(speedups)#baseline / mean(times)
                 err = confinterval(speedups)[1] - speedup
 
                 dvars = {
