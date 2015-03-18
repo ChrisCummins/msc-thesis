@@ -4341,3 +4341,61 @@ TODO:
 * Organise meeting with Michel.
 * Request external SSH access to cec.
 * Read up on Unimodular and Polyhedral transformation frameworks.
+
+## Wednesday 18th
+
+* Cell microprocessor:
+  * A multi-core microprocessor which combines a general purpose core
+    with several coprocessing elements for vector processing and other
+    purposes.
+  * Developed by Sony and used in the PS3.
+  * Has an explicitly managed memory hierarchy.
+  * Heterogeneous parallelism.
+
+Types of cache misses:
+* Compulsory misses: aka cold misses. Caused by the first reference to
+  a location in memory that has not been requested before. Unaffected
+  by cache size and associativity. Can be helped by prefetching and
+  increasing the cache block sizes (essentially prefetching).
+* Capacity misses: Caused by the finite size of the cache, and
+  regardless of associativity or block size. The miss rate can give an
+  indication of temporal locality of a particular reference stream.
+* Conflict misses: Caused by a request for an entry that the cache has
+  previously evicted.
+
+Auto-tuning stencil operations for GPGPUs:
+* What has been done:
+  * S. Kamil, C. Chan, L. Oliker, J. Shall, and S. Williams, “An
+    auto-tuning framework for parallel multicore stencil
+    computations,” Proc. 2010 IEEE Int. Symp. Parallel
+    Distrib. Process. IPDPS 2010, 2010.
+    * An auto-tuner which accepts as input a Fortran 95 stencil
+      expression, and generates parallel implementations in Fortran,
+      C, or CUDA. Targets memory bound stencil operations using 3 FDTD
+      kernels, tested on 4 different architectures.
+    * Does not cover performance portability across different GPUs.
+    * The CUDA code generator only uses global memory (!). No
+      exploitation of temporal locality.
+    * Their "strategy engines" do not perform a directed search. They
+      just enumerate a subset of the optimisation space, compile and
+      run each option *once*, and then report the lowest time. No
+      statistical certainty, no directed search.
+  * L. Berkeley, K. Datta, M. Murphy, V. Volkov, S. Williams, and
+    J. Carter, “Stencil computation optimization and auto-tuning on
+    state-of-the-art multicore architectures,” in Proceedings of the
+    2008 ACM/IEEE conference on Supercomputing, 2008, p. 4.
+    * An application-specific auto-tuner for 3D stencil
+      problems.
+    * Problems are decomposed into core blocks, sufficiently small to
+      avoid last level cache capacity misses. These are then
+      decomposed to thread blocks, designed to exploit common locality
+      threads may have within a shared cache or loca lmemory. Thread
+      blocks are then decomposed to register blocks, designed to take
+      advantage of data level parallelism provided by available
+      registers. Data allocation is optimised on NUMA systems.
+    * The performance evaluation considers speedups of various
+      optimisations with and without consideration for host/device
+      transfer overhead.
+
+The SkelCL Stencil Skeleton:
+* How it works:
