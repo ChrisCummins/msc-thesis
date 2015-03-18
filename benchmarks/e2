@@ -38,12 +38,12 @@ def pre_exec_hook(settings):
     os.system("sed -r -i 's/(define GENERIC_KNOB_S) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/AllPairsDef.h"
               .format(settings['s']))
 
-    os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')
+    os.system('make -C ../skelcl/build/examples/MatrixMultiply')
 
 experiment = {
-    'have_data': True,
+    'have_data': False,
     'name': 'e2',
-    'iterations': 10 - 1,
+    'iterations': 30,
     'settings': {
         'c': paramrange,
         'r': paramrange,
@@ -53,10 +53,9 @@ experiment = {
     'progs': {
         'MatrixMultiply': [
             ['-i 10'],
-            #['', '--generic-kernel'],
-            ['--row_count_A {0}'.format(x) for x in sizerange],
-            ['--col_count_A {0}'.format(x) for x in sizerange],
-            ['--col_count_B {0}'.format(x) for x in sizerange]
+            ['--row_count_A 1024 --col_count_A 1024 --col_count_B 1024',
+             '--row_count_A 2048 --col_count_A 2048 --col_count_B 2048',
+             '--row_count_A 4096 --col_count_A 2048 --col_count_B 4096']
         ]
     }
 }
