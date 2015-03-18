@@ -69,132 +69,148 @@ if ID() != "cec":
 if not experiment['have_data']:
     runexperiment(experiment)
 
-attributes = [
-    ['device_type', '{CPU,GPU}'],
-    ['c', 'NUMERIC'],
-    ['r', 'NUMERIC'],
-    ['s', 'NUMERIC'],
-    ['row_count_a', 'NUMERIC'],
-    ['col_count_a', 'NUMERIC'],
-    ['col_count_b', 'NUMERIC'],
-    ['speedup', 'NUMERIC']
-]
-r = {
-    'all': [],
-    '2048': [],
-    '4096': [],
-    '8192': []
-}
+class Result:
+    def __init__(self, program, arguments, id, settings, dvars):
+        self.program = program
+        self.arguments = arguments
+        self.id = id
+        self.settings = settings
+        self.dvars = dvars
 
-rr = {}
-for i in sizerange:
-    rr[i] = {}
-    for j in sizerange:
-        rr[i][j] = {}
-        for k in sizerange:
-            rr[i][j][k] = []
+    def __repr__(self):
+        return ("{program} {arguments}, {id}, {settings}, {dvars}."
+                .format(program=self.program,
+                        arguments=self.arguments,
+                        id=id,
+                        settings="{{{0}}}".format(', '.join(
+                            ['{key}: {val}'.format(key=x, val=self.settings[x]) for x in self.settings])),
+                        dvars="{{{0}}}".format(', '.join(
+                            ['{key}: {val}'.format(key=x, val=self.dvars[x]) for x in self.dvars]))))
 
-for settings in settingspermutations(experiment['settings']):
-    name = "{0}-{1}".format(experiment['name'],
-                            "-".join([str(settings[x]) for x in settings]))
-    R = load(name)
-    if not R:
-        continue
+# Gather all results.
+globalresults = []
+allids = set()
+allargs = {}
+for prog in experiment['progs']:
+    allargs[prog] = set()
+    for settings in settingspermutations(experiment['settings']):
+        name = "-".join([experiment['name']] + [str(settings[x]) for x in settings])
+        R = load(name)
+        if not R: # Skip ahead if we haven't collected results yet.
+            print("Skipping", name)
+            continue
 
-    mm = R['MatrixMultiply']
+        for args in R[prog]:
+            allargs[prog].add(args)
+            for id in R[prog][args]:
+                allids.add(id)
+                baseline = mean(results(prog, args, id=id,
+                                        version="-".join([experiment['name'],
+                                                          BASESTRING])))
 
-    for args in mm:
-        for id in mm[args]:
-            ra = int(search('--row_count_A ([0-9]+)', args).group(1))
-            ca = int(search('--col_count_A ([0-9]+)', args).group(1))
-            cb = int(search('--col_count_B ([0-9]+)', args).group(1))
-            baseline = mean(results('MatrixMultiply', args, id=id,
-                                    version="e2-{0}".format(BASESTRING)))
-            times = mm[args][id]
-            speedups = [float(baseline) / float(x) for x in times]
-            err = confinterval(speedups)[1] - mean(speedups)
+                if not baseline:
+                    print("ERROR: no baseline found for {0}!"
+                          .format('-'.join([prog, args, id, '-'.join([str(settings[x]) for x in settings])])))
 
-            speedup = mean(speedups)
+                # Dependent variables.
+                times = R[prog][args][id]
 
-            if not baseline:
-                print("ERROR: no baseline found for {0}!"
-                      .format('-'.join([str(x) for x in [ra, ca, cb]])))
+                # Derived speedups.
+                speedups = [baseline / float(x) for x in times]
+                # Derive mean and error from CI for speedups.
+                speedup = mean(speedups)#baseline / mean(times)
+                err = confinterval(speedups)[1] - speedup
 
-            d = ['CPU' if id == "cec" else 'GPU', # device-type
-                 settings['c'], settings['r'], settings['s'], # c/r/s knobs
-                 ra, ca, cb, # row/col counts
-                 speedup]
+                dvars = {
+                    'row-count-A': int(search('--row_count_A ([0-9]+)', args).group(1)),
+                    'col-count-A': int(search('--col_count_A ([0-9]+)', args).group(1)),
+                    'col-count-B': int(search('--col_count_B ([0-9]+)', args).group(1)),
+                    'times': times,
+                    'speedup': speedup,
+                    'err': err
+                }
 
-            r['all'].append(d)
-            if ra == 2048 and ca == 2048 and cb == 2048:
-                r['2048'].append(d)
-            if ra == 4096 and ca == 4096 and cb == 4096:
-                r['4096'].append(d)
-            if ra == 8192 and ca == 8192 and cb == 8192:
-                r['8192'].append(d)
+                r = Result(prog, args, id, settings, dvars)
+                globalresults.append(r)
 
-            if d[0] == "GPU":
-                rr[ra][ca][cb].append(d + [err])
+if not gui:
+    print("Finished collecting results.")
+    exit(0)
 
-if gui:
-    for i in rr:
-        for j in rr[i]:
-            for k in rr[i][j]:
-                params, speedups, errs = zip(*[([x[1], x[2], x[3]], x[-2], x[-1])
-                                               for x in rr[i][j][k]])
-                # BELOW: SORT BY TOTAL MEMORY ALLOCATED:
-                # params, speedups = zip(*sorted([([x[1], x[2], x[3]], x[-2])
-                #                                 for x in rr[i][j][k]],
-                #                                key=lambda z: reduce(mul, z[0], 1)))
+# Generate graphs.
+for prog in experiment['progs']:
+    for args in allargs[prog]:
+        for id in allids:
+            # Filter reulsts for graph.
+            rresults = [x for x in globalresults if
+                        x.program == prog and
+                        x.arguments == args and
+                        x.id == id]
 
-                fig, ax = plt.subplots()
-                xvals = range(len(speedups))
-                bars = ax.bar(xvals, speedups, yerr=errs, ecolor='k')
+            size = [
+                rresults[0].dvars['row-count-A'],
+                rresults[0].dvars['col-count-A'],
+                rresults[0].dvars['col-count-B']
+            ]
+            
+            xvals               = range(len(rresults))
+            yvals               = [x.dvars['speedup']     for x in rresults]
+            yerrs               = [x.dvars['err']         for x in rresults]
+            labels              = ['-'.join([str(x.settings[j]) for j in x.settings]) for x in rresults]
+            meanruntime    = mean([mean(x.dvars['times']) for x in rresults])
+            meaniterations = mean([len(x.dvars['times'])  for x in rresults])
 
-                # FIXME: why the fuck is this offset necessary?
-                MAGICOFFSET = 4
-                defaultindex = params.index(BASE) + MAGICOFFSET
-                greenindexes = [ii + MAGICOFFSET
-                                for ii,v in enumerate(speedups) if v > 1.0]
+            title = ("{program}: [{i}, {j}] x [{j} {k}] elements, {id}"
+                     .format(program=rresults[0].program,
+                             i=size[0],
+                             j=size[1],
+                             k=size[2],
+                             id=rresults[0].id))
 
-                # Colour the default value red, and the speedup > 1
-                # values green.
-                for g in greenindexes:
-                    ax.get_children()[g].set_color('g')
-                ax.get_children()[defaultindex].set_color('r')
+            # File name and path.
+            name = ("{program}-{size}-{id}.png"
+                     .format(program=rresults[0].program,
+                             size='-'.join([str(x) for x in size]),
+                             id=rresults[0].id))
+            imgpath = path(RESULTSDIR, experiment['name'], name)
 
-                ax.set_xlabel('Parameter values for [C,R,S]')
-                ax.set_ylabel('Speedup')
-                ax.set_title('Matrix multiplication, size [{0}, {1}] x [{1}, {2}]'
-                             .format(i, j, k))
-                ax.set_xticks(xvals)
-                ax.set_xticklabels(['-'.join([str(x) for x in y]) for y in params],
-                                   rotation=90, ha='left')
-                ax.get_xaxis().set_tick_params(labelsize=6)
-                ax.axhline(y=1)
+            # Create plot.
+            fig, ax = plt.subplots()
+            bars = ax.bar(xvals, yvals, yerr=yerrs, ecolor='k')
 
-                img = path(RESULTSDIR, experiment['name'],
-                           'MatrixMultiply-{0}-{1}-{2}.png'.format(i, j, k))
+            # FIXME: why the fuck is this offset necessary?
+            MAGICOFFSET = 4
+            defaultindex = rresults.index([x for x in rresults if
+                                           '-'.join([str(x.settings[i])
+                                                     for i in x.settings])
+                                           == BASESTRING][0]) + MAGICOFFSET
+            greenindexes = [x + MAGICOFFSET
+                            for x,v in enumerate(rresults) if v.dvars['speedup'] > 1.0]
 
-                plt.gcf().subplots_adjust(bottom=0.15)
-                plt.savefig(img)
-                print("Wrote '{0}'...".format(img))
+            # Colour the default value red, and the speedup > 1 values
+            # green.
+            for g in greenindexes:
+                ax.get_children()[g].set_color('g')
+            ax.get_children()[defaultindex].set_color('r')
 
-                plt.close()
+            ax.set_xlabel('Parameter values for [C,R,S]')
 
-for x in ['2048', '4096', '8192']:
-    maxspeedup = 0
-    maxd = {}
-    for d in r[x]:
-        speedup = d[-1]
-        if speedup > maxspeedup:
-            maxspeedup = speedup
-            maxd = d
+            plt.gca().set_position((.1, .2, .85, .7)) # to make a bit of room for extra text
 
-    print('FOR THIS SIZE, THE FASTEST C,R,S VALS:', maxd)
+            plt.figtext(.02, .02,
+                        ("Avg. {i:.1f} iterations, with 95% confidence intervals. "
+                         "Avg. {t:.2f} ms execution time."
+                         .format(i=meaniterations, t=meanruntime)))
 
+            ax.set_ylabel('Speedup')
+            ax.set_title(title)
+            ax.set_xticks(xvals)
+            ax.set_xticklabels(labels, rotation=90, ha='left')
+            ax.get_xaxis().set_tick_params(labelsize=6)
+            ax.axhline(y=1)
 
-for x in sorted(r):
-    json2arff(attributes, r[x], relation="matrixmultiple",
-            file=open(path(RESULTSDIR, experiment['name'],
-                           'MatrixMultiply-{0}.arff'.format(x)), 'w'))
+            plt.savefig(imgpath)
+            print("Wrote '{0}'...".format(imgpath))
+
+            #plt.show()
+            plt.close()
