@@ -301,6 +301,10 @@ def parseruntimes(output):
         match = search('^Elapsed time:\s+([0-9]+)\s+', line)
         if match:
             r.append(int(match.group(1)))
+
+    # Clamp each time at >= 1 ms. This is necessary for computations
+    # that require less than .5 ms, which will be rounded down to 0.
+    r = [max(x, 1) for x in r]
     return r
 
 # Run program "prog" with arguments "args" and an error of
