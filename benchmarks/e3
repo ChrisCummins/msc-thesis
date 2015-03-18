@@ -38,17 +38,32 @@ def pre_exec_hook(settings):
               .format(settings['gs']))
 
     # Build benchmarks.
-    os.system('make -C ../skelcl/build/examples/DotProduct &>/dev/null')
-    os.system('make -C ../skelcl/build/examples/MatrixMultiply &>/dev/null')
+    os.system('make -C ../skelcl/build/examples/DotProduct')
+    os.system('make -C ../skelcl/build/examples/MatrixMultiply')
     sleep(15)
 
 experiment = {
-    'have_data': False,
+    'have_data': True,
     'name': EXPERIMENT_NAME,
     'iterations': 20,
     'settings': {
          # Reduce kernel global size:
-        'gs': [512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576]
+        'gs': [
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768,
+            65536,
+            131072,
+            262144,
+            524288,
+            1048576,
+            2097152
+        ]
     },
     'pre-exec-hook': pre_exec_hook,
     'progs': {
@@ -80,83 +95,139 @@ attributes = [
     ['speedup', 'NUMERIC']
 ]
 
-rr = {}
+class Result:
+    def __init__(self, program, arguments, id, settings, dvars):
+        self.program = program
+        self.arguments = arguments
+        self.id = id
+        self.settings = settings
+        self.dvars = dvars
 
+    def __repr__(self):
+        return ("{program} {arguments}, {id}, {settings}, {dvars}."
+                .format(program=self.program,
+                        arguments=self.arguments,
+                        id=id,
+                        settings="{{{0}}}".format(', '.join(
+                            ['{key}: {val}'.format(key=x, val=self.settings[x]) for x in self.settings])),
+                        dvars="{{{0}}}".format(', '.join(
+                            ['{key}: {val}'.format(key=x, val=self.dvars[x]) for x in self.dvars]))))
+
+# Gather all results.
+globalresults = []
+allids = set()
+allargs = {}
 for prog in experiment['progs']:
-    rr[prog] = []
-
+    allargs[prog] = set()
     for settings in settingspermutations(experiment['settings']):
-        name = "{0}-{1}".format(experiment['name'],
-                                "-".join([str(settings[x]) for x in settings]))
+        name = "-".join([experiment['name']] + [str(settings[x]) for x in settings])
         R = load(name)
-        if not R:
+        if not R: # Skip ahead if we haven't collected results yet.
+            print("Skipping", name)
             continue
 
-        progresults = R[prog]
-        for args in progresults:
-            for id in progresults[args]:
+        for args in R[prog]:
+            allargs[prog].add(args)
+            for id in R[prog][args]:
+                allids.add(id)
                 baseline = mean(results(prog, args, id=id,
-                                        version="{0}-{1}".format(experiment['name'],
-                                                                 BASESTRING)))
-                times = progresults[args][id]
-                speedups = [float(baseline) / float(x) for x in times]
-                err = confinterval(speedups)[1] - mean(speedups)
-                speedup = mean(speedups)
-
+                                        version="-".join((experiment['name'],
+                                                          BASESTRING))))
                 if not baseline:
                     print("ERROR: no baseline found for {0}!"
-                          .format('-'.join([str(x) for x in [ra, ca, cb]])))
+                          .format('-'.join([prog, args, id, '-'.join([str(settings[x]) for x in settings])])))
 
-                d = ['GPU' if id in GPU_IDS else 'CPU', # device-type
-                     settings['gs'], # tunable knobs
-                     int(search('--row_count_A ([0-9]+)', args).group(1))
-                     if prog == 'MatrixMultiply'
-                     else int(search('--size ([0-9]+)', args).group(1)), # size
-                     speedup]
+                # Dependent variables.
+                times = R[prog][args][id]
 
-                rr[prog].append(d + [err, args])
+                # Derived speedups.
+                speedups = [float(baseline) / float(x) for x in times]
+                # Derive mean and error from CI for speedups.
+                speedup = mean(speedups)
+                err = confinterval(speedups)[1] - speedup
 
-if gui:
-    for prog in rr:
-        # Plot results for each of the tunable knob values.
-        params, sizes, speedups, errs, args = zip(*[([x[1]], x[2], x[-3], x[-2], x[-1])
-                                                    for x in rr[prog]])
-        fig, ax = plt.subplots()
-        xvals = range(len(speedups))
-        bars = ax.bar(xvals, speedups, yerr=errs, ecolor='k')
+                dvars = {
+                    'size': int(search('--row_count_A ([0-9]+)', args).group(1) if prog == 'MatrixMultiply'
+                                else search('--size ([0-9]+)', args).group(1)),
+                    'times': times,
+                    'speedup': speedup,
+                    'err': err
+                }
 
-        # FIXME: why the fuck is this offset necessary?
-        MAGICOFFSET = 4
-        defaultindex = params.index(BASE) + MAGICOFFSET
-        greenindexes = [ii + MAGICOFFSET
-                        for ii,v in enumerate(speedups) if v > 1.0]
+                r = Result(prog, args, id, settings, dvars)
+                globalresults.append(r)
 
-        # Colour the default value red, and the speedup > 1
-        # values green.
-        for g in greenindexes:
-            ax.get_children()[g].set_color('g')
-        ax.get_children()[defaultindex].set_color('r')
+if not gui:
+    print("Finished collecting results.")
+    exit(0)
 
-        ax.set_xlabel('Reduce kernel global size')
-        ax.set_ylabel('Speedup')
-        ax.set_title(" ".join([prog, args[0]]))
-        ax.set_xticks(xvals)
-        ax.set_xticklabels(['{0}, {1}'.format(x[0], y) for x,y in zip(params, sizes)],
-                           rotation=90, ha='left')
-        ax.get_xaxis().set_tick_params(labelsize=6)
-        ax.axhline(y=1)
+# Generate graphs.
+for prog in experiment['progs']:
+    for args in allargs[prog]:
+        for id in allids:
 
-        #imgpath = path(RESULTSDIR, experiment['name'],
-        #               'MatrixMultiply-{0}-{1}-{2}.png'.format(i, j, k))
+            # Filter reulsts for graph.
+            rresults = [x for x in globalresults if
+                        x.program == prog and
+                        x.arguments == args and
+                        x.id == id]
 
-        plt.gcf().subplots_adjust(bottom=0.15)
-        #plt.savefig(imgpath)
-        plt.show()
-        #print("Wrote '{0}'...".format(imgpath))
+            xvals               = range(len(rresults))
+            yvals               = [x.dvars['speedup']     for x in rresults]
+            yerrs               = [x.dvars['err']         for x in rresults]
+            labels              = [x.settings['gs']       for x in rresults]
+            meanruntime    = mean([mean(x.dvars['times']) for x in rresults])
+            meaniterations = mean([len(x.dvars['times'])  for x in rresults])
 
-        plt.close()
+            title = ("{program}: {size} elements, {id}"
+                     .format(program=rresults[0].program,
+                             size=rresults[0].dvars['size'],
+                             id=rresults[0].id))
 
-# for x in sorted(r):
-#     json2arff(attributes, r[x], relation="matrixmultiple",
-#             file=open(path(RESULTSDIR, experiment['name'],
-#                            'MatrixMultiply-{0}.arff'.format(x)), 'w'))
+            # File name and path.
+            name = ("{program}-{size}-{id}.png"
+                     .format(program=rresults[0].program,
+                             size=str(rresults[0].dvars['size']).zfill(8),
+                             id=rresults[0].id))
+            imgpath = path(RESULTSDIR, experiment['name'], name)
+
+            # Create plot.
+            fig, ax = plt.subplots()
+            bars = ax.bar(xvals, yvals, yerr=yerrs, ecolor='k')
+
+            # FIXME: why the fuck is this offset necessary?
+            MAGICOFFSET = 4
+            defaultindex = rresults.index([x for x in rresults if
+                                           '-'.join([str(x.settings[i])
+                                                     for i in x.settings])
+                                           == BASESTRING][0]) + MAGICOFFSET
+            greenindexes = [x + MAGICOFFSET
+                            for x,v in enumerate(rresults) if v.dvars['speedup'] > 1.0]
+
+            # Colour the default value red, and the speedup > 1 values
+            # green.
+            for g in greenindexes:
+                ax.get_children()[g].set_color('g')
+            ax.get_children()[defaultindex].set_color('r')
+
+            ax.set_xlabel('Reduce kernel global size')
+
+            plt.gca().set_position((.1, .2, .85, .7)) # to make a bit of room for extra text
+
+            plt.figtext(.02, .02,
+                        ("Avg. {i:.1f} iterations, with 95% confidence intervals. "
+                         "Avg. {t:.2f} ms execution time."
+                         .format(i=meaniterations, t=meanruntime)))
+
+            ax.set_ylabel('Speedup')
+            ax.set_title(title)
+            ax.set_xticks(xvals)
+            ax.set_xticklabels(labels, rotation=90, ha='left')
+            ax.get_xaxis().set_tick_params(labelsize=6)
+            ax.axhline(y=1)
+
+            plt.savefig(imgpath)
+            print("Wrote '{0}'...".format(imgpath))
+
+            #plt.show()
+            plt.close()
