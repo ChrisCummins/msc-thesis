@@ -338,7 +338,7 @@ def record(prog, args=[], version=skelcl_version(), n=-1, count=-1):
     id = ID()
 
     # If we don't have enough results
-    if n < 0 or len(results(prog, args, version=version)) <= n:
+    if n < 0 or len(results(prog, args, version=version)) < n:
         # Print out header.
         if count >= 0:
             print("iteration", count, end=" ")
