@@ -4413,10 +4413,42 @@ The SkelCL Stencil Skeleton:
   * `include/SkelCL/StencilShare.h` - appears to be a pointless copy
 of `StencilInfo.h` (introduced in commit
 [202e334](https://bitbucket.org/skelcl/skelcl/commits/202e33423cf9fa002607c77bf04a245c73a708a4)).
+* How it works:
+  * Events are enqueued in `execute()` function, see
+    `StencilDef.h:334`.
+  * Problem decomposition is performed using *fixed size* local groups of 32x4
 
 Notes for meeting with Michel:
 * Stencil:
-  * Iterations between swaps (StencilDef.h:378), chosen dynamically?
-* Stencil padding.
-* Stencil benchmarks.
-* Testing hardware.
+  * What is the benefit of choosing iterations between swaps
+    (`StencilDef.h:378`), chosen dynamically?
+  * What is going on with the local/global sizes? (`StencilDef.h:240`)
+  * Are there any differences between
+    `StencilKernel(Nearest|NearestInitial|Neutral).cl` aside from
+    border handling?
+  * Possible bug in stencil padding? Examples:
+    * `exercises/skelcl/stencil.cc`
+    * Gaussian blur output.
+* Measuring execution time.
+* Extracting features from user kernels. E.g. number of floating point
+  operations, number of integer operations, number of branch points,
+  number of registers (?).
+* Recommendations for testing hardware?
+
+On global and local work sizes in OpenCL:
+
+> In general you can choose global_work_size as big as you want, while
+> local_work_size is constraint by the underlying device/hardware, so
+> all query results will tell you the possible dimensions for
+> local_work_size instead of the global_work_size. the only constraint
+> for the global_work_size is that it must be a multiple of the
+> local_work_size (for each dimension).
+
+Notes from meeting with Michel:
+* The `Stencil` class is a container for `StencilInfo`. Stencil
+  operations are added using `Stencil::add()` which creates a new
+  `StencilInfo` object behind the scenes. This could be refactored.
+* If `north == 0 && west == 0 && south == 0 && east == 0`, the Stencil
+  is a map.
+* There is a bug in Michel's reformatted implementation of
+  `StencilKernelNeutral`.
