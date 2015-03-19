@@ -407,10 +407,6 @@ dnl ================================================================
 AC_CONFIG_FILES([
         Makefile
         benchmarks/Makefile
-        benchmarks/src/Makefile
-        benchmarks/src/GaussianBlur/Makefile
-        benchmarks/src/MandelbrotSet/Makefile
-        benchmarks/src/MatrixMultiply/Makefile
         docs/Makefile
         docs/maths/Makefile
         docs/proposal/Makefile
