@@ -4397,5 +4397,26 @@ Auto-tuning stencil operations for GPGPUs:
       optimisations with and without consideration for host/device
       transfer overhead.
 
+
+## Thursday 19th
+
+Types of padding in SkelCL:
+* Neutral
+* Nearest
+* Nearest initial
+
 The SkelCL Stencil Skeleton:
-* How it works:
+* Written by Stefan Breuer.
+* Files:
+  * `include/SkelCL/Stencil.h` - Stencil class and public header.
+  * `include/SkelCL/StencilInfo.h` - class for describing stencil extents.
+  * `include/SkelCL/StencilShare.h` - appears to be a pointless copy
+of `StencilInfo.h` (introduced in commit
+[202e334](https://bitbucket.org/skelcl/skelcl/commits/202e33423cf9fa002607c77bf04a245c73a708a4)).
+
+Notes for meeting with Michel:
+* Stencil:
+  * Iterations between swaps (StencilDef.h:378), chosen dynamically?
+* Stencil padding.
+* Stencil benchmarks.
+* Testing hardware.
