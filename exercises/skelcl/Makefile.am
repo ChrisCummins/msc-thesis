@@ -24,6 +24,7 @@ noinst_PROGRAMS = 			\
 	dot_product			\
 	map				\
 	map_reduce			\
+	stencil				\
 	$(NULL)
 
 #------------------------------------------------------------------------
@@ -32,6 +33,7 @@ noinst_PROGRAMS = 			\
 dot_product_SOURCES = dot_product.cc
 map_SOURCES = map.cc
 map_reduce_SOURCES = map_reduce.cc
+stencil_SOURCES = stencil.cc
 
 #------------------------------------------------------------------------
 # Auxiliary build targets.
