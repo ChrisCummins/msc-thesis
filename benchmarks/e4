@@ -1,0 +1,227 @@
+#!/usr/bin/env python2.7
+#
+# e4
+#
+from __future__ import print_function
+from operator import itemgetter
+from re import sub
+from sys import exit
+from operator import mul
+from time import sleep
+import os
+
+EXPERIMENT_NAME = os.path.basename(__file__)
+
+gui = True
+
+if gui:
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+from benchlib import *
+
+# List of machines with GPUs installed.
+GPU_IDS = ["dhcp-90-060"]
+
+# The default parameter values.
+BASE = [32,4]
+BASESTRING = '-'.join([str(x) for x in BASE])
+
+def pre_exec_hook(settings):
+    cd(CWD)
+
+    # Set tunable knobs.
+    os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/StencilDef.h"
+              .format(settings['c']))
+    os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {0}/' ../skelcl/include/SkelCL/detail/StencilDef.h"
+              .format(settings['r']))
+
+    # Build benchmarks.
+    os.system('make -C ../skelcl/build/examples/')
+
+experiment = {
+    'have_data': False,
+    'name': EXPERIMENT_NAME,
+    'iterations': 30,
+    'settings': {
+        'c': [ # Local size[0]
+            8, 16, 32, 64, 128, 256
+        ],
+        'r': [ # Local size[1]
+            4, 8, 16, 32, 64, 128, 256
+        ]
+    },
+    'pre-exec-hook': pre_exec_hook,
+    'progs': {
+        'CannyEdgeDetection': [
+            ['--radius {0}'.format(x) for x in [4, 6, 8]]
+        ],
+        'GaussianBlur': [
+            ['-i 1'],
+            ['--range-north {0} --range-south {0} --range-east {0} --range-west {0}'.format(x)
+             for x in [4, 6, 8]]
+        ],
+        'GameOfLife': [
+            ['--size {0}'.format(x) for x in [2048, 4096, 8192]]
+        ]
+    }
+}
+
+if ID() in GPU_IDS:
+    for prog in experiment['progs']:
+        experiment['progs'][prog].append(['--device-type GPU'])
+
+# GATHER DATA
+if not experiment['have_data']:
+    runexperiment(experiment)
+
+attributes = [
+    ['device_type', '{CPU,GPU}'],
+    ['size', 'NUMERIC'],
+    ['gs', 'NUMERIC'],
+    ['program', '{DP,MM}'],
+    ['speedup', 'NUMERIC']
+]
+
+class Result:
+    def __init__(self, program, arguments, id, settings, dvars):
+        self.program = program
+        self.arguments = arguments
+        self.id = id
+        self.settings = settings
+        self.dvars = dvars
+
+    def __repr__(self):
+        return ("{program} {arguments}, {id}, {settings}, {dvars}."
+                .format(program=self.program,
+                        arguments=self.arguments,
+                        id=id,
+                        settings="{{{0}}}".format(', '.join(
+                            ['{key}: {val}'.format(key=x, val=self.settings[x]) for x in self.settings])),
+                        dvars="{{{0}}}".format(', '.join(
+                            ['{key}: {val}'.format(key=x, val=self.dvars[x]) for x in self.dvars]))))
+
+# Gather all results.
+globalresults = []
+allids = set()
+allargs = {}
+for prog in experiment['progs']:
+    allargs[prog] = set()
+    for settings in settingspermutations(experiment['settings']):
+        name = "-".join([experiment['name']] + [str(settings[x]) for x in settings])
+        R = load(name)
+        if not R: # Skip ahead if we haven't collected results yet.
+            print("Skipping", name)
+            continue
+
+        for args in R[prog]:
+            allargs[prog].add(args)
+            for id in R[prog][args]:
+                allids.add(id)
+                baseline = mean(results(prog, args, id=id,
+                                        version="-".join([experiment['name'],
+                                                          BASESTRING])))
+
+                if not baseline:
+                    print("ERROR: no baseline found for {0}!"
+                          .format('-'.join([prog, args, id, '-'.join([str(settings[x]) for x in settings])])))
+
+                # Dependent variables.
+                times = R[prog][args][id]
+
+                # Derived speedups.
+                speedups = [baseline / float(x) for x in times]
+                # Derive mean and error from CI for speedups.
+                speedup = baseline / mean(times)
+                err = confinterval(speedups)[1] - speedup
+
+                # Dependent variables.
+                dvars = {
+                    'size': int(search('--row_count_A ([0-9]+)', args).group(1) if prog == 'MatrixMultiply'
+                                else search('--size ([0-9]+)', args).group(1)),
+                    'times': times,
+                    'speedup': speedup,
+                    'err': err
+                }
+
+                r = Result(prog, args, id, settings, dvars)
+                globalresults.append(r)
+
+if not gui:
+    print("Finished collecting results.")
+    exit(0)
+
+# Generate graphs.
+for prog in experiment['progs']:
+    for args in allargs[prog]:
+        for id in allids:
+
+            # Filter reulsts for graph.
+            rresults = [x for x in globalresults if
+                        x.program == prog and
+                        x.arguments == args and
+                        x.id == id]
+
+            # We may not have collected data for all machines.
+            if not len(rresults):
+                continue
+
+            xvals               = range(len(rresults))
+            yvals               = [x.dvars['speedup']     for x in rresults]
+            yerrs               = [x.dvars['err']         for x in rresults]
+            labels              = [x.settings['gs']       for x in rresults]
+            meanruntime    = mean([mean(x.dvars['times']) for x in rresults])
+            meaniterations = mean([len(x.dvars['times'])  for x in rresults])
+
+            title = ("{program}: {size} elements, {id}"
+                     .format(program=rresults[0].program,
+                             size=rresults[0].dvars['size'],
+                             id=rresults[0].id))
+
+            # File name and path.
+            name = ("{program}-{size}-{id}.png"
+                     .format(program=rresults[0].program,
+                             size=str(rresults[0].dvars['size']).zfill(8),
+                             id=rresults[0].id))
+            imgpath = path(RESULTSDIR, experiment['name'], name)
+
+            # Create plot.
+            fig, ax = plt.subplots()
+            bars = ax.bar(xvals, yvals, yerr=yerrs, ecolor='k')
+
+            # FIXME: why the fuck is this offset necessary?
+            MAGICOFFSET = 4
+            defaultindex = rresults.index([x for x in rresults if
+                                           '-'.join([str(x.settings[i])
+                                                     for i in x.settings])
+                                           == BASESTRING][0]) + MAGICOFFSET
+            greenindexes = [x + MAGICOFFSET
+                            for x,v in enumerate(rresults) if v.dvars['speedup'] > 1.0]
+
+            # Colour the default value red, and the speedup > 1 values
+            # green.
+            for g in greenindexes:
+                ax.get_children()[g].set_color('g')
+            ax.get_children()[defaultindex].set_color('r')
+
+            ax.set_xlabel('Reduce kernel global size')
+
+            plt.gca().set_position((.1, .2, .85, .7)) # to make a bit of room for extra text
+
+            plt.figtext(.02, .02,
+                        ("Avg. {i:.1f} iterations, with 95% confidence intervals. "
+                         "Avg. {t:.2f} ms execution time."
+                         .format(i=meaniterations, t=meanruntime)))
+
+            ax.set_ylabel('Speedup')
+            ax.set_title(title)
+            ax.set_xticks(xvals)
+            ax.set_xticklabels(labels, rotation=90, ha='left')
+            ax.get_xaxis().set_tick_params(labelsize=6)
+            ax.axhline(y=1)
+
+            plt.savefig(imgpath)
+            print("Wrote '{0}'...".format(imgpath))
+
+            #plt.show()
+            plt.close()
