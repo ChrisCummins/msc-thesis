@@ -116,7 +116,7 @@ for prog in experiment['progs']:
                 # Derived speedups.
                 speedups = [baseline / float(x) for x in times]
                 # Derive mean and error from CI for speedups.
-                speedup = mean(speedups)#baseline / mean(times)
+                speedup = baseline / mean(times)
                 err = confinterval(speedups)[1] - speedup
 
                 dvars = {

@@ -144,9 +144,10 @@ for prog in experiment['progs']:
                 # Derived speedups.
                 speedups = [baseline / float(x) for x in times]
                 # Derive mean and error from CI for speedups.
-                speedup = mean(speedups)#baseline / mean(times)
+                speedup = baseline / mean(times)
                 err = confinterval(speedups)[1] - speedup
 
+                # Dependent variables.
                 dvars = {
                     'size': int(search('--row_count_A ([0-9]+)', args).group(1) if prog == 'MatrixMultiply'
                                 else search('--size ([0-9]+)', args).group(1)),
@@ -172,6 +173,10 @@ for prog in experiment['progs']:
                         x.program == prog and
                         x.arguments == args and
                         x.id == id]
+
+            # We may not have collected data for all machines.
+            if not len(rresults):
+                continue
 
             xvals               = range(len(rresults))
             yvals               = [x.dvars['speedup']     for x in rresults]
