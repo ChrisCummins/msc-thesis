@@ -40,7 +40,7 @@ def pre_exec_hook(settings):
     os.system('make -C ../skelcl/build/examples/')
 
 experiment = {
-    'have_data': False,
+    'have_data': True,
     'name': EXPERIMENT_NAME,
     'iterations': 30,
     'settings': {
@@ -136,9 +136,14 @@ for prog in experiment['progs']:
                 err = confinterval(speedups)[1] - speedup
 
                 # Dependent variables.
+                border = int(search('--radius ([0-9]+)', args).group(1) if prog == 'CannyEdgeDetection' else
+                             search('--range-north ([0-9]+)', args).group(1) if prog == 'GaussianBlur' else
+                             1) # GameOfLife
+                size = search('--size ([0-9]+)', args).group(1) if prog == 'GameOfLife' else 512
+
                 dvars = {
-                    'size': int(search('--row_count_A ([0-9]+)', args).group(1) if prog == 'MatrixMultiply'
-                                else search('--size ([0-9]+)', args).group(1)),
+                    'size': size,
+                    'border': border,
                     'times': times,
                     'speedup': speedup,
                     'err': err
@@ -169,19 +174,21 @@ for prog in experiment['progs']:
             xvals               = range(len(rresults))
             yvals               = [x.dvars['speedup']     for x in rresults]
             yerrs               = [x.dvars['err']         for x in rresults]
-            labels              = [x.settings['gs']       for x in rresults]
+            labels              = ['{0}-{1}'.format(x.settings['c'], x.settings['r']) for x in rresults]
             meanruntime    = mean([mean(x.dvars['times']) for x in rresults])
             meaniterations = mean([len(x.dvars['times'])  for x in rresults])
 
-            title = ("{program}: {size} elements, {id}"
+            title = ("{program}: [{size}x{size}] elements, border: {border}, {id}"
                      .format(program=rresults[0].program,
                              size=rresults[0].dvars['size'],
+                             border=rresults[0].dvars['border'],
                              id=rresults[0].id))
 
             # File name and path.
-            name = ("{program}-{size}-{id}.png"
+            name = ("{program}-{size}-{border}-{id}.png"
                      .format(program=rresults[0].program,
                              size=str(rresults[0].dvars['size']).zfill(8),
+                             border=str(rresults[0].dvars['border']).zfill(2),
                              id=rresults[0].id))
             imgpath = path(RESULTSDIR, experiment['name'], name)
 

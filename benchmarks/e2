@@ -40,7 +40,7 @@ def pre_exec_hook(settings):
     os.system('make -C ../skelcl/build/examples/MatrixMultiply')
 
 experiment = {
-    'have_data': False,
+    'have_data': True,
     'name': 'e2',
     'iterations': 30,
     'settings': {
@@ -178,6 +178,7 @@ for prog in experiment['progs']:
 
             # Create plot.
             fig, ax = plt.subplots()
+            fig.set_size_inches(10, 6) # Set plot size
             bars = ax.bar(xvals, yvals, yerr=yerrs, ecolor='k')
 
             # FIXME: why the fuck is this offset necessary?
