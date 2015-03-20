@@ -2,7 +2,32 @@
 %% Document and Layout %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass[11pt]{article}
+%%%%
+%% Load the class. Put any options that you want here (see the documentation
+%% for the list of options). The following are samples for each type of
+%% thesis:
+%%
+%% Note: you can also specify any of the following options:
+%%  logo: put a University of Edinburgh logo onto the title page
+%%  frontabs: put the abstract onto the title page
+%%  deptreport: produce a title page that fits into a Computer Science
+%%      departmental cover [not sure if this actually works]
+%%  singlespacing, fullspacing, doublespacing: choose line spacing
+%%  oneside, twoside: specify a one-sided or two-sided thesis
+%%  10pt, 11pt, 12pt: choose a font size
+%%  centrechapter, leftchapter, rightchapter: alignment of chapter headings
+%%  sansheadings, normalheadings: headings and captions in sans-serif
+%%      (default) or in the same font as the rest of the thesis
+%%  [no]listsintoc: put list of figures/tables in table of contents (default:
+%%      not)
+%%  romanprepages, plainprepages: number the preliminary pages with Roman
+%%      numerals (default) or consecutively with the rest of the thesis
+%%  parskip: don't indent paragraphs, put a blank line between instead
+%%  abbrevs: define a list of useful abbreviations (see documentation)
+%%  draft: produce a single-spaced, double-sided thesis with narrow margins
+%%
+%% MSc by Research, which also needs an institute
+\documentclass[mscres,icsa,twopage]{infthesis}
 
 % Fix for multiple "No room for a new \dimen" errors.
 %
@@ -16,29 +41,8 @@
 % e.g. \@title, \@date \@author.
 \makeatletter
 
-% Define the document margins.
-\newcommand{\DocumentHorizontalMargin}{22mm}
-\newcommand{\DocumentVerticalMargin}{22mm}
-
-% Geometry package configuration. Sets page margins.
-\usepackage[a4paper,
-            left   = \DocumentHorizontalMargin{},
-            right  = \DocumentHorizontalMargin{},
-            top    = \DocumentVerticalMargin{},
-            bottom = \DocumentVerticalMargin{}]{geometry}
-
-% Fancy headers.
-\usepackage{fancyhdr}
-\fancyhead{}
-\fancyhead[L]{Informatics Research Proposal}
-\fancyhead[R]{Dynamic Autotuning of Algorithmic Skeletons}
-\fancyfoot{}
-\fancyfoot[C]{\thepage}
-\headheight 15pt
-\pagestyle{fancy}
-
 % Multi-column support.
-\usepackage{multicol}
+%\usepackage{multicol}
 
 % A useful package which includes macros like \ifdef{}{}{}:
 %
@@ -46,31 +50,7 @@
 
 % Uncomment the following line to remove column separation:
 %
-\setlength{\columnsep}{5mm}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%
-%% Table of Contents %%
-%%%%%%%%%%%%%%%%%%%%%%%
-
-\usepackage[dotinlabels]{titletoc}
-
-% The tocbibind package can be used to add document elements like a
-% bibliography or an index to the Table of Contents. Options:
-%
-%  notlof - Don't add List Of Figures to TOC
-%  notlot - Don't add List Of Tables to TOC
-%
-\usepackage[nottoc,notlof,notlot]{tocbibind}
-
-% Control the table of contents nested depth. Levels are:
-%
-%     0 - Chapter
-%     1 - Section
-%     2 - Subsection
-%     3 - Subsubsection
-%
-\setcounter{tocdepth}{1}
+%\setlength{\columnsep}{5mm}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -84,14 +64,14 @@
     block=none,          % space between blocks: none,space,par,nbpar,ragged
     indexing=false,      % indexing options: true,false,cite,bib
     citereset=none,      % don't reset cites
-    isbn=false,          % don't print ISBN
-    url=false,           % print URL
-    doi=false,           % don't print DOI
+    isbn=false,          % print ISBN?
+    url=false,           % print URL?
+    doi=false,           % print DOI?
     natbib=true,         % natbib compatability
   ]{biblatex}
 
 % Reduce the font size of the bibliography:
-\renewcommand{\bibfont}{\normalfont\scriptsize}
+% \renewcommand{\bibfont}{\normalfont\scriptsize}
 
 % Determine which BibTeX file to use:
 %
@@ -131,33 +111,33 @@
 %            headers.  The name is given by the value
 %            of \appendixname. Note that this is the default behaviour
 %            for classes that have chapters.
-\usepackage[titletoc]{appendix}
+%\usepackage[titletoc]{appendix}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figures, footnotes and listings %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usepackage{float}
-\restylefloat{figure}
+%\usepackage{float}
+%\restylefloat{figure}
 
 % Use bold ``(Figure|Table|Listing)'' caption text.
-\usepackage[margin=1cm]{caption}
+%\usepackage[margin=1cm]{caption}
 
 % Set the font for captions.
-\renewcommand{\captionfont}{\footnotesize}
+%\renewcommand{\captionfont}{\footnotesize}
 % Set the font for caption labels.
-\renewcommand{\captionlabelfont}{\footnotesize\bf}
+%\renewcommand{\captionlabelfont}{\footnotesize\bf}
 
 % Use arabic numbers for footnote.
-\renewcommand{\thefootnote}{\arabic{footnote}}
+%\renewcommand{\thefootnote}{\arabic{footnote}}
 
 % Ensure that footnotes always appear at the bottom of pages.
-\usepackage[bottom]{footmisc}
+%\usepackage[bottom]{footmisc}
 
 % Reset the footnote counter on every page.
-\usepackage{perpage}
-\MakePerPage{footnote}
+%\usepackage{perpage}
+%\MakePerPage{footnote}
 
 % Pre-requisites for rendering upquotes in listings package.
 \usepackage[T1]{fontenc}
@@ -180,8 +160,8 @@
 \lstset{escapeinside={(*@}{@*)}}
 
 % Add 10pt space between chapters in TOC listings entries:
-\let\Chapter\chapter
-\def\chapter{\addtocontents{lol}{\protect\addvspace{10pt}}\Chapter}
+%\let\Chapter\chapter
+%\def\chapter{\addtocontents{lol}{\protect\addvspace{10pt}}\Chapter}
 
 % Add JavaScript support to listings. See:
 %
@@ -872,11 +852,11 @@
 %% Tables and lists %%
 %%%%%%%%%%%%%%%%%%%%%%
 
-\usepackage{enumitem}
-\setenumerate{itemsep=0pt}
+%\usepackage{enumitem}
+%\setenumerate{itemsep=0pt}
 
 % Use no left margin for lists:
-\setlist{leftmargin=*}
+%\setlist{leftmargin=*}
 
 \usepackage{longtable}
 
@@ -892,21 +872,21 @@
 %% Typesetting and symbols %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usepackage{titlesec}
+%\usepackage{titlesec}
 % Set section and paragraph heading fonts:
-\titleformat*{\section}{\Large\bfseries}
-\titleformat*{\subsection}{\normalsize\bfseries}
-\titleformat*{\subsubsection}{\normalsize}
-\titleformat*{\paragraph}{\large\bfseries}
-\titleformat*{\subparagraph}{\large\bfseries}
+%\titleformat*{\section}{\Large\bfseries}
+%\titleformat*{\subsection}{\normalsize\bfseries}
+%\titleformat*{\subsubsection}{\normalsize}
+%\titleformat*{\paragraph}{\large\bfseries}
+%\titleformat*{\subparagraph}{\large\bfseries}
 
 % Set section heading margins. Usage:
 % \titlespacing*{<command>}{<left>}{<before>}{<after>}
-\titlespacing*{\section}{0pt}{.6em}{.3em}
-\titlespacing*{\subsection}{0pt}{.6em}{.2em}
+%\titlespacing*{\section}{0pt}{.6em}{.3em}
+%\titlespacing*{\subsection}{0pt}{.6em}{.2em}
 
 % Set paragraph indentation size. Default is 15pt.
-\setlength{\parindent}{10pt}
+%\setlength{\parindent}{10pt}
 
 % The line spacing can be globally set using \linespread:
 %
@@ -964,12 +944,4 @@
 \usepackage{lipsum}
 
 
-%%%%%%%%%%%%%%
-%% Document %%
-%%%%%%%%%%%%%%
-\begin{document}
-
-\input{cover}
-\input{inside-cover}
-
-\pagenumbering{arabic} % Page numbers: 1 2 3 ...
+\abstract{\input{abstract}}
