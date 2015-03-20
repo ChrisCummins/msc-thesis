@@ -210,7 +210,10 @@ def _writeversion(version=skelcl_version()):
 def _loadcache(version=skelcl_version()):
     file = _versionfile(version)
     if exists(file):
-        data = json.load(open(file))
+        try:
+            data = json.load(open(file))
+        except ValueError:
+            data = {}
         print("Read '{0}'...".format(file))
     else:
         data = {}
