@@ -145,12 +145,16 @@ for prog in experiment['progs']:
                         x.arguments == args and
                         x.id == id]
 
+            # We may not have collected data for all machines.
+            if not len(rresults):
+                continue
+
             size = [
                 rresults[0].dvars['row-count-A'],
                 rresults[0].dvars['col-count-A'],
                 rresults[0].dvars['col-count-B']
             ]
-            
+
             xvals               = range(len(rresults))
             yvals               = [x.dvars['speedup']     for x in rresults]
             yerrs               = [x.dvars['err']         for x in rresults]
