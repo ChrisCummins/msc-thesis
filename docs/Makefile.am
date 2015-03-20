@@ -5,6 +5,7 @@ SUBDIRS =
 
 if HAVE_PDFLATEX
 SUBDIRS += 		\
+	ipp		\
 	maths		\
 	proposal	\
 	summary		\

@@ -1,0 +1,234 @@
+%%%%%%%%%%%%%%%%%%%%%%
+%% Document details %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Paper title
+\title{Dynamic Autotuning\\of Algorithmic Skeletons}
+
+% Author
+\author{Chris Cummins}
+
+\input{preamble}
+
+%%%%%%%%%%
+%% Body %%
+%%%%%%%%%%
+\begin{document}
+
+\begin{center}
+  \huge
+  \vspace{0.9cm}
+  \textbf{Intermediate Progress Report}
+\end{center}
+
+\noindent
+\textit{Abstract: %
+a
+}
+
+\section*{SkelCL}
+
+SkelCL\footnote{\url{http://skelcl.uni-muenster.de}} is an object
+oriented C++ library that provides OpenCL implementations of data
+parallel algorithmic skeletons for heterogeneous parallelism: Map,
+Reduce, Scan, Zip, Stencil, and AllPairs. Skeletons are parameterised
+with muscle functions by the user, which are compiled into OpenCL
+kernels for execution on device hardware. Communication between the
+host and device memory is performed lazily, and with support for
+multi-GPU computing.
+
+Each skeleton is represented by a class template, declared in a header
+file detailing the public API. A private header file contains the
+template definition. E.g. \texttt{SkelCL/Map.h} contains the Map
+class, and \texttt{SkelCL/detail/MapDef.h} contains the
+implementation. Non-trivial kernels are generally stored in separate
+files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
+
+\lstset{language=C++}
+\begin{lstlisting}[
+  basicstyle=\scriptsize,
+  caption={Program to calculate dot product using SkelCL.}
+]
+#include <SkelCL/SkelCL.h>
+#include <SkelCL/Vector.h>
+#include <SkelCL/Zip.h>
+#include <SkelCL/Reduce.h>
+
+int main(int argc, char* argv[]) {
+  // Initialise SkelCL to use any device.
+  skelcl::init(skelcl::nDevices(1).deviceType(skelcl::device_type::ANY));
+
+  // Define the skeleton objects.
+  skelcl::Zip<int(int, int)> mult("int func(int x, int y) { return x * y; }");
+  skelcl::Reduce<int(int)> sum("int func(int x, int y) { return x + y; }", "0");
+
+  // Create two vectors A and B of length "n".
+  const int n = 1024; skelcl::Vector<int> A(n), B(n);
+  skelcl::Vector<int>::iterator a = A.begin(), b = B.begin();
+  while (a != A.end()) { *a = rand() % n; ++a; *b = rand() % n; ++b; }
+
+  // Invoke skeleton: x = A . B
+  int x = sum(mult(A, B)).first();
+
+  return 0;
+}
+\end{lstlisting}
+
+\newpage
+\section*{Performance evaluation}
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l | l | l |}
+\hline
+\textbf{Name} & \textbf{Field} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
+\hline
+CannyEdgeDetection & Image processing & Stencil & - & 225 / 61\\
+DotProduct & Linear algebra & Zip, Reduce & - & 143 / 2\\
+FDTD & Scientific simulation & Map, Stencil & Y & 375 / 127\\
+GameOfLife & Cellular automata & Stencil & Y & 92 / 12\\
+GaussianBlur & Image processing & Stencil & - & 262 / 47\\
+HeatSimulation & Scientific simulation & Stencil & Y & 180 / 13\\
+MandelbrotSet & Fractal computation & Map & Y & 133 / 78\\
+MatrixMultiply & Linear algebra & AllPairs & - & 267 / 8\\
+SAXPY & Linear algebra & Zip & - & 149 / 3\\
+\hline
+\end{tabular}
+\caption{Benchmark applications. The LOC column shows lines of code, split between host and device.}
+\end{table}
+
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l |}
+\hline
+\textbf{Parameter} & \textbf{Values} & \textbf{Skeleton}\\
+\hline
+Number of columns & \{8, 16, 32, 64, 128\} & AllPairs\\
+Number of rows & \{8, 16, 32, 64, 128\} & AllPairs\\
+Number of segments & \{8, 16, 32, 64, 128\} & AllPairs\\
+Local size (columns) & \{8, 16, 32, 64, 128, 256\} & Stencil\\
+Local size (rows) & \{4, 8, 16, 32, 64, 128, 256\} & Stencil\\
+Global size & \{256, 512, 1024, 2048, 4096, 8192, \ldots, 2097152\} & Reduce\\
+\hline
+\end{tabular}
+\caption{Evaluated tunable parameters.}
+\end{table}
+
+\begin{figure}[h]
+\includegraphics[width=\textwidth]{../../benchmarks/results/e2/MatrixMultiply-1024-1024-1024-cec.png}
+\includegraphics[width=\textwidth]{../../benchmarks/results/e2/MatrixMultiply-1024-1024-1024-dhcp-90-060.png}
+\caption{Performance of Matrix Multiply kernel using different
+  parameter values for the AllPairs skeleton. Optimal values for the
+  CPU (top) are 128-8-64. Optimal values for the GPU are 32-8-64.}
+\end{figure}
+
+\begin{figure}[h]
+\includegraphics[width=\textwidth]{../../benchmarks/results/e3/DotProduct-33554432-cec.png}
+\includegraphics[width=\textwidth]{../../benchmarks/results/e3/DotProduct-33554432-dhcp-90-060.png}
+\caption{Performance of Dot Product kernel using different parameter
+  values for the Reduce skeleton.} % TODO: shit results
+\end{figure}
+
+\begin{figure}[h]
+\includegraphics[width=\textwidth]{../../benchmarks/results/e4/GameOfLife-00008192-01-cec.png}
+\includegraphics[width=\textwidth]{../../benchmarks/results/e4/GameOfLife-00008192-01-cec.png}
+\caption{Performance of Dot Product kernel using different parameter
+  values for the Reduce skeleton.}
+\end{figure}
+
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l |}
+\hline
+\textbf{Parameter} & \textbf{Possible values} & \textbf{Skeleton}\\
+\hline
+Thread coarsening & INT >= 1 & ANY\\
+Iterations between swaps & INT >= 1 & Stencil\\
+Implementation of border region loading & - & Stencil\\
+Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
+\hline
+\end{tabular}
+\caption{Tunable parameters.}
+\end{table}
+
+\subsection*{Experimental setup}
+
+A fixed sample size of 30 is used. 95\% confidence
+intervals. Execution time records
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l | l |}
+\hline
+\textbf{CPU} & \textbf{Memory} & \textbf{GPU}\\
+\hline
+Intel i7-2600K CPU & 16GiB & GeForce GTX 690 (1536 CUDA cores @ 823 MHz)\\
+Intel i5-4570 CPU & 8GiB & -\\
+\hline
+\end{tabular}
+\caption{Testing hardware.}
+\end{table}
+
+\subsection*{Results}
+
+\section*{Related Work}
+
+% An exhaustive search of the optimisation space for stencil benchmark
+% border regions using features: PCI-type, halo size, compute
+% granularity, # of GPUs. Evaluated on 2 different mobos and
+% GPUs. Optimisations evaluated: rotating volume so that largest
+% dimension is first dimension, adjusting halo size dynamically, and
+% computing halo region first so that swap can occur concurrently with
+% the rest of the computation. They concluded that the optimal setting
+% depends on problem size, stencil shape GPU, and PCI. This is well
+% worth studying in detail as a case of successfully applied
+% autotuning to GPUs.
+\cite{Lutz2013}
+
+% * An auto-tuner which accepts as input a Fortran 95 stencil
+% expression, and generates parallel implementations in Fortran, C, or
+% CUDA. Targets memory bound stencil operations using 3 FDTD kernels,
+% tested on 4 different architectures.
+% * Does not cover performance portability across different GPUs.
+% * The CUDA code generator only uses global memory (!). No
+% exploitation of temporal locality.
+% * Their "strategy engines" do not perform a directed search. They
+% just enumerate a subset of the optimisation space, compile and run
+% each option *once*, and then report the lowest time. No statistical
+% certainty, no directed search.
+\cite{Kamil2010}
+
+% Dastgeer uses training data to to generate a machine-learning model
+% offline, which is used at runtime to determine an execution plan
+% (selecting between sequential, OpenMP, OpenCL, and CUDA back-ends)
+% and parameter values for each. The paper is "first results", and
+% gives no description of the machine learning techniques used, the
+% training process, or the experimental method.
+\cite{Dastgeer2011}
+
+\cite{Christen2011}
+
+
+\cite{Chan2009}
+
+
+\cite{Collins2013}
+
+
+\cite{Magni2014}
+
+\section*{Conclusions}
+
+% TODO: extract features from kernels
+% TODO: cost benefit analysis
+
+\label{bibliography}
+\printbibliography
+
+\end{document}

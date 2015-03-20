@@ -408,6 +408,7 @@ AC_CONFIG_FILES([
         Makefile
         benchmarks/Makefile
         docs/Makefile
+        docs/ipp/Makefile
         docs/maths/Makefile
         docs/proposal/Makefile
         docs/summary/Makefile
