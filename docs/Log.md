@@ -4452,3 +4452,15 @@ Notes from meeting with Michel:
   is a map.
 * There is a bug in Michel's reformatted implementation of
   `StencilKernelNeutral`.
+
+
+## Friday 20th
+
+Notes from meeting with Pavlos:
+* DEADLINE MONDAY: Write a short report of the progress I've made so
+  far, what parameters I'm looking at, initial results, etc.
+
+TODO:
+* Identify what is spamming my filesystem.
+* Request access to 2 or 3 different CArD servers for running SkelCL
+  experiments.
