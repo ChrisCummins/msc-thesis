@@ -162,8 +162,8 @@ def arff(d, file=stdout):
                 h = search('--input .*x([0-9]+)', args)
                 if s:
                     f[3] = int(s.group(1)) * int(s.group(1))
-elif w and h:
-    f[3] = int(w.group(1)) * int(h.group(1))
+                elif w and h:
+                    f[3] = int(w.group(1)) * int(h.group(1))
 
                 s = search('--radius ([0-9]+)', args)
                 if s:
