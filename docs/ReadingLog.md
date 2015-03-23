@@ -1,49 +1,7 @@
 # < 5 min
 
-1. Spampinato, D. G., & Püschel, M. (2014). A Basic Linear Algebra
-   Compiler. In Proceedings of Annual IEEE/ACM International Symposium
-   on Code Generation and Optimization (p. 23).
-1. R. Ghiya, D. Lavery, and D. Sehr, “On the importance of points-to
-   analysis and other memory disambiguation methods for C programs,”
-   ACM SIGPLAN Not., vol. 36, no. 5, pp. 47–58, 2001.
-1. S. Sellappa and S. Chatterjee, “Cache-Efficient Multigrid
-   Algorithms,” Int. J. High Perform. Comput. Appl., vol. 18,
-   pp. 115–133, 2004.
-
 # 5-12 min
-
-1. J. D. Owens, D. Luebke, N. Govindraju, M. Harris, J. Kruger,
-   A. E. Lefohn, and T. J. Purcell, “A Survey of General Purpose
-   Computation on Graphics Hardware,” Comput. Graph. Forum, vol. 26,
-   no. 1, pp. 80–113, 2006.
-1. S. Kamil, C. Chan, L. Oliker, J. Shall, and S. Williams, “An
-   auto-tuning framework for parallel multicore stencil computations,”
-   Proc. 2010 IEEE Int. Symp. Parallel Distrib. Process. IPDPS 2010,
-   2010.
-1. S. Kamil, K. Datta, S. Williams, L. Oliker, J. Shalf, and
-   K. Yelick, “Implicit and explicit optimizations for stencil
-   computations,” Proc. 2006 Work. Mem. Syst. Perform. correctness -
-   MSPC ’06, p. 51, 2006.
 
 # 12-30 min
 
-1. M. Hind, “Pointer Analysis: Haven’t We Solved This Problem Yet?,”
-   in Proceedings of the 2001 ACM SIGPLAN-SIGSOFT workshop on Program
-   analysis for software tools and engineering, 2001, pp. 54–61.
-1. L. Berkeley, K. Datta, M. Murphy, V. Volkov, S. Williams, and
-   J. Carter, “Stencil computation optimization and auto-tuning on
-   state-of-the-art multicore architectures,” in Proceedings of the
-   2008 ACM/IEEE conference on Supercomputing, 2008, p. 4.
-
 # > 30 min
-
-1. Artono, A., Ramanujam, J., & Sadayappan, P. (2008). A practical
-   automatic polyhedral parallelizer and locality
-   optimizer. Proceedings of the 2008 ACM SIGPLAN Conference on
-   Programming Language Design and Implementation - PLDI
-   ’08, 101. doi:10.1145/1375581.1375595
-1. S. Ryoo, C. I. Rodrigues, S. S. Baghsorkhi, S. S. Stone,
-   D. B. Kirk, and W. W. Hwu, “Optimization principles and application
-   performance evaluation of a multithreaded GPU using CUDA,”
-   Proc. 13th ACM SIGPLAN Symp. Princ. Pract. parallel Program. -
-   PPoPP ’08, p. 73, 2008.
