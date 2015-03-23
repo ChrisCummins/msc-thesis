@@ -4477,3 +4477,26 @@ doesn't appear to have the same problem.
 
 SGEMM: BLAS naming convention for Single precision, General Matrix
 Multiply.
+
+Notes on debugging `StencilKernelNeutral.cl`:
+
+```
+Given a Matrix of 3x3, with border region of 1,1,1,1, and a local size
+of 32x4:
+
+SCL_EAST = 1
+SCL_COLS = 3
+SCL_L_COL = get_local_id(0)
+SCL_L_COL_COUNT=32
+
+
+if (SCL_L_COL >= SCL_L_COL_COUNT - SCL_EAST) {
+    // 1 .. SCL_EAST
+    size_t offset = SCL_EAST - (SCL_L_COL_COUNT - SCL_L_COL) + 1 - ((SCL_L_COL_COUNT - SCL_COLS) % SCL_L_COL_COUNT);
+
+    size_t lcolID = localIndex(0, offset);
+    size_t gcolID = globalIndex(0, offset);
+
+    SCL_LOCAL_TMP[lcolID] = (SCL_COL >= SCL_COLS - SCL_EAST) ? neutral : SCL_TMP[gcolID];
+}
+```

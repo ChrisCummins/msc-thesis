@@ -109,12 +109,17 @@ SAXPY & Linear algebra & Zip & - & 149 / 3\\
 Number of columns & \{8, 16, 32, 64, 128\} & AllPairs\\
 Number of rows & \{8, 16, 32, 64, 128\} & AllPairs\\
 Number of segments & \{8, 16, 32, 64, 128\} & AllPairs\\
-Local size (columns) & \{8, 16, 32, 64, 128, 256\} & Stencil\\
-Local size (rows) & \{4, 8, 16, 32, 64, 128, 256\} & Stencil\\
-Global size & \{256, 512, 1024, 2048, 4096, 8192, \ldots, 2097152\} & Reduce\\
+Thread coarsening factor & TODO & Any\\
+Work group size & TODO & Any\\
+Work group size (columns) & \{8, 16, 32, 64, 128, 256\} & Stencil\\
+Work group size (rows) & \{4, 8, 16, 32, 64, 128, 256\} & Stencil\\
+Global size & \{256, 512, 1024, 2048, \ldots, 2097152\} & Reduce\\
+Iterations between swaps & TODO & Stencil\\
+Implementation of border region loading & TODO & Stencil\\
+Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
 \hline
 \end{tabular}
-\caption{Evaluated tunable parameters.}
+\caption{Tunable parameters.}
 \end{table}
 
 \begin{figure}[h]
@@ -138,23 +143,6 @@ Global size & \{256, 512, 1024, 2048, 4096, 8192, \ldots, 2097152\} & Reduce\\
 \caption{Performance of Game of Life using different work group
   sizes.}
 \end{figure}
-
-
-\begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l | l |}
-\hline
-\textbf{Parameter} & \textbf{Possible values} & \textbf{Skeleton}\\
-\hline
-Thread coarsening & INT >= 1 & ANY\\
-Iterations between swaps & INT >= 1 & Stencil\\
-Implementation of border region loading & - & Stencil\\
-Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
-\hline
-\end{tabular}
-\caption{Tunable parameters.}
-\end{table}
 
 \subsection*{Experimental setup}
 
