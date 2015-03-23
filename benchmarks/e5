@@ -1,0 +1,14 @@
+#!/usr/bin/env python2.7
+#
+# e5
+#
+from benchlib import *
+
+t = TestHarness(Host("florence"),
+                TestCase(SkelCLBenchmark("DotProduct")),
+                FixedSizeSampler(3))
+
+t.run()
+
+for r in t.results():
+    print(r)

@@ -5,18 +5,18 @@ from hashlib import sha1
 from itertools import product
 from math import sqrt
 from os import chdir,getcwd,listdir,makedirs
-from os.path import abspath,dirname,exists
+from os.path import abspath,basename,dirname,exists
 from random import shuffle
 from re import match,search
 from re import sub
+from scipy import stats
 from socket import gethostname
 from subprocess import call,check_output
 from sys import exit,stdout
-
-import scipy
-from scipy import stats
+from time import time
 
 import json
+import scipy
 
 ##### LOCAL VARIABLES #####
 
@@ -60,6 +60,12 @@ def bin(name):
 
 def pprint(data):
     return json.dumps(data, sort_keys=True, indent=2, separators=(',', ': '))
+
+def mkdir(path):
+    try:
+        makedirs(path)
+    except OSError:
+        pass
 
 # Change to directory "path".
 def cd(path):
@@ -195,38 +201,38 @@ RUNLOG = path(CWD, 'run.log')
 
 ###### EXPERIMENTAL RESULTS #####
 
-# Return the path of the results file for "version".
-def _versionfile(version=skelcl_version()):
-    return path(RESULTSDIR, '{0}.json'.format(version))
+# Return the path of the results file for "id".
+def _versionfile(id):
+    return path(RESULTSDIR, '{id}.json'.format(id=id))
 
-# Write cached data for "version" to disk.
-def _writeversion(version=skelcl_version()):
-    file = _versionfile(version)
-    json.dump(_cache[version], open(file, 'w'),
+# Write cached data for "id" to disk.
+def _writeversion(id):
+    file = _versionfile(id)
+    json.dump(_cache[id], open(file, 'w'),
               sort_keys=True, indent=2, separators=(',', ': '))
-    print("Wrote '{0}'...".format(file))
+    print("Wrote '{path}'...".format(path=file))
 
-# Load data for "version" to cache.
-def _loadcache(version=skelcl_version()):
-    file = _versionfile(version)
+# Load data for "id" to cache.
+def _loadcache(id):
+    file = _versionfile(id)
     if exists(file):
         try:
             data = json.load(open(file))
         except ValueError:
             data = {}
-        print("Read '{0}'...".format(file))
+        print("Read '{path}'...".format(path=file))
     else:
         data = {}
 
-    _cache[version] = data
+    _cache[id] = data
 
 
 # Dump dirty cached data to disk.
 def _dumpdirty():
     global _cachedirty, _cachewrites
 
-    for version in _cachedirty:
-        _writeversion(version)
+    for id in _cachedirty:
+        _writeversion(id)
 
     _cachewrites = 0
     _cachedirty = set()
@@ -238,24 +244,24 @@ def _dumpcache():
         return
     _dumpdirty()
 
-# Mark "version" as cache dirty.
-def _flagdirty(version):
+# Mark "id" as cache dirty.
+def _flagdirty(id):
     global _cachewrites, _cachedirty
-    _cachedirty.add(version)
+    _cachedirty.add(id)
     _cachewrites += 1
 
 # Register exit handler.
 register(_dumpcache)
 
-# Return the results for "version".
-def load(version):
-    if version not in _cache:
-        _loadcache(version)
-    return _cache[version]
+# Return the results for "id".
+def load(id):
+    if id not in _cache:
+        _loadcache(id)
+    return _cache[id]
 
-# Store "results" for "version".
-def store(results, version):
-    _flagdirty(version)
+# Store "results" for "id".
+def store(results, id):
+    _flagdirty(id)
     # If there's enough dirty data, dump cache.
     if _cachewrites >= _cachewritethreshold:
         _dumpdirty()
@@ -431,3 +437,273 @@ def json2arff(schema, data, relation="data", file=stdout):
 
     if file != stdout:
         print("Wrote '{0}'...".format(file.name))
+
+
+##### OBJECT ORIENTATION #####
+
+#
+class Host:
+    def __init__(self, name, hasgpu=False):
+        self.name = name
+        self.hasgpu = hasgpu
+
+    def __repr__(self):
+        return ("Host [{host}].{gpu}"
+                .format(host=self.name,
+                        gpu=" Has GPU." if self.hasgpu else ""))
+
+#
+class IndependentVariable:
+    def __init__(self, name, val):
+        self.name = name
+        self.val = val
+
+    def __repr__(self):
+        return "{name}: {val}".format(name=self.name, val=self.val)
+
+#
+class NullVariable(IndependentVariable):
+    def __init__(self):
+        IndependentVariable.__init__(self, "Null", None)
+
+#
+class Hostname(IndependentVariable):
+    def __init__(self):
+        val = gethostname()
+        IndependentVariable.__init__(self, "Hostname", val)
+
+#
+class Argument(IndependentVariable):
+    def __init__(self, val):
+        IndependentVariable.__init__(self, "Argument", val)
+
+    def __repr__(self):
+        return str(self.val)
+
+# Represents a tunable knob.
+class Knob(IndependentVariable):
+    #
+    def build(self, val): pass
+
+#
+class DependentVariable:
+    def __init__(self, name):
+        self.name = name
+        self.val = None
+
+    # String representation of dependent variable.
+    def __repr__(self):
+        return "{name}: {val}".format(name=self.name, val=self.val)
+
+    # Pre and post execution hooks.
+    def pre(self): pass
+    def post(self, exitstatus, output): pass
+
+
+# A built-in runtime variable.
+class RunTime(DependentVariable):
+    def __init__(self):
+        DependentVariable.__init__(self, "Run time")
+
+    def pre(self):
+        self.start = time()
+
+    def post(self, exitstatus, output):
+        end = time()
+        elapsed = end - self.start
+        self.val = elapsed
+
+# A built-in runtime variable.
+class ExitStatus(DependentVariable):
+    def __init__(self):
+        DependentVariable.__init__(self, "Exit status")
+
+    def post(self, exitstatus, output):
+        self.val = exitstatus
+
+#
+class Binary:
+    def __init__(self, path, runlog):
+        if not exists(path):
+            raise Exception("Binary '{path}' does not exist!"
+                            .format(path=path))
+
+        self.basename = basename(path)
+        self.path = path
+        self.runlog = runlog
+        self.checksum = sha1(open(path).read()).hexdigest()
+
+    def run(self, args):
+        cmd = [self.path] + [str(arg) for arg in args]
+        return system(cmd, out=open(self.runlog, 'w'), exit_on_error=False)
+
+    def __repr__(self):
+        return ("{name} {checksum}"
+                .format(name=self.basename,
+                        checksum=self.checksum))
+
+#
+class Benchmark:
+    def __init__(self, name, path, logfile, outvars=[]):
+        self.name = name
+        self.logfile = logfile
+        self.bin = Binary(path, logfile)
+        self._builtins = [RunTime(), ExitStatus()]
+        self.outvars = outvars
+
+    def __repr__(self):
+        return str(self.name)
+
+    def run(self, args):
+        outvars = self._builtins + self.outvars
+
+        [var.pre() for var in outvars]
+        exitstatus = self.bin.run(args)
+        output = [l.rstrip() for l in open(self.logfile).readlines()]
+        [var.post(exitstatus, output) for var in outvars]
+
+        return outvars
+
+#
+class Result:
+    def __init__(self, benchmark, invars, outvars):
+        self.benchmark = benchmark
+        self.invars = invars
+        self.outvars = outvars
+
+    def __repr__(self):
+        return " ".join([str(x) for x in
+                         [self.benchmark, self.invars, self.outvars]])
+
+class ResultsEncoder(json.JSONEncoder):
+    def default(self, o):
+        pass
+
+class ResultsStore:
+    @staticmethod
+    def path(testharness):
+        testcase = testharness.testcase
+        benchmark = testcase.benchmark
+        bin = benchmark.bin
+
+        dir = path(CWD, "results", benchmark.name, bin.checksum)
+        mkdir(dir)
+
+        # Get path to results store
+        return path(dir, "{name}.json".format(name=testharness.host.name))
+
+    @staticmethod
+    def load(testharness):
+        file = ResultsStore.path(testharness)
+
+        try:
+            data = json.load(open(file))
+            print("Read", file)
+            return data
+        except:
+            return []
+
+    @staticmethod
+    def store(testharness):
+        file = ResultsStore.path(testharness)
+
+        data = {'results': testharness.results()}
+        json.dump(data, open(file, 'w'), cls=ResultsEncoder,
+                  sort_keys=True, indent=2, separators=(',', ': '))
+        print("Wrote", file)
+
+#
+class Sampler:
+    def hasnext(results): return True
+
+#
+class FixedSizeSampler(Sampler):
+    def __init__(self, samplecount=10):
+        self.samplecount = samplecount
+
+    def hasnext(self, results):
+        return len(results) < self.samplecount
+
+#
+class TestCase:
+    def __init__(self, benchmark, invars=[]):
+        # Built in independent variables.
+        builtins = [Hostname()]
+
+        self.benchmark = benchmark
+        self.invars = builtins + invars
+
+        # Arguments cache.
+        self._hasargs = False
+        self._args = []
+
+    def sample(self):
+        args = (self._args if self._hasargs else
+                filter(lambda x: isinstance(x, Argument), self.invars))
+        self._hasargs = True # Mark arguments as loaded
+        outvars = self.benchmark.run(args)
+        return Result(self.benchmark, self.invars, outvars)
+
+#
+class TestHarness:
+    def __init__(self, host, testcase, sampler=FixedSizeSampler()):
+        self.host = host
+        self.testcase = testcase
+        self.sampler = sampler
+        self._results = ResultsStore.load(self)
+
+    def run(self):
+        # Only run if we are on the right host.
+        if gethostname() != self.host.name:
+            return
+
+        print("Running", self, "...")
+        while self.sampler.hasnext(self.results()):
+            self._results.append(self.testcase.sample())
+            ResultsStore.store(self)
+
+    def results(self):
+        return self._results
+
+#
+class TestSuite:
+    def __init__(hosts, harnesses):
+        self.hosts = hosts
+        self.harnesses = harnesses
+
+##### SKELCL-SPECIFIC CLASSES #####
+
+#
+class SkelCLElapsedTimes(DependentVariable):
+    def __init__(self):
+        DependentVariable.__init__(self, "Elapsed times")
+
+    def post(self, exitstatus, output):
+        r = []
+        for line in output:
+            match = search('^Elapsed time:\s+([0-9]+)\s+', line)
+            if match:
+                r.append(int(match.group(1)))
+
+        # Clamp each time at >= 1 ms. This is necessary for computations
+        # that require less than .5 ms, which will be rounded down to 0.
+        self.val = [max(x, 1) for x in r]
+
+#
+class SkelCLBenchmark(Benchmark):
+    def __init__(self, name, outvars=[]):
+        # Path to directory:
+        self.dir = path(SKELCL_BUILD, 'examples', name)
+        # Path to binary:
+        binpath = path(self.dir, name)
+
+        # Builtin dependent variables.
+        outvars = [SkelCLElapsedTimes()] + outvars
+
+        # Superclass:
+        Benchmark.__init__(self, name, binpath, RUNLOG,
+                           outvars=outvars)
+
+    def run(self, args):
+        cd(self.dir)
+        return Benchmark.run(self, args)
