@@ -19,7 +19,7 @@ void print(const skelcl::Matrix<double> &A) {
   for (size_t j = 0; j < A.rowCount(); j++) {
       std::cout << "  ";
       for (size_t i = 0; i < A.columnCount(); i++)
-          std::cout << A[j][i] << " ";
+          printf("%3.0f ", A[j][i]);
       std::cout << "\n";
   }
   std::cout << "]\n";
@@ -33,10 +33,11 @@ int main(int argc, char* argv[]) {
   skelcl::init(skelcl::nDevices(1).deviceType(skelcl::device_type::ANY));
 
   // Define the skeleton objects.
-  unsigned int north = 1;
-  unsigned int south = 1;
-  unsigned int east = 1;
-  unsigned int west = 1;
+  unsigned int north = 3;
+  unsigned int south = 3;
+  unsigned int east = 3;
+  unsigned int west = 3;
+
 
   skelcl::Stencil<double(double)> sum(
       std::ifstream("./stencil.cl"),
@@ -46,9 +47,9 @@ int main(int argc, char* argv[]) {
       "func");  // user function
 
   // Define Matrix A.
-  const int width = 3;
-  const int height = 3;
-  skelcl::Matrix<double> A({width, height});
+  const int width = 18;
+  const int height = 18;
+  skelcl::Matrix<double> A({height, width});
 
   // Initialise matrix.
   auto i = A.begin();

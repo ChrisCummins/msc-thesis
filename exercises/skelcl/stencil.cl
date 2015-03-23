@@ -9,5 +9,5 @@ double func(input_matrix_t *data, int range) {
     }
 
     //return sum;
-    return getData(data, 1, 0);
+    return getData(data, 2, 2);
 }
