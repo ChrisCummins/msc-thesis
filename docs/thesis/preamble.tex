@@ -932,6 +932,38 @@
 % and \ohm which work both in text and maths mode.
 \usepackage{gensymb}
 
+%%%%%%%%%%%%%%%%%%%%%
+%% Draft versions  %%
+%%%%%%%%%%%%%%%%%%%%%
+
+% A set of macros for adding "todo" and rough notes to
+% documents. Usage: \todo{Todo note}. The macros are conditional on
+% the "draft" command. For production builds, comment this line out:
+\def\draft{}
+
+% Packages needed for \todo{} and \roughnotes{}.
+\usepackage{color}
+
+% \todo{} command.
+\newcommand{\todo}[1]{
+  \ifdef{\draft}
+  {\textcolor{red}{\em\footnotesize#1}}
+  {}
+}
+
+% \TODO{} command.
+\newcommand{\TODO}[1]{
+  \ifdef{\draft}
+  {\todo{\textbf{TODO:} #1}}
+  {}
+}
+
+% \note{} command.
+\newcommand{\note}[1]{
+  \ifdef{\draft}
+  {\textcolor{blue}{\em\footnotesize#1}}
+  {}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Placeholder text generation %%
