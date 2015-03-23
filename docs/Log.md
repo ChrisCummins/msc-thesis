@@ -4464,3 +4464,16 @@ TODO:
 * Identify what is spamming my filesystem.
 * Request access to 2 or 3 different CArD servers for running SkelCL
   experiments.
+
+
+## Monday 23rd
+
+I traced the problem with my free disk space being swallowed up. When
+a SkelCL example program crashes, it produces a large core dump file
+in `/var/lib/systemd/coredump`, on the order of ~20 MB each. Because
+of my iterative compilation scripts selecting illegal parameter
+values, thousands of these core dumps had been created. Pavlos' server
+doesn't appear to have the same problem.
+
+SGEMM: BLAS naming convention for Single precision, General Matrix
+Multiply.

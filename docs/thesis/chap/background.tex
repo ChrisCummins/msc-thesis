@@ -28,6 +28,27 @@
 % 2008.
 \cite{Ryoo2008a}
 
+% V. W. Lee, P. Hammarlund, R. Singhal, P. Dubey, C. Kim, J. Chhugani,
+% M. Deisher, D. Kim, A. D. Nguyen, N. Satish, M. Smelyanskiy, and
+% S. Chennupaty, “Debunking the 100X GPU vs. CPU myth,” ACM SIGARCH
+% Comput. Archit. News, vol. 38, p. 451, 2010.
+In~\cite{Lee2010}, \citeauthor{Lee2010} present a performance analysis
+of optimised throughput computing applications for GPUs and CPUs. Of
+the 14 applications tested, they found GPU performance to be
+$0.7\times$-$14.9\times$ that of multi-threaded CPU code, with an
+average of only 2.5$\times$. This is much lower than the
+$100\times$-$1000\times$ values reported by other studies,
+% TODO: ^^ Citation needed!
+a fact that they attribute to uneven comparison of optimised GPU code
+to unoptimised CPU code, or vice versa. \citeauthor{Lee2010} found
+that multithreading, cache blocking, reordering of memory accesses and
+use of SIMD instructions to contribute most to CPU performance. For
+GPUs, the most effective optimisations are reducing synchronization
+costs, and exploiting local shared memory. In all cases, the programs
+were optimised and hand-tuned by programmers with expert knowledge of
+the target architectures. It is unclear whether their performance
+results still hold for subsequent generations of devices.
+
 
 %%%%%%%%%%
 % TIER 3 %
