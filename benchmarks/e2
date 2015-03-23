@@ -12,6 +12,7 @@ gui = True
 if gui:
     import numpy as np
     import matplotlib.pyplot as plt
+    from matplotlib import rc
 
 from atexit import register
 from datetime import datetime
@@ -567,6 +568,8 @@ if not gui:
     print("Finished collecting results.")
     exit(0)
 
+rc('text', usetex=True)
+
 # Generate graphs.
 for prog in experiment['progs']:
     for args in allargs[prog]:
@@ -632,10 +635,15 @@ for prog in experiment['progs']:
 
             plt.gca().set_position((.1, .2, .85, .7)) # to make a bit of room for extra text
 
+            bestspeedup = max(yvals)
+            bestvalue = labels[yvals.index(bestspeedup)]
             plt.figtext(.02, .02,
-                        ("Avg. {i:.1f} iterations, with 95% confidence intervals. "
-                         "Avg. {t:.2f} ms execution time."
-                         .format(i=meaniterations, t=meanruntime)))
+                        ("Best: \\textbf{{{s:.0f}\\%}} speedup "
+                         "using [\\textbf{{{v}}}]. "
+                         "Avg. {t:.2f} ms execution time. "
+                         "Avg. {i:.1f} iterations. "
+                         .format(v=bestvalue, s=(bestspeedup - 1) * 100,
+                                 i=meaniterations, t=meanruntime)))
 
             ax.set_ylabel('Speedup')
             ax.set_title(title)
