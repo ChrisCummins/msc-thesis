@@ -3,31 +3,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%
-%% Load the class. Put any options that you want here (see the documentation
-%% for the list of options). The following are samples for each type of
-%% thesis:
-%%
-%% Note: you can also specify any of the following options:
-%%  logo: put a University of Edinburgh logo onto the title page
-%%  frontabs: put the abstract onto the title page
-%%  deptreport: produce a title page that fits into a Computer Science
-%%      departmental cover [not sure if this actually works]
-%%  singlespacing, fullspacing, doublespacing: choose line spacing
-%%  oneside, twoside: specify a one-sided or two-sided thesis
-%%  10pt, 11pt, 12pt: choose a font size
-%%  centrechapter, leftchapter, rightchapter: alignment of chapter headings
-%%  sansheadings, normalheadings: headings and captions in sans-serif
-%%      (default) or in the same font as the rest of the thesis
-%%  [no]listsintoc: put list of figures/tables in table of contents (default:
-%%      not)
-%%  romanprepages, plainprepages: number the preliminary pages with Roman
-%%      numerals (default) or consecutively with the rest of the thesis
-%%  parskip: don't indent paragraphs, put a blank line between instead
-%%  abbrevs: define a list of useful abbreviations (see documentation)
-%%  draft: produce a single-spaced, double-sided thesis with narrow margins
-%%
-%% MSc by Research, which also needs an institute
-\documentclass[mscres,icsa,twopage]{infthesis}
+%% Load the class.
+\documentclass[10.5pt]{article}
 
 % Fix for multiple "No room for a new \dimen" errors.
 %
@@ -40,6 +17,17 @@
 % Make internal macro definitions accessible,
 % e.g. \@title, \@date \@author.
 \makeatletter
+
+% Define the document margins.
+\newcommand{\DocumentHorizontalMargin}{22mm}
+\newcommand{\DocumentVerticalMargin}{22mm}
+
+% Geometry package configuration. Sets page margins.
+\usepackage[a4paper,
+            left   = \DocumentHorizontalMargin{},
+            right  = \DocumentHorizontalMargin{},
+            top    = \DocumentVerticalMargin{},
+            bottom = \DocumentVerticalMargin{}]{geometry}
 
 % Multi-column support.
 %\usepackage{multicol}
@@ -942,6 +930,3 @@
 \usepackage[english]{babel}
 \usepackage{blindtext}
 \usepackage{lipsum}
-
-
-\abstract{\input{abstract}}
