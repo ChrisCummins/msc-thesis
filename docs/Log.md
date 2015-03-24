@@ -4500,3 +4500,39 @@ if (SCL_L_COL >= SCL_L_COL_COUNT - SCL_EAST) {
     SCL_LOCAL_TMP[lcolID] = (SCL_COL >= SCL_COLS - SCL_EAST) ? neutral : SCL_TMP[gcolID];
 }
 ```
+
+
+## Tuesday 24th
+
+I contacted Alberto, Thibaut, and William about borrowing access to
+their machines to run SkelCL exploratory experiments on. I now have
+SSH access to `tim`, `monza`, and `whz5`.
+
+TODO:
+* Setup SSH key for all machines.
+* Clone `msc-thesis` and build SkelCL for all.
+* Test run the example programs.
+
+From "Advanced Copmiler Design and Implementation" (Muchnick, 1997):
+
+> Transformations that are not unimodular: loop fusion, distribution,
+> and tiling.
+
+`finger`:
+* User information lookup.
+*
+
+OpenSUSE essentials:
+* `cnf <command>` to lookup a package.
+* `sudo zypper install <package>` to install.
+
+Log:
+* whz5: Installed git, finger, htop, and SkelCL dependencies. Built
+  LLVM from source using a modified version of the
+  `installDependenciesArchLinux.sh` script.
+* whz5: Built msc-thesis and verified correct behaviour of all example
+  programs.
+* tim: Installed SkelCL dependencies and built LLVM from source using
+  script from whz5.
+* monza: Installed SkelCL dependencies and built LLVM from source using
+  script from whz5.
