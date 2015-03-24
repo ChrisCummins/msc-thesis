@@ -1,7 +1,6 @@
 from __future__ import print_function
 from atexit import register
 from datetime import datetime
-from hashlib import sha1
 from itertools import product
 from math import sqrt
 from os import chdir,getcwd,listdir,makedirs
@@ -10,31 +9,21 @@ from random import shuffle
 from re import match,search
 from re import sub
 from scipy import stats
-from socket import gethostname
 from subprocess import call,check_output
 from sys import exit,stdout
-from time import time
 
 import json
 import scipy
+
+import jsoncache
+import resultscache
+from util import checksum
+from variables import *
 
 ##### LOCAL VARIABLES #####
 
 # directory history
 __cdhist = [dirname(__file__)]
-
-# Experimental results are cached in an dictionary, indexed by the
-# experiment name. Results are read and written using the load() and
-# store() functions, respectively. On a cache miss, the load()
-# function looks up the name of the results file for that experiment
-# and, if found, adds it to the cache. A store() marks that experiment
-# as "cachedirty", and increments the "cachewrites" counter by 1. When
-# the value of "cachewrites" reaches "cachewritethreshold", the cache
-# is emptied and any file in the "cachedirty" set is written.
-_cache = {}
-_cachedirty = set()
-_cachewrites = 0
-_cachewritethreshold = 5
 
 ##### UTILITIES #####
 
@@ -143,11 +132,6 @@ def system(args, out=None, exit_on_error=True):
     return exitstatus
 
 
-# Returns the hex checksum of "file".
-def checksum(file):
-    return sha1(open(file).read()).hexdigest()
-
-
 ####### STATS #######
 
 # Return the mean value of a list of divisible numbers.
@@ -199,73 +183,6 @@ BUILDLOG = path(CWD, 'make.log')
 RUNLOG = path(CWD, 'run.log')
 
 
-###### EXPERIMENTAL RESULTS #####
-
-# Return the path of the results file for "id".
-def _versionfile(id):
-    return path(RESULTSDIR, '{id}.json'.format(id=id))
-
-# Write cached data for "id" to disk.
-def _writeversion(id):
-    file = _versionfile(id)
-    json.dump(_cache[id], open(file, 'w'),
-              sort_keys=True, indent=2, separators=(',', ': '))
-    print("Wrote '{path}'...".format(path=file))
-
-# Load data for "id" to cache.
-def _loadcache(id):
-    file = _versionfile(id)
-    if exists(file):
-        try:
-            data = json.load(open(file))
-        except ValueError:
-            data = {}
-        print("Read '{path}'...".format(path=file))
-    else:
-        data = {}
-
-    _cache[id] = data
-
-
-# Dump dirty cached data to disk.
-def _dumpdirty():
-    global _cachedirty, _cachewrites
-
-    for id in _cachedirty:
-        _writeversion(id)
-
-    _cachewrites = 0
-    _cachedirty = set()
-    print("Results cache clean.")
-
-# Dump results cache.
-def _dumpcache():
-    if not _cachewrites: # there may be nothing to dump
-        return
-    _dumpdirty()
-
-# Mark "id" as cache dirty.
-def _flagdirty(id):
-    global _cachewrites, _cachedirty
-    _cachedirty.add(id)
-    _cachewrites += 1
-
-# Register exit handler.
-register(_dumpcache)
-
-# Return the results for "id".
-def load(id):
-    if id not in _cache:
-        _loadcache(id)
-    return _cache[id]
-
-# Store "results" for "id".
-def store(results, id):
-    _flagdirty(id)
-    # If there's enough dirty data, dump cache.
-    if _cachewrites >= _cachewritethreshold:
-        _dumpdirty()
-
 ###### BENCHMARK FUNCTIONS #####
 
 def buildlog():
@@ -293,85 +210,6 @@ def makeSkelCL(configure=True, clean=True, log=buildlog()):
     if clean:
         system(['make', 'clean'], out=log)
     system(['make'], out=log)
-
-# Run "prog" with "args", and log output to "log". Returns exit status
-# of program.
-#
-#   @side-effect: Changes working dir.
-def runprog(prog, args, log=open(RUNLOG, 'w')):
-    cd(bindir(prog))
-    printheader(log)
-    return system([bin(prog)] + args, out=log, exit_on_error=False)
-
-# Parse a program output and return a list of runtimes (in ms).
-def parseruntimes(output):
-    r = []
-    for line in output:
-        match = search('^Elapsed time:\s+([0-9]+)\s+', line)
-        if match:
-            r.append(int(match.group(1)))
-
-    # Clamp each time at >= 1 ms. This is necessary for computations
-    # that require less than .5 ms, which will be rounded down to 0.
-    r = [max(x, 1) for x in r]
-    return r
-
-# Run program "prog" with arguments "args" and an error of
-# runtime(s). If prog produces no runtimes, return value "ebad".
-#
-#   @side-effect: Changes working dir.
-def times(prog, args=[], ebad=[-1]):
-    e = runprog(prog, args, log=open(RUNLOG, 'w'))
-    if e:
-        print("Died, with output:")
-        [print(x.rstrip()) for x in open(RUNLOG).readlines()]
-        return ebad
-
-    r = parseruntimes(open(RUNLOG).readlines())
-    return r if len(r) else ebad
-
-# Lookup results for "prog" with "args" (where "args" is either a
-# concatenated string or a list) on "id" under "version".
-def results(prog, args, id=ID(), version=skelcl_version()):
-    R = load(version)
-    if not isinstance(args, basestring):
-        args = ' '.join(args)
-
-    if prog in R:
-        if args in R[prog]:
-            if id in R[prog][args]:
-                return R[prog][args][id]
-    return []
-
-# Record the runtimes of "prog" using "args", under experiment
-# "version".
-def record(prog, args=[], version=skelcl_version(), n=-1, count=-1):
-    R = load(version)
-    options = ' '.join(args)
-    id = ID()
-
-    # If we don't have enough results
-    if n < 0 or len(results(prog, args, version=version)) < n:
-        # Print out header.
-        if count >= 0:
-            print("iteration", count, end=" ")
-        print("[{0}/{1}] {2} {3}"
-              .format(len(results(prog, args, version=version)), n,
-                      prog, options))
-
-        t = times(prog, args)
-        if t[0] >= 0:
-            if prog not in R:
-                R[prog] = {}
-
-            if options not in R[prog]:
-                R[prog][options] = {}
-
-            if id not in R[prog][options]:
-                R[prog][options][id] = []
-
-            R[prog][options][id] += t
-            store(R, version)
 
 # Return all permutations of "options" for "prog"
 def permutations(options=[[]]):
@@ -412,114 +250,21 @@ def settingspermutations(options):
     keys = product(*[options[x] for x in options])
     return [dict(zip(vals, k)) for k in keys]
 
-def runexperiment(experiment):
-    basename = experiment['name']
-
-    for p in settingspermutations(experiment['settings']):
-        experiment['pre-exec-hook'](p)
-        experiment['name'] = "{0}-{1}".format(basename, "-".join([str(p[x]) for x in p]))
-        experiment['settings-val'] = p
-        iterate(experiment)
-
-def json2arff(schema, data, relation="data", file=stdout):
-    print("@RELATION {0}".format(relation), file=file)
-    print(file=file)
-
-    for attribute in schema:
-        print("@ATTRIBUTE {0} {1}"
-              .format(attribute[0], attribute[1]), file=file)
-
-    print(file=file)
-    print("@DATA", file=file)
-    for d in data:
-        dd = [str(x) for x in d]
-        print(','.join(dd), file=file)
-
-    if file != stdout:
-        print("Wrote '{0}'...".format(file.name))
-
 
 ##### OBJECT ORIENTATION #####
 
 #
 class Host:
-    def __init__(self, name, hasgpu=False):
+    def __init__(self, name, gpus=[]):
         self.name = name
-        self.hasgpu = hasgpu
+        self.gpus = gpus
 
     def __repr__(self):
-        return ("Host [{host}].{gpu}"
+        return ("Host [{host}].{gpus}"
                 .format(host=self.name,
-                        gpu=" Has GPU." if self.hasgpu else ""))
-
-#
-class IndependentVariable:
-    def __init__(self, name, val):
-        self.name = name
-        self.val = val
-
-    def __repr__(self):
-        return "{name}: {val}".format(name=self.name, val=self.val)
-
-#
-class NullVariable(IndependentVariable):
-    def __init__(self):
-        IndependentVariable.__init__(self, "Null", None)
-
-#
-class Hostname(IndependentVariable):
-    def __init__(self):
-        val = gethostname()
-        IndependentVariable.__init__(self, "Hostname", val)
-
-#
-class Argument(IndependentVariable):
-    def __init__(self, val):
-        IndependentVariable.__init__(self, "Argument", val)
-
-    def __repr__(self):
-        return str(self.val)
-
-# Represents a tunable knob.
-class Knob(IndependentVariable):
-    #
-    def build(self, val): pass
-
-#
-class DependentVariable:
-    def __init__(self, name):
-        self.name = name
-        self.val = None
-
-    # String representation of dependent variable.
-    def __repr__(self):
-        return "{name}: {val}".format(name=self.name, val=self.val)
-
-    # Pre and post execution hooks.
-    def pre(self): pass
-    def post(self, exitstatus, output): pass
-
-
-# A built-in runtime variable.
-class RunTime(DependentVariable):
-    def __init__(self):
-        DependentVariable.__init__(self, "Run time")
-
-    def pre(self):
-        self.start = time()
-
-    def post(self, exitstatus, output):
-        end = time()
-        elapsed = end - self.start
-        self.val = elapsed
-
-# A built-in runtime variable.
-class ExitStatus(DependentVariable):
-    def __init__(self):
-        DependentVariable.__init__(self, "Exit status")
-
-    def post(self, exitstatus, output):
-        self.val = exitstatus
+                        gpus=" {0}.".format(", ".join([str(x)
+                                                       for x in self.gpus]))
+                        if len(self.gpus) else ""))
 
 #
 class Binary:
@@ -531,16 +276,22 @@ class Binary:
         self.basename = basename(path)
         self.path = path
         self.runlog = runlog
-        self.checksum = sha1(open(path).read()).hexdigest()
+        self._haschecksum = False
+        self._checksum = ""
+
+    def checksum(self):
+        if not self._haschecksum:
+            self._checksum = checksum(self.path)
+            self._haschecksum = True
+
+        return self._checksum
 
     def run(self, args):
         cmd = [self.path] + [str(arg) for arg in args]
         return system(cmd, out=open(self.runlog, 'w'), exit_on_error=False)
 
     def __repr__(self):
-        return ("{name} {checksum}"
-                .format(name=self.basename,
-                        checksum=self.checksum))
+        return self.basename
 
 #
 class Benchmark:
@@ -548,7 +299,7 @@ class Benchmark:
         self.name = name
         self.logfile = logfile
         self.bin = Binary(path, logfile)
-        self._builtins = [RunTime(), ExitStatus()]
+        self._builtins = [RunTime(), Checksum(), ExitStatus()]
         self.outvars = outvars
 
     def __repr__(self):
@@ -557,10 +308,10 @@ class Benchmark:
     def run(self, args):
         outvars = self._builtins + self.outvars
 
-        [var.pre() for var in outvars]
+        [var.pre(self) for var in outvars]
         exitstatus = self.bin.run(args)
         output = [l.rstrip() for l in open(self.logfile).readlines()]
-        [var.post(exitstatus, output) for var in outvars]
+        [var.post(self, exitstatus, output) for var in outvars]
 
         return outvars
 
@@ -575,42 +326,11 @@ class Result:
         return " ".join([str(x) for x in
                          [self.benchmark, self.invars, self.outvars]])
 
-class ResultsEncoder(json.JSONEncoder):
-    def default(self, o):
-        pass
-
-class ResultsStore:
-    @staticmethod
-    def path(testharness):
-        testcase = testharness.testcase
-        benchmark = testcase.benchmark
-        bin = benchmark.bin
-
-        dir = path(CWD, "results", benchmark.name, bin.checksum)
-        mkdir(dir)
-
-        # Get path to results store
-        return path(dir, "{name}.json".format(name=testharness.host.name))
-
-    @staticmethod
-    def load(testharness):
-        file = ResultsStore.path(testharness)
-
-        try:
-            data = json.load(open(file))
-            print("Read", file)
-            return data
-        except:
-            return []
-
-    @staticmethod
-    def store(testharness):
-        file = ResultsStore.path(testharness)
-
-        data = {'results': testharness.results()}
-        json.dump(data, open(file, 'w'), cls=ResultsEncoder,
-                  sort_keys=True, indent=2, separators=(',', ': '))
-        print("Wrote", file)
+    # Encode a result for JSON serialization.
+    def encode(self):
+        d = {}
+        [d.update(x.encode()) for x in self.invars + self.outvars]
+        return d
 
 #
 class Sampler:
@@ -622,7 +342,12 @@ class FixedSizeSampler(Sampler):
         self.samplecount = samplecount
 
     def hasnext(self, results):
-        return len(results) < self.samplecount
+        n = len(results)
+        run = len(results) < self.samplecount
+        if run:
+            print("Has {n}/{total} results. Running.".
+                  format(n=n, total=self.samplecount))
+        return run
 
 #
 class TestCase:
@@ -650,7 +375,6 @@ class TestHarness:
         self.host = host
         self.testcase = testcase
         self.sampler = sampler
-        self._results = ResultsStore.load(self)
 
     def run(self):
         # Only run if we are on the right host.
@@ -659,11 +383,13 @@ class TestHarness:
 
         print("Running", self, "...")
         while self.sampler.hasnext(self.results()):
-            self._results.append(self.testcase.sample())
-            ResultsStore.store(self)
+            result = self.testcase.sample()
+            resultscache.store(result)
 
     def results(self):
-        return self._results
+        return resultscache.load(self.testcase.benchmark,
+                                 self.testcase.benchmark.bin.checksum(),
+                                 self.host.name)
 
 #
 class TestSuite:
@@ -678,7 +404,7 @@ class SkelCLElapsedTimes(DependentVariable):
     def __init__(self):
         DependentVariable.__init__(self, "Elapsed times")
 
-    def post(self, exitstatus, output):
+    def post(self, benchmark, exitstatus, output):
         r = []
         for line in output:
             match = search('^Elapsed time:\s+([0-9]+)\s+', line)

@@ -1,0 +1,32 @@
+#!/usr/bin/env python2.7
+#
+# Port old format data to new.
+#
+from benchlib import *
+import resultscache
+import json
+from glob import glob
+
+def portdata(data):
+    for prog in data:
+        benchmark = SkelCLBenchmark(prog)
+        for args in data[prog]:
+
+            invars = []
+            # TODO: parse arguments as independent variables
+
+            for id in data[prog][args]:
+                host = Host(id)
+
+                r = data[prog][args][id]
+
+                print(benchmark, host)
+
+oldjsons = glob('./results/*.json')
+
+for f in oldjsons:
+    try:
+        d = json.load(open(f))
+        portdata(d)
+    except:
+        print("Skipping", f)
