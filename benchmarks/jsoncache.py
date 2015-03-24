@@ -67,5 +67,6 @@ def _flagdirty(path):
 def load(path):
     return _cache[path] if path in _cache else _loadcache(path)
 
-def store(path):
+def store(path, data):
+    _cache[path] = data
     _flagdirty(path)

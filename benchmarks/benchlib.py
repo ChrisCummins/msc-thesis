@@ -256,17 +256,22 @@ def settingspermutations(options):
 # Represents a host device, i.e. a machine to collect results
 # from. Host objects should be immutable.
 class Host:
-    def __init__(self, name, cpu="", mem="", gpus=[]):
+    def __init__(self, name, cpu="", mem="", gpus=[], opencl_cpu=False):
         self.NAME = name
         self.CPU = cpu
         self.MEM = mem
         self.GPUS = gpus
 
         # Compute the string.
-        _mem = "{g} GiB".format(g=mem)
-        _gpus = "{{{0}}}".format(", ".join(gpus)) if len(gpus) else ""
-        self._str = ("{host}: {hw}"
-                     .format(host=name, hw=", ".join([cpu, _mem, _gpus])))
+        specs = [
+            "{cpu}{opencl}".format(cpu=cpu,
+                                   opencl=" (w/ OpenCL)" if opencl_cpu else ""),
+            "{g} GiB memory".format(g=mem)
+        ]
+        if len(gpus): # List GPUs if available.
+            specs.append("GPUs: {{{0}}}".format(", ".join(gpus)))
+
+        self._str = "{host}: {specs}".format(host=name, specs=", ".join(specs))
 
     def __repr__(self):
         return self._str
@@ -274,10 +279,6 @@ class Host:
 #
 class Binary:
     def __init__(self, path, runlog):
-        if not exists(path):
-            raise Exception("Binary '{path}' does not exist!"
-                            .format(path=path))
-
         self.basename = basename(path)
         self.path = path
         self.runlog = runlog
@@ -292,6 +293,10 @@ class Binary:
         return self._checksum
 
     def run(self, args):
+        if not exists(self.path):
+            raise Exception("Binary '{path}' does not exist!"
+                            .format(path=self.path))
+
         cmd = [self.path] + [str(arg) for arg in args]
         return system(cmd, out=open(self.runlog, 'w'), exit_on_error=False)
 
@@ -300,101 +305,108 @@ class Binary:
 
 #
 class Benchmark:
-    def __init__(self, name, path, logfile, outvars=[]):
+    def __init__(self, name, path, logfile):
         self.name = name
         self.logfile = logfile
         self.bin = Binary(path, logfile)
-        self._builtins = [RunTime(), Checksum(), ExitStatus()]
-        self.outvars = outvars
 
     def __repr__(self):
         return str(self.name)
 
-    def run(self, args):
-        outvars = self._builtins + self.outvars
+    # Run the benchmark and set "outvars".
+    def run(self, args, outvars, coutvars=set()):
+        # Instantiate.
+        coutvars = [var() for var in coutvars]
+        outvars = [var() for var in outvars]
 
+        # Pre-exection hook
         [var.pre(self) for var in outvars]
+        [var.pre(self) for var in coutvars]
+
         exitstatus = self.bin.run(args)
         output = [l.rstrip() for l in open(self.logfile).readlines()]
+
+        # Post-execution hook
         [var.post(self, exitstatus, output) for var in outvars]
+        [var.post(self, exitstatus, output) for var in coutvars]
 
-        return outvars
-
-#
-class Result:
-    def __init__(self, benchmark, invars, outvars):
-        self.benchmark = benchmark
-        self.invars = invars
-        self.outvars = outvars
-
-    def __repr__(self):
-        return " ".join([str(x) for x in
-                         [self.benchmark, self.invars, self.outvars]])
-
-    # Encode a result for JSON serialization.
-    def encode(self):
-        d = {}
-        [d.update(x.encode()) for x in self.invars + self.outvars]
-        return d
+        return outvars, set(coutvars)
 
 #
 class Sampler:
-    def hasnext(results): return True
+    def hasnext(result): return True
 
 #
 class FixedSizeSampler(Sampler):
     def __init__(self, samplecount=10):
         self.samplecount = samplecount
 
-    def hasnext(self, results):
-        n = len(results)
-        run = len(results) < self.samplecount
-        if run:
-            print("Has {n}/{total} results. Running.".
+    def hasnext(self, result):
+        n = len(result.outvars)
+        shouldsample = len(result.outvars) < self.samplecount
+        if shouldsample:
+            print("Has {n}/{total} samples. Sampling.".
                   format(n=n, total=self.samplecount))
-        return run
+        return shouldsample
 
 #
 class TestCase:
-    def __init__(self, benchmark, invars=[]):
-        # Built in independent variables.
-        builtins = [Hostname()]
+    def __init__(self, host, benchmark, invars=[], outvars=[], coutvars=set()):
+        # Default variables.
+        ins = [ # independent
+            Hostname(host.NAME),
+            BenchmarkName(benchmark.name)
+        ]
+        outs = [
+            StartTime,
+            EndTime,
+            RunTime,
+            ExitStatus,
+            Output
+        ]
+        couts = {
+            Checksum
+        }
 
         self.benchmark = benchmark
-        self.invars = builtins + invars
+        self.invars = ins + invars
+        self.outvars = outs + outvars
+        self.coutvars = couts.union(coutvars)
 
         # Arguments cache.
         self._hasargs = False
         self._args = []
 
     def sample(self):
-        args = (self._args if self._hasargs else
-                filter(lambda x: isinstance(x, Argument), self.invars))
-        self._hasargs = True # Mark arguments as loaded
-        outvars = self.benchmark.run(args)
-        return Result(self.benchmark, self.invars, outvars)
+        # Get arguments.
+        if not self._hasargs:
+            self._args = lookup(self.invars, Argument)
+            self._hasargs = True
+
+        return self.benchmark.run(self._args, self.outvars, self.coutvars)
 
 #
 class TestHarness:
-    def __init__(self, host, testcase, sampler=FixedSizeSampler()):
-        self.host = host
+    def __init__(self, testcase, sampler=FixedSizeSampler()):
         self.testcase = testcase
         self.sampler = sampler
+        self.result = resultscache.load(testcase)
+        self.host = lookup1(testcase.invars, Hostname).val # derive
 
     def run(self):
         # Only run if we are on the right host.
-        if gethostname() != self.host.NAME:
+        if gethostname() != self.host:
             return
 
-        print("Running", self, "...")
-        while self.sampler.hasnext(self.results()):
-            result = self.testcase.sample()
-            resultscache.store(result)
+        print("Running", self.testcase, "...")
+        while self.sampler.hasnext(self.result):
+            o, c = self.testcase.sample()
+            self.result.outvars.append(o)
+            self.result.couts.update(c)
+            resultscache.store(self.result)
 
-    def results(self):
-        return resultscache.load(self.testcase.benchmark,
-                                 self.testcase.benchmark.bin.checksum(),
-                                 self.host.NAME)
+class TestGenerator:
+    pass
 
 #
 class TestSuite:
@@ -422,19 +434,25 @@ class SkelCLElapsedTimes(DependentVariable):
 
 #
 class SkelCLBenchmark(Benchmark):
-    def __init__(self, name, outvars=[]):
+    def __init__(self, name):
         # Path to directory:
         self.dir = path(SKELCL_BUILD, 'examples', name)
         # Path to binary:
         binpath = path(self.dir, name)
 
-        # Builtin dependent variables.
-        outvars = [SkelCLElapsedTimes()] + outvars
-
         # Superclass:
-        Benchmark.__init__(self, name, binpath, RUNLOG,
-                           outvars=outvars)
+        Benchmark.__init__(self, name, binpath, RUNLOG)
 
-    def run(self, args):
+    def run(self, *args):
         cd(self.dir)
-        return Benchmark.run(self, args)
+        return Benchmark.run(self, *args)
+
+class SkelCLTestCase(TestCase):
+    def __init__(self, host, benchmark, invars=[], outvars=[], coutvars=set()):
+        # Default variables.
+        ins = []
+        outs = [SkelCLElapsedTimes]
+        couts = set()
+
+        TestCase.__init__(self, host, benchmark, ins + invars,
+                          outs + outvars, couts.union(coutvars))

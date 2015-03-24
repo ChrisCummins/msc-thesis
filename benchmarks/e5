@@ -3,35 +3,51 @@
 # e5
 #
 from benchlib import *
-import resultscache
 
-hosts = [Host("cec",
-              cpu="Intel i5-4570",
-              mem=8),
-         Host("dhcp-90-060",
-              cpu="Intel i7-2600K",
-              mem=16,
-              gpus=["NVIDIA GTX 690"]),
-         Host("whz5",
-              cpu="Intel i7-4770",
-              mem=16,
-              gpus=["NVIDIA GTX TITAN"]),
-         Host("tim",
-              cpu="Intel i7-2600K",
-              mem=8,
-              gpus=["NVIDIA GTX 590", "NVIDIA GTX 590"]),
-         Host("monza",
-              cpu="Intel ",
-              mem=8,
-              gpus=["AMD Tahiti 7970", "AMD Tahiti 7970"])]
+hosts = [
+    Host("cec",
+         cpu="Intel i5-4570",
+         mem=8,
+         opencl_cpu=True),
+    Host("dhcp-90-060",
+         cpu="Intel i7-2600K",
+         mem=16,
+         gpus=["NVIDIA GTX 690"],
+         opencl_cpu=False),
+    Host("whz5",
+         cpu="Intel i7-4770",
+         mem=16,
+         gpus=["NVIDIA GTX TITAN"],
+         opencl_cpu=False),
+    Host("tim",
+         cpu="Intel i7-2600K",
+         mem=8,
+         gpus=["NVIDIA GTX 590", "NVIDIA GTX 590",
+               "NVIDIA GTX 590", "NVIDIA GTX 590"],
+         opencl_cpu=False),
+    Host("monza",
+         cpu="Intel i7-3820",
+         mem=8,
+         gpus=["AMD Tahiti 7970", "AMD Tahiti 7970"],
+         opencl_cpu=True)
+]
 
-benchmark = SkelCLBenchmark("DotProduct")
-test = TestCase(benchmark)
-sampler = FixedSizeSampler(10)
-harness = TestHarness(hosts[0], test, sampler)
+benchmarks = [
+    SkelCLBenchmark("CannyEdgeDetection"),
+    SkelCLBenchmark("DotProduct"),
+    SkelCLBenchmark("FDTD"),
+    SkelCLBenchmark("GameOfLife"),
+    SkelCLBenchmark("GaussianBlur"),
+    SkelCLBenchmark("HeatSimulation"),
+    SkelCLBenchmark("MandelbrotSet"),
+    SkelCLBenchmark("MatrixMultiply"),
+    SkelCLBenchmark("SAXPY")
+]
 
-harness.run()
+for host in hosts:
+    for benchmark in benchmarks:
+        sampler = FixedSizeSampler(25)
+        testcase = SkelCLTestCase(host, benchmark)
+        harness = TestHarness(testcase, sampler)
 
-print("Done. results:")
-for r in harness.results():
-    print(r)
+        harness.run()
