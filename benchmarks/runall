@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+cd ../skelcl/build/examples
+progs="$(find . -maxdepth 1 ! -path . -type d -printf "%f\n")"
+
+for prog in $progs; do
+    cd $prog
+    echo $(tput bold)" * $prog"$(tput sgr0)
+    ./$prog
+    cd ..
+done
