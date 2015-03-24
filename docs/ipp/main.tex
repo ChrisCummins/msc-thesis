@@ -15,29 +15,25 @@
 %%%%%%%%%%
 \begin{document}
 
-\begin{center}
-  \huge
-  \vspace{0.9cm}
-  \textbf{Intermediate Progress Report}
-\end{center}
+% \noindent
+% \textit{Abstract: %
+% a
+% }
 
-\noindent
-\textit{Abstract: %
-a
-}
+%\maketitle
 
-\section*{SkelCL}
+\section{SkelCL}
 
 SkelCL\footnote{\url{http://skelcl.uni-muenster.de}} is an object
 oriented C++ library that provides OpenCL implementations of data
 parallel algorithmic skeletons for heterogeneous parallelism: Map,
 Reduce, Scan, Zip, Stencil, and AllPairs. Skeletons are parameterised
 with muscle functions by the user, which are compiled into OpenCL
-kernels for execution on device hardware. Communication between the
-host and device memory is performed lazily, and with support for
-multi-GPU computing.
+kernels for execution on device hardware. The Vector and Matrix
+container types transparently handle communication between the host
+and device memory, and can be distributed for multi-GPU execution.
 
-Each skeleton is represented by a class template, declared in a header
+Each skeleton is represented by a template class, declared in a header
 file detailing the public API. A private header file contains the
 template definition. E.g. \texttt{SkelCL/Map.h} contains the Map
 class, and \texttt{SkelCL/detail/MapDef.h} contains the
@@ -74,15 +70,21 @@ int main(int argc, char* argv[]) {
 }
 \end{lstlisting}
 
-\newpage
-\section*{Performance evaluation}
+\section{Performance evaluation}
+
+\subsection{Benchmarks}
+
+Table~\ref{tab:benchmarks} lists the benchmark applications. The
+majority of applications are Stencil based, with the Map and AllPairs
+skeletons being used in only a single application each. The Scan
+skeleton is not used in any benchmark.
 
 \begin{table}
 \footnotesize
 \centering
 \begin{tabular}{| l | l | l | l | l |}
 \hline
-\textbf{Name} & \textbf{Field} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
+\textbf{Name} & \textbf{Application} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
 \hline
 CannyEdgeDetection & Image processing & Stencil & - & 225 / 61\\
 DotProduct & Linear algebra & Zip, Reduce & - & 143 / 2\\
@@ -96,8 +98,20 @@ SAXPY & Linear algebra & Zip & - & 149 / 3\\
 \hline
 \end{tabular}
 \caption{Benchmark applications. The LOC column shows lines of code, split between host (C++) and device (OpenCL).}
+\label{tab:benchmarks}
 \end{table}
 
+\subsection{Tunable parameters}
+
+Table~\ref{tab:knobs} lists the tunable parameters.
+
+Border loading strategy and thread coarsening require some
+implementation work. All other parameters are freely tunable at
+compile time.
+
+% TODO: possible other optimisations: Creating a 'pipeline' container
+% to combine chains of skeletons, exposing task parallelisation
+% through pipelining.
 
 \begin{table}
 \footnotesize
@@ -115,11 +129,12 @@ Work group size (columns) & \{8, 16, 32, 64, 128, 256\} & Stencil\\
 Work group size (rows) & \{4, 8, 16, 32, 64, 128, 256\} & Stencil\\
 Global size & \{256, 512, 1024, 2048, \ldots, 2097152\} & Reduce\\
 Iterations between swaps & TODO & Stencil\\
-Implementation of border region loading & TODO & Stencil\\
+Border loading strategy & TODO & Stencil\\
 Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
 \hline
 \end{tabular}
 \caption{Tunable parameters.}
+\label{tab:knobs}
 \end{table}
 
 \begin{figure}[h]
@@ -128,6 +143,7 @@ Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
 \caption{Performance of Matrix Multiply kernel using different
   parameter values for the AllPairs skeleton. Optimal values for the
   CPU (top) are 128-8-64. Optimal values for the GPU are 32-8-64.}
+\label{fig:mm}
 \end{figure}
 
 \begin{figure}[h]
@@ -135,6 +151,7 @@ Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
 \includegraphics[width=\textwidth]{../../benchmarks/results/e3/DotProduct-33554432-dhcp-90-060.png}
 \caption{Performance of Dot Product kernel using different parameter
   values for the Reduce skeleton.} % TODO: shit results
+\label{fig:dp}
 \end{figure}
 
 \begin{figure}[h]
@@ -142,12 +159,16 @@ Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
 \includegraphics[width=\textwidth]{../../benchmarks/results/e4/GameOfLife-00008192-01-dhcp-90-060.png}
 \caption{Performance of Game of Life using different work group
   sizes.}
+\label{fig:gol}
 \end{figure}
 
-\subsection*{Experimental setup}
+\subsection{Experimental setup}
 
-A fixed sample size of 30 is used. 95\% confidence
-intervals. Execution time records
+Table~\ref{tab:hw} lists the testing hardware.
+
+A fixed sample size of 30 is used.  Preliminary results show stable
+performance for kernel execution times $\ge$ 20ms. Speedup is measured
+relative to the existing values in SkelCL's public branch.
 
 \begin{table}
 \footnotesize
@@ -164,11 +185,37 @@ Intel i5-4570 & 8GiB & -\\
 \hline
 \end{tabular}
 \caption{Testing hardware.}
+\label{tab:hw}
 \end{table}
 
-\subsection*{Results}
+% TODO: derive throughput in FLOPS
 
-\section*{Related Work}
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l |}
+\hline
+\textbf{Name} & \textbf{Notes}\\
+\hline
+Total runtime & Runtime of entire benchmark application\\
+Kernel compilation time & Could influence cost/benefit analysis\\
+Kernel time & Time between enqueing kernel and kernel completed\\
+Data upload time & Host $\rightarrow$ Device\\
+Data download time & Device $\rightarrow$ Host\\
+Data sync time & Each device $\leftrightarrow$ Host\\
+\hline
+\end{tabular}
+\caption{Measurable performance values.}
+\label{tab:metric}
+\end{table}
+
+\section{Preliminary results}
+
+Figure~\ref{fig:mm}.
+Figure~\ref{fig:dp}.
+Figure~\ref{fig:gol}.
+
+\section{Related Work}
 
 % An exhaustive search of the optimisation space for stencil benchmark
 % border regions using features: PCI-type, halo size, compute
@@ -214,7 +261,7 @@ Intel i5-4570 & 8GiB & -\\
 
 \cite{Magni2014}
 
-\section*{Conclusions}
+\section{Conclusions}
 
 % TODO: extract features from kernels
 % TODO: cost benefit analysis
