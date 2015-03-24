@@ -4,6 +4,8 @@
 # disk, JSON objects are cached locally, and written to disk every
 # _CACHEWRITE_THRESHOLD writes, and when the process exits.
 from atexit import register
+from os import makedirs
+from os.path import dirname
 
 import json
 
@@ -22,6 +24,10 @@ def _readjson(path):
         return {}
 
 def _writejson(path, data):
+    try:
+        makedirs(dirname(path))
+    except:
+        pass
     json.dump(data, open(path, 'w'),
               sort_keys=True, indent=2, separators=(',', ': '))
     print("Wrote '{path}'...".format(path=path))
