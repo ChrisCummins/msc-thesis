@@ -5,11 +5,25 @@
 from benchlib import *
 import resultscache
 
-hosts = [Host("florence"),
-         Host("dhcp-90-060", gpus=["NVIDIA GTX 690"]),
-         Host("whz1", gpus=["NVIDIA GTX TITAN"]),
-         Host("tim", gpus=["NVIDIA GTX 590", "NVIDIA GTX 590"]),
-         Host("monza", gpus=["AMD Tahiti 7970", "AMD Tahiti 7970"])]
+hosts = [Host("cec",
+              cpu="Intel i5-4570",
+              mem=8),
+         Host("dhcp-90-060",
+              cpu="Intel i7-2600K",
+              mem=16,
+              gpus=["NVIDIA GTX 690"]),
+         Host("whz5",
+              cpu="Intel i7-4770",
+              mem=16,
+              gpus=["NVIDIA GTX TITAN"]),
+         Host("tim",
+              cpu="Intel i7-2600K",
+              mem=8,
+              gpus=["NVIDIA GTX 590", "NVIDIA GTX 590"]),
+         Host("monza",
+              cpu="Intel ",
+              mem=8,
+              gpus=["AMD Tahiti 7970", "AMD Tahiti 7970"])]
 
 benchmark = SkelCLBenchmark("DotProduct")
 test = TestCase(benchmark)

@@ -253,18 +253,23 @@ def settingspermutations(options):
 
 ##### OBJECT ORIENTATION #####
 
-#
+# Represents a host device, i.e. a machine to collect results
+# from. Host objects should be immutable.
 class Host:
-    def __init__(self, name, gpus=[]):
-        self.name = name
-        self.gpus = gpus
+    def __init__(self, name, cpu="", mem="", gpus=[]):
+        self.NAME = name
+        self.CPU = cpu
+        self.MEM = mem
+        self.GPUS = gpus
+
+        # Compute the string.
+        _mem = "{g} GiB".format(g=mem)
+        _gpus = "{{{0}}}".format(", ".join(gpus)) if len(gpus) else ""
+        self._str = ("{host}: {hw}"
+                     .format(host=name, hw=", ".join([cpu, _mem, _gpus])))
 
     def __repr__(self):
-        return ("Host [{host}].{gpus}"
-                .format(host=self.name,
-                        gpus=" {0}.".format(", ".join([str(x)
-                                                       for x in self.gpus]))
-                        if len(self.gpus) else ""))
+        return self._str
 
 #
 class Binary:
@@ -378,7 +383,7 @@ class TestHarness:
 
     def run(self):
         # Only run if we are on the right host.
-        if gethostname() != self.host.name:
+        if gethostname() != self.host.NAME:
             return
 
         print("Running", self, "...")
@@ -389,7 +394,7 @@ class TestHarness:
     def results(self):
         return resultscache.load(self.testcase.benchmark,
                                  self.testcase.benchmark.bin.checksum(),
-                                 self.host.name)
+                                 self.host.NAME)
 
 #
 class TestSuite:
