@@ -319,16 +319,24 @@ class Benchmark:
         coutvars = [var() for var in coutvars]
         outvars = [var() for var in outvars]
 
-        # Pre-exection hook
-        [var.pre(self) for var in outvars]
-        [var.pre(self) for var in coutvars]
+        # Pre-exection hooks.
+        kwargs = {
+            'benchmark': self
+        }
+        [var.pre(**kwargs) for var in outvars]
+        [var.pre(**kwargs) for var in coutvars]
 
         exitstatus = self.bin.run(args)
         output = [l.rstrip() for l in open(self.logfile).readlines()]
 
-        # Post-execution hook
-        [var.post(self, exitstatus, output) for var in outvars]
-        [var.post(self, exitstatus, output) for var in coutvars]
+        # Post-execution hooks.
+        kwargs = {
+            'benchmark': self,
+            'exitstatus': exitstatus,
+            'output': output
+        }
+        [var.post(**kwargs) for var in outvars]
+        [var.post(**kwargs) for var in coutvars]
 
         return outvars, set(coutvars)
 
@@ -421,9 +429,9 @@ class SkelCLElapsedTimes(DependentVariable):
     def __init__(self):
         DependentVariable.__init__(self, "Elapsed times")
 
-    def post(self, benchmark, exitstatus, output):
+    def post(self, **kwargs):
         r = []
-        for line in output:
+        for line in kwargs['output']:
             match = search('^Elapsed time:\s+([0-9]+)\s+', line)
             if match:
                 r.append(int(match.group(1)))

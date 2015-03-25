@@ -89,8 +89,8 @@ class DependentVariable(Variable):
         return "{name}: {val}".format(name=self.name, val=self.val)
 
     # Pre and post execution hooks.
-    def pre(self, benchmark): pass
-    def post(self, benchmark, exitstatus, output): pass
+    def pre(self, **kwargs): pass
+    def post(self, **kwargs): pass
 
 
 class DateTimeVariable(Variable):
@@ -136,7 +136,7 @@ class StartTime(DependentVariable, DateTimeVariable):
     def __init__(self):
         DependentVariable.__init__(self, "Start time")
 
-    def pre(self, benchmark):
+    def pre(self, **kwargs):
         self.val = datetime.now()
 
 # A built-in runtime variable.
@@ -144,7 +144,7 @@ class EndTime(DependentVariable, DateTimeVariable):
     def __init__(self):
         DependentVariable.__init__(self, "End time")
 
-    def post(self, benchmark, exitstatus, output):
+    def post(self, **kwargs):
         self.val = datetime.now()
 
 # A built-in runtime variable.
@@ -152,10 +152,10 @@ class RunTime(DependentVariable):
     def __init__(self):
         DependentVariable.__init__(self, "Run time")
 
-    def pre(self, benchmark):
+    def pre(self, **kwargs):
         self.start = time()
 
-    def post(self, benchmark, exitstatus, output):
+    def post(self, **kwargs):
         end = time()
         elapsed = end - self.start
         self.val = elapsed
@@ -165,24 +165,24 @@ class Checksum(DependentVariable):
     def __init__(self):
         DependentVariable.__init__(self, "Checksum")
 
-    def post(self, benchmark, exitstatus, output):
-         self.val = checksum(benchmark.bin.path)
+    def post(self, **kwargs):
+         self.val = checksum(kwargs['benchmark'].bin.path)
 
 # A built-in runtime variable.
 class ExitStatus(DependentVariable):
     def __init__(self):
         DependentVariable.__init__(self, "Exit status")
 
-    def post(self, benchmark, exitstatus, output):
-        self.val = exitstatus
+    def post(self, **kwargs):
+        self.val = kwargs['exitstatus']
 
 # A built-in runtime variable.
 class Output(DependentVariable):
     def __init__(self):
         DependentVariable.__init__(self, "Output")
 
-    def post(self, benchmark, exitstatus, output):
-        self.val = output
+    def post(self, **kwargs):
+        self.val = kwargs['output']
 
 ###########
 # Filters #
