@@ -13,12 +13,13 @@ from subprocess import call,check_output
 from sys import exit,stdout
 
 import json
+import os
 import scipy
 
-import jsoncache
-import resultscache
 from util import checksum
 from variables import *
+import jsoncache
+import resultscache
 
 ##### LOCAL VARIABLES #####
 
@@ -261,6 +262,7 @@ class Host:
         self.CPU = cpu
         self.MEM = mem
         self.GPUS = gpus
+        self.OPENCL_CPU = opencl_cpu
 
         # Compute the string.
         specs = [
@@ -356,8 +358,9 @@ class FixedSizeSampler(Sampler):
         n = len(result.outvars)
         shouldsample = len(result.outvars) < self.samplecount
         if shouldsample:
-            print("Has {n}/{total} samples. Sampling.".
-                  format(n=n, total=self.samplecount))
+            print("Have {n}/{total} samples. {t} more to collect...".
+                  format(n=n, total=self.samplecount,
+                         t=self.samplecount - n))
         return shouldsample
 
 #
@@ -462,6 +465,27 @@ class TestSuite:
 
 ##### SKELCL-SPECIFIC CLASSES #####
 
+class DeviceTypeArg(Argument):
+    def __init__(self, type):
+        Argument.__init__(self, "Device type",
+                          "--device-type {type}".format(type=type))
+
+class DeviceCountArg(Argument):
+    def __init__(self, count):
+        Argument.__init__(self, "Device count",
+                          "--device-count {count}".format(count=count))
+
+class SkelCLHost(Host):
+    def devargs(self):
+        args = []
+        for i in range(1, len(self.GPUS) + 1):
+            args.append([DeviceTypeArg("GPU"), DeviceCountArg(i)])
+
+        if self.OPENCL_CPU:
+            args.append([DeviceTypeArg("CPU")])
+
+        return args
+
 #
 class SkelCLElapsedTimes(DependentVariable):
     def __init__(self):
@@ -519,3 +543,16 @@ class SkelCLTestCase(TestCase):
 
         TestCase.__init__(self, host, benchmark, ins + invars,
                           outs + outvars, couts.union(coutvars))
+
+class StencilLocalSize(Knob):
+    header = path(SKELCL, 'include/SkelCL/detail/StencilDef.h')
+
+    def __init__(self, val):
+        Knob.__init__(self, "StencilLocalSize", val)
+
+    def set(self, **kwargs):
+        r, c = self.val[0], self.val[1]
+        os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {val}/' {path}"
+                  .format(val=r, path=self.header))
+        os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {val}/' {path}"
+                  .format(val=c, path=self.header))
