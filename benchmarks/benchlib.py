@@ -297,7 +297,7 @@ class Binary:
             raise Exception("Binary '{path}' does not exist!"
                             .format(path=self.path))
 
-        cmd = [self.path] + [str(arg) for arg in args]
+        cmd = [self.path] + [str(arg.val) for arg in args]
         return system(cmd, out=open(self.runlog, 'w'), exit_on_error=False)
 
     def __repr__(self):
