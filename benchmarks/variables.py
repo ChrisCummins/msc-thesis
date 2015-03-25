@@ -188,9 +188,11 @@ class LookupError(Exception):
 #
 def lookup(vars, type):
     if isclass(type):
-        return filter(lambda x: isinstance(x, type), vars)
+        f = filter(lambda x: isinstance(x, type), vars)
     else:
-        return filter(lambda x: x.name == type, vars)
+        f = filter(lambda x: x.name == type, vars)
+    # Evaluate filter into a list of results:
+    return list(f)
 
 #
 def lookup1(*args):
