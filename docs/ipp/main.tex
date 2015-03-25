@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%
 
 % Paper title
-\title{Dynamic Autotuning\\of Algorithmic Skeletons}
+\title{Dynamic Autotuning of Algorithmic Skeletons}
 
 % Author
 \author{Chris Cummins}
@@ -15,12 +15,22 @@
 %%%%%%%%%%
 \begin{document}
 
-% \noindent
-% \textit{Abstract: %
-% a
-% }
+\maketitle
 
-%\maketitle
+\begin{abstract}
+  \noindent
+  The aim of my research project is to improve the performance of high
+  level parallel programming by tuning performance parameters at
+  runtime. I have targeted SkelCL, an algorithmic skeleton library for
+  data parallel operations using OpenCL. My short-term objective is to
+  identify a profitable optimisation space, i.e.\ a set of parameters
+  which affect the performance of SkelCL programs. This involves
+  enumerating the space of a set of parameters and evaluating their
+  performance on benchmarks across a range of architectures. Initial
+  progress towards this goal has not been promising. This short
+  document describes the weaknesses in these results and details my
+  plan to address these issues.
+\end{abstract}
 
 \section{SkelCL}
 
@@ -31,19 +41,19 @@ Reduce, Scan, Zip, Stencil, and AllPairs. Skeletons are parameterised
 with muscle functions by the user, which are compiled into OpenCL
 kernels for execution on device hardware. The Vector and Matrix
 container types transparently handle communication between the host
-and device memory, and can be distributed for multi-GPU execution.
+and device memory, and support partitioning for multi-GPU execution.
 
 Each skeleton is represented by a template class, declared in a header
 file detailing the public API. A private header file contains the
 template definition. E.g. \texttt{SkelCL/Map.h} contains the Map
 class, and \texttt{SkelCL/detail/MapDef.h} contains the
-implementation. Non-trivial kernels are generally stored in separate
+implementation. Non-trivial kernels are stored in separate source
 files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
 
 \lstset{language=C++}
 \begin{lstlisting}[
   basicstyle=\scriptsize,
-  caption={Program to calculate dot product using SkelCL.}
+  caption={Example program to calculate dot product using SkelCL.}
 ]
 #include <SkelCL/SkelCL.h>
 #include <SkelCL/Vector.h>
@@ -72,12 +82,22 @@ int main(int argc, char* argv[]) {
 
 \section{Performance evaluation}
 
+Prior research has shown that performance of GPGPU programs are
+heavily influenced by proper exploitation of local shared memory and
+synchronisation costs~\cite{Ryoo2008a, Lee2010}. SkelCL coordinates
+user functions, so is responsible for both local memory allocation and
+synchronisation. This means there should be a large and profitable
+space for optimising the performance of SkelCL programs. The first
+step towards developing an autotuner for SkelCL is to identify the
+tunable parameters which define this space.
+
 \subsection{Benchmarks}
 
 Table~\ref{tab:benchmarks} lists the benchmark applications. The
 majority of applications are Stencil based, with the Map and AllPairs
 skeletons being used in only a single application each. The Scan
-skeleton is not used in any benchmark.
+skeleton is not used in any benchmark. Problem sizes for all
+benchmarks can be controlled using command line flags.
 
 \begin{table}
 \footnotesize
@@ -103,11 +123,9 @@ SAXPY & Linear algebra & Zip & - & 149 / 3\\
 
 \subsection{Tunable parameters}
 
-Table~\ref{tab:knobs} lists the tunable parameters.
-
-Border loading strategy and thread coarsening require some
-implementation work. All other parameters are freely tunable at
-compile time.
+Table~\ref{tab:knobs} lists the tunable parameters. Border loading
+strategy and thread coarsening have yet to be implemented. All other
+parameters are compile time constants.
 
 % TODO: possible other optimisations: Creating a 'pipeline' container
 % to combine chains of skeletons, exposing task parallelisation
@@ -120,17 +138,16 @@ compile time.
 \hline
 \textbf{Parameter} & \textbf{Values} & \textbf{Skeleton}\\
 \hline
-Number of columns & \{8, 16, 32, 64, 128\} & AllPairs\\
-Number of rows & \{8, 16, 32, 64, 128\} & AllPairs\\
-Number of segments & \{8, 16, 32, 64, 128\} & AllPairs\\
-Thread coarsening factor & TODO & Any\\
-Work group size & TODO & Any\\
-Work group size (columns) & \{8, 16, 32, 64, 128, 256\} & Stencil\\
-Work group size (rows) & \{4, 8, 16, 32, 64, 128, 256\} & Stencil\\
+Number of columns, rows, segments & \{8, 16, 32, 64, 128\} & AllPairs\\
 Global size & \{256, 512, 1024, 2048, \ldots, 2097152\} & Reduce\\
-Iterations between swaps & TODO & Stencil\\
-Border loading strategy & TODO & Stencil\\
+Work group size & [32\ldots$n$] & *\\
+Work group size (2D) & \{8, 16, 32, 64, 128, 256\} & Stencil\\
+Device type & \{CPU, GPU\} & *\\
+Device count & [1,4] & *\\
+Halo region size & [1\ldots$n$] & Stencil\\
 Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
+Border loading strategy & TODO & Stencil\\
+Thread coarsening factor & TODO & *\\
 \hline
 \end{tabular}
 \caption{Tunable parameters.}
@@ -164,11 +181,11 @@ Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
 
 \subsection{Experimental setup}
 
-Table~\ref{tab:hw} lists the testing hardware.
-
-A fixed sample size of 30 is used.  Preliminary results show stable
-performance for kernel execution times $\ge$ 20ms. Speedup is measured
-relative to the existing values in SkelCL's public branch.
+Table~\ref{tab:hw} lists the testing hardware. I have written a
+benchmarking framework that will, for each set of independent
+variables (i.e.\ benchmark, problem size, tunable parameter values,
+architecture), collect performance data for 10
+iterations. Table~\ref{tab:metric} lists the dependent variables.
 
 \begin{table}
 \footnotesize
@@ -194,16 +211,17 @@ Intel i5-4570 & 8GiB & -\\
 \footnotesize
 \centering
 \begin{tabular}{| l | l |}
-\hline
-\textbf{Name} & \textbf{Notes}\\
-\hline
-Total runtime & Runtime of entire benchmark application\\
-Kernel compilation time & Could influence cost/benefit analysis\\
-Kernel time & Time between enqueing kernel and kernel completed\\
-Data upload time & Host $\rightarrow$ Device\\
-Data download time & Device $\rightarrow$ Host\\
-Data sync time & Each device $\leftrightarrow$ Host\\
-\hline
+  \hline
+  \textbf{Name} & \textbf{Notes}\\
+  \hline
+  Total runtime & Runtime of entire benchmark application\\
+  Kernel compilation time & Could influence cost/benefit analysis\\
+  Kernel queue time & Time that a command spent queued\\
+  Kernel exec time & Time between command starting and completing\\
+  Data upload time & Host $\rightarrow$ Device\\
+  Data download time & Device $\rightarrow$ Host\\
+  Data sync time & Each device $\leftrightarrow$ Host (multi-GPUs)\\
+  \hline
 \end{tabular}
 \caption{Measurable performance values.}
 \label{tab:metric}
@@ -211,29 +229,46 @@ Data sync time & Each device $\leftrightarrow$ Host\\
 
 \section{Preliminary results}
 
-Initial results have not been promising
+Initial results have not been
+promising. Figures~\ref{fig:mm},~\ref{fig:dp}, and~\ref{fig:gol} show
+selected performance results for two architectures (CPU and GPU) for 6
+different parameters. While the results show that performance is
+influenced by the values of these parameters, the greatest speedup
+achieved is only 14\% above the existing default values. Possible
+causes of these weak results are:
 
-Speedups have been low. While performance is heavily influenced by the
-parameters, I have not been able to improve significantly over the
-defaults (best speedup is 12\%).
+\paragraph{Poor selection of tunable knobs} This could due either to a
+lack of imagination on my part, or because the cost of coordination
+that SkelCL abstracts is relatively low compared to the cost of the
+user functions. In this case, there is little room to optimise the
+coordination logic, and my attention should instead be focused on the
+optimisation of the user functions, which in SkelCL are treated as
+black boxes.
 
-Figure~\ref{fig:mm}.
-Figure~\ref{fig:dp}.
-Figure~\ref{fig:gol}.
+\paragraph{Noisy performance results} Results so far have been
+recorded by measuring elapsed time from the host between calling the
+skeleton function and downloading the result. This does not isolate
+computation time, and so could introduce noise into the results. More
+accurate values can be obtained using OpenCL's
+\texttt{clGetEventProfilingInfo} API, which returns separate
+timestamps for command queue, submit, start, and end events.
+
+\paragraph{Limited test cases} A wider range of benchmarks and test
+hardware could help uncover non-portability in optimisations.
 
 \section{Related Work}
 
-% An exhaustive search of the optimisation space for stencil benchmark
-% border regions using features: PCI-type, halo size, compute
-% granularity, # of GPUs. Evaluated on 2 different mobos and
-% GPUs. Optimisations evaluated: rotating volume so that largest
-% dimension is first dimension, adjusting halo size dynamically, and
-% computing halo region first so that swap can occur concurrently with
-% the rest of the computation. They concluded that the optimal setting
-% depends on problem size, stencil shape GPU, and PCI. This is well
-% worth studying in detail as a case of successfully applied
-% autotuning to GPUs.
-\cite{Lutz2013}
+\citeauthor{Lutz2013} explored the effect of varying the size of the
+halo regions for multi-GPU stencil computations in~\cite{Lutz2013}. A
+large halo increases redundant computation across GPUs but decreases
+communication costs. They found that the optimal halo size depends on
+the problem size, number of partitions, and the connection mechanism
+(i.e.\ PCI express). They developed an autotuner which determines
+problem decomposition and swapping strategy offline, and performs an
+online search for the optimal halo size. The study is limited to only
+three optimisation parameters of a single class of program, and the
+results of tuning are not shared across programs or across multiple
+runs of the same program.
 
 % * An auto-tuner which accepts as input a Fortran 95 stencil
 % expression, and generates parallel implementations in Fortran, C, or
@@ -246,7 +281,7 @@ Figure~\ref{fig:gol}.
 % just enumerate a subset of the optimisation space, compile and run
 % each option *once*, and then report the lowest time. No statistical
 % certainty, no directed search.
-\cite{Kamil2010}
+% \cite{Kamil2010}
 
 % Dastgeer uses training data to to generate a machine-learning model
 % offline, which is used at runtime to determine an execution plan
@@ -254,25 +289,36 @@ Figure~\ref{fig:gol}.
 % and parameter values for each. The paper is "first results", and
 % gives no description of the machine learning techniques used, the
 % training process, or the experimental method.
-\cite{Dastgeer2011}
+\citeauthor{Dastgeer2011} developed a machine learning based autotuner
+for the SkePU skeleton library in~\cite{Dastgeer2011}. Training data
+is used to select the optimal backend (i.e.\ CPU, GPU) for a given
+program by estimating execution time and memory copy overhead based on
+problem size. There is limited cross-architecture evaluation, and the
+autotuner only supports vector operations.
 
-\cite{Christen2011}
+%\cite{Christen2011}
 
 
-\cite{Chan2009}
+%\cite{Chan2009}
 
 
-\cite{Collins2013}
+% \cite{Collins2013}
 
-
-\cite{Magni2014}
+\citeauthor{Magni2014} explored the effect of thread coarsening
+in~\cite{Magni2014}, achieving average speedups between 1.11$\times$
+and 1.33$\times$ using a machine-learning model based on the static
+features of kernels.
 
 \section{Conclusions}
 
-% TODO: extract features from kernels
-% TODO: cost benefit analysis
+Things are moving in the right direction, but a lot slower than I
+would have liked. There were a number of flaws in my initial approach,
+which I believe can be addressed through better profiling and
+considering a wider range of parameters. At the moment the best
+results I can boast are 1.14$\times$, 1.05$\times$, and 1.12$\times$
+speedup of CPU execution of three SkelCL programs after a random
+enumeration.
 
 \label{bibliography}
 \printbibliography
-
 \end{document}
