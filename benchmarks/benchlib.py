@@ -314,8 +314,8 @@ class Benchmark:
         return str(self.name)
 
     # Run the benchmark and set "outvars".
-    def run(self, args, outvars, coutvars=set()):
-        # Instantiate.
+    def run(self, args, outvars, coutvars):
+        # Instantiate variables.
         coutvars = [var() for var in coutvars]
         outvars = [var() for var in outvars]
 
@@ -385,6 +385,12 @@ class TestCase:
         self._hasargs = False
         self._args = []
 
+    def setup(self):
+        pass
+
+    def teardown(self):
+        pass
+
     def sample(self):
         # Get arguments.
         if not self._hasargs:
@@ -392,6 +398,9 @@ class TestCase:
             self._hasargs = True
 
         return self.benchmark.run(self._args, self.outvars, self.coutvars)
+
+    def __repr__(self):
+        return ", ".join([str(x) for x in self.invars])
 
 #
 class TestHarness:
@@ -407,11 +416,19 @@ class TestHarness:
             return
 
         print("Running", self.testcase, "...")
+
+        # Pre-execution setup.
+        self.testcase.setup()
+
+        # Sample and store results.
         while self.sampler.hasnext(self.result):
             o, c = self.testcase.sample()
             self.result.outvars.append(o)
             self.result.couts.update(c)
             resultscache.store(self.result)
+
+        # Post-execution tidy-up.
+        self.testcase.teardown()
 
 class TestGenerator:
     pass
@@ -455,6 +472,7 @@ class SkelCLBenchmark(Benchmark):
         cd(self.dir)
         return Benchmark.run(self, *args)
 
+#
 class SkelCLTestCase(TestCase):
     def __init__(self, host, benchmark, invars=[], outvars=[], coutvars=set()):
         # Default variables.
