@@ -116,8 +116,8 @@ class Argument(IndependentVariable):
 
 # Represents a tunable knob.
 class Knob(IndependentVariable):
-    #
-    def build(self, val): pass
+    # Set the value of the knob.
+    def set(self): pass
 
 
 #######################

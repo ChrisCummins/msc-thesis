@@ -313,6 +313,9 @@ class Benchmark:
     def __repr__(self):
         return str(self.name)
 
+    def build(self):
+        pass
+
     # Run the benchmark and set "outvars".
     def run(self, args, outvars, coutvars):
         # Instantiate variables.
@@ -385,8 +388,24 @@ class TestCase:
         self._hasargs = False
         self._args = []
 
+        # Knobs cache.
+        self._hasknobs = False
+        self._knobs = []
+
     def setup(self):
-        pass
+        # Get knobs.
+        if not self._hasknobs:
+            self._knobs = lookup(self.invars, Knob)
+            self._hasknobs = True
+
+        # Set the value of tunable knobs.
+        for knob in self._knobs:
+            print("Setting", knob, "...")
+            knob.set()
+
+        # Build the benchmark.
+        print("Building", self.benchmark.name, "...")
+        self.benchmark.build()
 
     def teardown(self):
         pass
@@ -415,9 +434,11 @@ class TestHarness:
         if gethostname() != self.host:
             return
 
-        print("Running", self.testcase, "...")
+        # Only run if we have samples to collect.
+        if not self.sampler.hasnext(self.result):
+            return
 
-        # Pre-execution setup.
+        print("Running", self.testcase, "...")
         self.testcase.setup()
 
         # Sample and store results.
@@ -460,8 +481,10 @@ class SkelCLElapsedTimes(DependentVariable):
 #
 class SkelCLBenchmark(Benchmark):
     def __init__(self, name):
-        # Path to directory:
+        # Binary directory:
         self.dir = path(SKELCL_BUILD, 'examples', name)
+        # Source directory:
+        self.src = path(SKELCL, 'examples', name)
         # Path to binary:
         binpath = path(self.dir, name)
 
@@ -471,6 +494,10 @@ class SkelCLBenchmark(Benchmark):
     def run(self, *args):
         cd(self.dir)
         return Benchmark.run(self, *args)
+
+    def build(self):
+        cd(self.dir)
+        system(['make', self.name])
 
 #
 class SkelCLTestCase(TestCase):
