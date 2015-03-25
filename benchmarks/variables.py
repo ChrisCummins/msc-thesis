@@ -96,6 +96,7 @@ class DateTimeVariable(Variable):
     def encode(self):
         return {self.name: self.val.strftime(self._DATETIME_FORMAT)}
 
+
 #########################
 # Independent Variables #
 #########################
@@ -176,6 +177,7 @@ class Output(DependentVariable):
 
     def post(self, **kwargs):
         self.val = kwargs['output']
+
 
 ###########
 # Filters #

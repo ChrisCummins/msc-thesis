@@ -60,7 +60,8 @@ for host in hosts:
             invars + devargs
 
             sampler = FixedSizeSampler(10)
-            testcase = SkelCLTestCase(host, benchmark,
+            testcase = SkelCLTestCase(benchmark,
+                                      host=host,
                                       invars=invars)
             harness = TestHarness(testcase, sampler)
 

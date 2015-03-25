@@ -257,28 +257,41 @@ def settingspermutations(options):
 # Represents a host device, i.e. a machine to collect results
 # from. Host objects should be immutable.
 class Host:
-    def __init__(self, name, cpu="", mem="", gpus=[], opencl_cpu=False):
+    def __init__(self, name, cpu="", mem="", gpus=[]):
         self.NAME = name
         self.CPU = cpu
         self.MEM = mem
         self.GPUS = gpus
-        self.OPENCL_CPU = opencl_cpu
 
         # Compute the string.
-        specs = [
-            "{cpu}{opencl}".format(cpu=cpu,
-                                   opencl=" (w/ OpenCL)" if opencl_cpu else ""),
+        self._specs = [
+            "{cpu}".format(cpu=cpu),
             "{g} GiB memory".format(g=mem)
         ]
         if len(gpus): # List GPUs if available.
-            specs.append("GPUs: {{{0}}}".format(", ".join(gpus)))
-
-        self._str = "{host}: {specs}".format(host=name, specs=", ".join(specs))
+            self._specs.append("GPUs: {{{0}}}".format(", ".join(gpus)))
 
     def __repr__(self):
-        return self._str
+        return "{host}: {specs}".format(host=self.NAME,
+                                        specs=", ".join(self._specs))
 
-#
+# Represents an OpenCL-capable host device. All GPUs are assumed to
+# have OpenCL drivers. "opencl_cpu" sets whether the CPU is OpenCL
+# accelerated.
+class OpenCLHost(Host):
+    def __init__(self, name, opencl_cpu=False, **kwargs):
+        Host.__init__(self, name, **kwargs)
+        self.OPENCL_CPU = opencl_cpu
+        if opencl_cpu:
+            self._specs[0] += " w/ OpenCL"
+
+# Represents the current host machine.
+class LocalHost(Host):
+    def __init__(self, **kwargs):
+        Host.__init__(self, gethostname(), **kwargs)
+
+# Represents an application binary, at path "path". "runlog" is the
+# path to an output log file.
 class Binary:
     def __init__(self, path, runlog):
         self.basename = basename(path)
@@ -365,7 +378,8 @@ class FixedSizeSampler(Sampler):
 
 #
 class TestCase:
-    def __init__(self, host, benchmark, invars=[], outvars=[], coutvars=set()):
+    def __init__(self, benchmark, host=LocalHost(),
+                 invars=[], outvars=[], coutvars=set()):
         # Default variables.
         ins = [ # independent
             Hostname(host.NAME),
@@ -475,7 +489,7 @@ class DeviceCountArg(Argument):
         Argument.__init__(self, "Device count",
                           "--device-count {count}".format(count=count))
 
-class SkelCLHost(Host):
+class SkelCLHost(OpenCLHost):
     def devargs(self):
         args = []
         for i in range(1, len(self.GPUS) + 1):
@@ -535,14 +549,21 @@ class SkelCLBenchmark(Benchmark):
 
 #
 class SkelCLTestCase(TestCase):
-    def __init__(self, host, benchmark, invars=[], outvars=[], coutvars=set()):
+    def __init__(self, benchmark,
+                 host=LocalHost(),
+                 invars=[],
+                 outvars=[],
+                 coutvars=set()):
         # Default variables.
         ins = []
         outs = [SkelCLElapsedTimes]
         couts = {SkelCLSourceTree}
 
-        TestCase.__init__(self, host, benchmark, ins + invars,
-                          outs + outvars, couts.union(coutvars))
+        TestCase.__init__(self, benchmark,
+                          host=host,
+                          invars=ins + invars,
+                          outvars=outs + outvars,
+                          coutvars=couts.union(coutvars))
 
 class StencilLocalSize(Knob):
     header = path(SKELCL, 'include/SkelCL/detail/StencilDef.h')
