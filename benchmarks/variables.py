@@ -6,6 +6,7 @@
 from datetime import datetime
 from time import time
 from socket import gethostname
+from inspect import isclass
 
 from util import checksum
 
@@ -41,8 +42,8 @@ class Result:
     # Decode a serialesd JSON result.
     @staticmethod
     def decode(d, invars):
-        outvars = [[DependentVariable.decode([x, y[x]]) for x in y] for y in d['out']] if 'out' in d else []
-        couts = set([DependentVariable.decode([x, d['cout'][x]]) for x in d['cout']]) if 'cout' in d else set()
+        outvars = [[DependentVariable(x, y[x]) for x in y] for y in d['out']] if 'out' in d else []
+        couts = set([DependentVariable(x, d['cout'][x]) for x in d['cout']]) if 'cout' in d else set()
         return Result(invars, outvars, couts)
 
 #
@@ -50,9 +51,8 @@ class Variable:
     def encode(self):
         return {self.name: self.val}
 
-    @staticmethod
-    def decode(d):
-        return IndependentVariable(d[0], d[1])
+    def __repr__(self):
+        return "{name}: {val}".format(name=self.name, val=self.val)
 
     def __key(x):
         return (x.name, x.val)
@@ -75,14 +75,11 @@ class IndependentVariable(Variable):
         self.name = name
         self.val = val
 
-    def __repr__(self):
-        return "{name}: {val}".format(name=self.name, val=self.val)
-
 #
 class DependentVariable(Variable):
-    def __init__(self, name):
+    def __init__(self, name, val=None):
         self.name = name
-        self.val = None
+        self.val = val
 
     # String representation of dependent variable.
     def __repr__(self):
@@ -92,16 +89,12 @@ class DependentVariable(Variable):
     def pre(self, **kwargs): pass
     def post(self, **kwargs): pass
 
-
+#
 class DateTimeVariable(Variable):
     _DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
     def encode(self):
         return {self.name: self.val.strftime(self._DATETIME_FORMAT)}
-
-    @staticmethod
-    def decode(d):
-        return DateTimeVariable(d[0], time.strptime(d[1], self._DATETIME_FORMAT))
 
 #########################
 # Independent Variables #
@@ -194,7 +187,10 @@ class LookupError(Exception):
 
 #
 def lookup(vars, type):
-    return filter(lambda x: isinstance(x, type), vars)
+    if isclass(type):
+        return filter(lambda x: isinstance(x, type), vars)
+    else:
+        return filter(lambda x: x.name == type, vars)
 
 #
 def lookup1(*args):
