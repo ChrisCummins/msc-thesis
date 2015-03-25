@@ -479,6 +479,16 @@ class SkelCLElapsedTimes(DependentVariable):
         self.val = [max(x, 1) for x in r]
 
 #
+class SkelCLSourceTree(DependentVariable):
+    def __init__(self):
+        DependentVariable.__init__(self, "SkelCL version")
+
+    def post(self, **kwargs):
+        cd(SKELCL)
+        output = check_output(["git", "rev-parse", "HEAD"])
+        self.val = output.decode('utf-8').rstrip()
+
+#
 class SkelCLBenchmark(Benchmark):
     def __init__(self, name):
         # Binary directory:
@@ -505,7 +515,7 @@ class SkelCLTestCase(TestCase):
         # Default variables.
         ins = []
         outs = [SkelCLElapsedTimes]
-        couts = set()
+        couts = {SkelCLSourceTree}
 
         TestCase.__init__(self, host, benchmark, ins + invars,
                           outs + outvars, couts.union(coutvars))
