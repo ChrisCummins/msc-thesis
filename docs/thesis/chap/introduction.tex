@@ -12,3 +12,51 @@
 % frameworks,” XRDS Crossroads, ACM Mag. Students, vol. 17, no. 5,
 % p. 22, 2010.
 \todo{\cite{Catanzaro2010}}
+
+\section{SkelCL}
+
+SkelCL\footnote{\url{http://skelcl.uni-muenster.de}} is an object
+oriented C++ library that provides OpenCL implementations of data
+parallel algorithmic skeletons for heterogeneous parallelism: Map,
+Reduce, Scan, Zip, Stencil, and AllPairs. Skeletons are parameterised
+with muscle functions by the user, which are compiled into OpenCL
+kernels for execution on device hardware. The Vector and Matrix
+container types transparently handle communication between the host
+and device memory, and support partitioning for multi-GPU execution.
+
+Each skeleton is represented by a template class, declared in a header
+file detailing the public API. A private header file contains the
+template definition. E.g. \texttt{SkelCL/Map.h} contains the Map
+class, and \texttt{SkelCL/detail/MapDef.h} contains the
+implementation. Non-trivial kernels are stored in separate source
+files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
+
+\lstset{language=C++}
+\begin{lstlisting}[
+  basicstyle=\scriptsize,
+  caption={Example program to calculate dot product using SkelCL.}
+]
+#include <SkelCL/SkelCL.h>
+#include <SkelCL/Vector.h>
+#include <SkelCL/Zip.h>
+#include <SkelCL/Reduce.h>
+
+int main(int argc, char* argv[]) {
+  // Initialise SkelCL to use any device.
+  skelcl::init(skelcl::nDevices(1).deviceType(skelcl::device_type::ANY));
+
+  // Define the skeleton objects.
+  skelcl::Zip<int(int, int)> mult("int func(int x, int y) { return x * y; }");
+  skelcl::Reduce<int(int)> sum("int func(int x, int y) { return x + y; }", "0");
+
+  // Create two vectors A and B of length "n".
+  const int n = 1024; skelcl::Vector<int> A(n), B(n);
+  skelcl::Vector<int>::iterator a = A.begin(), b = B.begin();
+  while (a != A.end()) { *a = rand() % n; ++a; *b = rand() % n; ++b; }
+
+  // Invoke skeleton: x = A . B
+  int x = sum(mult(A, B)).first();
+
+  return 0;
+}
+\end{lstlisting}

@@ -11,6 +11,10 @@
 
 \note{OPTIMISING PROGRAMS FOR GPUs}
 
+Prior research has shown that performance of GPGPU programs are
+heavily influenced by proper exploitation of local shared memory and
+synchronisation costs~\cite{Ryoo2008a, Lee2010}
+
 % S. Ryoo, C. I. Rodrigues, S. S. Baghsorkhi, S. S. Stone, D. B. Kirk,
 % and W. W. Hwu, “Optimization principles and application performance
 % evaluation of a multithreaded GPU using CUDA,” Proc. 13th ACM
@@ -175,8 +179,12 @@ enumerating instruction set search space: \cite{Massalin1987}}
 % systems. In Proceedings of the 4th International Workshop on
 % Multicore Software Engineering (pp. 25–32). ACM. Retrieved from
 % http://dl.acm.org/citation.cfm?id=1984697
-\TODO{Selecting between different back-ends (``execution plans''):
-\cite{Dastgeer2011}}
+\citeauthor{Dastgeer2011} developed a machine learning based autotuner
+for the SkePU skeleton library in~\cite{Dastgeer2011}. Training data
+is used to select the optimal backend (i.e.\ CPU, GPU) for a given
+program by estimating execution time and memory copy overhead based on
+problem size. There is limited cross-architecture evaluation, and the
+autotuner only supports vector operations.
 
 
 \note{PETABRICKS}
@@ -224,7 +232,17 @@ enumerating instruction set search space: \cite{Massalin1987}}
 % T. Lutz, C. Fensch, and M. Cole, “PARTANS: An Autotuning Framework
 % for Stencil Computation on Multi-GPU Systems,” ACM
 % Trans. Archit. Code Optim., vol. 9, no. 4, pp. 1–24, 2013.
-\TODO{\cite{Lutz2013}}
+\citeauthor{Lutz2013} explored the effect of varying the size of the
+halo regions for multi-GPU stencil computations in~\cite{Lutz2013}. A
+large halo increases redundant computation across GPUs but decreases
+communication costs. They found that the optimal halo size depends on
+the problem size, number of partitions, and the connection mechanism
+(i.e.\ PCI express). They developed an autotuner which determines
+problem decomposition and swapping strategy offline, and performs an
+online search for the optimal halo size. The study is limited to only
+three optimisation parameters of a single class of program, and the
+results of tuning are not shared across programs or across multiple
+runs of the same program.
 
 % Rul, S., Vandierendonck, H., Haene, J. D., & Bosschere,
 % K. De. (2010). An Experimental Study on Performance Portability of
@@ -239,6 +257,11 @@ enumerating instruction set search space: \cite{Massalin1987}}
 hardware and a memory-placement-agnostic compiler. Shows impressive
 speedups (2.08x max, 1.59x avg) from just optimising data
 placement. \cite{Chen2014}}
+
+\citeauthor{Magni2014} explored the effect of thread coarsening
+in~\cite{Magni2014}, achieving average speedups between 1.11$\times$
+and 1.33$\times$ using a machine-learning model based on the static
+features of kernels.
 
 
 \note{ONLINE RL}

@@ -7,53 +7,87 @@
 % suggested solutions should be mentioned. Alternative solutions and
 % their evaluation should also be included.
 
-\begin{table}[h]
+\begin{table}
+\footnotesize
 \centering
-\begin{tabular}{| l | l | l | l |}
+\begin{tabular}{| l | l | l | l | l |}
 \hline
-\textbf{Name} & \textbf{Field} & \textbf{Skeletons used} & \textbf{Iterative?}\\
+\textbf{Name} & \textbf{Application} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
 \hline
-CannyEdgeDetection & Image processing & Stencil & -\\
-DotProduct & Linear algebra & Zip, Reduce & -\\
-FDTD & Scientific simulation & Map, Stencil & Y\\
-GameOfLife & Cellular automata & Stencil & Y\\
-GaussianBlur & Image processing & Stencil & -\\
-HeatSimulation & Scientific simulation & Stencil & Y\\
-MandelbrotSet & Fractal computation & Map & Y\\
-MatrixMultiply & Linear algebra & AllPairs & -\\
-SAXPY & Linear algebra & Zip & -\\
+CannyEdgeDetection & Image processing & Stencil & - & 225 / 61\\
+DotProduct & Linear algebra & Zip, Reduce & - & 143 / 2\\
+FDTD & Scientific simulation & Map, Stencil & Y & 375 / 127\\
+GameOfLife & Cellular automata & Stencil & Y & 92 / 12\\
+GaussianBlur & Image processing & Stencil & - & 262 / 47\\
+HeatSimulation & Scientific simulation & Stencil & Y & 180 / 13\\
+MandelbrotSet & Fractal computation & Map & Y & 133 / 78\\
+MatrixMultiply & Linear algebra & AllPairs & - & 267 / 8\\
+SAXPY & Linear algebra & Zip & - & 149 / 3\\
 \hline
 \end{tabular}
-\caption{Benchmark applications.}
+\caption{Benchmark applications. The LOC column shows lines of code, split between host (C++) and device (OpenCL).}
+\label{tab:benchmarks}
 \end{table}
 
-\begin{table}[h]
+\begin{table}
+\footnotesize
 \centering
 \begin{tabular}{| l | l | l |}
 \hline
 \textbf{Parameter} & \textbf{Values} & \textbf{Skeleton}\\
 \hline
-Number of columns & \{8, 16, 32, 64, 128\} & AllPairs\\
-Number of rows & \{8, 16, 32, 64, 128\} & AllPairs\\
-Number of segments & \{8, 16, 32, 64, 128\} & AllPairs\\
-Local size[0] & \{8, 16, 32, 64, 128, 256\} & Stencil, TODO\\
-Local size[1] & \{4, 8, 16, 32, 64, 128, 256\} & Stencil, TODO\\
-Iterations between swaps & TODO & Stencil\\
-Global size & \{256, 512, 1024, 2048, 4096, 8192, ..., 2097152\} & Reduce\\
+Number of columns, rows, segments & \{8, 16, 32, 64, 128\} & AllPairs\\
+Global size & \{256, 512, 1024, 2048, \ldots, 2097152\} & Reduce\\
+Work group size & [32\ldots$n$] & *\\
+Work group size (2D) & \{8, 16, 32, 64, 128, 256\} & Stencil\\
+Device type & \{CPU, GPU\} & *\\
+Device count & [1,4] & *\\
+Halo region size & [1\ldots$n$] & Stencil\\
+Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
+Border loading strategy & TODO & Stencil\\
+Thread coarsening factor & TODO & *\\
 \hline
 \end{tabular}
 \caption{Tunable parameters.}
+\label{tab:knobs}
 \end{table}
 
-\begin{table}[h]
+\begin{table}
+\footnotesize
 \centering
 \begin{tabular}{| l | l | l | l |}
 \hline
 \textbf{CPU} & \textbf{Memory} & \textbf{GPU}\\
 \hline
-Intel i7-2600K CPU & 16GiB & GeForce GTX 690 (1536 CUDA cores @ 823 MHz)\\
-Intel i5-4570 CPU & 8GiB & -\\
+Intel i7-4770 & 16GiB & NVIDIA GTX TITAN\\
+Intel i7-2600K & 16GiB & NVIDIA GTX 690\\
+Intel i7-2600K & 8GiB & 2$\times$ NVIDIA GTX 590\\
+Intel i7-3820 & 8GiB & 2$\times$ AMD Tahiti 7970\\
+Intel i5-4570 & 8GiB & -\\
 \hline
 \end{tabular}
 \caption{Testing hardware.}
+\label{tab:hw}
 \end{table}
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l |}
+  \hline
+  \textbf{Name} & \textbf{Notes}\\
+  \hline
+  Total runtime & Runtime of entire benchmark application\\
+  Kernel compilation time & Could influence cost/benefit analysis\\
+  Kernel queue time & Time that a command spent queued\\
+  Kernel exec time & Time between command starting and completing\\
+  Data upload time & Host $\rightarrow$ Device\\
+  Data download time & Device $\rightarrow$ Host\\
+  Data sync time & Each device $\leftrightarrow$ Host (multi-GPUs)\\
+  \hline
+\end{tabular}
+\caption{Measurable performance values.}
+\label{tab:metric}
+\end{table}
+
+\TODO{Table of derived dependent variables (e.g. FLOPS, GPU utilisation)}
