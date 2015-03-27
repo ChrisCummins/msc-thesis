@@ -25,3 +25,22 @@ def system(args, out=None, exit_on_error=True):
                                               ' '.join(args))))
         exit(exitstatus)
     return exitstatus
+
+def colourise(colour, *args):
+    return str(colour + str(args) + Colours.RESET)
+
+#############################
+# Shell escape colour codes #
+#############################
+class Colours:
+    RESET   = '\033[0m'
+    GREEN   = '\033[92m'
+    YELLOW  = '\033[93m'
+    BLUE    = '\033[94m'
+    RED     = '\033[91m'
+
+    @staticmethod
+    def print(colour, *args, **kwargs):
+        print(colour, end="", **kwargs)
+        print(*args, end="", **kwargs)
+        print(Colours.RESET, **kwargs)

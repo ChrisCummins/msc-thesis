@@ -413,11 +413,14 @@ class TestHarness:
         if not self.sampler.hasnext(self.result):
             return
 
-        print("Running", self.testcase, "...")
+        Colours.print(Colours.YELLOW, "Preparing testcase",
+                      self.testcase, "...")
         self.testcase.setup()
 
         # Sample and store results.
         while self.sampler.hasnext(self.result):
+            Colours.print(Colours.YELLOW, "Sampling testcase",
+                          self.testcase, "...")
             o, c = self.testcase.sample()
             self.result.outvars.append(o)
             self.result.couts.update(c)
