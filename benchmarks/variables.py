@@ -10,6 +10,10 @@ from inspect import isclass
 
 from util import checksum
 
+def _datefmt(datetime):
+    _DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+    return datetime.strftime(_DATETIME_FORMAT)
+
 # A result consists of a set of independent variables, and one or more
 # sets of dependent, or "output", variables.
 class Result:
@@ -89,13 +93,6 @@ class DependentVariable(Variable):
     def pre(self, **kwargs): pass
     def post(self, **kwargs): pass
 
-#
-class DateTimeVariable(Variable):
-    _DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-    def encode(self):
-        return {self.name: self.val.strftime(self._DATETIME_FORMAT)}
-
 
 #########################
 # Independent Variables #
@@ -126,20 +123,20 @@ class Knob(IndependentVariable):
 #######################
 
 # A built-in runtime variable.
-class StartTime(DependentVariable, DateTimeVariable):
+class StartTime(DependentVariable):
     def __init__(self):
         DependentVariable.__init__(self, "Start time")
 
     def pre(self, **kwargs):
-        self.val = datetime.now()
+        self.val = _datefmt(datetime.now())
 
 # A built-in runtime variable.
-class EndTime(DependentVariable, DateTimeVariable):
+class EndTime(DependentVariable):
     def __init__(self):
         DependentVariable.__init__(self, "End time")
 
     def post(self, **kwargs):
-        self.val = datetime.now()
+        self.val = _datefmt(datetime.now())
 
 # A built-in runtime variable.
 class RunTime(DependentVariable):

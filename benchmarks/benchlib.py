@@ -8,18 +8,18 @@ from os.path import abspath,basename,dirname,exists
 from random import shuffle
 from re import match,search
 from re import sub
-from scipy import stats
 from subprocess import call,check_output
 from sys import exit,stdout
 
 import json
 import os
-import scipy
 
-from util import checksum
+import config
+from util import *
 from variables import *
 import jsoncache
 import resultscache
+
 
 ##### LOCAL VARIABLES #####
 
@@ -121,18 +121,6 @@ def printheader(file=stdout):
     print('{0} in {1}'.format(datestr(), getcwd()), file=file)
     file.flush()
 
-# Run "args", redirecting stdout and stderr to "out". Returns exit
-# status.
-def system(args, out=None, exit_on_error=True):
-    stdout = None if out == None else out
-    stderr = None if out == None else out
-    exitstatus = call(args, stdout=stdout, stderr=stderr) # exec
-    if exitstatus and exit_on_error:
-        print("fatal: '{0}'".format(' '.join(args)))
-        exit(exitstatus)
-    return exitstatus
-
-
 ####### STATS #######
 
 # Return the mean value of a list of divisible numbers.
@@ -159,14 +147,13 @@ def confinterval(l, c=0.95, n=30):
     if len(l) > 1:
         scale = stdev(l) / sqrt(len(l))
 
-        if len(l) >= n:
+        #if len(l) >= n:
             # For large values of n, use a normal (Gaussian) distribution:
-            c1, c2 = scipy.stats.norm.interval(c, loc=mean(l), scale=scale)
-        else:
+            #c1, c2 = scipy.stats.norm.interval(c, loc=mean(l), scale=scale)
+        #else:
             # For small values of n, use a t-distribution:
-            c1, c2 = scipy.stats.t.interval(c, len(l) - 1, loc=mean(l), scale=scale)
-
-        return c1, c2
+            #c1, c2 = scipy.stats.t.interval(c, len(l) - 1, loc=mean(l), scale=scale)
+        return 0, 0
     else:
         return 0, 0
 
@@ -185,32 +172,6 @@ RUNLOG = path(CWD, 'run.log')
 
 
 ###### BENCHMARK FUNCTIONS #####
-
-def buildlog():
-    return open(BUILDLOG, 'w')
-
-# Build example program "prog", an log output to "log". If "clean",
-# then clean before building.
-#
-#   @side-effect: Changes working dir.
-def make(prog, clean=True, log=buildlog()):
-    cd(bindir(prog))
-    printheader(log)
-    if clean:
-        system(['make', 'clean'], out=log)
-    system(['make', prog], out=log)
-
-# Build SkelCL. If "configure", run cmake.
-#
-#   @side-effect: Changes working dir.
-def makeSkelCL(configure=True, clean=True, log=buildlog()):
-    cd(SKELCL_BUILD)
-    printheader(log)
-    if configure:
-        system(['cmake', '..'], out=log)
-    if clean:
-        system(['make', 'clean'], out=log)
-    system(['make'], out=log)
 
 # Return all permutations of "options" for "prog"
 def permutations(options=[[]]):
@@ -290,13 +251,11 @@ class LocalHost(Host):
     def __init__(self, **kwargs):
         Host.__init__(self, gethostname(), **kwargs)
 
-# Represents an application binary, at path "path". "runlog" is the
-# path to an output log file.
+# Represents an application binary, at path "path".
 class Binary:
-    def __init__(self, path, runlog):
+    def __init__(self, path):
         self.basename = basename(path)
         self.path = path
-        self.runlog = runlog
         self._haschecksum = False
         self._checksum = ""
 
@@ -313,17 +272,16 @@ class Binary:
                             .format(path=self.path))
 
         cmd = [self.path] + [str(arg.val) for arg in args]
-        return system(cmd, out=open(self.runlog, 'w'), exit_on_error=False)
+        return system(cmd, out=open(config.RUNLOG, 'w'), exit_on_error=False)
 
     def __repr__(self):
         return self.basename
 
 #
 class Benchmark:
-    def __init__(self, name, path, logfile):
+    def __init__(self, name, path):
         self.name = name
-        self.logfile = logfile
-        self.bin = Binary(path, logfile)
+        self.bin = Binary(path)
 
     def __repr__(self):
         return str(self.name)
@@ -345,7 +303,7 @@ class Benchmark:
         [var.pre(**kwargs) for var in coutvars]
 
         exitstatus = self.bin.run(args)
-        output = [l.rstrip() for l in open(self.logfile).readlines()]
+        output = [l.rstrip() for l in open(config.RUNLOG).readlines()]
 
         # Post-execution hooks.
         kwargs = {
@@ -371,7 +329,7 @@ class FixedSizeSampler(Sampler):
         n = len(result.outvars)
         shouldsample = len(result.outvars) < self.samplecount
         if shouldsample:
-            print("Have {n}/{total} samples. {t} more to collect...".
+            print("Have {n}/{total} samples. {t} more to collect ...".
                   format(n=n, total=self.samplecount,
                          t=self.samplecount - n))
         return shouldsample
@@ -476,104 +434,3 @@ class TestSuite:
     def __init__(hosts, harnesses):
         self.hosts = hosts
         self.harnesses = harnesses
-
-##### SKELCL-SPECIFIC CLASSES #####
-
-class DeviceTypeArg(Argument):
-    def __init__(self, type):
-        Argument.__init__(self, "Device type",
-                          "--device-type {type}".format(type=type))
-
-class DeviceCountArg(Argument):
-    def __init__(self, count):
-        Argument.__init__(self, "Device count",
-                          "--device-count {count}".format(count=count))
-
-class SkelCLHost(OpenCLHost):
-    def devargs(self):
-        args = []
-        for i in range(1, len(self.GPUS) + 1):
-            args.append([DeviceTypeArg("GPU"), DeviceCountArg(i)])
-
-        if self.OPENCL_CPU:
-            args.append([DeviceTypeArg("CPU")])
-
-        return args
-
-#
-class SkelCLElapsedTimes(DependentVariable):
-    def __init__(self):
-        DependentVariable.__init__(self, "Elapsed times")
-
-    def post(self, **kwargs):
-        r = []
-        for line in kwargs['output']:
-            match = search('^Elapsed time:\s+([0-9]+)\s+', line)
-            if match:
-                r.append(int(match.group(1)))
-
-        # Clamp each time at >= 1 ms. This is necessary for computations
-        # that require less than .5 ms, which will be rounded down to 0.
-        self.val = [max(x, 1) for x in r]
-
-#
-class SkelCLSourceTree(DependentVariable):
-    def __init__(self):
-        DependentVariable.__init__(self, "SkelCL version")
-
-    def post(self, **kwargs):
-        cd(SKELCL)
-        output = check_output(["git", "rev-parse", "HEAD"])
-        self.val = output.decode('utf-8').rstrip()
-
-#
-class SkelCLBenchmark(Benchmark):
-    def __init__(self, name):
-        # Binary directory:
-        self.dir = path(SKELCL_BUILD, 'examples', name)
-        # Source directory:
-        self.src = path(SKELCL, 'examples', name)
-        # Path to binary:
-        binpath = path(self.dir, name)
-
-        # Superclass:
-        Benchmark.__init__(self, name, binpath, RUNLOG)
-
-    def run(self, *args):
-        cd(self.dir)
-        return Benchmark.run(self, *args)
-
-    def build(self):
-        cd(self.dir)
-        system(['make', self.name])
-
-#
-class SkelCLTestCase(TestCase):
-    def __init__(self, benchmark,
-                 host=LocalHost(),
-                 invars=[],
-                 outvars=[],
-                 coutvars=set()):
-        # Default variables.
-        ins = []
-        outs = [SkelCLElapsedTimes]
-        couts = {SkelCLSourceTree}
-
-        TestCase.__init__(self, benchmark,
-                          host=host,
-                          invars=ins + invars,
-                          outvars=outs + outvars,
-                          coutvars=couts.union(coutvars))
-
-class StencilLocalSize(Knob):
-    header = path(SKELCL, 'include/SkelCL/detail/StencilDef.h')
-
-    def __init__(self, val):
-        Knob.__init__(self, "StencilLocalSize", val)
-
-    def set(self, **kwargs):
-        r, c = self.val[0], self.val[1]
-        os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {val}/' {path}"
-                  .format(val=r, path=self.header))
-        os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {val}/' {path}"
-                  .format(val=c, path=self.header))

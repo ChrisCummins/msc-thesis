@@ -2,55 +2,12 @@
 #
 # e5
 #
+from __future__ import print_function
 from benchlib import *
-import os
-
-hosts = [
-    SkelCLHost("florence",
-               cpu="Intel i5-2430M",
-               mem=8,
-               opencl_cpu=True),
-    SkelCLHost("cec",
-               cpu="Intel i5-4570",
-               mem=8,
-               opencl_cpu=True),
-    SkelCLHost("dhcp-90-060",
-               cpu="Intel i7-2600K",
-               mem=16,
-               gpus=["NVIDIA GTX 690"],
-               opencl_cpu=False),
-    SkelCLHost("whz5",
-               cpu="Intel i7-4770",
-               mem=16,
-               gpus=["NVIDIA GTX TITAN"],
-               opencl_cpu=False),
-    SkelCLHost("tim",
-               cpu="Intel i7-2600K",
-               mem=8,
-               gpus=["NVIDIA GTX 590", "NVIDIA GTX 590",
-                     "NVIDIA GTX 590", "NVIDIA GTX 590"],
-               opencl_cpu=False),
-    SkelCLHost("monza",
-               cpu="Intel i7-3820",
-               mem=8,
-               gpus=["AMD Tahiti 7970", "AMD Tahiti 7970"],
-               opencl_cpu=True)
-]
-
-benchmarks = [
-    # SkelCLBenchmark("CannyEdgeDetection"),
-    # SkelCLBenchmark("DotProduct"),
-    # SkelCLBenchmark("FDTD"),
-    SkelCLBenchmark("GameOfLife"),
-    # SkelCLBenchmark("GaussianBlur"),
-    # SkelCLBenchmark("HeatSimulation"),
-    # SkelCLBenchmark("MandelbrotSet"),
-    # SkelCLBenchmark("MatrixMultiply"),
-    # SkelCLBenchmark("SAXPY")
-]
+from skelcl import *
 
 for host in hosts:
-    for benchmark in benchmarks:
+    for benchmark in [benchmarks[3]]:
         for devargs in host.devargs():
 
             invars = [
@@ -64,5 +21,7 @@ for host in hosts:
                                       host=host,
                                       invars=invars)
             harness = TestHarness(testcase, sampler)
+
+            print(testcase)
 
             harness.run()
