@@ -5,6 +5,10 @@ from __future__ import print_function
 from hashlib import sha1
 from os.path import abspath,basename,dirname,exists
 from subprocess import call
+from socket import gethostname
+
+def hostname():
+    return gethostname()
 
 # Return the checksum of file at "path".
 def checksum(path):
@@ -19,7 +23,7 @@ def path(*components):
 def system(args, out=None, exit_on_error=True):
     stdout = None if out == None else out
     stderr = None if out == None else out
-    exitstatus = call(args, stdout=stdout, stderr=stderr) # exec
+    exitstatus = call(args, stdout=stdout, stderr=stderr, shell=True) # exec
     if exitstatus and exit_on_error:
         print("fatal: '{0}'".format(colourise(Colours.RED,
                                               ' '.join(args))))

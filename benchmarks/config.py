@@ -1,8 +1,12 @@
 # config.py - Configurable options.
 #
-from os.path import basename
+from os.path import basename,dirname
 from sys import argv
+from util import path
 
-ID = basename(argv[0])
+CWD = path(dirname(__file__))
+SKELCL = path(CWD, '../skelcl')
+SKELCL_BUILD = path(SKELCL, 'build')
 
-RUNLOG = "/tmp/{id}.run.log".format(id=ID)
+_id = basename(argv[0])
+RUNLOG = "/tmp/{id}.run.log".format(id=_id)

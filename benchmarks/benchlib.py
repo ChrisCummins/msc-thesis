@@ -2,7 +2,6 @@ from __future__ import print_function
 from atexit import register
 from datetime import datetime
 from itertools import product
-from math import sqrt
 from os import chdir,getcwd,listdir,makedirs
 from os.path import abspath,basename,dirname,exists
 from random import shuffle
@@ -17,6 +16,7 @@ import os
 import config
 from util import *
 from variables import *
+from stats import *
 import jsoncache
 import resultscache
 
@@ -123,94 +123,6 @@ def printheader(file=stdout):
 
 ####### STATS #######
 
-# Return the mean value of a list of divisible numbers.
-def mean(num):
-    if len(num):
-        return sum([float(x) for x in num]) / float(len(num))
-    else:
-        return 0
-
-# Return the variance of a list of divisible numbers.
-def variance(num):
-    if len(num) > 1:
-        m = mean(num)
-        return sum([(x - m) ** 2 for x in num]) / (len(num) - 1)
-    else:
-        return 0
-
-# Return the standard deviation of a list of divisible numbers.
-def stdev(num):
-    return sqrt(variance(num))
-
-# Return the confidence interval of a list for a given confidence
-def confinterval(l, c=0.95, n=30):
-    if len(l) > 1:
-        scale = stdev(l) / sqrt(len(l))
-
-        #if len(l) >= n:
-            # For large values of n, use a normal (Gaussian) distribution:
-            #c1, c2 = scipy.stats.norm.interval(c, loc=mean(l), scale=scale)
-        #else:
-            # For small values of n, use a t-distribution:
-            #c1, c2 = scipy.stats.t.interval(c, len(l) - 1, loc=mean(l), scale=scale)
-        return 0, 0
-    else:
-        return 0, 0
-
-
-####### CONSTANTS & CONFIG #######
-
-CWD = path(dirname(__file__))
-DATADIR = path(CWD, 'data')
-IMAGES = [x for x in  ls(path(DATADIR, 'img'))
-          if search('\.pgm$', x) and not search('\.out\.pgm$', x)]
-RESULTSDIR = path(CWD, 'results')
-SKELCL = path(CWD, '../skelcl')
-SKELCL_BUILD = path(SKELCL, 'build')
-BUILDLOG = path(CWD, 'make.log')
-RUNLOG = path(CWD, 'run.log')
-
-
-###### BENCHMARK FUNCTIONS #####
-
-# Return all permutations of "options" for "prog"
-def permutations(options=[[]]):
-    return [[x for z in [x.split() for x in y] for x in z]
-            for y in list(product(*options))]
-
-# Run "prog" "n" times for all "options", where "options" is a list of
-# lists, and "version" is the index for results.
-def iterate(experiment):
-    progs = experiment['progs']
-    name = experiment['name']
-    n = experiment['iterations']
-
-    permcount = sum([len(permutations(progs[prog])) for prog in progs])
-    itercount = permcount * n
-    count = 0
-
-    print("========================")
-    print("SETTINGS:")
-    for s in experiment['settings-val']:
-        print("    {0}: {1}".format(s, experiment['settings-val'][s]))
-    print()
-    print("TOTAL PERMUTATIONS:", permcount)
-    print("TOTAL ITERATIONS:  ", itercount)
-    print("========================\n")
-
-    for i in range(1, n + 1):
-        for prog in progs:
-            P = permutations(progs[prog])
-
-            for args in P:
-                count += 1
-                record(prog, args, version=name, n=n, count=count)
-
-
-def settingspermutations(options):
-    vals = [x for x in options]
-    keys = product(*[options[x] for x in options])
-    return [dict(zip(vals, k)) for k in keys]
 
 
 ##### OBJECT ORIENTATION #####
@@ -249,7 +161,7 @@ class OpenCLHost(Host):
 # Represents the current host machine.
 class LocalHost(Host):
     def __init__(self, **kwargs):
-        Host.__init__(self, gethostname(), **kwargs)
+        Host.__init__(self, hostname(), **kwargs)
 
 # Represents an application binary, at path "path".
 class Binary:
@@ -314,11 +226,21 @@ class Benchmark:
         [var.post(**kwargs) for var in outvars]
         [var.post(**kwargs) for var in coutvars]
 
+        if exitstatus:
+            Colours.print(Colours.RED,
+                          ("Process terminated with exit status {e}. Output:"
+                           .format(e=exitstatus)))
+            for l in output:
+                print(l)
+
         return outvars, set(coutvars)
 
 #
 class Sampler:
     def hasnext(result): return True
+
+    def __repr__(self):
+        return "Null"
 
 #
 class FixedSizeSampler(Sampler):
@@ -326,13 +248,10 @@ class FixedSizeSampler(Sampler):
         self.samplecount = samplecount
 
     def hasnext(self, result):
-        n = len(result.outvars)
-        shouldsample = len(result.outvars) < self.samplecount
-        if shouldsample:
-            print("Have {n}/{total} samples. {t} more to collect ...".
-                  format(n=n, total=self.samplecount,
-                         t=self.samplecount - n))
-        return shouldsample
+        return len(result.outvars) < self.samplecount
+
+    def __repr__(self):
+        return "FixedSize({n})".format(n=self.samplecount)
 
 #
 class TestCase:
@@ -406,7 +325,7 @@ class TestHarness:
 
     def run(self):
         # Only run if we are on the right host.
-        if gethostname() != self.host:
+        if hostname() != self.host:
             return
 
         # Only run if we have samples to collect.
@@ -429,11 +348,34 @@ class TestHarness:
         # Post-execution tidy-up.
         self.testcase.teardown()
 
+    def __repr__(self):
+        return ("{testcase}, Sampler: {sampler}"
+                .format(sampler=self.sampler, testcase=self.testcase))
+
+def variablerange(Variable, vals, *args, **kwargs):
+    return [Variable(x, *args, **kwargs) for x in vals]
+
+def permutations(*args):
+    return list(product(*args))
+
 class TestGenerator:
     pass
 
-#
-class TestSuite:
-    def __init__(hosts, harnesses):
-        self.hosts = hosts
-        self.harnesses = harnesses
+def runTestSuite(harnesses):
+    localhost = hostname()
+    forthisdevice = list(filter(lambda x: x.host == localhost, harnesses))
+    runnable = list(filter(lambda x: x.sampler.hasnext(x.result), forthisdevice))
+
+    Colours.print(Colours.GREEN, "Enumerated", len(harnesses), "test harnesses.")
+    print()
+    print("Of those,", len(forthisdevice), "harnesses target this device.")
+    print()
+    Colours.print(Colours.GREEN, "Beginning execution of", len(runnable),
+                  "test cases ...")
+
+    i = 1
+    for harness in runnable:
+        print()
+        print("Beginning test harness", i, "of", len(runnable))
+        harness.run()
+        i += 1

@@ -6,22 +6,35 @@ from __future__ import print_function
 from benchlib import *
 from skelcl import *
 
-for host in hosts:
-    for benchmark in [benchmarks[3]]:
-        for devargs in host.devargs():
+from sys import exit
 
-            invars = [
-                StencilLocalSize([4, 4])
-            ]
+def TestStencilLocalSize():
+    knobs = [
+        (StencilLocalSizeR, [32, 64, 128, 256]),
+        (StencilLocalSizeC, [8, 16, 32, 64, 128, 256])
+       ]
 
-            invars + devargs
+    perms = permutations(*[variablerange(x[0], x[1]) for x in knobs])
+    benchmarks = [
+        SkelCLBenchmark("CannyEdgeDetection"),
+        SkelCLBenchmark("GameOfLife"),
+        SkelCLBenchmark("GaussianBlur"),
+        SkelCLBenchmark("HeatSimulation"),
+        SkelCLBenchmark("FDTD")
+       ]
 
-            sampler = FixedSizeSampler(10)
-            testcase = SkelCLTestCase(benchmark,
-                                      host=host,
-                                      invars=invars)
-            harness = TestHarness(testcase, sampler)
+    # Enumerate test harnesses.
+    harnesses = []
+    for host in hosts:
+        for benchmark in benchmarks:
+            for devargs in host.devargs():
+                for p in perms:
+                    invars = list(p) + list(devargs)
+                    sampler = FixedSizeSampler(10)
+                    testcase = SkelCLTestCase(benchmark,
+                                              host=host,
+                                              invars=invars)
+                    harnesses.append(TestHarness(testcase, sampler))
+    return harnesses
 
-            print(testcase)
-
-            harness.run()
+runTestSuite(TestStencilLocalSize())

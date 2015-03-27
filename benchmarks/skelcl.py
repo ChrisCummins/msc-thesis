@@ -1,4 +1,5 @@
 from benchlib import *
+from config import *
 
 class DeviceTypeArg(Argument):
     def __init__(self, type):
@@ -19,7 +20,7 @@ class SkelCLHost(OpenCLHost):
         if self.OPENCL_CPU:
             args.append([DeviceTypeArg("CPU")])
 
-        return args
+        return tuple(args)
 
 #
 class SkelCLElapsedTimes(DependentVariable):
@@ -147,18 +148,25 @@ class SkelCLTestCase(TestCase):
                           outvars=outs + outvars,
                           coutvars=couts.union(coutvars))
 
-class StencilLocalSize(Knob):
-    header = path(SKELCL, 'include/SkelCL/detail/StencilDef.h')
+class StencilKnob(Knob):
+    defheader = path(SKELCL, 'include/SkelCL/detail/StencilDef.h')
 
+class StencilLocalSizeR(StencilKnob):
     def __init__(self, val):
-        Knob.__init__(self, "StencilLocalSize", val)
+        Knob.__init__(self, "StencilLocalSizeR", val)
 
     def set(self, **kwargs):
-        r, c = self.val[0], self.val[1]
         os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {val}/' {path}"
-                  .format(val=r, path=self.header))
+                  .format(val=self.val, path=self.defheader))
+
+class StencilLocalSizeC(StencilKnob):
+    def __init__(self, val):
+        Knob.__init__(self, "StencilLocalSizeC", val)
+
+    def set(self, **kwargs):
         os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {val}/' {path}"
-                  .format(val=c, path=self.header))
+                  .format(val=self.val, path=self.defheader))
+
 
 ### VARIABLES
 
