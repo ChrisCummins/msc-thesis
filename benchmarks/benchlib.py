@@ -211,7 +211,7 @@ class TestHarness:
     def __init__(self, testcase, sampler=FixedSizeSampler()):
         self.testcase = testcase
         self.sampler = sampler
-        self.result = resultscache.load(testcase)
+        self._hasresult = False # Don't load result until we use it
         self.host = lookup1(testcase.invars, Hostname).val # derive
 
     def run(self):
@@ -220,24 +220,30 @@ class TestHarness:
             return
 
         # Only run if we have samples to collect.
-        if not self.sampler.hasnext(self.result):
+        if not self.sampler.hasnext(self.result()):
             return
 
         Colours.print(Colours.BLUE, "Preparing testcase", self.testcase, "...")
         self.testcase.setup()
 
         # Sample and store results.
-        while self.sampler.hasnext(self.result):
+        while self.sampler.hasnext(self._result):
             Colours.print(Colours.YELLOW, "Sampling testcase",
                           self.testcase, "...")
             o, c, b = self.testcase.sample()
-            self.result.outvars.append(o) # dep(endent) vars.
-            self.result.couts.update(c) # constant dep vars.
-            self.result.bad = b # "bad" flag.
-            resultscache.store(self.result) # store new data.
+            self._result.outvars.append(o) # dep(endent) vars.
+            self._result.couts.update(c) # constant dep vars.
+            self._result.bad = b # "bad" flag.
+            resultscache.store(self._result) # store new data.
 
         # Post-execution tidy-up.
         self.testcase.teardown()
+
+    def result(self):
+        if not self._hasresult:
+            self._result = resultscache.load(self.testcase)
+            self._hasresult = True
+        return self._result
 
     def __repr__(self):
         return ("{testcase}, Sampler: {sampler}"
@@ -255,7 +261,7 @@ class TestGenerator:
 def jobqueue(harnesses):
     localhost = hostname()
     forthisdevice = filter(lambda x: x.host == localhost, harnesses)
-    runnable = filter(lambda x: x.sampler.hasnext(x.result), forthisdevice)
+    runnable = filter(lambda x: x.sampler.hasnext(x.result()), forthisdevice)
 
     print("From the {n} test cases, {t} are for this device, "
           "and {r} require samples."
