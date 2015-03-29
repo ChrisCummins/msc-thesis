@@ -1,0 +1,815 @@
+{
+  "bad": false,
+  "cout": {
+    "Checksum": "e1bc89ee2d6ee46ea210fbcda355708aeae83972",
+    "SkelCL version": "342948fdec1b0070f0c02c9ede1cc400a3acf626"
+  },
+  "in": {
+    "Benchmark": "GaussianBlur",
+    "Device type": "--device-type CPU",
+    "Hostname": "florence",
+    "MapOverlap": "--map-overlap"
+  },
+  "out": [
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7ffd20744fd0": {
+            "download": {
+              "0": {
+                "queueTime": "0.00389",
+                "runTime": "0.175653",
+                "submitTime": "0.04926"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.005733",
+                "runTime": "0.67574",
+                "submitTime": "0.047342"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7ffd20744f40": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.003378",
+                "runTime": "0.002229",
+                "submitTime": "0.54965"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1094
+      ],
+      "End time": "2015-03-29 21:45:59",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.227s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.228s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.472s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.472s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.472s  PROF] skelcl::init() time 246 ms",
+        "[=====Program.cpp:212  001.547s  PROF] skelcl::Program::build() 484 ms",
+        "[====StencilDef.h:284  001.551s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.551s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.551s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.564s  PROF] Stencil<Tout(Tin)> 0x7ffd20744ec0, clEvent: 0, queueTime: 0.003349 ms",
+        "[====Skeleton.cpp:106  001.564s  PROF] Stencil<Tout(Tin)> 0x7ffd20744ec0, clEvent: 0, submitTime: 0.037298 ms",
+        "[====Skeleton.cpp:107  001.564s  PROF] Stencil<Tout(Tin)> 0x7ffd20744ec0, clEvent: 0, runTime: 13.3737 ms",
+        "[======SkelCL.cpp:89   001.598s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.598s  PROF] Matrix 0x7ffd20744fd0, clEvent: 0, upload queueTime: 0.005733 ms",
+        "[=====MatrixDef.h:311  001.598s  PROF] Matrix 0x7ffd20744fd0, clEvent: 0, upload submitTime: 0.047342 ms",
+        "[=====MatrixDef.h:312  001.598s  PROF] Matrix 0x7ffd20744fd0, clEvent: 0, upload runTime: 0.67574 ms",
+        "[=====MatrixDef.h:310  001.598s  PROF] Matrix 0x7ffd20744fd0, clEvent: 0, download queueTime: 0.00389 ms",
+        "[=====MatrixDef.h:311  001.598s  PROF] Matrix 0x7ffd20744fd0, clEvent: 0, download submitTime: 0.04926 ms",
+        "[=====MatrixDef.h:312  001.598s  PROF] Matrix 0x7ffd20744fd0, clEvent: 0, download runTime: 0.175653 ms",
+        "[=====VectorDef.h:255  001.598s  PROF] Vector 0x7ffd20744f40, clEvent: 0, upload queueTime: 0.003378 ms",
+        "[=====VectorDef.h:256  001.598s  PROF] Vector 0x7ffd20744f40, clEvent: 0, upload submitTime: 0.54965 ms",
+        "[=====VectorDef.h:257  001.598s  PROF] Vector 0x7ffd20744f40, clEvent: 0, upload runTime: 0.002229 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1094 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.6592259407043457,
+      "Skeleton Event timings": {
+        "7ffd20744ec0": {
+          "events": [
+            {
+              "queueTime": 0.003349,
+              "runTime": 13.3737,
+              "submitTime": 0.037298
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:45:57"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fffdae20660": {
+            "download": {
+              "0": {
+                "queueTime": "0.004413",
+                "runTime": "0.169354",
+                "submitTime": "0.067365"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.007788",
+                "runTime": "0.54027",
+                "submitTime": "0.118884"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7fffdae205d0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.001476",
+                "runTime": "0.001795",
+                "submitTime": "0.42085"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1100
+      ],
+      "End time": "2015-03-29 21:46:01",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.251s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.251s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.495s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.495s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.495s  PROF] skelcl::init() time 245 ms",
+        "[=====Program.cpp:212  001.573s  PROF] skelcl::Program::build() 488 ms",
+        "[====StencilDef.h:284  001.577s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.577s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.577s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.592s  PROF] Stencil<Tout(Tin)> 0x7fffdae20550, clEvent: 0, queueTime: 0.003006 ms",
+        "[====Skeleton.cpp:106  001.592s  PROF] Stencil<Tout(Tin)> 0x7fffdae20550, clEvent: 0, submitTime: 0.047836 ms",
+        "[====Skeleton.cpp:107  001.592s  PROF] Stencil<Tout(Tin)> 0x7fffdae20550, clEvent: 0, runTime: 14.7188 ms",
+        "[======SkelCL.cpp:89   001.627s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.627s  PROF] Matrix 0x7fffdae20660, clEvent: 0, upload queueTime: 0.007788 ms",
+        "[=====MatrixDef.h:311  001.627s  PROF] Matrix 0x7fffdae20660, clEvent: 0, upload submitTime: 0.118884 ms",
+        "[=====MatrixDef.h:312  001.627s  PROF] Matrix 0x7fffdae20660, clEvent: 0, upload runTime: 0.54027 ms",
+        "[=====MatrixDef.h:310  001.627s  PROF] Matrix 0x7fffdae20660, clEvent: 0, download queueTime: 0.004413 ms",
+        "[=====MatrixDef.h:311  001.627s  PROF] Matrix 0x7fffdae20660, clEvent: 0, download submitTime: 0.067365 ms",
+        "[=====MatrixDef.h:312  001.627s  PROF] Matrix 0x7fffdae20660, clEvent: 0, download runTime: 0.169354 ms",
+        "[=====VectorDef.h:255  001.627s  PROF] Vector 0x7fffdae205d0, clEvent: 0, upload queueTime: 0.001476 ms",
+        "[=====VectorDef.h:256  001.627s  PROF] Vector 0x7fffdae205d0, clEvent: 0, upload submitTime: 0.42085 ms",
+        "[=====VectorDef.h:257  001.627s  PROF] Vector 0x7fffdae205d0, clEvent: 0, upload runTime: 0.001795 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1100 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.68983793258667,
+      "Skeleton Event timings": {
+        "7fffdae20550": {
+          "events": [
+            {
+              "queueTime": 0.003006,
+              "runTime": 14.7188,
+              "submitTime": 0.047836
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:45:59"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7ffdbf90caa0": {
+            "download": {
+              "0": {
+                "queueTime": "0.003835",
+                "runTime": "0.192787",
+                "submitTime": "0.058696"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.003049",
+                "runTime": "0.856032",
+                "submitTime": "0.06058"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7ffdbf90ca10": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.002793",
+                "runTime": "0.00167",
+                "submitTime": "0.699066"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1117
+      ],
+      "End time": "2015-03-29 21:46:02",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.231s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.231s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.470s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.470s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.470s  PROF] skelcl::init() time 241 ms",
+        "[=====Program.cpp:212  001.563s  PROF] skelcl::Program::build() 501 ms",
+        "[====StencilDef.h:284  001.570s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.570s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.570s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.585s  PROF] Stencil<Tout(Tin)> 0x7ffdbf90c990, clEvent: 0, queueTime: 0.004968 ms",
+        "[====Skeleton.cpp:106  001.585s  PROF] Stencil<Tout(Tin)> 0x7ffdbf90c990, clEvent: 0, submitTime: 0.099644 ms",
+        "[====Skeleton.cpp:107  001.585s  PROF] Stencil<Tout(Tin)> 0x7ffdbf90c990, clEvent: 0, runTime: 14.6734 ms",
+        "[======SkelCL.cpp:89   001.617s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.617s  PROF] Matrix 0x7ffdbf90caa0, clEvent: 0, upload queueTime: 0.003049 ms",
+        "[=====MatrixDef.h:311  001.617s  PROF] Matrix 0x7ffdbf90caa0, clEvent: 0, upload submitTime: 0.06058 ms",
+        "[=====MatrixDef.h:312  001.617s  PROF] Matrix 0x7ffdbf90caa0, clEvent: 0, upload runTime: 0.856032 ms",
+        "[=====MatrixDef.h:310  001.617s  PROF] Matrix 0x7ffdbf90caa0, clEvent: 0, download queueTime: 0.003835 ms",
+        "[=====MatrixDef.h:311  001.617s  PROF] Matrix 0x7ffdbf90caa0, clEvent: 0, download submitTime: 0.058696 ms",
+        "[=====MatrixDef.h:312  001.617s  PROF] Matrix 0x7ffdbf90caa0, clEvent: 0, download runTime: 0.192787 ms",
+        "[=====VectorDef.h:255  001.617s  PROF] Vector 0x7ffdbf90ca10, clEvent: 0, upload queueTime: 0.002793 ms",
+        "[=====VectorDef.h:256  001.617s  PROF] Vector 0x7ffdbf90ca10, clEvent: 0, upload submitTime: 0.699066 ms",
+        "[=====VectorDef.h:257  001.617s  PROF] Vector 0x7ffdbf90ca10, clEvent: 0, upload runTime: 0.00167 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1117 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.6769328117370605,
+      "Skeleton Event timings": {
+        "7ffdbf90c990": {
+          "events": [
+            {
+              "queueTime": 0.004968,
+              "runTime": 14.6734,
+              "submitTime": 0.099644
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:46:01"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7ffede33ca50": {
+            "download": {
+              "0": {
+                "queueTime": "0.004322",
+                "runTime": "0.171572",
+                "submitTime": "0.067106"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.006925",
+                "runTime": "1.35665",
+                "submitTime": "0.071678"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7ffede33c9c0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.001424",
+                "runTime": "0.002426",
+                "submitTime": "1.28509"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1107
+      ],
+      "End time": "2015-03-29 21:46:04",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.224s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.224s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.466s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.466s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.466s  PROF] skelcl::init() time 244 ms",
+        "[=====Program.cpp:212  001.547s  PROF] skelcl::Program::build() 498 ms",
+        "[====StencilDef.h:284  001.556s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.556s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.557s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.571s  PROF] Stencil<Tout(Tin)> 0x7ffede33c940, clEvent: 0, queueTime: 0.009271 ms",
+        "[====Skeleton.cpp:106  001.571s  PROF] Stencil<Tout(Tin)> 0x7ffede33c940, clEvent: 0, submitTime: 0.092574 ms",
+        "[====Skeleton.cpp:107  001.571s  PROF] Stencil<Tout(Tin)> 0x7ffede33c940, clEvent: 0, runTime: 14.4248 ms",
+        "[======SkelCL.cpp:89   001.604s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.604s  PROF] Matrix 0x7ffede33ca50, clEvent: 0, upload queueTime: 0.006925 ms",
+        "[=====MatrixDef.h:311  001.604s  PROF] Matrix 0x7ffede33ca50, clEvent: 0, upload submitTime: 0.071678 ms",
+        "[=====MatrixDef.h:312  001.604s  PROF] Matrix 0x7ffede33ca50, clEvent: 0, upload runTime: 1.35665 ms",
+        "[=====MatrixDef.h:310  001.604s  PROF] Matrix 0x7ffede33ca50, clEvent: 0, download queueTime: 0.004322 ms",
+        "[=====MatrixDef.h:311  001.604s  PROF] Matrix 0x7ffede33ca50, clEvent: 0, download submitTime: 0.067106 ms",
+        "[=====MatrixDef.h:312  001.604s  PROF] Matrix 0x7ffede33ca50, clEvent: 0, download runTime: 0.171572 ms",
+        "[=====VectorDef.h:255  001.605s  PROF] Vector 0x7ffede33c9c0, clEvent: 0, upload queueTime: 0.001424 ms",
+        "[=====VectorDef.h:256  001.605s  PROF] Vector 0x7ffede33c9c0, clEvent: 0, upload submitTime: 1.28509 ms",
+        "[=====VectorDef.h:257  001.605s  PROF] Vector 0x7ffede33c9c0, clEvent: 0, upload runTime: 0.002426 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1107 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.6650819778442383,
+      "Skeleton Event timings": {
+        "7ffede33c940": {
+          "events": [
+            {
+              "queueTime": 0.009271,
+              "runTime": 14.4248,
+              "submitTime": 0.092574
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:46:02"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7ffeaff457a0": {
+            "download": {
+              "0": {
+                "queueTime": "0.004364",
+                "runTime": "0.176776",
+                "submitTime": "0.037714"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.005963",
+                "runTime": "1.07383",
+                "submitTime": "0.051252"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7ffeaff45710": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.003443",
+                "runTime": "0.002429",
+                "submitTime": "0.033067"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1105
+      ],
+      "End time": "2015-03-29 21:46:06",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.233s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.233s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.477s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.477s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.477s  PROF] skelcl::init() time 246 ms",
+        "[=====Program.cpp:212  001.558s  PROF] skelcl::Program::build() 489 ms",
+        "[====StencilDef.h:284  001.566s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.566s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.566s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.580s  PROF] Stencil<Tout(Tin)> 0x7ffeaff45690, clEvent: 0, queueTime: 0.003567 ms",
+        "[====Skeleton.cpp:106  001.580s  PROF] Stencil<Tout(Tin)> 0x7ffeaff45690, clEvent: 0, submitTime: 0.039398 ms",
+        "[====Skeleton.cpp:107  001.580s  PROF] Stencil<Tout(Tin)> 0x7ffeaff45690, clEvent: 0, runTime: 14.296 ms",
+        "[======SkelCL.cpp:89   001.616s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.616s  PROF] Matrix 0x7ffeaff457a0, clEvent: 0, upload queueTime: 0.005963 ms",
+        "[=====MatrixDef.h:311  001.616s  PROF] Matrix 0x7ffeaff457a0, clEvent: 0, upload submitTime: 0.051252 ms",
+        "[=====MatrixDef.h:312  001.616s  PROF] Matrix 0x7ffeaff457a0, clEvent: 0, upload runTime: 1.07383 ms",
+        "[=====MatrixDef.h:310  001.616s  PROF] Matrix 0x7ffeaff457a0, clEvent: 0, download queueTime: 0.004364 ms",
+        "[=====MatrixDef.h:311  001.616s  PROF] Matrix 0x7ffeaff457a0, clEvent: 0, download submitTime: 0.037714 ms",
+        "[=====MatrixDef.h:312  001.616s  PROF] Matrix 0x7ffeaff457a0, clEvent: 0, download runTime: 0.176776 ms",
+        "[=====VectorDef.h:255  001.616s  PROF] Vector 0x7ffeaff45710, clEvent: 0, upload queueTime: 0.003443 ms",
+        "[=====VectorDef.h:256  001.616s  PROF] Vector 0x7ffeaff45710, clEvent: 0, upload submitTime: 0.033067 ms",
+        "[=====VectorDef.h:257  001.616s  PROF] Vector 0x7ffeaff45710, clEvent: 0, upload runTime: 0.002429 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1105 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.6770930290222168,
+      "Skeleton Event timings": {
+        "7ffeaff45690": {
+          "events": [
+            {
+              "queueTime": 0.003567,
+              "runTime": 14.296,
+              "submitTime": 0.039398
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:46:04"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7ffd0f7b4520": {
+            "download": {
+              "0": {
+                "queueTime": "0.004703",
+                "runTime": "0.31367",
+                "submitTime": "0.038581"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.002948",
+                "runTime": "0.557296",
+                "submitTime": "0.035593"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7ffd0f7b4490": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.001754",
+                "runTime": "0.001626",
+                "submitTime": "0.490582"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1101
+      ],
+      "End time": "2015-03-29 21:46:07",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.226s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.226s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.473s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.473s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.473s  PROF] skelcl::init() time 249 ms",
+        "[=====Program.cpp:212  001.553s  PROF] skelcl::Program::build() 484 ms",
+        "[====StencilDef.h:284  001.558s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.558s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.558s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.572s  PROF] Stencil<Tout(Tin)> 0x7ffd0f7b4410, clEvent: 0, queueTime: 0.004944 ms",
+        "[====Skeleton.cpp:106  001.572s  PROF] Stencil<Tout(Tin)> 0x7ffd0f7b4410, clEvent: 0, submitTime: 0.060655 ms",
+        "[====Skeleton.cpp:107  001.572s  PROF] Stencil<Tout(Tin)> 0x7ffd0f7b4410, clEvent: 0, runTime: 13.4624 ms",
+        "[======SkelCL.cpp:89   001.604s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.604s  PROF] Matrix 0x7ffd0f7b4520, clEvent: 0, upload queueTime: 0.002948 ms",
+        "[=====MatrixDef.h:311  001.604s  PROF] Matrix 0x7ffd0f7b4520, clEvent: 0, upload submitTime: 0.035593 ms",
+        "[=====MatrixDef.h:312  001.604s  PROF] Matrix 0x7ffd0f7b4520, clEvent: 0, upload runTime: 0.557296 ms",
+        "[=====MatrixDef.h:310  001.604s  PROF] Matrix 0x7ffd0f7b4520, clEvent: 0, download queueTime: 0.004703 ms",
+        "[=====MatrixDef.h:311  001.604s  PROF] Matrix 0x7ffd0f7b4520, clEvent: 0, download submitTime: 0.038581 ms",
+        "[=====MatrixDef.h:312  001.604s  PROF] Matrix 0x7ffd0f7b4520, clEvent: 0, download runTime: 0.31367 ms",
+        "[=====VectorDef.h:255  001.605s  PROF] Vector 0x7ffd0f7b4490, clEvent: 0, upload queueTime: 0.001754 ms",
+        "[=====VectorDef.h:256  001.605s  PROF] Vector 0x7ffd0f7b4490, clEvent: 0, upload submitTime: 0.490582 ms",
+        "[=====VectorDef.h:257  001.605s  PROF] Vector 0x7ffd0f7b4490, clEvent: 0, upload runTime: 0.001626 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1101 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.6638209819793701,
+      "Skeleton Event timings": {
+        "7ffd0f7b4410": {
+          "events": [
+            {
+              "queueTime": 0.004944,
+              "runTime": 13.4624,
+              "submitTime": 0.060655
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:46:06"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7ffc5ca94570": {
+            "download": {
+              "0": {
+                "queueTime": "0.00367",
+                "runTime": "0.173571",
+                "submitTime": "0.028647"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.002842",
+                "runTime": "0.49129",
+                "submitTime": "0.047243"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7ffc5ca944e0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.001561",
+                "runTime": "0.001205",
+                "submitTime": "0.439912"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1075
+      ],
+      "End time": "2015-03-29 21:46:09",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.230s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.230s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.461s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.461s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.461s  PROF] skelcl::init() time 234 ms",
+        "[=====Program.cpp:212  001.516s  PROF] skelcl::Program::build() 478 ms",
+        "[====StencilDef.h:284  001.519s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.519s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.520s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.534s  PROF] Stencil<Tout(Tin)> 0x7ffc5ca94460, clEvent: 0, queueTime: 0.003608 ms",
+        "[====Skeleton.cpp:106  001.534s  PROF] Stencil<Tout(Tin)> 0x7ffc5ca94460, clEvent: 0, submitTime: 0.035398 ms",
+        "[====Skeleton.cpp:107  001.534s  PROF] Stencil<Tout(Tin)> 0x7ffc5ca94460, clEvent: 0, runTime: 14.1894 ms",
+        "[======SkelCL.cpp:89   001.566s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.566s  PROF] Matrix 0x7ffc5ca94570, clEvent: 0, upload queueTime: 0.002842 ms",
+        "[=====MatrixDef.h:311  001.567s  PROF] Matrix 0x7ffc5ca94570, clEvent: 0, upload submitTime: 0.047243 ms",
+        "[=====MatrixDef.h:312  001.567s  PROF] Matrix 0x7ffc5ca94570, clEvent: 0, upload runTime: 0.49129 ms",
+        "[=====MatrixDef.h:310  001.567s  PROF] Matrix 0x7ffc5ca94570, clEvent: 0, download queueTime: 0.00367 ms",
+        "[=====MatrixDef.h:311  001.567s  PROF] Matrix 0x7ffc5ca94570, clEvent: 0, download submitTime: 0.028647 ms",
+        "[=====MatrixDef.h:312  001.567s  PROF] Matrix 0x7ffc5ca94570, clEvent: 0, download runTime: 0.173571 ms",
+        "[=====VectorDef.h:255  001.567s  PROF] Vector 0x7ffc5ca944e0, clEvent: 0, upload queueTime: 0.001561 ms",
+        "[=====VectorDef.h:256  001.567s  PROF] Vector 0x7ffc5ca944e0, clEvent: 0, upload submitTime: 0.439912 ms",
+        "[=====VectorDef.h:257  001.567s  PROF] Vector 0x7ffc5ca944e0, clEvent: 0, upload runTime: 0.001205 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1075 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.6297640800476074,
+      "Skeleton Event timings": {
+        "7ffc5ca94460": {
+          "events": [
+            {
+              "queueTime": 0.003608,
+              "runTime": 14.1894,
+              "submitTime": 0.035398
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:46:07"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff2f8580d0": {
+            "download": {
+              "0": {
+                "queueTime": "0.003721",
+                "runTime": "0.183718",
+                "submitTime": "0.042407"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.007592",
+                "runTime": "0.921348",
+                "submitTime": "0.118529"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7fff2f858040": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.001524",
+                "runTime": "0.00209",
+                "submitTime": "0.811349"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1085
+      ],
+      "End time": "2015-03-29 21:46:11",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.229s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.229s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.471s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.471s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.471s  PROF] skelcl::init() time 244 ms",
+        "[=====Program.cpp:212  001.534s  PROF] skelcl::Program::build() 476 ms",
+        "[====StencilDef.h:284  001.540s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.540s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.541s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.554s  PROF] Stencil<Tout(Tin)> 0x7fff2f857fc0, clEvent: 0, queueTime: 0.00889 ms",
+        "[====Skeleton.cpp:106  001.555s  PROF] Stencil<Tout(Tin)> 0x7fff2f857fc0, clEvent: 0, submitTime: 0.09489 ms",
+        "[====Skeleton.cpp:107  001.555s  PROF] Stencil<Tout(Tin)> 0x7fff2f857fc0, clEvent: 0, runTime: 13.7516 ms",
+        "[======SkelCL.cpp:89   001.588s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.588s  PROF] Matrix 0x7fff2f8580d0, clEvent: 0, upload queueTime: 0.007592 ms",
+        "[=====MatrixDef.h:311  001.588s  PROF] Matrix 0x7fff2f8580d0, clEvent: 0, upload submitTime: 0.118529 ms",
+        "[=====MatrixDef.h:312  001.588s  PROF] Matrix 0x7fff2f8580d0, clEvent: 0, upload runTime: 0.921348 ms",
+        "[=====MatrixDef.h:310  001.588s  PROF] Matrix 0x7fff2f8580d0, clEvent: 0, download queueTime: 0.003721 ms",
+        "[=====MatrixDef.h:311  001.588s  PROF] Matrix 0x7fff2f8580d0, clEvent: 0, download submitTime: 0.042407 ms",
+        "[=====MatrixDef.h:312  001.588s  PROF] Matrix 0x7fff2f8580d0, clEvent: 0, download runTime: 0.183718 ms",
+        "[=====VectorDef.h:255  001.588s  PROF] Vector 0x7fff2f858040, clEvent: 0, upload queueTime: 0.001524 ms",
+        "[=====VectorDef.h:256  001.589s  PROF] Vector 0x7fff2f858040, clEvent: 0, upload submitTime: 0.811349 ms",
+        "[=====VectorDef.h:257  001.589s  PROF] Vector 0x7fff2f858040, clEvent: 0, upload runTime: 0.00209 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1085 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.6512680053710938,
+      "Skeleton Event timings": {
+        "7fff2f857fc0": {
+          "events": [
+            {
+              "queueTime": 0.00889,
+              "runTime": 13.7516,
+              "submitTime": 0.09489
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:46:09"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7ffe0835b100": {
+            "download": {
+              "0": {
+                "queueTime": "0.003963",
+                "runTime": "0.172184",
+                "submitTime": "0.036729"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.005215",
+                "runTime": "0.852838",
+                "submitTime": "0.077801"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7ffe0835b070": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.001729",
+                "runTime": "0.00233",
+                "submitTime": "0.765494"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1079
+      ],
+      "End time": "2015-03-29 21:46:12",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.229s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.229s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.471s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.472s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.472s  PROF] skelcl::init() time 244 ms",
+        "[=====Program.cpp:212  001.530s  PROF] skelcl::Program::build() 475 ms",
+        "[====StencilDef.h:284  001.534s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.534s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.534s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.548s  PROF] Stencil<Tout(Tin)> 0x7ffe0835aff0, clEvent: 0, queueTime: 0.003393 ms",
+        "[====Skeleton.cpp:106  001.548s  PROF] Stencil<Tout(Tin)> 0x7ffe0835aff0, clEvent: 0, submitTime: 0.0662 ms",
+        "[====Skeleton.cpp:107  001.548s  PROF] Stencil<Tout(Tin)> 0x7ffe0835aff0, clEvent: 0, runTime: 14.0869 ms",
+        "[======SkelCL.cpp:89   001.581s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.581s  PROF] Matrix 0x7ffe0835b100, clEvent: 0, upload queueTime: 0.005215 ms",
+        "[=====MatrixDef.h:311  001.581s  PROF] Matrix 0x7ffe0835b100, clEvent: 0, upload submitTime: 0.077801 ms",
+        "[=====MatrixDef.h:312  001.581s  PROF] Matrix 0x7ffe0835b100, clEvent: 0, upload runTime: 0.852838 ms",
+        "[=====MatrixDef.h:310  001.581s  PROF] Matrix 0x7ffe0835b100, clEvent: 0, download queueTime: 0.003963 ms",
+        "[=====MatrixDef.h:311  001.581s  PROF] Matrix 0x7ffe0835b100, clEvent: 0, download submitTime: 0.036729 ms",
+        "[=====MatrixDef.h:312  001.581s  PROF] Matrix 0x7ffe0835b100, clEvent: 0, download runTime: 0.172184 ms",
+        "[=====VectorDef.h:255  001.582s  PROF] Vector 0x7ffe0835b070, clEvent: 0, upload queueTime: 0.001729 ms",
+        "[=====VectorDef.h:256  001.582s  PROF] Vector 0x7ffe0835b070, clEvent: 0, upload submitTime: 0.765494 ms",
+        "[=====VectorDef.h:257  001.582s  PROF] Vector 0x7ffe0835b070, clEvent: 0, upload runTime: 0.00233 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1079 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.6440069675445557,
+      "Skeleton Event timings": {
+        "7ffe0835aff0": {
+          "events": [
+            {
+              "queueTime": 0.003393,
+              "runTime": 14.0869,
+              "submitTime": 0.0662
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:46:11"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7ffef7849850": {
+            "download": {
+              "0": {
+                "queueTime": "0.004329",
+                "runTime": "0.347985",
+                "submitTime": "0.033146"
+              }
+            },
+            "upload": {
+              "0": {
+                "queueTime": "0.002971",
+                "runTime": "0.750351",
+                "submitTime": "0.030374"
+              }
+            }
+          }
+        },
+        "Vector": {
+          "7ffef78497c0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.004377",
+                "runTime": "0.001919",
+                "submitTime": "0.529823"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1089
+      ],
+      "End time": "2015-03-29 21:46:14",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.236s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.236s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.469s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.469s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.469s  PROF] skelcl::init() time 234 ms",
+        "[=====Program.cpp:212  001.532s  PROF] skelcl::Program::build() 481 ms",
+        "[====StencilDef.h:284  001.542s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  001.542s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:355  001.545s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  001.556s  PROF] Stencil<Tout(Tin)> 0x7ffef7849740, clEvent: 0, queueTime: 0.008409 ms",
+        "[====Skeleton.cpp:106  001.556s  PROF] Stencil<Tout(Tin)> 0x7ffef7849740, clEvent: 0, submitTime: 0.077551 ms",
+        "[====Skeleton.cpp:107  001.556s  PROF] Stencil<Tout(Tin)> 0x7ffef7849740, clEvent: 0, runTime: 13.7576 ms",
+        "[======SkelCL.cpp:89   001.589s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  001.589s  PROF] Matrix 0x7ffef7849850, clEvent: 0, upload queueTime: 0.002971 ms",
+        "[=====MatrixDef.h:311  001.589s  PROF] Matrix 0x7ffef7849850, clEvent: 0, upload submitTime: 0.030374 ms",
+        "[=====MatrixDef.h:312  001.589s  PROF] Matrix 0x7ffef7849850, clEvent: 0, upload runTime: 0.750351 ms",
+        "[=====MatrixDef.h:310  001.589s  PROF] Matrix 0x7ffef7849850, clEvent: 0, download queueTime: 0.004329 ms",
+        "[=====MatrixDef.h:311  001.590s  PROF] Matrix 0x7ffef7849850, clEvent: 0, download submitTime: 0.033146 ms",
+        "[=====MatrixDef.h:312  001.590s  PROF] Matrix 0x7ffef7849850, clEvent: 0, download runTime: 0.347985 ms",
+        "[=====VectorDef.h:255  001.590s  PROF] Vector 0x7ffef78497c0, clEvent: 0, upload queueTime: 0.004377 ms",
+        "[=====VectorDef.h:256  001.590s  PROF] Vector 0x7ffef78497c0, clEvent: 0, upload submitTime: 0.529823 ms",
+        "[=====VectorDef.h:257  001.590s  PROF] Vector 0x7ffef78497c0, clEvent: 0, upload runTime: 0.001919 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1089 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 1.6514551639556885,
+      "Skeleton Event timings": {
+        "7ffef7849740": {
+          "events": [
+            {
+              "queueTime": 0.008409,
+              "runTime": 13.7576,
+              "submitTime": 0.077551
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 21:46:12"
+    }
+  ]
+}
