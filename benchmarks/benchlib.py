@@ -117,11 +117,15 @@ class Benchmark:
             for l in output:
                 print(l)
 
-        return outvars, set(coutvars)
+        # Return a tuple of dependent variables, constant dependent
+        # variables, and a boolean of whether the program exited with
+        # a nonzero exit status.
+        return outvars, set(coutvars), exitstatus != 0
 
 #
 class Sampler:
-    def hasnext(result): return True
+    def hasnext(self, result):
+        return not result.bad
 
     def __repr__(self):
         return "Null"
@@ -132,7 +136,11 @@ class FixedSizeSampler(Sampler):
         self.samplecount = samplecount
 
     def hasnext(self, result):
-        return len(result.outvars) < self.samplecount
+        if len(result.outvars) < self.samplecount:
+            # Defer to superclass if the conditions are met.
+            return Sampler.hasnext(self, result)
+        else:
+            return False
 
     def __repr__(self):
         return "FixedSize({n})".format(n=self.samplecount)
@@ -223,10 +231,11 @@ class TestHarness:
         while self.sampler.hasnext(self.result):
             Colours.print(Colours.YELLOW, "Sampling testcase",
                           self.testcase, "...")
-            o, c = self.testcase.sample()
-            self.result.outvars.append(o)
-            self.result.couts.update(c)
-            resultscache.store(self.result)
+            o, c, b = self.testcase.sample()
+            self.result.outvars.append(o) # dep(endent) vars.
+            self.result.couts.update(c) # constant dep vars.
+            self.result.bad = b # "bad" flag.
+            resultscache.store(self.result) # store new data.
 
         # Post-execution tidy-up.
         self.testcase.teardown()

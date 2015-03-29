@@ -17,10 +17,11 @@ def _datefmt(datetime):
 # A result consists of a set of independent variables, and one or more
 # sets of dependent, or "output", variables.
 class Result:
-    def __init__(self, invars, outvars=[], couts=set()):
+    def __init__(self, invars, outvars=[], couts=set(), bad=False):
         self.invars = invars
         self.outvars = outvars
         self.couts = couts
+        self.bad = bad
 
     def __repr__(self):
         return '\n'.join([str(x) for x in self.invars + list(self.couts)] +
@@ -29,7 +30,7 @@ class Result:
 
     # Encode a result for JSON serialization.
     def encode(self):
-        d = {'in': {}, 'cout': {}, 'out': []}
+        d = {'in': {}, 'cout': {}, 'out': [], 'bad': self.bad}
 
         # Create dictionaries.
         [d['in'].update(x.encode()) for x in self.invars]
@@ -48,7 +49,8 @@ class Result:
     def decode(d, invars):
         outvars = [[DependentVariable(x, y[x]) for x in y] for y in d['out']] if 'out' in d else []
         couts = set([DependentVariable(x, d['cout'][x]) for x in d['cout']]) if 'cout' in d else set()
-        return Result(invars, outvars, couts)
+        bad = d['bad'] if 'bad' in d else False
+        return Result(invars, outvars=outvars, couts=couts, bad=bad)
 
 #
 class Variable:
