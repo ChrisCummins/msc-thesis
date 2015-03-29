@@ -256,10 +256,18 @@ def jobqueue(harnesses):
     localhost = hostname()
     forthisdevice = filter(lambda x: x.host == localhost, harnesses)
     runnable = filter(lambda x: x.sampler.hasnext(x.result), forthisdevice)
+
+    print("From the {n} test cases, {t} are for this device, "
+          "and {r} require samples."
+          .format(n=len(harnesses), t=len(forthisdevice), r=len(runnable)))
+
     return list(runnable)
 
 def runJobQueue(harnesses):
     numjobs, i = len(harnesses), 1 # counters
+
+    # Check we have something to do...
+    if not len(harnesses): return
 
     Colours.print(Colours.GREEN, "Beginning execution of", numjobs,
                   "jobs ...")

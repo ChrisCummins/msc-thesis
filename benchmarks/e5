@@ -3,45 +3,57 @@
 # e5
 #
 from __future__ import print_function
+from itertools import product
+from sys import exit
+
 from benchlib import *
 from skelcl import *
 
-from sys import exit
+def testMapOverlapVsStencil():
+    def _instantiate(host, benchmark, args, knobs):
+        sampler = FixedSizeSampler(10)
+        harnesses = []
 
-def enumerate(hosts, benchmarks, knobs):
-    harnesses = []
-    perms = permutations(*[variablerange(x[0], x[1]) for x in knobs])
+        for devargs in host.devargs():
+            mo = [Argument("MapOverlap", "--map-overlap")]
+            c1 = SkelCLTestCase(benchmark, host=host,
+                                invars=knobs + args + devargs)
+            c2 = SkelCLTestCase(benchmark, host=host,
+                                invars=knobs + args + mo + devargs)
 
-    # Enumerate test harnesses.
-    for host in hosts:
-        for benchmark in benchmarks:
-            for devargs in host.devargs():
-                for p in perms:
-                    invars = list(p) + list(devargs)
-                    sampler = FixedSizeSampler(10)
-                    testcase = SkelCLTestCase(benchmark,
-                                              host=host,
-                                              invars=invars)
-                    harnesses.append(TestHarness(testcase, sampler))
+            harnesses += [TestHarness(c, sampler) for c in [c1, c2]]
 
-    print("Enumerated", len(harnesses), "test harnesses.")
-    return harnesses
+        return harnesses
 
-def testStencilLocalSize():
-    knobs = [
-        (StencilLocalSizeR, [32, 64, 128, 256]),
-        (StencilLocalSizeC, [8, 16, 32, 64, 128, 256])
-       ]
+    return enumerate({
+        "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
+        "benchmarks": {
+            "CannyEdgeDetection": {
+                "args": {}
+            },
+            "GameOfLife": {
+                "args": {
+                    "Iterations": ["-i {i}".format(i=i) for i in range(1, 11)]
+                }
+            },
+            "GaussianBlur": {
+                "args": {}
+            },
+            "HeatEquation": {
+                "args": {
+                    "Iterations": [1, 10, 100, 250]
+                }
+            }
+        },
+        "args": {},
+        "knobs": {}
+    }, _instantiate)
 
-    benchmarks = [
-        SkelCLBenchmark("CannyEdgeDetection"),
-        SkelCLBenchmark("GameOfLife"),
-        #SkelCLBenchmark("GaussianBlur"),
-        SkelCLBenchmark("HeatEquation")
-        #SkelCLBenchmark("FDTD")
-       ]
+harnesses = testMapOverlapVsStencil()
 
-    return enumerate(hosts, benchmarks, knobs)
+q = jobqueue(harnesses)
 
-q = jobqueue(testStencilLocalSize())
+for j in q:
+    print(j)
+
 runJobQueue(q)

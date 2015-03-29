@@ -36,7 +36,42 @@ class SkelCLHost(OpenCLHost):
         if self.OPENCL_CPU:
             args.append([DeviceTypeArg("CPU")])
 
-        return tuple(args)
+        return args
+
+    @staticmethod
+    def create(name):
+        _hosts = {
+            "florence": SkelCLHost("florence",
+                                   cpu="Intel i5-2430M",
+                                   mem=8,
+                                   opencl_cpu=True),
+            "cec": SkelCLHost("cec",
+                              cpu="Intel i5-4570",
+                              mem=8,
+                              opencl_cpu=True),
+            "dhcp-90-060": SkelCLHost("dhcp-90-060",
+                                      cpu="Intel i7-2600K",
+                                      mem=16,
+                                      gpus=["NVIDIA GTX 690"],
+                                      opencl_cpu=False),
+            "whz5": SkelCLHost("whz5",
+                               cpu="Intel i7-4770",
+                               mem=16,
+                               gpus=["NVIDIA GTX TITAN"],
+                               opencl_cpu=False),
+            "tim": SkelCLHost("tim",
+                              cpu="Intel i7-2600K",
+                              mem=8,
+                              gpus=["NVIDIA GTX 590", "NVIDIA GTX 590",
+                                    "NVIDIA GTX 590", "NVIDIA GTX 590"],
+                              opencl_cpu=False),
+            "monza": SkelCLHost("monza",
+                                cpu="Intel i7-3820",
+                                mem=8,
+                                gpus=["AMD Tahiti 7970", "AMD Tahiti 7970"],
+                                opencl_cpu=True)
+        }
+        return _hosts[name]
 
 #
 class SkelCLElapsedTimes(DependentVariable):
@@ -116,6 +151,7 @@ class ContainerEventTimes(DependentVariable):
                 # Record profiling information.
                 if name not in self.val:
                     self.val[name] = {}
+                if address not in self.val[name]:
                     self.val[name][address] = {'upload': {}, 'download': {}}
                 if id not in self.val[name][address][direction]:
                     self.val[name][address][direction][id] = {}
@@ -229,3 +265,30 @@ benchmarks = [
     SkelCLBenchmark("MatrixMultiply"),
     SkelCLBenchmark("SAXPY")
 ]
+
+
+def enumerate(e, instantiate):
+    harnesses = []
+
+    _hosts = e["hosts"]
+    _benchmarks = e["benchmarks"]
+    _knobs = e["knobs"]
+
+    for _host, _benchmark in product(_hosts, _benchmarks):
+        _args = _benchmarks[_benchmark]["args"]
+        _args.update(e["args"])
+
+        _vals = [[[arg, val] for val in _args[arg]] for arg in _args]
+        argpermutations = [[Argument(x[0], x[1]) for x in args]
+                           for args in list(product(*_vals))]
+
+        knobpermutations = [[Knob(x[0], x[1]) for x in knobs]
+                            for knobs in list(product(*_knobs))]
+
+        host = SkelCLHost.create(_host)
+        benchmark = SkelCLBenchmark(_benchmark)
+
+        for args, knobs in product(argpermutations, knobpermutations):
+            harnesses += instantiate(host, benchmark, args, knobs)
+
+    return harnesses
