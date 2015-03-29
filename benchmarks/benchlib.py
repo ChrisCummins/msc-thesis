@@ -1,17 +1,6 @@
 from __future__ import print_function
-from atexit import register
-from datetime import datetime
 from itertools import product
-from os import chdir,getcwd,listdir,makedirs
-from os.path import abspath,basename,dirname,exists
-from random import shuffle
-from re import match,search
-from re import sub
-from subprocess import call,check_output
-from sys import exit,stdout
-
-import json
-import os
+from os.path import basename,exists
 
 import config
 from util import *
@@ -19,111 +8,6 @@ from variables import *
 from stats import *
 import jsoncache
 import resultscache
-
-
-##### LOCAL VARIABLES #####
-
-# directory history
-__cdhist = [dirname(__file__)]
-
-##### UTILITIES #####
-
-# Return the ID of the machine, used for identifying results.
-def ID():
-    return gethostname()
-
-# Get the current SkelCL git version.
-def skelcl_version():
-    return check_output(['git', 'rev-parse', 'HEAD']).strip()
-
-# Concatenate all components into a path.
-def path(*components):
-    return abspath('/'.join(components))
-
-# Return the path to binary directory of example program "name".
-def bindir(name):
-    return path(SKELCL_BUILD, 'examples', name)
-
-# Return the path to binary file of example program "name".
-def bin(name):
-    return path(bindir(name), name)
-
-def pprint(data):
-    return json.dumps(data, sort_keys=True, indent=2, separators=(',', ': '))
-
-def mkdir(path):
-    try:
-        makedirs(path)
-    except OSError:
-        pass
-
-# Change to directory "path".
-def cd(path):
-    cwd = pwd()
-    apath = abspath(path)
-    __cdhist.append(apath)
-    if apath != cwd:
-        chdir(apath)
-    return apath
-
-
-# Change to previous directory.
-def cdpop():
-    if len(__cdhist) > 1:
-        __cdhist.pop() # Pop current directory
-        chdir(__cdhist[-1]) # Change to last directory
-        return __cdhist[-1]
-    else:
-        return pwd()
-
-
-# Change back to the starting directory.
-def cdstart():
-    while len(__cdhist) > 2:
-        cdpop()
-    return cdpop()
-
-
-# Change to the system root directory.
-def cdroot():
-    i, maxi = 0, 1000
-    while cd("..") != "/" and i < maxi:
-        i += 1
-    if i == maxi:
-        Exception("Unable to find root directory!")
-    return pwd()
-
-# Return the current working directory.
-def pwd():
-    return __cdhist[-1]
-
-# List all files and directories in "path". If "abspaths", return
-# absolute paths.
-def ls(p=".", abspaths=True):
-    if abspath:
-        return [abspath(path(p, x)) for x in listdir(p)]
-    else:
-        return listdir(p)
-
-# Returns all of the lines in "file" as a list of strings, excluding
-# comments (delimited by '#' symbol).
-def parse(file):
-    with open(file) as f:
-        return [match('[^#]+', x).group(0).strip()
-                for x in f.readlines() if not match('\s*#', x)]
-
-# Return the current date in style "format".
-def datestr(format="%I:%M%p on %B %d, %Y"):
-    return datetime.now().strftime(format)
-
-# Print the date and current working directory to "file".
-def printheader(file=stdout):
-    print('{0} in {1}'.format(datestr(), getcwd()), file=file)
-    file.flush()
-
-####### STATS #######
-
-
 
 ##### OBJECT ORIENTATION #####
 

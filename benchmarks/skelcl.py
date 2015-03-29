@@ -1,5 +1,21 @@
+# skelcl.py - SkelCL benchmarking extensions.
+#
+from re import search
+from subprocess import check_output
+
+import os
+
 from benchlib import *
 from config import *
+
+### CONFIG
+SKELCL = path(CWD, '../skelcl')
+SKELCL_BUILD = path(SKELCL, 'build')
+
+
+# Get the current SkelCL git version.
+def skelcl_version():
+    return check_output(['git', 'rev-parse', 'HEAD']).strip()
 
 class DeviceTypeArg(Argument):
     def __init__(self, type):
@@ -208,7 +224,7 @@ benchmarks = [
     SkelCLBenchmark("FDTD"),
     SkelCLBenchmark("GameOfLife"),
     SkelCLBenchmark("GaussianBlur"),
-    SkelCLBenchmark("HeatSimulation"),
+    SkelCLBenchmark("HeatEquation"),
     SkelCLBenchmark("MandelbrotSet"),
     SkelCLBenchmark("MatrixMultiply"),
     SkelCLBenchmark("SAXPY")
