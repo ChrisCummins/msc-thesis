@@ -32,6 +32,33 @@ def testMapOverlapVsStencil():
                 "args": {}
             },
             "GameOfLife": {
+                "args": { "Iterations": ["-i 1", "-i 5"] }
+            },
+            "GaussianBlur": {
+                "args": {}
+            },
+            "HeatEquation": {
+                "args": { "Iterations": [1, 10, 100] }
+            }
+        },
+        "args": {},
+        "knobs": {}
+    }, _instantiate)
+
+def testrun():
+    def _instantiate(host, benchmark, args, knobs):
+        sampler = FixedSizeSampler(10)
+        return [TestHarness(SkelCLTestCase(benchmark, host=host,
+                                           invars=knobs + args + x))
+                for x in host.devargs()]
+
+    return enumerate({
+        "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
+        "benchmarks": {
+            "CannyEdgeDetection": {
+                "args": {}
+            },
+            "GameOfLife": {
                 "args": {
                     "Iterations": ["-i {i}".format(i=i) for i in range(1, 11)]
                 }
@@ -49,7 +76,7 @@ def testMapOverlapVsStencil():
         "knobs": {}
     }, _instantiate)
 
-harnesses = testMapOverlapVsStencil()
+harnesses = testrun() #testMapOverlapVsStencil()
 
 q = jobqueue(harnesses)
 
