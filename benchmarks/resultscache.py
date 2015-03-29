@@ -1,38 +1,40 @@
 # resultscache.py - Persistent store for benchmark results.
 #
 # There are two public methods: load() and store().
-import jsoncache
-
 from hashlib import sha1
 from os.path import dirname
 from util import path
 from variables import BenchmarkName,Checksum,Hostname,lookup1,Result
 
-# <benchmark>/<checksum>/<host>.json
-
-ROOT = path(dirname(__file__) + "/results")
+import config
+import jsoncache
 
 #
 class _HashableInvars:
     def __init__(self, invars):
-        self.invars = invars
+        self._invars = invars
+        self._key = sha1(str(self)).hexdigest()
 
     def key(self):
-        return str(hash(self))
+        return self._key
 
     def __key(x):
-        return tuple(sorted(x.invars))
+        return tuple(sorted(x._invars))
 
     def __eq__(x, y):
         return x.__key() == y.__key()
 
-    def __hash__(x):
-        return int(sha1(str(x.__key()).encode('utf-8')).hexdigest(), 16)
+    def __repr__(x):
+        return str(x.__key()).encode('utf-8')
 
-# String
+# Results are stored in a three level hierarchy, where "key" is a hash
+# of the set of independent variables for that result:
+#
+#     <benchmark>/<host>/<key>.json
 def _path(benchmarkname, key, hostname):
     return ("{root}/{benchmark}/{host}/{key}.json"
-            .format(root=ROOT, benchmark=benchmarkname,
+            .format(root=config.RESULTS,
+                    benchmark=benchmarkname,
                     host=hostname, key=key))
 
 #
