@@ -4536,3 +4536,12 @@ Log:
   script from whz5.
 * monza: Installed SkelCL dependencies and built LLVM from source using
   script from whz5.
+
+
+## Sunday 29th
+
+TODO:
+* Make a list of target GPUs
+* Test multi-GPU skeletons on monza
+* Graph results of e5
+* Write-up autopar reading
