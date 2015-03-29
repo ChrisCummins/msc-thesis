@@ -18,7 +18,7 @@ _cache = {}
 
 def _readjson(path):
     try:
-        data = json.load(fs.markreadopen(path))
+        data = json.load(fs.markread(open(path)))
         return data
     except:
         return {}
