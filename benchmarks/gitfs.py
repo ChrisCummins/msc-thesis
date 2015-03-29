@@ -41,7 +41,7 @@ def _commitandpush():
     _diskwritten = set()
 
 # Register exit handler.
-register(_dumpcache)
+register(_commitandpush)
 
 #
 def markread(file):
