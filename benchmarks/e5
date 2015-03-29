@@ -40,7 +40,7 @@ def testMapOverlapVsStencil():
                 "args": {}
             },
             "HeatEquation": {
-                "args": { "Iterations": [1, 10, 100] }
+                "args": { "Iterations": [1, 5, 10, 50, 100, 250] }
             }
         },
         "args": {},
@@ -49,13 +49,13 @@ def testMapOverlapVsStencil():
 
 def testrun():
     def _instantiate(host, benchmark, args, knobs):
-        sampler = FixedSizeSampler(10)
+        sampler = FixedSizeSampler(12)
         return [TestHarness(SkelCLTestCase(benchmark, host=host,
                                            invars=knobs + args + x))
                 for x in host.devargs()]
 
     return enumerate({
-        "hosts": [ "florence" ],
+        "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
         "benchmarks": {
             "GameOfLife": {
                 "args": {
