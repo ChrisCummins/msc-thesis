@@ -1,13 +1,14 @@
 # gitfs.py - File system abstraction.
 #
 # Abstracts file IO over a git file system.
+from __future__ import print_function
 from atexit import register
-from util import cd,system
 from os.path import basename,dirname
 from subprocess import call
-import os
 
-DISK_WRITE_THRESHOLD = 5
+from util import cd,Colours
+
+DISK_WRITE_THRESHOLD = 10
 
 REMOTES={
     "origin": "master"
@@ -25,12 +26,12 @@ def _commitandpush():
     # Escape if we have nothing to do.
     if not _diskwrites: return
 
-    for file in _diskwritten:
-        dir = dirname(file)
-        base = basename(file)
+    Colours.print(Colours.GREEN,
+                  "Commiting", len(_diskwritten), "files")
 
-        cd(dir)
-        call(["git", "add", base])
+    for file in _diskwritten:
+        cd(dirname(file))
+        call(["git", "add", basename(file)])
 
     call(["git", "commit", "-m", "Auto-bot commit"])
     call(["git", "pull", "--rebase"])
