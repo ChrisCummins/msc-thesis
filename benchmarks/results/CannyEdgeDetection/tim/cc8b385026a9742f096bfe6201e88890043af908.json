@@ -1,0 +1,1216 @@
+{
+  "bad": false,
+  "cout": {
+    "Checksum": "81aedddec4c7c18d75b738af9923d2b8536e191a",
+    "SkelCL version": "840099686379e4a2ee7f162e64575ee21ce547e3"
+  },
+  "in": {
+    "Benchmark": "CannyEdgeDetection",
+    "Device count": "--device-count 2",
+    "Device type": "--device-type GPU",
+    "Hostname": "tim",
+    "MapOverlap": "--map-overlap"
+  },
+  "out": [
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff137a34b0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.163104",
+                "runTime": "0.318496",
+                "submitTime": "0.00688"
+              }
+            }
+          },
+          "7fff137a3550": {
+            "download": {
+              "0": {
+                "queueTime": "0.005664",
+                "runTime": "0.336608",
+                "submitTime": "0.00736"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff137a3420": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.004384",
+                "runTime": "0.00096",
+                "submitTime": "0.104992"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1153
+      ],
+      "End time": "2015-03-29 23:01:46",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.901s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.901s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.926s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.926s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.926s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.927s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.927s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.927s  PROF] skelcl::init() time 748 ms",
+        "[=====Program.cpp:212  001.254s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.677s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.021s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.075s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.077s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.077s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.078s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.078s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.078s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.078s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.078s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.078s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.078s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 0, queueTime: 0.003168 ms",
+        "[====Skeleton.cpp:106  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 0, submitTime: 0.005408 ms",
+        "[====Skeleton.cpp:107  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 0, runTime: 1.2815 ms",
+        "[====Skeleton.cpp:105  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 1, queueTime: 0.002848 ms",
+        "[====Skeleton.cpp:106  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 1, submitTime: 1.05965 ms",
+        "[====Skeleton.cpp:107  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 1, runTime: 0.170624 ms",
+        "[====Skeleton.cpp:105  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 2, queueTime: 0.002656 ms",
+        "[====Skeleton.cpp:106  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 2, submitTime: 1.15101 ms",
+        "[====Skeleton.cpp:107  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 2, runTime: 0.191712 ms",
+        "[====Skeleton.cpp:105  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 3, queueTime: 0.002592 ms",
+        "[====Skeleton.cpp:106  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 3, submitTime: 1.26826 ms",
+        "[====Skeleton.cpp:107  002.080s  PROF] Stencil<Tout(Tin)> 0x7fff137a35f0, clEvent: 3, runTime: 0.02848 ms",
+        "[======SkelCL.cpp:89   002.116s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.116s  PROF] Matrix 0x7fff137a3550, clEvent: 0, download queueTime: 0.005664 ms",
+        "[=====MatrixDef.h:311  002.116s  PROF] Matrix 0x7fff137a3550, clEvent: 0, download submitTime: 0.00736 ms",
+        "[=====MatrixDef.h:312  002.116s  PROF] Matrix 0x7fff137a3550, clEvent: 0, download runTime: 0.336608 ms",
+        "[=====MatrixDef.h:310  002.116s  PROF] Matrix 0x7fff137a34b0, clEvent: 0, upload queueTime: 0.163104 ms",
+        "[=====MatrixDef.h:311  002.116s  PROF] Matrix 0x7fff137a34b0, clEvent: 0, upload submitTime: 0.00688 ms",
+        "[=====MatrixDef.h:312  002.116s  PROF] Matrix 0x7fff137a34b0, clEvent: 0, upload runTime: 0.318496 ms",
+        "[=====VectorDef.h:255  002.116s  PROF] Vector 0x7fff137a3420, clEvent: 0, upload queueTime: 0.004384 ms",
+        "[=====VectorDef.h:256  002.116s  PROF] Vector 0x7fff137a3420, clEvent: 0, upload submitTime: 0.104992 ms",
+        "[=====VectorDef.h:257  002.116s  PROF] Vector 0x7fff137a3420, clEvent: 0, upload runTime: 0.00096 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1153 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.4768459796905518,
+      "Skeleton Event timings": {
+        "7fff137a35f0": {
+          "events": [
+            {
+              "queueTime": 0.003168,
+              "runTime": 1.2815,
+              "submitTime": 0.005408
+            },
+            {
+              "queueTime": 0.002848,
+              "runTime": 0.170624,
+              "submitTime": 1.05965
+            },
+            {
+              "queueTime": 0.002656,
+              "runTime": 0.191712,
+              "submitTime": 1.15101
+            },
+            {
+              "queueTime": 0.002592,
+              "runTime": 0.02848,
+              "submitTime": 1.26826
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:01:44"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff0ea7e830": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.16464",
+                "runTime": "0.326112",
+                "submitTime": "0.00704"
+              }
+            }
+          },
+          "7fff0ea7e8d0": {
+            "download": {
+              "0": {
+                "queueTime": "0.005632",
+                "runTime": "0.315744",
+                "submitTime": "0.00752"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff0ea7e7a0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.011776",
+                "runTime": "0.000992",
+                "submitTime": "0.114976"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1154
+      ],
+      "End time": "2015-03-29 23:01:49",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.871s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.871s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.900s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.901s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.901s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.901s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.901s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.901s  PROF] skelcl::init() time 728 ms",
+        "[=====Program.cpp:212  001.229s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.652s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.996s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.050s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.052s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.052s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.053s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.053s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.053s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.053s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.053s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.053s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.053s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 0, queueTime: 0.003264 ms",
+        "[====Skeleton.cpp:106  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 0, submitTime: 0.005504 ms",
+        "[====Skeleton.cpp:107  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 0, runTime: 1.28781 ms",
+        "[====Skeleton.cpp:105  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 1, queueTime: 0.002848 ms",
+        "[====Skeleton.cpp:106  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 1, submitTime: 1.06621 ms",
+        "[====Skeleton.cpp:107  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 1, runTime: 0.170144 ms",
+        "[====Skeleton.cpp:105  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 2, queueTime: 0.002688 ms",
+        "[====Skeleton.cpp:106  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 2, submitTime: 1.15046 ms",
+        "[====Skeleton.cpp:107  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 2, runTime: 0.192288 ms",
+        "[====Skeleton.cpp:105  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 3, queueTime: 0.002624 ms",
+        "[====Skeleton.cpp:106  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 3, submitTime: 1.26918 ms",
+        "[====Skeleton.cpp:107  002.055s  PROF] Stencil<Tout(Tin)> 0x7fff0ea7e970, clEvent: 3, runTime: 0.028352 ms",
+        "[======SkelCL.cpp:89   002.084s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.084s  PROF] Matrix 0x7fff0ea7e8d0, clEvent: 0, download queueTime: 0.005632 ms",
+        "[=====MatrixDef.h:311  002.084s  PROF] Matrix 0x7fff0ea7e8d0, clEvent: 0, download submitTime: 0.00752 ms",
+        "[=====MatrixDef.h:312  002.084s  PROF] Matrix 0x7fff0ea7e8d0, clEvent: 0, download runTime: 0.315744 ms",
+        "[=====MatrixDef.h:310  002.084s  PROF] Matrix 0x7fff0ea7e830, clEvent: 0, upload queueTime: 0.16464 ms",
+        "[=====MatrixDef.h:311  002.084s  PROF] Matrix 0x7fff0ea7e830, clEvent: 0, upload submitTime: 0.00704 ms",
+        "[=====MatrixDef.h:312  002.084s  PROF] Matrix 0x7fff0ea7e830, clEvent: 0, upload runTime: 0.326112 ms",
+        "[=====VectorDef.h:255  002.085s  PROF] Vector 0x7fff0ea7e7a0, clEvent: 0, upload queueTime: 0.011776 ms",
+        "[=====VectorDef.h:256  002.085s  PROF] Vector 0x7fff0ea7e7a0, clEvent: 0, upload submitTime: 0.114976 ms",
+        "[=====VectorDef.h:257  002.085s  PROF] Vector 0x7fff0ea7e7a0, clEvent: 0, upload runTime: 0.000992 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1154 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.4702110290527344,
+      "Skeleton Event timings": {
+        "7fff0ea7e970": {
+          "events": [
+            {
+              "queueTime": 0.003264,
+              "runTime": 1.28781,
+              "submitTime": 0.005504
+            },
+            {
+              "queueTime": 0.002848,
+              "runTime": 0.170144,
+              "submitTime": 1.06621
+            },
+            {
+              "queueTime": 0.002688,
+              "runTime": 0.192288,
+              "submitTime": 1.15046
+            },
+            {
+              "queueTime": 0.002624,
+              "runTime": 0.028352,
+              "submitTime": 1.26918
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:01:46"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff5e4214e0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.164832",
+                "runTime": "0.31856",
+                "submitTime": "0.00688"
+              }
+            }
+          },
+          "7fff5e421580": {
+            "download": {
+              "0": {
+                "queueTime": "0.005536",
+                "runTime": "0.315712",
+                "submitTime": "0.00736"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff5e421450": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.004224",
+                "runTime": "0.000928",
+                "submitTime": "0.115328"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1152
+      ],
+      "End time": "2015-03-29 23:01:51",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.889s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.889s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.918s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.918s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.918s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.918s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.918s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.918s  PROF] skelcl::init() time 742 ms",
+        "[=====Program.cpp:212  001.245s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.668s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.012s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.067s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.069s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.069s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.069s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.069s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.069s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.069s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.069s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.069s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.069s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 0, queueTime: 0.003488 ms",
+        "[====Skeleton.cpp:106  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 0, submitTime: 0.005568 ms",
+        "[====Skeleton.cpp:107  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 0, runTime: 1.28554 ms",
+        "[====Skeleton.cpp:105  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 1, queueTime: 0.00288 ms",
+        "[====Skeleton.cpp:106  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 1, submitTime: 1.04278 ms",
+        "[====Skeleton.cpp:107  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 1, runTime: 0.170336 ms",
+        "[====Skeleton.cpp:105  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 2, queueTime: 0.002656 ms",
+        "[====Skeleton.cpp:106  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 2, submitTime: 1.12797 ms",
+        "[====Skeleton.cpp:107  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 2, runTime: 0.191328 ms",
+        "[====Skeleton.cpp:105  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 3, queueTime: 0.002592 ms",
+        "[====Skeleton.cpp:106  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 3, submitTime: 1.24528 ms",
+        "[====Skeleton.cpp:107  002.071s  PROF] Stencil<Tout(Tin)> 0x7fff5e421620, clEvent: 3, runTime: 0.02832 ms",
+        "[======SkelCL.cpp:89   002.109s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.109s  PROF] Matrix 0x7fff5e421580, clEvent: 0, download queueTime: 0.005536 ms",
+        "[=====MatrixDef.h:311  002.109s  PROF] Matrix 0x7fff5e421580, clEvent: 0, download submitTime: 0.00736 ms",
+        "[=====MatrixDef.h:312  002.109s  PROF] Matrix 0x7fff5e421580, clEvent: 0, download runTime: 0.315712 ms",
+        "[=====MatrixDef.h:310  002.109s  PROF] Matrix 0x7fff5e4214e0, clEvent: 0, upload queueTime: 0.164832 ms",
+        "[=====MatrixDef.h:311  002.109s  PROF] Matrix 0x7fff5e4214e0, clEvent: 0, upload submitTime: 0.00688 ms",
+        "[=====MatrixDef.h:312  002.109s  PROF] Matrix 0x7fff5e4214e0, clEvent: 0, upload runTime: 0.31856 ms",
+        "[=====VectorDef.h:255  002.109s  PROF] Vector 0x7fff5e421450, clEvent: 0, upload queueTime: 0.004224 ms",
+        "[=====VectorDef.h:256  002.109s  PROF] Vector 0x7fff5e421450, clEvent: 0, upload submitTime: 0.115328 ms",
+        "[=====VectorDef.h:257  002.109s  PROF] Vector 0x7fff5e421450, clEvent: 0, upload runTime: 0.000928 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1152 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.461459159851074,
+      "Skeleton Event timings": {
+        "7fff5e421620": {
+          "events": [
+            {
+              "queueTime": 0.003488,
+              "runTime": 1.28554,
+              "submitTime": 0.005568
+            },
+            {
+              "queueTime": 0.00288,
+              "runTime": 0.170336,
+              "submitTime": 1.04278
+            },
+            {
+              "queueTime": 0.002656,
+              "runTime": 0.191328,
+              "submitTime": 1.12797
+            },
+            {
+              "queueTime": 0.002592,
+              "runTime": 0.02832,
+              "submitTime": 1.24528
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:01:49"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff20618ae0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.192832",
+                "runTime": "0.318528",
+                "submitTime": "0.00736"
+              }
+            }
+          },
+          "7fff20618b80": {
+            "download": {
+              "0": {
+                "queueTime": "0.005504",
+                "runTime": "0.315776",
+                "submitTime": "0.00736"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff20618a50": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.004256",
+                "runTime": "0.00096",
+                "submitTime": "0.112896"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1152
+      ],
+      "End time": "2015-03-29 23:01:54",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.890s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.890s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.920s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.920s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.920s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.920s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.920s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.920s  PROF] skelcl::init() time 736 ms",
+        "[=====Program.cpp:212  001.247s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.670s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.014s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.068s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.070s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.070s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.071s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.071s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.071s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.071s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.071s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.071s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.071s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.072s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 0, queueTime: 0.003136 ms",
+        "[====Skeleton.cpp:106  002.072s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 0, submitTime: 0.00544 ms",
+        "[====Skeleton.cpp:107  002.072s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 0, runTime: 1.28419 ms",
+        "[====Skeleton.cpp:105  002.072s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 1, queueTime: 0.00288 ms",
+        "[====Skeleton.cpp:106  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 1, submitTime: 1.04154 ms",
+        "[====Skeleton.cpp:107  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 1, runTime: 0.170432 ms",
+        "[====Skeleton.cpp:105  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 2, queueTime: 0.002656 ms",
+        "[====Skeleton.cpp:106  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 2, submitTime: 1.13328 ms",
+        "[====Skeleton.cpp:107  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 2, runTime: 0.191264 ms",
+        "[====Skeleton.cpp:105  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 3, queueTime: 0.002592 ms",
+        "[====Skeleton.cpp:106  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 3, submitTime: 1.25018 ms",
+        "[====Skeleton.cpp:107  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff20618c20, clEvent: 3, runTime: 0.028352 ms",
+        "[======SkelCL.cpp:89   002.114s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.114s  PROF] Matrix 0x7fff20618b80, clEvent: 0, download queueTime: 0.005504 ms",
+        "[=====MatrixDef.h:311  002.114s  PROF] Matrix 0x7fff20618b80, clEvent: 0, download submitTime: 0.00736 ms",
+        "[=====MatrixDef.h:312  002.114s  PROF] Matrix 0x7fff20618b80, clEvent: 0, download runTime: 0.315776 ms",
+        "[=====MatrixDef.h:310  002.114s  PROF] Matrix 0x7fff20618ae0, clEvent: 0, upload queueTime: 0.192832 ms",
+        "[=====MatrixDef.h:311  002.114s  PROF] Matrix 0x7fff20618ae0, clEvent: 0, upload submitTime: 0.00736 ms",
+        "[=====MatrixDef.h:312  002.114s  PROF] Matrix 0x7fff20618ae0, clEvent: 0, upload runTime: 0.318528 ms",
+        "[=====VectorDef.h:255  002.114s  PROF] Vector 0x7fff20618a50, clEvent: 0, upload queueTime: 0.004256 ms",
+        "[=====VectorDef.h:256  002.114s  PROF] Vector 0x7fff20618a50, clEvent: 0, upload submitTime: 0.112896 ms",
+        "[=====VectorDef.h:257  002.114s  PROF] Vector 0x7fff20618a50, clEvent: 0, upload runTime: 0.00096 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1152 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.489421844482422,
+      "Skeleton Event timings": {
+        "7fff20618c20": {
+          "events": [
+            {
+              "queueTime": 0.003136,
+              "runTime": 1.28419,
+              "submitTime": 0.00544
+            },
+            {
+              "queueTime": 0.00288,
+              "runTime": 0.170432,
+              "submitTime": 1.04154
+            },
+            {
+              "queueTime": 0.002656,
+              "runTime": 0.191264,
+              "submitTime": 1.13328
+            },
+            {
+              "queueTime": 0.002592,
+              "runTime": 0.028352,
+              "submitTime": 1.25018
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:01:51"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff8d2ff050": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.167712",
+                "runTime": "0.318496",
+                "submitTime": "0.00704"
+              }
+            }
+          },
+          "7fff8d2ff0f0": {
+            "download": {
+              "0": {
+                "queueTime": "0.005792",
+                "runTime": "0.315744",
+                "submitTime": "0.007424"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff8d2fefc0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.004288",
+                "runTime": "0.000992",
+                "submitTime": "0.11168"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1151
+      ],
+      "End time": "2015-03-29 23:01:56",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.902s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.902s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.931s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.931s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.931s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.931s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.931s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.931s  PROF] skelcl::init() time 748 ms",
+        "[=====Program.cpp:212  001.258s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.681s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.024s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.078s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.080s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.080s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.081s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.081s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.081s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.081s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.081s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.081s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.081s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 0, queueTime: 0.003232 ms",
+        "[====Skeleton.cpp:106  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 0, submitTime: 0.005504 ms",
+        "[====Skeleton.cpp:107  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 0, runTime: 1.28384 ms",
+        "[====Skeleton.cpp:105  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 1, queueTime: 0.002816 ms",
+        "[====Skeleton.cpp:106  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 1, submitTime: 1.05693 ms",
+        "[====Skeleton.cpp:107  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 1, runTime: 0.170208 ms",
+        "[====Skeleton.cpp:105  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 2, queueTime: 0.002752 ms",
+        "[====Skeleton.cpp:106  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 2, submitTime: 1.14682 ms",
+        "[====Skeleton.cpp:107  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 2, runTime: 0.191456 ms",
+        "[====Skeleton.cpp:105  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 3, queueTime: 0.002592 ms",
+        "[====Skeleton.cpp:106  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 3, submitTime: 1.26362 ms",
+        "[====Skeleton.cpp:107  002.083s  PROF] Stencil<Tout(Tin)> 0x7fff8d2ff190, clEvent: 3, runTime: 0.028128 ms",
+        "[======SkelCL.cpp:89   002.123s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.123s  PROF] Matrix 0x7fff8d2ff0f0, clEvent: 0, download queueTime: 0.005792 ms",
+        "[=====MatrixDef.h:311  002.123s  PROF] Matrix 0x7fff8d2ff0f0, clEvent: 0, download submitTime: 0.007424 ms",
+        "[=====MatrixDef.h:312  002.123s  PROF] Matrix 0x7fff8d2ff0f0, clEvent: 0, download runTime: 0.315744 ms",
+        "[=====MatrixDef.h:310  002.123s  PROF] Matrix 0x7fff8d2ff050, clEvent: 0, upload queueTime: 0.167712 ms",
+        "[=====MatrixDef.h:311  002.123s  PROF] Matrix 0x7fff8d2ff050, clEvent: 0, upload submitTime: 0.00704 ms",
+        "[=====MatrixDef.h:312  002.123s  PROF] Matrix 0x7fff8d2ff050, clEvent: 0, upload runTime: 0.318496 ms",
+        "[=====VectorDef.h:255  002.123s  PROF] Vector 0x7fff8d2fefc0, clEvent: 0, upload queueTime: 0.004288 ms",
+        "[=====VectorDef.h:256  002.123s  PROF] Vector 0x7fff8d2fefc0, clEvent: 0, upload submitTime: 0.11168 ms",
+        "[=====VectorDef.h:257  002.123s  PROF] Vector 0x7fff8d2fefc0, clEvent: 0, upload runTime: 0.000992 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1151 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.4997408390045166,
+      "Skeleton Event timings": {
+        "7fff8d2ff190": {
+          "events": [
+            {
+              "queueTime": 0.003232,
+              "runTime": 1.28384,
+              "submitTime": 0.005504
+            },
+            {
+              "queueTime": 0.002816,
+              "runTime": 0.170208,
+              "submitTime": 1.05693
+            },
+            {
+              "queueTime": 0.002752,
+              "runTime": 0.191456,
+              "submitTime": 1.14682
+            },
+            {
+              "queueTime": 0.002592,
+              "runTime": 0.028128,
+              "submitTime": 1.26362
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:01:54"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff5bdbc3c0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.165664",
+                "runTime": "0.320064",
+                "submitTime": "0.006912"
+              }
+            }
+          },
+          "7fff5bdbc460": {
+            "download": {
+              "0": {
+                "queueTime": "0.005344",
+                "runTime": "0.324704",
+                "submitTime": "0.0104"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff5bdbc330": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.004224",
+                "runTime": "0.001088",
+                "submitTime": "0.121504"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1152
+      ],
+      "End time": "2015-03-29 23:01:59",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.896s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.897s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.923s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.923s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.923s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.923s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.923s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.923s  PROF] skelcl::init() time 743 ms",
+        "[=====Program.cpp:212  001.249s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.673s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.016s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.071s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.073s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.073s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.073s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.073s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.073s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.073s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.073s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.074s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.074s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 0, queueTime: 0.003264 ms",
+        "[====Skeleton.cpp:106  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 0, submitTime: 0.005408 ms",
+        "[====Skeleton.cpp:107  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 0, runTime: 1.2871 ms",
+        "[====Skeleton.cpp:105  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 1, queueTime: 0.002848 ms",
+        "[====Skeleton.cpp:106  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 1, submitTime: 1.0647 ms",
+        "[====Skeleton.cpp:107  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 1, runTime: 0.1704 ms",
+        "[====Skeleton.cpp:105  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 2, queueTime: 0.00272 ms",
+        "[====Skeleton.cpp:106  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 2, submitTime: 1.15398 ms",
+        "[====Skeleton.cpp:107  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 2, runTime: 0.191936 ms",
+        "[====Skeleton.cpp:105  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 3, queueTime: 0.002656 ms",
+        "[====Skeleton.cpp:106  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 3, submitTime: 1.26582 ms",
+        "[====Skeleton.cpp:107  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff5bdbc500, clEvent: 3, runTime: 0.02832 ms",
+        "[======SkelCL.cpp:89   002.117s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.117s  PROF] Matrix 0x7fff5bdbc460, clEvent: 0, download queueTime: 0.005344 ms",
+        "[=====MatrixDef.h:311  002.117s  PROF] Matrix 0x7fff5bdbc460, clEvent: 0, download submitTime: 0.0104 ms",
+        "[=====MatrixDef.h:312  002.117s  PROF] Matrix 0x7fff5bdbc460, clEvent: 0, download runTime: 0.324704 ms",
+        "[=====MatrixDef.h:310  002.117s  PROF] Matrix 0x7fff5bdbc3c0, clEvent: 0, upload queueTime: 0.165664 ms",
+        "[=====MatrixDef.h:311  002.117s  PROF] Matrix 0x7fff5bdbc3c0, clEvent: 0, upload submitTime: 0.006912 ms",
+        "[=====MatrixDef.h:312  002.117s  PROF] Matrix 0x7fff5bdbc3c0, clEvent: 0, upload runTime: 0.320064 ms",
+        "[=====VectorDef.h:255  002.117s  PROF] Vector 0x7fff5bdbc330, clEvent: 0, upload queueTime: 0.004224 ms",
+        "[=====VectorDef.h:256  002.117s  PROF] Vector 0x7fff5bdbc330, clEvent: 0, upload submitTime: 0.121504 ms",
+        "[=====VectorDef.h:257  002.117s  PROF] Vector 0x7fff5bdbc330, clEvent: 0, upload runTime: 0.001088 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1152 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.471245050430298,
+      "Skeleton Event timings": {
+        "7fff5bdbc500": {
+          "events": [
+            {
+              "queueTime": 0.003264,
+              "runTime": 1.2871,
+              "submitTime": 0.005408
+            },
+            {
+              "queueTime": 0.002848,
+              "runTime": 0.1704,
+              "submitTime": 1.0647
+            },
+            {
+              "queueTime": 0.00272,
+              "runTime": 0.191936,
+              "submitTime": 1.15398
+            },
+            {
+              "queueTime": 0.002656,
+              "runTime": 0.02832,
+              "submitTime": 1.26582
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:01:56"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff76e2d6c0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.174048",
+                "runTime": "0.318528",
+                "submitTime": "0.007136"
+              }
+            }
+          },
+          "7fff76e2d760": {
+            "download": {
+              "0": {
+                "queueTime": "0.005664",
+                "runTime": "0.315776",
+                "submitTime": "0.007296"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff76e2d630": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.004288",
+                "runTime": "0.00096",
+                "submitTime": "0.114016"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1155
+      ],
+      "End time": "2015-03-29 23:02:01",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.899s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.899s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.924s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.924s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.924s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.924s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.924s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.924s  PROF] skelcl::init() time 742 ms",
+        "[=====Program.cpp:212  001.251s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.676s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.021s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.075s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.077s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.077s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.077s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.077s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.078s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.078s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.078s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.078s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.078s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 0, queueTime: 0.003296 ms",
+        "[====Skeleton.cpp:106  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 0, submitTime: 0.006784 ms",
+        "[====Skeleton.cpp:107  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 0, runTime: 1.28474 ms",
+        "[====Skeleton.cpp:105  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 1, queueTime: 0.00288 ms",
+        "[====Skeleton.cpp:106  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 1, submitTime: 1.04304 ms",
+        "[====Skeleton.cpp:107  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 1, runTime: 0.170528 ms",
+        "[====Skeleton.cpp:105  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 2, queueTime: 0.002656 ms",
+        "[====Skeleton.cpp:106  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 2, submitTime: 1.1327 ms",
+        "[====Skeleton.cpp:107  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 2, runTime: 0.190912 ms",
+        "[====Skeleton.cpp:105  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 3, queueTime: 0.002624 ms",
+        "[====Skeleton.cpp:106  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 3, submitTime: 1.25008 ms",
+        "[====Skeleton.cpp:107  002.079s  PROF] Stencil<Tout(Tin)> 0x7fff76e2d800, clEvent: 3, runTime: 0.028352 ms",
+        "[======SkelCL.cpp:89   002.113s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.113s  PROF] Matrix 0x7fff76e2d760, clEvent: 0, download queueTime: 0.005664 ms",
+        "[=====MatrixDef.h:311  002.113s  PROF] Matrix 0x7fff76e2d760, clEvent: 0, download submitTime: 0.007296 ms",
+        "[=====MatrixDef.h:312  002.113s  PROF] Matrix 0x7fff76e2d760, clEvent: 0, download runTime: 0.315776 ms",
+        "[=====MatrixDef.h:310  002.113s  PROF] Matrix 0x7fff76e2d6c0, clEvent: 0, upload queueTime: 0.174048 ms",
+        "[=====MatrixDef.h:311  002.113s  PROF] Matrix 0x7fff76e2d6c0, clEvent: 0, upload submitTime: 0.007136 ms",
+        "[=====MatrixDef.h:312  002.113s  PROF] Matrix 0x7fff76e2d6c0, clEvent: 0, upload runTime: 0.318528 ms",
+        "[=====VectorDef.h:255  002.113s  PROF] Vector 0x7fff76e2d630, clEvent: 0, upload queueTime: 0.004288 ms",
+        "[=====VectorDef.h:256  002.113s  PROF] Vector 0x7fff76e2d630, clEvent: 0, upload submitTime: 0.114016 ms",
+        "[=====VectorDef.h:257  002.113s  PROF] Vector 0x7fff76e2d630, clEvent: 0, upload runTime: 0.00096 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1155 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.494709014892578,
+      "Skeleton Event timings": {
+        "7fff76e2d800": {
+          "events": [
+            {
+              "queueTime": 0.003296,
+              "runTime": 1.28474,
+              "submitTime": 0.006784
+            },
+            {
+              "queueTime": 0.00288,
+              "runTime": 0.170528,
+              "submitTime": 1.04304
+            },
+            {
+              "queueTime": 0.002656,
+              "runTime": 0.190912,
+              "submitTime": 1.1327
+            },
+            {
+              "queueTime": 0.002624,
+              "runTime": 0.028352,
+              "submitTime": 1.25008
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:01:59"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff3fdbfef0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.167168",
+                "runTime": "0.318528",
+                "submitTime": "0.006944"
+              }
+            }
+          },
+          "7fff3fdbff90": {
+            "download": {
+              "0": {
+                "queueTime": "0.0056",
+                "runTime": "0.336448",
+                "submitTime": "0.007424"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff3fdbfe60": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.004256",
+                "runTime": "0.00096",
+                "submitTime": "0.112256"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1148
+      ],
+      "End time": "2015-03-29 23:02:04",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.902s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.902s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.927s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.927s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.927s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.927s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.927s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.927s  PROF] skelcl::init() time 735 ms",
+        "[=====Program.cpp:212  001.253s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.675s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.017s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.071s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.073s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.073s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.073s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.073s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.074s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.074s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.074s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.074s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.074s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 0, queueTime: 0.003264 ms",
+        "[====Skeleton.cpp:106  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 0, submitTime: 0.005664 ms",
+        "[====Skeleton.cpp:107  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 0, runTime: 1.28362 ms",
+        "[====Skeleton.cpp:105  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 1, queueTime: 0.002816 ms",
+        "[====Skeleton.cpp:106  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 1, submitTime: 1.05936 ms",
+        "[====Skeleton.cpp:107  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 1, runTime: 0.170368 ms",
+        "[====Skeleton.cpp:105  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 2, queueTime: 0.002656 ms",
+        "[====Skeleton.cpp:106  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 2, submitTime: 1.14931 ms",
+        "[====Skeleton.cpp:107  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 2, runTime: 0.191648 ms",
+        "[====Skeleton.cpp:105  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 3, queueTime: 0.002624 ms",
+        "[====Skeleton.cpp:106  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 3, submitTime: 1.2631 ms",
+        "[====Skeleton.cpp:107  002.075s  PROF] Stencil<Tout(Tin)> 0x7fff3fdc0030, clEvent: 3, runTime: 0.028288 ms",
+        "[======SkelCL.cpp:89   002.119s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.119s  PROF] Matrix 0x7fff3fdbff90, clEvent: 0, download queueTime: 0.0056 ms",
+        "[=====MatrixDef.h:311  002.119s  PROF] Matrix 0x7fff3fdbff90, clEvent: 0, download submitTime: 0.007424 ms",
+        "[=====MatrixDef.h:312  002.119s  PROF] Matrix 0x7fff3fdbff90, clEvent: 0, download runTime: 0.336448 ms",
+        "[=====MatrixDef.h:310  002.119s  PROF] Matrix 0x7fff3fdbfef0, clEvent: 0, upload queueTime: 0.167168 ms",
+        "[=====MatrixDef.h:311  002.119s  PROF] Matrix 0x7fff3fdbfef0, clEvent: 0, upload submitTime: 0.006944 ms",
+        "[=====MatrixDef.h:312  002.119s  PROF] Matrix 0x7fff3fdbfef0, clEvent: 0, upload runTime: 0.318528 ms",
+        "[=====VectorDef.h:255  002.120s  PROF] Vector 0x7fff3fdbfe60, clEvent: 0, upload queueTime: 0.004256 ms",
+        "[=====VectorDef.h:256  002.120s  PROF] Vector 0x7fff3fdbfe60, clEvent: 0, upload submitTime: 0.112256 ms",
+        "[=====VectorDef.h:257  002.120s  PROF] Vector 0x7fff3fdbfe60, clEvent: 0, upload runTime: 0.00096 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1148 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.4854249954223633,
+      "Skeleton Event timings": {
+        "7fff3fdc0030": {
+          "events": [
+            {
+              "queueTime": 0.003264,
+              "runTime": 1.28362,
+              "submitTime": 0.005664
+            },
+            {
+              "queueTime": 0.002816,
+              "runTime": 0.170368,
+              "submitTime": 1.05936
+            },
+            {
+              "queueTime": 0.002656,
+              "runTime": 0.191648,
+              "submitTime": 1.14931
+            },
+            {
+              "queueTime": 0.002624,
+              "runTime": 0.028288,
+              "submitTime": 1.2631
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:02:01"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff5f3c1990": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.164288",
+                "runTime": "0.333984",
+                "submitTime": "0.006976"
+              }
+            }
+          },
+          "7fff5f3c1a30": {
+            "download": {
+              "0": {
+                "queueTime": "0.005408",
+                "runTime": "0.315744",
+                "submitTime": "0.007424"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff5f3c1900": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.00416",
+                "runTime": "0.00096",
+                "submitTime": "0.131712"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1153
+      ],
+      "End time": "2015-03-29 23:02:06",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.890s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.890s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.920s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.920s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.920s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.920s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.920s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.920s  PROF] skelcl::init() time 738 ms",
+        "[=====Program.cpp:212  001.247s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.670s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.014s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.069s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.071s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.071s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.071s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.071s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.071s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.071s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.072s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.072s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.072s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 0, queueTime: 0.00336 ms",
+        "[====Skeleton.cpp:106  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 0, submitTime: 0.005504 ms",
+        "[====Skeleton.cpp:107  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 0, runTime: 1.28083 ms",
+        "[====Skeleton.cpp:105  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 1, queueTime: 0.00288 ms",
+        "[====Skeleton.cpp:106  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 1, submitTime: 1.04013 ms",
+        "[====Skeleton.cpp:107  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 1, runTime: 0.170304 ms",
+        "[====Skeleton.cpp:105  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 2, queueTime: 0.002688 ms",
+        "[====Skeleton.cpp:106  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 2, submitTime: 1.12547 ms",
+        "[====Skeleton.cpp:107  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 2, runTime: 0.191808 ms",
+        "[====Skeleton.cpp:105  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 3, queueTime: 0.002656 ms",
+        "[====Skeleton.cpp:106  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 3, submitTime: 1.24176 ms",
+        "[====Skeleton.cpp:107  002.073s  PROF] Stencil<Tout(Tin)> 0x7fff5f3c1ad0, clEvent: 3, runTime: 0.028224 ms",
+        "[======SkelCL.cpp:89   002.102s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.102s  PROF] Matrix 0x7fff5f3c1a30, clEvent: 0, download queueTime: 0.005408 ms",
+        "[=====MatrixDef.h:311  002.102s  PROF] Matrix 0x7fff5f3c1a30, clEvent: 0, download submitTime: 0.007424 ms",
+        "[=====MatrixDef.h:312  002.102s  PROF] Matrix 0x7fff5f3c1a30, clEvent: 0, download runTime: 0.315744 ms",
+        "[=====MatrixDef.h:310  002.102s  PROF] Matrix 0x7fff5f3c1990, clEvent: 0, upload queueTime: 0.164288 ms",
+        "[=====MatrixDef.h:311  002.102s  PROF] Matrix 0x7fff5f3c1990, clEvent: 0, upload submitTime: 0.006976 ms",
+        "[=====MatrixDef.h:312  002.102s  PROF] Matrix 0x7fff5f3c1990, clEvent: 0, upload runTime: 0.333984 ms",
+        "[=====VectorDef.h:255  002.102s  PROF] Vector 0x7fff5f3c1900, clEvent: 0, upload queueTime: 0.00416 ms",
+        "[=====VectorDef.h:256  002.102s  PROF] Vector 0x7fff5f3c1900, clEvent: 0, upload submitTime: 0.131712 ms",
+        "[=====VectorDef.h:257  002.102s  PROF] Vector 0x7fff5f3c1900, clEvent: 0, upload runTime: 0.00096 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1153 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.470938205718994,
+      "Skeleton Event timings": {
+        "7fff5f3c1ad0": {
+          "events": [
+            {
+              "queueTime": 0.00336,
+              "runTime": 1.28083,
+              "submitTime": 0.005504
+            },
+            {
+              "queueTime": 0.00288,
+              "runTime": 0.170304,
+              "submitTime": 1.04013
+            },
+            {
+              "queueTime": 0.002688,
+              "runTime": 0.191808,
+              "submitTime": 1.12547
+            },
+            {
+              "queueTime": 0.002656,
+              "runTime": 0.028224,
+              "submitTime": 1.24176
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:02:04"
+    },
+    {
+      "Container Event timings": {
+        "Matrix": {
+          "7fff9e72dd30": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.174688",
+                "runTime": "0.31856",
+                "submitTime": "0.006912"
+              }
+            }
+          },
+          "7fff9e72ddd0": {
+            "download": {
+              "0": {
+                "queueTime": "0.005632",
+                "runTime": "0.315744",
+                "submitTime": "0.007264"
+              }
+            },
+            "upload": {}
+          }
+        },
+        "Vector": {
+          "7fff9e72dca0": {
+            "download": {},
+            "upload": {
+              "0": {
+                "queueTime": "0.004416",
+                "runTime": "0.00096",
+                "submitTime": "0.114848"
+              }
+            }
+          }
+        }
+      },
+      "Elapsed times": [
+        1149
+      ],
+      "End time": "2015-03-29 23:02:09",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.891s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.892s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.914s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[==DeviceList.cpp:107  000.914s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.914s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.915s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.915s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.915s  PROF] skelcl::init() time 735 ms",
+        "[=====Program.cpp:212  001.240s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  001.662s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.005s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  002.059s  PROF] skelcl::Program::build() 0 ms",
+        "[====StencilDef.h:284  002.061s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.061s  INFO] Local memory: [42 x 14] x 4 = 2352 bytes.",
+        "[====StencilDef.h:284  002.062s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.062s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.062s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.062s  INFO] Local memory: [34 x 6] x 4 = 816 bytes.",
+        "[====StencilDef.h:284  002.062s  INFO] Global size: [512 x 512]. Local size: [32 x 4].",
+        "[====StencilDef.h:295  002.062s  INFO] Local memory: [32 x 4] x 4 = 512 bytes.",
+        "[====StencilDef.h:355  002.062s  INFO] Stencil kernel 0 started",
+        "[====Skeleton.cpp:105  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 0, queueTime: 0.0032 ms",
+        "[====Skeleton.cpp:106  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 0, submitTime: 0.006784 ms",
+        "[====Skeleton.cpp:107  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 0, runTime: 1.28384 ms",
+        "[====Skeleton.cpp:105  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 1, queueTime: 0.002816 ms",
+        "[====Skeleton.cpp:106  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 1, submitTime: 1.06 ms",
+        "[====Skeleton.cpp:107  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 1, runTime: 0.170304 ms",
+        "[====Skeleton.cpp:105  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 2, queueTime: 0.002624 ms",
+        "[====Skeleton.cpp:106  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 2, submitTime: 1.14963 ms",
+        "[====Skeleton.cpp:107  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 2, runTime: 0.190848 ms",
+        "[====Skeleton.cpp:105  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 3, queueTime: 0.002656 ms",
+        "[====Skeleton.cpp:106  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 3, submitTime: 1.2673 ms",
+        "[====Skeleton.cpp:107  002.064s  PROF] Stencil<Tout(Tin)> 0x7fff9e72de70, clEvent: 3, runTime: 0.028288 ms",
+        "[======SkelCL.cpp:89   002.121s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:310  002.121s  PROF] Matrix 0x7fff9e72ddd0, clEvent: 0, download queueTime: 0.005632 ms",
+        "[=====MatrixDef.h:311  002.121s  PROF] Matrix 0x7fff9e72ddd0, clEvent: 0, download submitTime: 0.007264 ms",
+        "[=====MatrixDef.h:312  002.121s  PROF] Matrix 0x7fff9e72ddd0, clEvent: 0, download runTime: 0.315744 ms",
+        "[=====MatrixDef.h:310  002.122s  PROF] Matrix 0x7fff9e72dd30, clEvent: 0, upload queueTime: 0.174688 ms",
+        "[=====MatrixDef.h:311  002.122s  PROF] Matrix 0x7fff9e72dd30, clEvent: 0, upload submitTime: 0.006912 ms",
+        "[=====MatrixDef.h:312  002.122s  PROF] Matrix 0x7fff9e72dd30, clEvent: 0, upload runTime: 0.31856 ms",
+        "[=====VectorDef.h:255  002.122s  PROF] Vector 0x7fff9e72dca0, clEvent: 0, upload queueTime: 0.004416 ms",
+        "[=====VectorDef.h:256  002.122s  PROF] Vector 0x7fff9e72dca0, clEvent: 0, upload submitTime: 0.114848 ms",
+        "[=====VectorDef.h:257  002.122s  PROF] Vector 0x7fff9e72dca0, clEvent: 0, upload runTime: 0.00096 ms",
+        "Image size:   512 x 512 px",
+        "Elapsed time: 1149 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 2.489675998687744,
+      "Skeleton Event timings": {
+        "7fff9e72de70": {
+          "events": [
+            {
+              "queueTime": 0.0032,
+              "runTime": 1.28384,
+              "submitTime": 0.006784
+            },
+            {
+              "queueTime": 0.002816,
+              "runTime": 0.170304,
+              "submitTime": 1.06
+            },
+            {
+              "queueTime": 0.002624,
+              "runTime": 0.190848,
+              "submitTime": 1.14963
+            },
+            {
+              "queueTime": 0.002656,
+              "runTime": 0.028288,
+              "submitTime": 1.2673
+            }
+          ],
+          "name": "Stencil<Tout(Tin)>"
+        }
+      },
+      "Start time": "2015-03-29 23:02:06"
+    }
+  ]
+}
