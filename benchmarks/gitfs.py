@@ -8,7 +8,7 @@ from subprocess import call
 
 from util import cd,Colours
 
-DISK_WRITE_THRESHOLD = 10
+DISK_WRITE_THRESHOLD = 50
 
 REMOTES={
     "origin": "master"

@@ -32,7 +32,9 @@ def testMapOverlapVsStencil():
                 "args": {}
             },
             "GameOfLife": {
-                "args": { "Iterations": ["-i 1", "-i 5"] }
+                "args": {
+                    "Iterations": ["-i {i}".format(i=i) for i in range(1, 11)]
+                }
             },
             "GaussianBlur": {
                 "args": {}
@@ -57,7 +59,7 @@ def testrun():
         "benchmarks": {
             "GameOfLife": {
                 "args": {
-                    "Iterations": ["-i 1"]
+                    "Iterations": ["-i {i}".format(i=i) for i in range(1, 11)]
                 }
             }
         },
@@ -65,11 +67,8 @@ def testrun():
         "knobs": {}
     }, _instantiate)
 
-harnesses = testrun() #testMapOverlapVsStencil()
+harnesses = testrun() + testMapOverlapVsStencil()
 
 q = jobqueue(harnesses)
-
-for j in q:
-    print(j)
 
 runJobQueue(q)
