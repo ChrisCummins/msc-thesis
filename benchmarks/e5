@@ -53,22 +53,11 @@ def testrun():
                 for x in host.devargs()]
 
     return enumerate({
-        "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
+        "hosts": [ "florence" ],
         "benchmarks": {
-            "CannyEdgeDetection": {
-                "args": {}
-            },
             "GameOfLife": {
                 "args": {
-                    "Iterations": ["-i {i}".format(i=i) for i in range(1, 11)]
-                }
-            },
-            "GaussianBlur": {
-                "args": {}
-            },
-            "HeatEquation": {
-                "args": {
-                    "Iterations": [1, 10, 100, 250]
+                    "Iterations": ["-i 1"]
                 }
             }
         },
