@@ -4545,3 +4545,16 @@ TODO:
 * Test multi-GPU skeletons on monza
 * Graph results of e5
 * Write-up autopar reading
+* Add "deferred" dependent variables
+* Add post-exec independent variables
+* Use a single line for queue/run/submit printouts
+* Exclude benchmark and hostname from var checksum
+
+Results awaiting processing:
+* florence
+* whz5
+* monza
+
+Devices I need to collect `e5` data from:
+* cec
+* dhcp-90-060
