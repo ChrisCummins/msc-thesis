@@ -95,10 +95,14 @@ def path(*components):
 def system(args, out=None, exit_on_error=True):
     stdout = None if out == None else out
     stderr = None if out == None else out
-    exitstatus = call(args, stdout=stdout, stderr=stderr, shell=True) # exec
+    try:
+        exitstatus = call(args, stdout=stdout, stderr=stderr, shell=True) # exec
+    except KeyboardInterrupt:
+        print()
+        Colours.print(Colours.RED,"Keyboard interrupt.")
+        exit(0)
     if exitstatus and exit_on_error:
-        print("fatal: '{0}'".format(colourise(Colours.RED,
-                                              ' '.join(args))))
+        Colours.print(Colours.RED, "fatal:", *args)
         exit(exitstatus)
     return exitstatus
 
