@@ -8,6 +8,7 @@ from os import makedirs
 from os.path import dirname
 
 import json
+import gitfs as fs
 
 _CACHEWRITE_THRESHOLD = 5
 
@@ -17,8 +18,7 @@ _cache = {}
 
 def _readjson(path):
     try:
-        data = json.load(open(path))
-        print("Read '{path}'...".format(path=path))
+        data = json.load(fs.markreadopen(path))
         return data
     except:
         return {}
@@ -28,9 +28,8 @@ def _writejson(path, data):
         makedirs(dirname(path))
     except:
         pass
-    json.dump(data, open(path, 'w'),
+    json.dump(data, fs.markwrite(open(path, 'w')),
               sort_keys=True, indent=2, separators=(',', ': '))
-    print("Wrote '{path}'...".format(path=path))
 
 def _loadcache(path):
     data = _readjson(path)

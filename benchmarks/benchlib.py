@@ -6,7 +6,6 @@ import config
 from util import *
 from variables import *
 from stats import *
-import jsoncache
 import resultscache
 
 ##### OBJECT ORIENTATION #####
