@@ -135,9 +135,9 @@ class FixedSizeSampler(Sampler):
         self.samplecount = samplecount
 
     def hasnext(self, result):
-        if len(result.outvars) < self.samplecount:
-            # Defer to superclass if the conditions are met.
-            return Sampler.hasnext(self, result)
+        # Check first with superclass.
+        if Sampler.hasnext(self, result):
+            return len(result.outvars) < self.samplecount
         else:
             return False
 
