@@ -8,23 +8,11 @@ from skelcl import *
 
 from sys import exit
 
-def TestStencilLocalSize():
-    knobs = [
-        (StencilLocalSizeR, [32, 64, 128, 256]),
-        (StencilLocalSizeC, [8, 16, 32, 64, 128, 256])
-       ]
-
+def enumerate(hosts, benchmarks, knobs):
+    harnesses = []
     perms = permutations(*[variablerange(x[0], x[1]) for x in knobs])
-    benchmarks = [
-        SkelCLBenchmark("CannyEdgeDetection"),
-        SkelCLBenchmark("GameOfLife"),
-        SkelCLBenchmark("GaussianBlur"),
-        SkelCLBenchmark("HeatSimulation"),
-        SkelCLBenchmark("FDTD")
-       ]
 
     # Enumerate test harnesses.
-    harnesses = []
     for host in hosts:
         for benchmark in benchmarks:
             for devargs in host.devargs():
@@ -35,6 +23,25 @@ def TestStencilLocalSize():
                                               host=host,
                                               invars=invars)
                     harnesses.append(TestHarness(testcase, sampler))
+
+    print("Enumerated", len(harnesses), "test harnesses.")
     return harnesses
 
-runTestSuite(TestStencilLocalSize())
+def testStencilLocalSize():
+    knobs = [
+        (StencilLocalSizeR, [32, 64, 128, 256]),
+        (StencilLocalSizeC, [8, 16, 32, 64, 128, 256])
+       ]
+
+    benchmarks = [
+        SkelCLBenchmark("CannyEdgeDetection"),
+        SkelCLBenchmark("GameOfLife"),
+        SkelCLBenchmark("GaussianBlur"),
+        SkelCLBenchmark("HeatSimulation"),
+        SkelCLBenchmark("FDTD")
+       ]
+
+    return enumerate(hosts, benchmarks, knobs)
+
+q = jobqueue(testStencilLocalSize())
+runJobQueue(q)

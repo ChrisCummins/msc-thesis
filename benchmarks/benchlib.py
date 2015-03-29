@@ -332,8 +332,7 @@ class TestHarness:
         if not self.sampler.hasnext(self.result):
             return
 
-        Colours.print(Colours.YELLOW, "Preparing testcase",
-                      self.testcase, "...")
+        Colours.print(Colours.BLUE, "Preparing testcase", self.testcase, "...")
         self.testcase.setup()
 
         # Sample and store results.
@@ -361,21 +360,22 @@ def permutations(*args):
 class TestGenerator:
     pass
 
-def runTestSuite(harnesses):
+def jobqueue(harnesses):
     localhost = hostname()
-    forthisdevice = list(filter(lambda x: x.host == localhost, harnesses))
-    runnable = list(filter(lambda x: x.sampler.hasnext(x.result), forthisdevice))
+    forthisdevice = filter(lambda x: x.host == localhost, harnesses)
+    runnable = filter(lambda x: x.sampler.hasnext(x.result), forthisdevice)
+    return list(runnable)
 
-    Colours.print(Colours.GREEN, "Enumerated", len(harnesses), "test harnesses.")
-    print()
-    print("Of those,", len(forthisdevice), "harnesses target this device.")
-    print()
-    Colours.print(Colours.GREEN, "Beginning execution of", len(runnable),
-                  "test cases ...")
+def runJobQueue(harnesses):
+    numjobs, i = len(harnesses), 1 # counters
 
-    i = 1
-    for harness in runnable:
+    Colours.print(Colours.GREEN, "Beginning execution of", numjobs,
+                  "jobs ...")
+
+    while harnesses:
+        job = harnesses.pop()
         print()
-        print("Beginning test harness", i, "of", len(runnable))
-        harness.run()
+        Colours.print(Colours.GREEN, "Beginning test harness", i, "of", numjobs)
+        print()
+        job.run()
         i += 1
