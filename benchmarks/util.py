@@ -3,6 +3,7 @@
 # Take 'em or leave 'em.
 from __future__ import print_function
 from hashlib import sha1
+from json import dumps
 from os import chdir,getcwd,listdir,makedirs
 from os.path import abspath,basename,dirname,exists
 from socket import gethostname
@@ -12,7 +13,7 @@ from subprocess import call
 _cdhist = [dirname(__file__)]
 
 def pprint(data):
-    return json.dumps(data, sort_keys=True, indent=2, separators=(',', ': '))
+    print(dumps(data, sort_keys=True, indent=2, separators=(',', ': ')))
 
 # Concatenate all components into a path.
 def path(*components):
