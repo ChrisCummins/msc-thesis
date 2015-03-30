@@ -156,7 +156,10 @@ def openCLEventTimes(invars, name="events"):
                             .68)) # Height
 
     # Set the caption text.
-    plt.figtext(.02, .02, ("Total: {total} ms.".format(total=sum(Y))))
+    gputime = sum([x for x,y in zip(Y,Labels) if not search("(init|build)", y)])
+    plt.figtext(.02, .02,
+                ("Total: {total:.2f} ms. GPU time: {gpu:.2f} ms"
+                 .format(total=sum(Y), gpu=gputime)))
 
     plt.xlabel('Event type')
     plt.ylabel('Time (ms)')
