@@ -135,6 +135,4 @@ def openCLEventTimes(invars, name="events"):
     #plt.yticks(np.arange(0,81,10))
     #plt.legend( (p1[0], p2[0]), ('Men', 'Women') )
 
-    print("DATA", _HashableResult(result).key())
-
     _finalize(result, name)
