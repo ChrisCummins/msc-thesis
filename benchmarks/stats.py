@@ -1,4 +1,7 @@
 from math import sqrt
+from scipy import stats
+
+import scipy
 
 # Return the mean value of a list of divisible numbers.
 def mean(num):
@@ -24,12 +27,19 @@ def confinterval(l, c=0.95, n=30):
     if len(l) > 1:
         scale = stdev(l) / sqrt(len(l))
 
-        #if len(l) >= n:
-            # For large values of n, use a normal (Gaussian) distribution:
-            #c1, c2 = scipy.stats.norm.interval(c, loc=mean(l), scale=scale)
-        #else:
+        if len(l) < n:
             # For small values of n, use a t-distribution:
-            #c1, c2 = scipy.stats.t.interval(c, len(l) - 1, loc=mean(l), scale=scale)
-        return 0, 0
+            c1, c2 = scipy.stats.t.interval(c, len(l) - 1, loc=mean(l), scale=scale)
+        else:
+            # For large values of n, use a normal (Gaussian) distribution:
+            c1, c2 = scipy.stats.norm.interval(c, loc=mean(l), scale=scale)
+
+        return c1, c2
     else:
         return 0, 0
+
+# Return a tuple of the mean and yerr.
+def describe(num, **kwargs):
+    num = [float(x) for x in num] # Cast all to floating points.
+    c = confinterval(num, **kwargs)
+    return mean(num), c[1] - mean(num)
