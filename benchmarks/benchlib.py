@@ -2,6 +2,8 @@ from __future__ import print_function
 from itertools import product
 from os.path import basename,exists
 
+import os
+
 import config
 from util import *
 from variables import *
@@ -271,8 +273,19 @@ def jobqueue(harnesses):
 
     return list(runnable)
 
+# Whether we've sent out the courtesy message.
+_messagesent = False
+
 def runJobQueue(harnesses):
+    global _messagesent
+    
     numjobs, i = len(harnesses), 1 # counters
+
+    # Send out a courtesy message.
+    if not _messagesent and hostname() not in config.MASTER_HOSTS:
+        msg = "Beginning timed benchmarks...".format(pid=pid())
+        os.system("wall {msg}".format(msg=msg))
+        _messagesent = True
 
     # Check we have something to do...
     if not len(harnesses): return

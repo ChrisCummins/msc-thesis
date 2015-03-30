@@ -4,7 +4,7 @@
 from __future__ import print_function
 from hashlib import sha1
 from json import dumps
-from os import chdir,getcwd,listdir,makedirs
+from os import chdir,getcwd,listdir,makedirs,getpid
 from os.path import abspath,basename,dirname,exists
 from socket import gethostname
 from subprocess import call
@@ -81,6 +81,9 @@ def mkdir(path):
 
 def hostname():
     return gethostname()
+
+def pid():
+    return getpid()
 
 # Returns all of the lines in "file" as a list of strings, excluding
 # comments (delimited by '#' symbol).
