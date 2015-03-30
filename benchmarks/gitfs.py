@@ -55,7 +55,6 @@ def markread(file):
 
     _diskreads += 1
     _diskread.add(file.name)
-    print("Read '{path}'...".format(path=file.name))
     return file
 
 #
@@ -64,7 +63,6 @@ def markwrite(file):
 
     _diskwrites += 1
     _diskwritten.add(file.name)
-    print("Wrote '{path}'...".format(path=file.name))
 
     if _diskwrites >= _DISK_WRITE_THRESHOLD:
         _commitandpush()
