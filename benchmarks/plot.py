@@ -161,6 +161,9 @@ def openCLEventTimes(invars, name="events"):
                 ("Total: {total:.2f} ms. GPU time: {gpu:.2f} ms"
                  .format(total=sum(Y), gpu=gputime)))
 
+    # Time is always positive.
+    plt.ylim(ymin=0)
+
     plt.xlabel('Event type')
     plt.ylabel('Time (ms)')
     plt.title('Events times: {v}'.format(v=', '.join([str(x.val) for x in invars])),
