@@ -9,8 +9,11 @@ from os.path import abspath,basename,dirname,exists
 from socket import gethostname
 from subprocess import call
 
-# directory history
-_cdhist = [dirname(__file__)]
+import sys
+
+def exit(*args, **kwargs):
+    Colours.print(Colours.GREEN, "Done.")
+    sys.exit(*args, **kwargs)
 
 def pprint(data):
     print(dumps(data, sort_keys=True, indent=2, separators=(',', ': ')))
@@ -18,6 +21,9 @@ def pprint(data):
 # Concatenate all components into a path.
 def path(*components):
     return abspath('/'.join(components))
+
+# directory history
+_cdhist = [dirname(__file__)]
 
 # Change to directory "path".
 def cd(path):
