@@ -1,6 +1,11 @@
 # resultscache.py - Persistent store for benchmark results.
 #
 # There are two public methods: load() and store().
+#
+# Results are stored in a three level hierarchy, where "key" is a hash
+# of the set of independent variables for that result:
+#
+#     <benchmark>/<host>/<key>.json
 from hashlib import sha1
 from os.path import dirname
 from util import path
@@ -35,10 +40,6 @@ class _HashableInvars:
     def __repr__(x):
         return str(x.__key()).encode('utf-8')
 
-# Results are stored in a three level hierarchy, where "key" is a hash
-# of the set of independent variables for that result:
-#
-#     <benchmark>/<host>/<key>.json
 def _path(benchmarkname, key, hostname):
     return ("{root}/{benchmark}/{host}/{key}.json"
             .format(root=config.RESULTS,
