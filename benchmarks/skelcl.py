@@ -12,6 +12,7 @@ from config import *
 SKELCL = path(CWD, '../skelcl')
 SKELCL_BUILD = path(SKELCL, 'build')
 
+_MASTER_HOSTS = ["florence", "cec"]
 
 # Get the current SkelCL git version.
 def skelcl_version():
@@ -277,6 +278,8 @@ benchmarks = [
     SkelCLBenchmark("SAXPY")
 ]
 
+def masterhost():
+    return hostname() in _MASTER_HOSTS
 
 def enumerate(e, instantiate):
     harnesses = []
