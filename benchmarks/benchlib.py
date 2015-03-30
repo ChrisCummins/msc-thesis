@@ -7,7 +7,6 @@ import os
 import config
 from util import *
 from variables import *
-from stats import *
 import resultscache
 
 ##### OBJECT ORIENTATION #####
