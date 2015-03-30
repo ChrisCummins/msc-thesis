@@ -9,5 +9,7 @@ CWD = path(dirname(__file__))
 RESULTS = path(CWD, "/results")
 PLOTS = path(CWD, "/plots")
 
+MASTER_HOSTS = ["florence", "cec"]
+
 _id = basename(argv[0])
 RUNLOG = "/tmp/{id}.run.log".format(id=_id)

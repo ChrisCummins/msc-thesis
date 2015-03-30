@@ -6,7 +6,9 @@ from atexit import register
 from os.path import basename,dirname
 from subprocess import call
 
-from util import cd,Colours
+from util import cd,Colours,hostname
+
+import config
 
 _DISK_WRITE_THRESHOLD = 50
 
@@ -22,6 +24,9 @@ _diskwritten = set()
 
 def _commitandpush():
     global _diskwrites, _diskwritten
+
+    # Don't commit from master hosts.
+    if hostname() in config.MASTER_HOSTS: return
 
     # Escape if we have nothing to do.
     if not _diskwrites: return
