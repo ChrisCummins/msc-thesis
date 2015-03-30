@@ -4798,10 +4798,10 @@ TODO:
 * Test multi-GPU skeletons on monza
 * Graph results of e5
 * Write-up autopar reading
-* Add "deferred" dependent variables
-* Add post-exec independent variables
+* Add "deferred" dependent variables - DONE
+* Add post-exec independent variables - DONE
 * Use a single line for queue/run/submit printouts
-* Exclude benchmark and hostname from var checksum
+* Exclude benchmark and hostname from var checksum - DONE
 
 Results awaiting processing:
 * florence
@@ -4811,3 +4811,46 @@ Results awaiting processing:
 Devices I need to collect `e5` data from:
 * cec
 * dhcp-90-060
+
+
+## Monday 30th
+
+Notes from meeting with Hugh and Pavlos:
+* My short-term goal is to explore and define the optimisation space,
+  DEADLINE April 13th. After that, start looking at how I will go
+  about tuning this space, such as feature extraction.
+* Given that I think my progress has been slow for these first two
+  months, I should think about why this is the case, and chat with
+  Pavlos about how I can prevent this situation from recurring, e.g.
+  what "early warning signs" I could communicate to him.
+* Pavlos told me about
+  [persistence mode](http://docs.nvidia.com/deploy/driver-persistence/index.html#persistence-mode)
+  for NVIDIA drivers, which reduces SkelCL benchmark time by
+  ~500ms. Just run `sudo nvidia-smi -pm ENABLED`.
+
+
+Notes on optimising jsoncache size
+
+```
+Memory usage (kB), Real elapsed time
+
+Unlimited cache
+14914256 0:15.29
+14914896 0:15.26
+
+Max cache size 50
+5888384 0:15.53
+5897120 0:16.12
+
+Mac cache size 20
+4291056 0:15.63
+
+Mac cache size 10
+2996880 0:15.55
+
+Mac cache size 2
+1982640 0:15.42
+```
+
+Conclusion: Maximum cache size has little bearing on execution time,
+but a large impact on peak memory usage.
