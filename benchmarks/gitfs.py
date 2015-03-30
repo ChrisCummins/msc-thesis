@@ -8,9 +8,9 @@ from subprocess import call
 
 from util import cd,Colours
 
-DISK_WRITE_THRESHOLD = 50
+_DISK_WRITE_THRESHOLD = 50
 
-REMOTES={
+_REMOTES={
     "origin": "master"
 }
 
@@ -35,7 +35,7 @@ def _commitandpush():
 
     call(["git", "commit", "-m", "Auto-bot commit"])
     call(["git", "pull", "--rebase"])
-    [call(["git", "push", remote, REMOTES[remote]]) for remote in REMOTES]
+    [call(["git", "push", remote, _REMOTES[remote]]) for remote in _REMOTES]
 
     # Reset counters
     _diskwrites = 0
@@ -61,7 +61,7 @@ def markwrite(file):
     _diskwritten.add(file.name)
     print("Wrote '{path}'...".format(path=file.name))
 
-    if _diskwrites >= DISK_WRITE_THRESHOLD:
+    if _diskwrites >= _DISK_WRITE_THRESHOLD:
         _commitandpush()
 
     return file
