@@ -73,3 +73,15 @@ harnesses = testrun() + testMapOverlapVsStencil()
 q = jobqueue(harnesses)
 
 runJobQueue(q)
+
+# Headless servers stop here.
+if not masterhost(): exit(0)
+
+####### DATA PROCESSING
+
+import plot as plt
+
+# Graph event times.
+[plt.openCLEventTimes(x.testcase.invars) for x in harnesses]
+
+exit(0)
