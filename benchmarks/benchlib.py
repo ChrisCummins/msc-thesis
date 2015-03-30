@@ -282,8 +282,8 @@ def runJobQueue(harnesses):
 
     # Send out a courtesy message.
     if not _messagesent and hostname() not in config.MASTER_HOSTS:
-        msg = "Beginning timed benchmarks...".format(pid=pid())
-        os.system("wall {msg}".format(msg=msg))
+        msg = "Beginning timed benchmarks (pid {pid})...".format(pid=pid())
+        os.system('echo "{msg}" | wall'.format(msg=msg))
         _messagesent = True
 
     # Check we have something to do...
