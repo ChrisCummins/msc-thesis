@@ -42,25 +42,20 @@ def _loadresults(path):
     return jsoncache.load(path)
 
 #
-def load(testcase):
-    benchmark = testcase.benchmark.name
-    invars = testcase.invars
+def _resultpath(invars):
+    benchmark = lookup1(invars, BenchmarkName).val
     host = lookup1(invars, Hostname).val
     key = _HashableInvars(invars).key()
-    path = _path(benchmark, key, host)
+    return _path(benchmark, key, host)
 
+#
+def load(invars):
+    path = _resultpath(invars)
     data = jsoncache.load(path)
 
     return Result.decode(data, invars)
 
 #
-def _resultpath(result):
-    benchmark = lookup1(result.invars, BenchmarkName).val
-    host = lookup1(result.invars, Hostname).val
-    key = _HashableInvars(result.invars).key()
-    return _path(benchmark, key, host)
-
-#
 def store(result):
-    path = _resultpath(result)
+    path = _resultpath(result.invars)
     jsoncache.store(path, result.encode())

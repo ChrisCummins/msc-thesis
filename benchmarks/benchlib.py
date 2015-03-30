@@ -241,7 +241,7 @@ class TestHarness:
 
     def result(self):
         if not self._hasresult:
-            self._result = resultscache.load(self.testcase)
+            self._result = resultscache.load(self.testcase.invars)
             self._hasresult = True
         return self._result
 
