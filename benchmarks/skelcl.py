@@ -74,9 +74,31 @@ class SkelCLHost(OpenCLHost):
         return _hosts[name]
 
 #
-class SkelCLElapsedTimes(DependentVariable):
+class SkelCLSourceTree(DependentVariable):
     def __init__(self):
-        DependentVariable.__init__(self, "Elapsed times")
+        DependentVariable.__init__(self, "SkelCL version")
+
+    def post(self, **kwargs):
+        cd(SKELCL)
+        output = check_output(["git", "rev-parse", "HEAD"])
+        self.val = output.decode('utf-8').rstrip()
+
+#
+class SkelCLInitTime(DerivedVariable):
+    def __init__(self, **kwargs):
+        DerivedVariable.__init__(self, "SkelCLInitTime")
+
+    def post(self, **kwargs):
+        for line in kwargs['output']:
+            match = search('skelcl::init\(\) time ([0-9]+) ms$', line)
+            if match:
+                self.val = match.group(1)
+                return
+
+#
+class SkelCLElapsedTimes(DerivedVariable):
+    def __init__(self, **kwargs):
+        DerivedVariable.__init__(self, "ElapsedTimes")
 
     def post(self, **kwargs):
         r = []
@@ -90,20 +112,9 @@ class SkelCLElapsedTimes(DependentVariable):
         self.val = [max(x, 1) for x in r]
 
 #
-class SkelCLSourceTree(DependentVariable):
-    def __init__(self):
-        DependentVariable.__init__(self, "SkelCL version")
-
-    def post(self, **kwargs):
-        cd(SKELCL)
-        output = check_output(["git", "rev-parse", "HEAD"])
-        self.val = output.decode('utf-8').rstrip()
-
-
-#
-class SkeletonEventTimes(DependentVariable):
-    def __init__(self):
-        DependentVariable.__init__(self, "Skeleton Event timings")
+class SkeletonEventTimes(DerivedVariable):
+    def __init__(self, **kwargs):
+        DerivedVariable.__init__(self, "SkeletonEventTimes")
 
     def post(self, **kwargs):
         self.val = {}
@@ -129,9 +140,9 @@ class SkeletonEventTimes(DependentVariable):
                 self.val[address]['events'][id][type] = time
 
 #
-class ContainerEventTimes(DependentVariable):
-    def __init__(self):
-        DependentVariable.__init__(self, "Container Event timings")
+class ContainerEventTimes(DerivedVariable):
+    def __init__(self, **kwargs):
+        DerivedVariable.__init__(self, "ContainerEventTimes")
 
     def post(self, **kwargs):
         self.val = {}

@@ -3,6 +3,7 @@
 # These classes represent experimental variables, and are designed for
 # persistent storage through serialising/deserialising to and from
 # JSON.
+from __future__ import print_function
 from datetime import datetime
 from time import time
 from socket import gethostname
@@ -36,10 +37,18 @@ class Result:
         [d['in'].update(x.encode()) for x in self.invars]
         [d['cout'].update(x.encode()) for x in self.couts]
 
+        # Build a list of derived variables.
+        derived = filter(lambda x: isinstance(x, DerivedVariable), self.outvars[-1])
+        d['dout'] = [x.encode() for x in derived]
+
         # Build a list of outvars dicts.
-        for outvar in self.outvars:
+        for sample in self.outvars:
+            # Filter out derived variables.
+            encodable = filter(lambda x: not isinstance(x, DerivedVariable), sample)
+
+            # Encode variables.
             o = {}
-            [o.update(x.encode()) for x in outvar]
+            [o.update(x.encode()) for x in encodable]
             d['out'].append(o)
 
         return d
@@ -50,7 +59,27 @@ class Result:
         outvars = [[DependentVariable(x, y[x]) for x in y] for y in d['out']] if 'out' in d else []
         couts = set([DependentVariable(x, d['cout'][x]) for x in d['cout']]) if 'cout' in d else set()
         bad = d['bad'] if 'bad' in d else False
+
+        # FIXME: Pass module(s) to search.
+        import skelcl
+        doutvars = [getattr(skelcl, str(x)) for x in d['douts']] if 'douts' in d else []
+        benchmark = lookup1(invars, "Benchmark").val
+        doutcount = 0
+
+        if len(doutvars):
+            for sample in outvars:
+                kwargs = {
+                    'benchmark': lookup1(invars, "Benchmark").val,
+                    'exitstatus': lookup1(sample, "Exit status").val,
+                    'output': lookup1(sample, "Output").val
+                }
+
+                for doutvar in doutvars:
+                    sample.append(doutvar(**kwargs))
+                    doutcount += 1
+
         return Result(invars, outvars=outvars, couts=couts, bad=bad)
+
 
 #
 class Variable:
@@ -95,6 +124,13 @@ class DependentVariable(Variable):
     def pre(self, **kwargs): pass
     def post(self, **kwargs): pass
 
+#
+class DerivedVariable(DependentVariable):
+    def __init__(self, name, **kwargs):
+        DependentVariable.__init__(self, name)
+
+    def encode(self):
+        return self.name
 
 #########################
 # Independent Variables #
