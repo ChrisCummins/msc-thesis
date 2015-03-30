@@ -10,6 +10,7 @@ from re import compile,match
 
 from util import Colours,mkdir
 from stats import *
+from skelcl import *
 
 #
 class _HashableResult:
@@ -31,28 +32,32 @@ class _HashableResult:
 
 #
 def _gettimes(samples):
-    skeltimes = {"submitTime": [], "runTime": [], "queueTime": []}
-    conttimes = {"upload": {"submitTime": [], "runTime": [], "queueTime": []},
-                 "download": {"submitTime": [], "runTime": [], "queueTime": []}}
+    skeltimes = {"submit": [], "run": [], "queue": []}
+    conttimes = {"ul": {"submit": [], "run": [], "queue": []},
+                 "dl": {"submit": [], "run": [], "queue": []}}
 
     def parsesample(sample):
-        st = lookup(sample, "Skeleton Event timings")
-        ct = lookup(sample, "Container Event timings")
+        st = lookup(sample, SkeletonEventTimes)
+        ct = lookup(sample, ContainerEventTimes)
 
-        for t in st:
-            for skel in t.val:
-                for event in t.val[skel]['events']:
-                    skeltimes["submitTime"].append(event['submitTime'])
-                    skeltimes["runTime"].append(event['runTime'])
-                    skeltimes["queueTime"].append(event['queueTime'])
+        for var in st:
+            val = var.val
+            for type in val:
+                for address in val[type]:
+                    for event in val[type][address]:
+                        skeltimes["queue"].append(event[0])
+                        skeltimes["submit"].append(event[1])
+                        skeltimes["run"].append(event[2])
 
-        for t in ct:
-            for cont in t.val:
-                for addr in t.val[cont]:
-                    for direction in t.val[cont][addr]:
-                        for event in t.val[cont][addr][direction]:
-                            for time in t.val[cont][addr][direction][event]:
-                                conttimes[direction][time].append(t.val[cont][addr][direction][event][time])
+        for var in ct:
+            val = var.val
+            for type in val:
+                for address in val[type]:
+                    for direction in val[type][address]:
+                        for event in val[type][address][direction]:
+                            conttimes[direction]["queue"].append(val[type][address][direction][event][0])
+                            conttimes[direction]["submit"].append(val[type][address][direction][event][1])
+                            conttimes[direction]["run"].append(val[type][address][direction][event][2])
 
     [parsesample(x) for x in samples]
     return skeltimes, conttimes
@@ -110,29 +115,43 @@ def openCLEventTimes(invars, name="events"):
     if _skippable(result, name): return
 
     skeltimes, conttimes = _gettimes(result.outvars)
-    times = {
-        "skel-queue": describe(skeltimes["queueTime"]),
-        "skel-submit": describe(skeltimes["submitTime"]),
-        "skel-run": describe(skeltimes["runTime"]),
-        "dl-queue": describe(conttimes["download"]["queueTime"]),
-        "dl-submit": describe(conttimes["download"]["submitTime"]),
-        "dl-run": describe(conttimes["download"]["runTime"]),
-        "ul-queue": describe(conttimes["upload"]["queueTime"]),
-        "ul-submit": describe(conttimes["upload"]["submitTime"]),
-        "ul-run": describe(conttimes["upload"]["runTime"]),
-    }
+    data = [
+        ("UL-queue", describe(conttimes["ul"]["queue"])),
+        ("UL-submit", describe(conttimes["ul"]["submit"])),
+        ("UL-run", describe(conttimes["ul"]["run"])),
+        ("Skel-queue", describe(skeltimes["queue"])),
+        ("Skel-submit", describe(skeltimes["submit"])),
+        ("Skel-run", describe(skeltimes["run"])),
+        ("DL-queue", describe(conttimes["dl"]["queue"])),
+        ("DL-submit", describe(conttimes["dl"]["submit"])),
+        ("DL-run", describe(conttimes["dl"]["run"]))
+    ]
 
-    Y, Yerr, Labels = zip(*[(times[x][0], times[x][1], x) for x in sorted(times)])
+    Y, Yerr, Labels = zip(*[(x[1][0], x[1][1], x[0]) for x in data])
     X = np.arange(len(Y))
 
-    width = 0.35
-    p1 = plt.bar(X, Y, width, yerr=Yerr, ecolor='k')
+    width = 1
+
+    ax = plt.axes()
+
+    # Plot the data. Note the positive zorder.
+    plt.bar(X, Y, width, yerr=Yerr,
+            color=['red', 'yellow', 'green'], ecolor='k')
+    ax.yaxis.grid(b=True, which='major', color="#aaaaaa", linestyle='-')
+
+    # Set the graph bounds.
+    plt.gca().set_position((.08, # Left padding
+                            .26, # Bottom padding
+                            .9, # Width
+                            .68)) # Height
+
+    # Set the caption text.
+    plt.figtext(.02, .02, ("Total: {total} ms.".format(total=sum(Y))))
 
     plt.xlabel('Event type')
     plt.ylabel('Time (ms)')
-    plt.title('OpenCL event timings: {v}'.format(v=', '.join([str(x.val) for x in invars])))
-    plt.xticks(X + width / 2., Labels)
-    #plt.yticks(np.arange(0,81,10))
-    #plt.legend( (p1[0], p2[0]), ('Men', 'Women') )
+    plt.title('OpenCL events: {v}'.format(v=', '.join([str(x.val) for x in invars])),
+              fontsize=12, weight="bold")
+    plt.xticks(X + width / 2., Labels, rotation=90)
 
     _finalize(result, name)

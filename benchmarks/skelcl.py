@@ -93,9 +93,9 @@ class SkelCLSourceTree(DependentVariable):
         self.val = output.decode('utf-8').rstrip()
 
 #
-class SkelCLInitTime(DerivedVariable):
+class InitTime(DerivedVariable):
     def __init__(self, **kwargs):
-        DerivedVariable.__init__(self, "SkelCLInitTime")
+        DerivedVariable.__init__(self, "InitTime")
 
     def post(self, **kwargs):
         for line in kwargs['output']:
@@ -105,7 +105,7 @@ class SkelCLInitTime(DerivedVariable):
                 return
 
 #
-class SkelCLElapsedTimes(DerivedVariable):
+class ElapsedTimes(DerivedVariable):
     def __init__(self, **kwargs):
         DerivedVariable.__init__(self, "ElapsedTimes")
 
@@ -129,24 +129,23 @@ class SkeletonEventTimes(DerivedVariable):
         self.val = {}
         for line in kwargs['output']:
             # Parse profiling information.
-            match = search('PROF\] ([a-zA-Z\(<>\)]+) 0x([0-9a-f]+), '
-                           'clEvent: ([0-9]+), ([a-zA-Z]+): ([0-9\.]+) ms',
+            match = search('PROF\] ([a-zA-Z\(<>\)]+)\[0x([0-9a-f]+)\]'
+                           '\[([0-9]+)\] ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)',
                            line)
             if match:
+                type = match.group(1)
                 address = match.group(2)
-                name = match.group(1)
                 id = int(match.group(3))
-                type = match.group(4)
-                time = float(match.group(5))
+                queue = float(match.group(4))
+                submit = float(match.group(5))
+                run = float(match.group(6))
 
                 # Record profiling information.
-                if address not in self.val:
-                    self.val[address] = {}
-                    self.val[address]['events'] = []
-                while len(self.val[address]['events']) <= id:
-                    self.val[address]['events'].append({})
-                self.val[address]['name'] = name
-                self.val[address]['events'][id][type] = time
+                if type not in self.val:
+                    self.val[type] = {}
+                if address not in self.val[type]:
+                    self.val[type][address] = []
+                self.val[type][address].append([queue, submit, run])
 
 #
 class ContainerEventTimes(DerivedVariable):
@@ -157,25 +156,24 @@ class ContainerEventTimes(DerivedVariable):
         self.val = {}
         for line in kwargs['output']:
             # Parse profiling information.
-            match = search('PROF\] ([a-zA-Z\(<>\)]+) 0x([0-9a-f]+), '
-                           'clEvent: ([0-9]+), (upload|download) '
-                           '([a-zA-Z]+): ([0-9\.]+) ms', line)
+            match = search('PROF\] ([a-zA-Z\(<>\)]+)\[0x([0-9a-f]+)\]'
+                           '\[([0-9]+)\] (ul|dl) '
+                           '([0-9\.]+) ([0-9\.]+) ([0-9\.]+)', line)
             if match:
+                type = match.group(1)
                 address = match.group(2)
-                name = match.group(1)
                 id = int(match.group(3))
                 direction = match.group(4)
-                type = match.group(5)
-                time = float(match.group(6))
+                queue = float(match.group(5))
+                submit = float(match.group(6))
+                run = float(match.group(7))
 
                 # Record profiling information.
-                if name not in self.val:
-                    self.val[name] = {}
-                if address not in self.val[name]:
-                    self.val[name][address] = {'upload': {}, 'download': {}}
-                if id not in self.val[name][address][direction]:
-                    self.val[name][address][direction][id] = {}
-                self.val[name][address][direction][id][type] = time
+                if type not in self.val:
+                    self.val[type] = {}
+                if address not in self.val[type]:
+                    self.val[type][address] = {'ul': {}, 'dl': {}}
+                self.val[type][address][direction][id] = [queue, submit, run]
 
 #
 class SkelCLBenchmark(Benchmark):
@@ -208,8 +206,8 @@ class SkelCLTestCase(TestCase):
         # Default variables.
         ins = []
         outs = [
-            SkelCLElapsedTimes,
-            SkelCLInitTime,
+            ElapsedTimes,
+            InitTime,
             SkeletonEventTimes,
             ContainerEventTimes
         ]

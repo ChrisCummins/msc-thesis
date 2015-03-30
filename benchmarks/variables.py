@@ -62,21 +62,23 @@ class Result:
 
         # FIXME: Pass module(s) to search.
         import skelcl
-        doutvars = [getattr(skelcl, str(x)) for x in d['douts']] if 'douts' in d else []
+        doutvars = [getattr(skelcl, str(x)) for x in d['dout']] if 'dout' in d else []
         benchmark = lookup1(invars, "Benchmark").val
-        doutcount = 0
 
         if len(doutvars):
             for sample in outvars:
                 kwargs = {
-                    'benchmark': lookup1(invars, "Benchmark").val,
+                    'benchmark': benchmark,
                     'exitstatus': lookup1(sample, "Exit status").val,
                     'output': lookup1(sample, "Output").val
                 }
 
-                for doutvar in doutvars:
-                    sample.append(doutvar(**kwargs))
-                    doutcount += 1
+                # Instantiate derived variables.
+                douts = [var() for var in doutvars]
+                # Set variables of derived variables.
+                [var.post(**kwargs) for var in douts]
+                # Add derived variables to sample.
+                sample += douts
 
         return Result(invars, outvars=outvars, couts=couts, bad=bad)
 
