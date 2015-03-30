@@ -10,7 +10,7 @@ from os.path import dirname
 import json
 import gitfs as fs
 
-_CACHEWRITE_THRESHOLD = 5
+_CACHEWRITE_THRESHOLD = 10
 
 _cachewrites = 0
 _cachedirty = set()
