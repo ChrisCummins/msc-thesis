@@ -4538,6 +4538,259 @@ Log:
   script from whz5.
 
 
+## Thursday 26th
+
+On `monza`, the stencil kernel is crashing when performing inter-GPU
+swaps:
+
+```
+$ ./HeatEquation --device-count 1
+<ok>
+$ ./HeatEquation --device-count 2 -i 1 -S 1
+<ok>
+$ ./HeatEquation --device-count 2 -i 2 -S 2
+<ok>
+$ ./HeatEquation --device-count 2 -i 2 -S 1
+<snip>
+*** Error in `./HeatEquation': malloc(): smallbin double linked list corrupted: 0x00000000027fd0f0 ***
+======= Backtrace: =========
+/lib64/libc.so.6(+0x7ac56)[0x7fab783dac56]
+/lib64/libc.so.6(+0x7bc6a)[0x7fab783dbc6a]
+/usr/lib64/libamdocl64.so(+0x4a5d78)[0x7fab74e91d78]
+/usr/lib64/libamdocl64.so(+0x4a5e94)[0x7fab74e91e94]
+/usr/lib64/libamdocl64.so(+0x51c837)[0x7fab74f08837]
+/usr/lib64/libamdocl64.so(+0x510c53)[0x7fab74efcc53]
+/usr/lib64/libamdocl64.so(+0x511832)[0x7fab74efd832]
+/usr/lib64/libamdocl64.so(+0x51197a)[0x7fab74efd97a]
+/usr/lib64/libamdocl64.so(+0x4be258)[0x7fab74eaa258]
+/usr/lib64/libamdocl64.so(+0x4c711b)[0x7fab74eb311b]
+/usr/lib64/libamdocl64.so(+0x4b7a06)[0x7fab74ea3a06]
+/usr/lib64/libamdocl64.so(+0x4c711b)[0x7fab74eb311b]
+/usr/lib64/libamdocl64.so(+0x4b2005)[0x7fab74e9e005]
+/usr/lib64/libamdocl64.so(+0x4b227a)[0x7fab74e9e27a]
+/usr/lib64/libamdocl64.so(+0x52de1c)[0x7fab74f19e1c]
+/usr/lib64/libamdocl64.so(+0x52e112)[0x7fab74f1a112]
+/usr/lib64/libamdocl64.so(+0x4b4cc6)[0x7fab74ea0cc6]
+/usr/lib64/libamdocl64.so(+0x4b56c5)[0x7fab74ea16c5]
+/usr/lib64/libamdocl64.so(+0x4cd451)[0x7fab74eb9451]
+/usr/lib64/libamdocl64.so(+0x4cabac)[0x7fab74eb6bac]
+/lib64/libpthread.so.0(+0x7e0f)[0x7fab7814be0f]
+/lib64/libc.so.6(clone+0x6d)[0x7fab784490dd]
+======= Memory map: ========
+00400000-00463000 r-xp 00000000 08:05 3315396246                         /home/s1469829/src/msc-thesis/skelcl/build/examples/HeatEquation/HeatEquation
+00662000-00663000 r--p 00062000 08:05 3315396246                         /home/s1469829/src/msc-thesis/skelcl/build/examples/HeatEquation/HeatEquation
+00663000-00664000 rw-p 00063000 08:05 3315396246                         /home/s1469829/src/msc-thesis/skelcl/build/examples/HeatEquation/HeatEquation
+00c0c000-018e1000 rw-p 00000000 00:00 0                                  [heap]
+7fab64000000-7fab64a77000 rw-p 00000000 00:00 0
+7fab64a77000-7fab68000000 ---p 00000000 00:00 0
+7fab6c000000-7fab6cbfa000 rw-p 00000000 00:00 0
+7fab6cbfa000-7fab70000000 ---p 00000000 00:00 0
+7fab71ebc000-7fab71f3c000 rw-s 294e8000 00:05 12775                      /dev/ati/card1
+7fab71f3c000-7fab71fbc000 rw-s 294e7000 00:05 12774                      /dev/ati/card0
+7fab71fbc000-7fab7203c000 rw-s 294e6000 00:05 12774                      /dev/ati/card0
+7fab7203c000-7fab720bc000 rw-s 294e5000 00:05 12775                      /dev/ati/card1
+7fab720bc000-7fab7213c000 rw-s 294e4000 00:05 12775                      /dev/ati/card1
+7fab7213c000-7fab721bc000 rw-s 294e3000 00:05 12774                      /dev/ati/card0
+7fab721bc000-7fab7223c000 rw-s 294e2000 00:05 12774                      /dev/ati/card0
+7fab7223c000-7fab722bc000 rw-s 294e1000 00:05 12775                      /dev/ati/card1
+7fab722bc000-7fab722fc000 rw-s 294e0000 00:05 12775                      /dev/ati/card1
+7fab722fc000-7fab726fd000 rw-p 00000000 00:00 0
+7fab726fd000-7fab7273d000 rw-s 294df000 00:05 12774                      /dev/ati/card0
+7fab72795000-7fab72796000 rw-p 00000000 00:00 0
+7fab72796000-7fab72816000 rw-s 294f2000 00:05 12774                      /dev/ati/card0
+7fab72816000-7fab72916000 rw-s 294f1000 00:05 12774                      /dev/ati/card0
+7fab72916000-7fab72a16000 rw-s 294f0000 00:05 12774                      /dev/ati/card0
+7fab72a16000-7fab72a1e000 rw-s 294ef000 00:05 12774                      /dev/ati/card0
+7fab72a1e000-7fab72a26000 rw-s 294ee000 00:05 12774                      /dev/ati/card0
+7fab72a26000-7fab72aa6000 rw-s 294ed000 00:05 12774                      /dev/ati/card0
+7fab72aa6000-7fab72b26000 rw-s 294ec000 00:05 12774                      /dev/ati/card0
+7fab72b26000-7fab72b32000 rw-s 294eb000 00:05 12774                      /dev/ati/card0
+7fab72b32000-7fab72b3e000 rw-s 294ea000 00:05 12774                      /dev/ati/card0
+7fab72b3e000-7fab72b4e000 rw-s 294dd000 00:05 12775                      /dev/ati/card1
+7fab72b4e000-7fab72b5e000 rw-s 294dc000 00:05 12775                      /dev/ati/card1
+7fab72b5e000-7fab72b60000 rw-s 294db000 00:05 12775                      /dev/ati/card1
+7fab72b60000-7fab72b62000 rw-s 294da000 00:05 12775                      /dev/ati/card1
+7fab72b62000-7fab72b68000 rw-s 294d9000 00:05 12775                      /dev/ati/card1
+7fab72b68000-7fab72b6e000 rw-s 294d8000 00:05 12775                      /dev/ati/card1
+7fab72b6e000-7fab72b7e000 rw-s 294d6000 00:05 12775                      /dev/ati/card1
+7fab72b7e000-7fab72b8e000 rw-s 294d5000 00:05 12775                      /dev/ati/card1
+7fab72b8e000-7fab72b94000 rw-s 294d2000 00:05 12775                      /dev/ati/card1
+7fab72b94000-7fab72c14000 rw-s 294d0000 00:05 12775                      /dev/ati/card1
+7fab72c14000-7fab72c94000 rw-s 294cf000 00:05 12775                      /dev/ati/card1
+7fab72c94000-7fab72c95000 ---p 00000000 00:00 0
+7fab72c95000-7fab72cd5000 rw-p 00000000 00:00 0                          [stack:29422]
+7fab72cd5000-7fab72ce5000 rw-s 294cd000 00:05 12774                      /dev/ati/card0
+7fab72ce5000-7fab72cf5000 rw-s 294cc000 00:05 12774                      /dev/ati/card0
+7fab72cf5000-7fab72d75000 rw-s 294c0000 00:05 12774                      /dev/ati/card0
+7fab72d75000-7fab72df5000 rw-s 294bf000 00:05 12774                      /dev/ati/card0
+7fab72df5000-7fab72df6000 ---p 00000000 00:00 0
+7fab72df6000-7fab72e36000 rw-p 00000000 00:00 0                          [stack:29421]
+7fab72e36000-7fab72e76000 rw-s 294be000 00:05 12775                      /dev/ati/card1
+7fab72e76000-7fab72e78000 rw-s 294bd000 00:05 12775                      /dev/ati/card1
+7fab72e78000-7fab72e7a000 rw-s 294bc000 00:05 12775                      /dev/ati/card1
+7fab72e7a000-7fab72e80000 rw-s 294bb000 00:05 12775                      /dev/ati/card1
+7fab72e80000-7fab72e86000 rw-s 294ba000 00:05 12775                      /dev/ati/card1
+7fab72e86000-7fab73586000 rw-s 0001c000 00:05 12775                      /dev/ati/card1
+7fab73586000-7fab73c86000 rw-s 00006000 00:05 12774                      /dev/ati/card0
+7fab73c86000-7fab73d26000 r-xp 00000000 08:03 139367310                  /usr/lib64/fglrx/fglrx-libGL.so.1.2
+7fab73d26000-7fab73e26000 ---p 000a0000 08:03 139367310                  /usr/lib64/fglrx/fglrx-libGL.so.1.2
+7fab73e26000-7fab73e5a000 rwxp 000a0000 08:03 139367310                  /usr/lib64/fglrx/fglrx-libGL.so.1.2
+7fab73e5a000-7fab73e77000 rwxp 00000000 00:00 0
+7fab73e77000-7fab73e79000 r-xp 00000000 08:03 1152406                    /usr/lib64/libXinerama.so.1.0.0
+7fab73e79000-7fab74078000 ---p 00002000 08:03 1152406                    /usr/lib64/libXinerama.so.1.0.0
+7fab74078000-7fab74079000 r--p 00001000 08:03 1152406                    /usr/lib64/libXinerama.so.1.0.0
+7fab74079000-7fab7407a000 rw-p 00002000 08:03 1152406                    /usr/lib64/libXinerama.so.1.0.0
+7fab7407a000-7fab7408b000 r-xp 00000000 08:03 632224                     /usr/lib64/libXext.so.6.4.0
+7fab7408b000-7fab7428a000 ---p 00011000 08:03 632224                     /usr/lib64/libXext.so.6.4.0
+7fab7428a000-7fab7428b000 r--p 00010000 08:03 632224                     /usr/lib64/libXext.so.6.4.0
+7fab7428b000-7fab7428c000 rw-p 00011000 08:03 632224                     /usr/lib64/libXext.so.6.4.0
+7fab7428c000-7fab7428f000 r-xp 00000000 08:03 391825                     /usr/lib64/libXau.so.6.0.0
+7fab7428f000-7fab7448e000 ---p 00003000 08:03 391825                     /usr/lib64/libXau.so.6.0.0
+7fab7448e000-7fab7448f000 r--p 00002000 08:03 391825                     /usr/lib64/libXau.so.6.0.0
+7fab7448f000-7fab74490000 rw-p 00003000 08:03 391825                     /usr/lib64/libXau.so.6.0.0
+7fab74490000-7fab744ae000 r-xp 00000000 08:03 586597                     /usr/lib64/libxcb.so.1.1.0
+7fab744ae000-7fab746ae000 ---p 0001e000 08:03 586597                     /usr/lib64/libxcb.so.1.1.0
+7fab746ae000-7fab746af000 r--p 0001e000 08:03 586597                     /usr/lib64/libxcb.so.1.1.0
+7fab746af000-7fab746b0000 rw-p 0001f000 08:03 586597                     /usr/lib64/libxcb.so.1.1.0
+7fab746b0000-7fab747e6000 r-xp 00000000 08:03 507762                     /usr/lib64/libX11.so.6.3.0
+7fab747e6000-7fab749e6000 ---p 00136000 08:03 507762                     /usr/lib64/libX11.so.6.3.0
+7fab749e6000-7fab749e7000 r--p 00136000 08:03 507762                     /usr/lib64/libX11.so.6.3.0
+7fab749e7000-7fab749ec000 rw-p 00137000 08:03 507762                     /usr/lib64/libX11.so.6.3.0
+7fab749ec000-7fab770e1000 r-xp 00000000 08:03 1215768                    /usr/lib64/libamdocl64.so
+7fab770e1000-7fab772e0000 ---p 026f5000 08:03 1215768                    /usr/lib64/libamdocl64.so
+7fab772e0000-7fab77608000 rw-p 026f4000 08:03 1215768                    /usr/lib64/libamdocl64.so
+7fab77608000-7fab77b20000 rw-p 00000000 00:00 0
+7fab77b20000-7fab77b22000 rw-s 294d4000 00:05 12775                      /dev/ati/card1
+7fab77b22000-7fab77b24000 rw-s 294d3000 00:05 12775                      /dev/ati/card1
+7fab77b24000-7fab77b25000 rw-s 0001b000 00:05 12775                      /dev/ati/card1
+7fab77b25000-7fab77b65000 rw-s 0001a000 00:05 12775                      /dev/ati/card1
+7fab77b65000-7fab77b67000 rw-s 00018000 00:05 12775                      /dev/ati/card1
+7fab77b67000-7fab77c0f000 r-xp 00000000 08:03 1215769                    /usr/lib64/libatiadlxx.so
+7fab77c0f000-7fab77d0e000 ---p 000a8000 08:03 1215769                    /usr/lib64/libatiadlxx.so
+7fab77d0e000-7fab77d11000 rw-p 000a7000 08:03 1215769                    /usr/lib64/libatiadlxx.so
+7fab77d11000-7fab77d26000 rw-p 00000000 00:00 0
+7fab77d26000-7fab77d2d000 r-xp 00000000 08:03 134299365                  /lib64/librt-2.17.so
+7fab77d2d000-7fab77f2c000 ---p 00007000 08:03 134299365                  /lib64/librt-2.17.so
+7fab77f2c000-7fab77f2d000 r--p 00006000 08:03 134299365                  /lib64/librt-2.17.so
+7fab77f2d000-7fab77f2e000 rw-p 00007000 08:03 134299365                  /lib64/librt-2.17.so
+7fab77f2e000-7fab77f43000 r-xp 00000000 08:03 134607188                  /lib64/libz.so.1.2.7
+7fab77f43000-7fab78142000 ---p 00015000 08:03 134607188                  /lib64/libz.so.1.2.7
+7fab78142000-7fab78143000 r--p 00014000 08:03 134607188                  /lib64/libz.so.1.2.7
+7fab78143000-7fab78144000 rw-p 00015000 08:03 134607188                  /lib64/libz.so.1.2.7
+7fab78144000-7fab7815b000 r-xp 00000000 08:03 134299361                  /lib64/libpthread-2.17.so
+7fab7815b000-7fab7835a000 ---p 00017000 08:03 134299361                  /lib64/libpthread-2.17.so
+7fab7835a000-7fab7835b000 r--p 00016000 08:03 134299361                  /lib64/libpthread-2.17.so
+7fab7835b000-7fab7835c000 rw-p 00017000 08:03 134299361                  /lib64/libpthread-2.17.so
+7fab7835c000-7fab78360000 rw-p 00000000 00:00 0
+7fab78360000-7fab78504000 r-xp 00000000 08:03 134299326                  /lib64/libc-2.17.so
+7fab78504000-7fab78703000 ---p 001a4000 08:03 134299326                  /lib64/libc-2.17.so
+7fab78703000-7fab78707000 r--p 001a3000 08:03 134299326                  /lib64/libc-2.17.so
+7fab78707000-7fab78709000 rw-p 001a7000 08:03 134299326                  /lib64/libc-2.17.so
+7fab78709000-7fab7870d000 rw-p 00000000 00:00 0
+7fab7870d000-7fab78722000 r-xp 00000000 08:03 134719868                  /lib64/libgcc_s.so.1
+7fab78722000-7fab78921000 ---p 00015000 08:03 134719868                  /lib64/libgcc_s.so.1
+7fab78921000-7fab78922000 r--p 00014000 08:03 134719868                  /lib64/libgcc_s.so.1
+7fab78922000-7fab78923000 rw-p 00015000 08:03 134719868                  /lib64/libgcc_s.so.1
+7fab78923000-7fab78a20000 r-xp 00000000 08:03 134299334                  /lib64/libm-2.17.so
+7fab78a20000-7fab78c1f000 ---p 000fd000 08:03 134299334                  /lib64/libm-2.17.so
+7fab78c1f000-7fab78c20000 r--p 000fc000 08:03 134299334                  /lib64/libm-2.17.so
+7fab78c20000-7fab78c21000 rw-p 000fd000 08:03 134299334                  /lib64/libm-2.17.so
+7fab78c21000-7fab78d09000 r-xp 00000000 08:03 602779                     /usr/lib64/libstdc++.so.6.0.17
+7fab78d09000-7fab78f08000 ---p 000e8000 08:03 602779                     /usr/lib64/libstdc++.so.6.0.17
+7fab78f08000-7fab78f10000 r--p 000e7000 08:03 602779                     /usr/lib64/libstdc++.so.6.0.17
+7fab78f10000-7fab78f12000 rw-p 000ef000 08:03 602779                     /usr/lib64/libstdc++.so.6.0.17
+7fab78f12000-7fab78f27000 rw-p 00000000 00:00 0
+7fab78f27000-7fab78f2a000 r-xp 00000000 08:03 134299332                  /lib64/libdl-2.17.so
+7fab78f2a000-7fab79129000 ---p 00003000 08:03 134299332                  /lib64/libdl-2.17.so
+7fab79129000-7fab7912a000 r--p 00002000 08:03 134299332                  /lib64/libdl-2.17.so
+7fab7912a000-7fab7912b000 rw-p 00003000 08:03 134299332                  /lib64/libdl-2.17.so
+7fab7912b000-7fab7b210000 r-xp 00000000 08:05 3304872013                 /home/s1469829/src/msc-thesis/skelcl/libraries/llvm/install/lib/libclang.so.3.3
+7fab7b210000-7fab7b410000 ---p 020e5000 08:05 3304872013                 /home/s1469829/src/msc-thesis/skelcl/libraries/llvm/install/lib/libclang.so.3.3
+7fab7b410000-7fab7b470000 r--p 020e5000 08:05 3304872013                 /home/s1469829/src/msc-thesis/skelcl/libraries/llvm/install/lib/libclang.so.3.3
+7fab7b470000-7fab7b49c000 rw-p 02145000 08:05 3304872013                 /home/s1469829/src/msc-thesis/skelcl/libraries/llvm/install/lib/libclang.so.3.3
+7fab7b49c000-7fab7b49f000 rw-p 00000000 00:00 0
+7fab7b49f000-7fab7b731000 r-xp 00000000 08:05 142117060                  /home/s1469829/src/msc-thesis/skelcl/build/libraries/stooling/src/libstooling.so
+7fab7b731000-7fab7b931000 ---p 00292000 08:05 142117060                  /home/s1469829/src/msc-thesis/skelcl/build/libraries/stooling/src/libstooling.so
+7fab7b931000-7fab7b935000 r--p 00292000 08:05 142117060                  /home/s1469829/src/msc-thesis/skelcl/build/libraries/stooling/src/libstooling.so
+7fab7b935000-7fab7b939000 rw-p 00296000 08:05 142117060                  /home/s1469829/src/msc-thesis/skelcl/build/libraries/stooling/src/libstooling.so
+7fab7b939000-7fab7b93a000 rw-p 00000000 00:00 0
+7fab7b93a000-7fab7b963000 r-xp 00000000 08:05 3315396252                 /home/s1469829/src/msc-thesis/skelcl/build/libraries/pvsutil/src/libpvsutil.so
+7fab7b963000-7fab7bb62000 ---p 00029000 08:05 3315396252                 /home/s1469829/src/msc-thesis/skelcl/build/libraries/pvsutil/src/libpvsutil.so
+7fab7bb62000-7fab7bb63000 r--p 00028000 08:05 3315396252                 /home/s1469829/src/msc-thesis/skelcl/build/libraries/pvsutil/src/libpvsutil.so
+7fab7bb63000-7fab7bb65000 rw-p 00029000 08:05 3315396252                 /home/s1469829/src/msc-thesis/skelcl/build/libraries/pvsutil/src/libpvsutil.so
+7fab7bb65000-7fab7bd12000 r-xp 00000000 08:03 134771727                  /lib64/libcrypto.so.1.0.0
+7fab7bd12000-7fab7bf11000 ---p 001ad000 08:03 134771727                  /lib64/libcrypto.so.1.0.0
+7fab7bf11000-7fab7bf2c000 r--p 001ac000 08:03 134771727                  /lib64/libcrypto.so.1.0.0
+7fab7bf2c000-7fab7bf37000 rw-p 001c7000 08:03 134771727                  /lib64/libcrypto.so.1.0.0
+7fab7bf37000-7fab7bf3b000 rw-p 00000000 00:00 0
+7fab7bf3b000-7fab7bf41000 r-xp 00000000 08:03 923614                     /usr/lib64/libOpenCL.so.1
+7fab7bf41000-7fab7c141000 ---p 00006000 08:03 923614                     /usr/lib64/libOpenCL.so.1
+7fab7c141000-7fab7c142000 rw-p 00006000 08:03 923614                     /usr/lib64/libOpenCL.so.1
+7fab7c142000-7fab7c1de000 r-xp 00000000 08:05 142117092                  /home/s1469829/src/msc-thesis/skelcl/build/src/libSkelCL.so
+7fab7c1de000-7fab7c3de000 ---p 0009c000 08:05 142117092                  /home/s1469829/src/msc-thesis/skelcl/build/src/libSkelCL.so
+7fab7c3de000-7fab7c3df000 r--p 0009c000 08:05 142117092                  /home/s1469829/src/msc-thesis/skelcl/build/src/libSkelCL.so
+7fab7c3df000-7fab7c3e3000 rw-p 0009d000 08:05 142117092                  /home/s1469829/src/msc-thesis/skelcl/build/src/libSkelCL.so
+7fab7c3e3000-7fab7c404000 r-xp 00000000 08:03 136968132                  /lib64/ld-2.17.so
+7fab7c404000-7fab7c40a000 rw-s 294d1000 00:05 12775                      /dev/ati/card1
+7fab7c40a000-7fab7c40c000 rw-s 294cb000 00:05 12774                      /dev/ati/card0
+7fab7c40c000-7fab7c40e000 rw-s 294ca000 00:05 12774                      /dev/ati/card0
+7fab7c40e000-7fab7c414000 rw-s 294c9000 00:05 12774                      /dev/ati/card0
+7fab7c414000-7fab7c41a000 rw-s 294c8000 00:05 12774                      /dev/ati/card0
+7fab7c41a000-7fab7c45a000 rw-s 294b5000 00:05 12774                      /dev/ati/card0
+7fab7c45a000-7fab7c49a000 rw-s 00004000 00:05 12774                      /dev/ati/card0
+7fab7c49a000-7fab7c4a9000 r-xp 00000000 08:03 1215773                    /usr/lib64/libatiuki.so.1.0
+7fab7c4a9000-7fab7c5a9000 ---p 0000f000 08:03 1215773                    /usr/lib64/libatiuki.so.1.0
+7fab7c5a9000-7fab7c5b7000 rw-p 0000f000 08:03 1215773                    /usr/lib64/libatiuki.so.1.0
+7fab7c5b7000-7fab7c5b8000 rw-p 00000000 00:00 0
+7fab7c5b9000-7fab7c5c9000 rw-s 294c6000 00:05 12774                      /dev/ati/card0
+7fab7c5c9000-7fab7c5d9000 rw-s 294c5000 00:05 12774                      /dev/ati/card0
+7fab7c5d9000-7fab7c5db000 rw-s 294c4000 00:05 12774                      /dev/ati/card0
+7fab7c5db000-7fab7c5df000 rw-p 00000000 00:00 0
+7fab7c5e0000-7fab7c5e2000 rw-s 294c3000 00:05 12774                      /dev/ati/card0
+7fab7c5e2000-7fab7c5e8000 rw-s 294c2000 00:05 12774                      /dev/ati/card0
+7fab7c5e8000-7fab7c5ee000 rw-s 294c1000 00:05 12774                      /dev/ati/card0
+7fab7c5ee000-7fab7c5f0000 rw-s 294b4000 00:05 12774                      /dev/ati/card0
+7fab7c5f0000-7fab7c5f2000 rw-s 294b3000 00:05 12774                      /dev/ati/card0
+7fab7c5f2000-7fab7c5f8000 rw-s 294b2000 00:05 12774                      /dev/ati/card0
+7fab7c5f8000-7fab7c5fe000 rw-s 294b1000 00:05 12774                      /dev/ati/card0
+7fab7c5fe000-7fab7c5ff000 rw-s 00005000 00:05 12774                      /dev/ati/card0
+7fab7c5ff000-7fab7c601000 rw-s 00002000 00:05 12774                      /dev/ati/card0
+7fab7c602000-7fab7c604000 rw-p 00000000 00:00 0
+7fab7c604000-7fab7c605000 r--p 00021000 08:03 136968132                  /lib64/ld-2.17.so
+7fab7c605000-7fab7c606000 rw-p 00022000 08:03 136968132                  /lib64/ld-2.17.so
+7fab7c606000-7fab7c607000 rw-p 00000000 00:00 0
+7fffc40ab000-7fffc40cc000 rw-p 00000000 00:00 0                          [stack]
+7fffc41ff000-7fffc4200000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+```
+
+```
+$ ./GameOfLife --device-count 1
+<ok>
+$ ./GameOfLife --device-count 2 -i 1 -S 1
+<ok>
+$ ./GameOfLife --device-count 2 -i 2 -S 2
+<ok>
+$ ./GameOfLife --device-count 2 -i 2 -S 1
+<snip>
+Segmentation fault
+```
+
+Note that this errors do not occur on `tim`. It may be an issue with
+the OpenCL driver (AMD vs NVIDIA). Benchmarks perform fine on `tim`,
+for device counts 1-4.
+
+Notes from meeting with Pavlos:
+* First priority is to be able to record accurate timings for stencil
+  compilation and execution times.
+* Then, collect preliminary results of tuning a limited range of
+  parameters across all Stencil benchmarks, architectures, and problem
+  sizes.
+* Skeleton fusion could be profitable. I can test this by hand using
+  the CannyEdgeDetection program.
+* No meeting tomorrow.
+
+
 ## Sunday 29th
 
 TODO:
