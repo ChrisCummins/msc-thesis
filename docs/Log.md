@@ -4796,11 +4796,11 @@ Notes from meeting with Pavlos:
 TODO:
 * Make a list of target GPUs
 * Test multi-GPU skeletons on monza
-* Graph results of e5
+* Graph results of e5 - DONE
 * Write-up autopar reading
 * Add "deferred" dependent variables - DONE
 * Add post-exec independent variables - DONE
-* Use a single line for queue/run/submit printouts
+* Use a single line for queue/run/submit printouts - DONE
 * Exclude benchmark and hostname from var checksum - DONE
 
 Results awaiting processing:
@@ -4854,3 +4854,7 @@ Mac cache size 2
 
 Conclusion: Maximum cache size has little bearing on execution time,
 but a large impact on peak memory usage.
+
+TODO:
+* Increase GPU time of Canny and Heat equations.
+* Implement fused/unrolled hacks and test.
