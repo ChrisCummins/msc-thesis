@@ -103,7 +103,7 @@ def system(args, out=None, exit_on_error=True):
     stdout = None if out == None else out
     stderr = None if out == None else out
     try:
-        exitstatus = call(args, stdout=stdout, stderr=stderr, shell=True) # exec
+        exitstatus = call(args, stdout=stdout, stderr=stderr) # exec
     except KeyboardInterrupt:
         print()
         Colours.print(Colours.RED,"Keyboard interrupt.")
