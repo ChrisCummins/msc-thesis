@@ -40,6 +40,7 @@ class _HashableInvars:
     def __repr__(x):
         return str(x.__key()).encode('utf-8')
 
+#
 def _path(benchmarkname, key, hostname, root, suffix, extension):
     return ("{root}/{benchmark}/{host}/{key}{suffix}{extension}"
             .format(root=root,
@@ -64,7 +65,7 @@ def resultspath(invars, suffix="", extension=".json"):
                         suffix=suffix, extension=extension)
 
 #
-def plotpath(invars, suffix="", extension=".png"):
+def plotpath(invars, suffix="", extension=".svg"):
     return _invars2path(invars, root=config.PLOTS,
                         suffix=suffix, extension=extension)
 
