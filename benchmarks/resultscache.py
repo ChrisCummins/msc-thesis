@@ -11,15 +11,23 @@ import jsoncache
 
 #
 class _HashableInvars:
+    # A set of variable names to exclude from hash results.
+    _EXCLUDED_KEYS = ["Hostname", "Benchmark"]
+
     def __init__(self, invars):
-        self._invars = invars
+
+        # Filter out unhashable invars
+        for key in self._EXCLUDED_KEYS:
+            invars = filter(lambda x: not x.name == key, invars)
+
+        self._invars = sorted(list(invars))
         self._key = sha1(str(self)).hexdigest()
 
     def key(self):
         return self._key
 
     def __key(x):
-        return tuple(sorted(x._invars))
+        return tuple(x._invars)
 
     def __eq__(x, y):
         return x.__key() == y.__key()
