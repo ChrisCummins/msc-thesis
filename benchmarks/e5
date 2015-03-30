@@ -51,7 +51,8 @@ def testrun():
     def _instantiate(host, benchmark, args, knobs):
         sampler = FixedSizeSampler(12)
         return [TestHarness(SkelCLTestCase(benchmark, host=host,
-                                           invars=knobs + args + x))
+                                           invars=knobs + args + x),
+                            sampler)
                 for x in host.devargs()]
 
     return enumerate({
