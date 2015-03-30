@@ -32,13 +32,21 @@ class _HashableResult:
 
 #
 def _gettimes(samples):
+    inittimes = []
+    buildtimes = []
     skeltimes = {"submit": [], "run": [], "queue": []}
     conttimes = {"ul": {"submit": [], "run": [], "queue": []},
                  "dl": {"submit": [], "run": [], "queue": []}}
 
     def parsesample(sample):
+        it = lookup1(sample, InitTime)
+        bt = lookup1(sample, ProgramBuildTimes)
         st = lookup(sample, SkeletonEventTimes)
         ct = lookup(sample, ContainerEventTimes)
+
+        inittimes.append(it.val)
+        for t in bt.val:
+            buildtimes.append(t)
 
         for var in st:
             val = var.val
@@ -60,7 +68,7 @@ def _gettimes(samples):
                             conttimes[direction]["run"].append(val[type][address][direction][event][2])
 
     [parsesample(x) for x in samples]
-    return skeltimes, conttimes
+    return inittimes, buildtimes, skeltimes, conttimes
 
 def _writechecksum(path, checksum):
     file = open(path, 'a')
@@ -95,10 +103,10 @@ def _finalize(result, name):
 #
 def _skippable(result, name):
     if result.bad:
-        Colours.print(Colours.RED, "warning: skipping plot of bad data")
+        # Bad data is worth warning about.
+        Colours.print(Colours.RED, "warning: skipping plot because of bad data")
         return True
     if not len(result.outvars):
-        Colours.print(Colours.RED, "warning: skipping plot because there's no data")
         return True
 
     # Check that graphed data has been modified.
@@ -114,8 +122,10 @@ def openCLEventTimes(invars, name="events"):
     result = resultscache.load(invars)
     if _skippable(result, name): return
 
-    skeltimes, conttimes = _gettimes(result.outvars)
+    inittimes, buildtimes, skeltimes, conttimes = _gettimes(result.outvars)
     data = [
+        ("init", describe(inittimes)),
+        ("build", describe(buildtimes)),
         ("UL-queue", describe(conttimes["ul"]["queue"])),
         ("UL-submit", describe(conttimes["ul"]["submit"])),
         ("UL-run", describe(conttimes["ul"]["run"])),
@@ -136,7 +146,7 @@ def openCLEventTimes(invars, name="events"):
 
     # Plot the data. Note the positive zorder.
     plt.bar(X, Y, width, yerr=Yerr,
-            color=['red', 'yellow', 'green'], ecolor='k')
+            color=['yellow', 'green', 'red'], ecolor='k')
     ax.yaxis.grid(b=True, which='major', color="#aaaaaa", linestyle='-')
 
     # Set the graph bounds.
@@ -150,7 +160,7 @@ def openCLEventTimes(invars, name="events"):
 
     plt.xlabel('Event type')
     plt.ylabel('Time (ms)')
-    plt.title('OpenCL events: {v}'.format(v=', '.join([str(x.val) for x in invars])),
+    plt.title('Events times: {v}'.format(v=', '.join([str(x.val) for x in invars])),
               fontsize=12, weight="bold")
     plt.xticks(X + width / 2., Labels, rotation=90)
 

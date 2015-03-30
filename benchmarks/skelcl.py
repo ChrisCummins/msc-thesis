@@ -176,6 +176,18 @@ class ContainerEventTimes(DerivedVariable):
                 self.val[type][address][direction][id] = [queue, submit, run]
 
 #
+class ProgramBuildTimes(DerivedVariable):
+    def __init__(self, **kwargs):
+        DerivedVariable.__init__(self, "ProgramBuildTimes")
+
+    def post(self, **kwargs):
+        self.val = []
+        for line in kwargs['output']:
+            match = search('PROF\] skelcl::Program::build\(\) ([0-9]+) ms$', line)
+            if match:
+                self.val.append(int(match.group(1)))
+
+#
 class SkelCLBenchmark(Benchmark):
     def __init__(self, name):
         # Binary directory:
@@ -208,6 +220,7 @@ class SkelCLTestCase(TestCase):
         outs = [
             ElapsedTimes,
             InitTime,
+            ProgramBuildTimes,
             SkeletonEventTimes,
             ContainerEventTimes
         ]
