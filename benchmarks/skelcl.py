@@ -28,6 +28,14 @@ class DeviceCountArg(Argument):
         Argument.__init__(self, "Device count",
                           "--device-count {count}".format(count=count))
 
+class IterationsArg(Argument):
+    def __init__(self, i):
+        Argument.__init__(self, "Iterations", "-i {i}".format(i=i))
+
+class MapOverlapArg(Argument):
+    def __init__(self):
+        Argument.__init__(self, "MapOverlap", "--map-overlap")
+
 class SkelCLHost(OpenCLHost):
     def devargs(self):
         args = []
@@ -158,7 +166,7 @@ class ContainerEventTimes(DerivedVariable):
                 id = int(match.group(3))
                 direction = match.group(4)
                 type = match.group(5)
-                time = match.group(6)
+                time = float(match.group(6))
 
                 # Record profiling information.
                 if name not in self.val:
@@ -201,6 +209,7 @@ class SkelCLTestCase(TestCase):
         ins = []
         outs = [
             SkelCLElapsedTimes,
+            SkelCLInitTime,
             SkeletonEventTimes,
             ContainerEventTimes
         ]
