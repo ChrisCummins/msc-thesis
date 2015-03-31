@@ -39,7 +39,8 @@ def _commitandpush():
         call(["git", "add", basename(file)])
 
     cd(config.CWD)
-    call(["git", "commit", "-m", "Auto-bot commit"])
+    call(["git", "commit", "-m",
+          "{host}: Auto-bot commit".format(host=hostname())])
     call(["git", "pull", "--rebase"])
     [call(["git", "push", remote, _REMOTES[remote]]) for remote in _REMOTES]
 
