@@ -29,7 +29,9 @@ def testMapOverlapVsStencil():
         "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
         "benchmarks": {
             "CannyEdgeDetection": {
-                "args": {}
+                "args": {
+                    "Input": ["--input {base}/{file}".format(base=IMG, file="4160x3120.pgm")]
+                }
             },
             "GameOfLife": {
                 "args": {
@@ -37,12 +39,14 @@ def testMapOverlapVsStencil():
                 }
             },
             "GaussianBlur": {
-                "args": {}
+                "args": {
+                    "Input": ["--input {base}/{file}".format(base=IMG, file="4160x3120.pgm")]
+                }
             },
             "HeatEquation": {
                 "args": {
                     "Iterations": ["-i {i}".format(i=i)
-                                   for i in [1, 5, 10, 50, 100, 250]]
+                                   for i in [1, 2, 3, 4, 5, 10, 50, 100, 250]]
                 }
             }
         },

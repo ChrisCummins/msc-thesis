@@ -12,6 +12,9 @@ from config import *
 SKELCL = path(CWD, '../skelcl')
 SKELCL_BUILD = path(SKELCL, 'build')
 
+DATA = path(CWD, 'data')
+IMG = path(DATA, 'img')
+
 # Get the current SkelCL git version.
 def skelcl_version():
     return check_output(['git', 'rev-parse', 'HEAD']).strip()
