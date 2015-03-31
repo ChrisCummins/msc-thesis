@@ -104,7 +104,7 @@ class InitTime(DerivedVariable):
             if match:
                 self.val = match.group(1)
                 return
-        raise LookupError
+        raise LookupError(kwargs)
 
 #
 class PrepareTimes(DerivedVariable):
