@@ -4864,7 +4864,7 @@ TODO:
 
 TODO:
 * Step through a single SkelCL program and check that all time is
-  accounted for.
+  accounted for. DONE
 
 Notes on profiling GameOfLife:
 * By manually inserting timestamped printouts, I can see there's a
@@ -5257,3 +5257,8 @@ Output:       data/mandelbrot.ppm
 * Prepare + (Kernel + download time) / num_devices: 248 ms
 
 *Hmm.*
+
+Notes on analysing e5 plots:
+* The point at which the Stencil skeleton becomes faster than
+  MapOverlap for Game of Life is **4 iterations**. For HeatEquation,
+  **3 iterations**.
