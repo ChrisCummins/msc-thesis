@@ -158,8 +158,9 @@ def openCLEventTimes(invars, name="events"):
     rc('text', usetex=True)
 
     # Plot the data. Note the positive zorder.
-    plt.bar(X, Y, width, yerr=Yerr,
-            color=['yellow', 'green', 'red'], ecolor='k')
+    plt.bar(X, Y, width, yerr=Yerr, ecolor='k', color=[
+        '#777777', 'yellow', 'red', 'yellow', 'green', 'red', 'yellow'
+    ])
     ax.yaxis.grid(b=True, which='major', color="#aaaaaa", linestyle='-')
 
     # Set the graph bounds.
