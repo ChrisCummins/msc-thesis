@@ -1,5 +1,6 @@
 from __future__ import print_function
 from hashlib import sha1
+from textwrap import wrap
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -157,9 +158,9 @@ def openCLEventTimes(invars, name="events"):
 
     # Set the graph bounds.
     plt.gca().set_position((.08, # Left padding
-                            .26, # Bottom padding
+                            .25, # Bottom padding
                             .9, # Width
-                            .68)) # Height
+                            .64)) # Height
 
     # Set the caption text.
     gputime = sum([x for x,y in zip(Y,Labels) if not search("(init|build)", y)])
@@ -172,7 +173,8 @@ def openCLEventTimes(invars, name="events"):
 
     plt.xlabel('Event type')
     plt.ylabel('Time (ms)')
-    plt.title('Events times: {v}'.format(v=', '.join([str(x.val) for x in invars])),
+
+    plt.title('\n'.join(wrap(', '.join([str(x.val) for x in invars]), 90)),
               fontsize=12, weight="bold")
     plt.xticks(X + width / 2., Labels, rotation=90)
 
