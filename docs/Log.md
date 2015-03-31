@@ -4795,7 +4795,7 @@ Notes from meeting with Pavlos:
 
 TODO:
 * Make a list of target GPUs
-* Test multi-GPU skeletons on monza
+* Test multi-GPU skeletons on monza - DONE
 * Graph results of e5 - DONE
 * Write-up autopar reading
 * Add "deferred" dependent variables - DONE
@@ -4856,7 +4856,7 @@ Conclusion: Maximum cache size has little bearing on execution time,
 but a large impact on peak memory usage.
 
 TODO:
-* Increase GPU time of Canny and Heat equations.
+* Increase GPU time of Canny and Heat equations. DONE
 * Implement fused/unrolled hacks and test.
 
 
@@ -4865,6 +4865,7 @@ TODO:
 TODO:
 * Step through a single SkelCL program and check that all time is
   accounted for. DONE
+* Make a table of "break even points" for each hardware and program.
 
 Notes on profiling GameOfLife:
 * By manually inserting timestamped printouts, I can see there's a
@@ -5259,6 +5260,13 @@ Output:       data/mandelbrot.ppm
 *Hmm.*
 
 Notes on analysing e5 plots:
+* For low iteration counts, the lower build and prep times make
+  MapOverlap more protifable than Stencil. As the iteration count
+  increases, this is quickly amortised by the huge communication costs
+  associated with performing an iterative MapOverlap skeleton.
 * The point at which the Stencil skeleton becomes faster than
-  MapOverlap for Game of Life is **4 iterations**. For HeatEquation,
-  **3 iterations**.
+  MapOverlap for on `cec` for Game of Life is **4 iterations**. For
+  HeatEquation, **3 iterations**.
+* Multi-GPU performance of the Stencil kernel is *aggressively*
+  unstable. Segmentation faults are common on `monza` when using
+  `--device-count 2`.
