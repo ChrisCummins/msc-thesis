@@ -115,7 +115,8 @@ def _finalize(result, name):
 def _skippable(result, name):
     if result.bad:
         # Bad data is worth warning about.
-        Colours.print(Colours.RED, "warning: skipping plot because of bad data")
+        Colours.print(Colours.RED, "warning: skipping plot because of bad data:")
+        print('   ', ', '.join([str(x.val) for x in result.invars]))
         return True
     if not len(result.outvars):
         return True
