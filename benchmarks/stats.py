@@ -24,7 +24,11 @@ def stdev(num):
 
 # Return the confidence interval of a list for a given confidence
 def confinterval(l, c=0.95, n=30):
-    if len(l) > 1:
+    # Only calculate confidence if we have:
+    #
+    #   * More than one datapoint.
+    #   * If at least one of the datapoints is not zero.
+    if len(l) > 1 and not all(x == 0 for x in l):
         scale = stdev(l) / sqrt(len(l))
 
         if len(l) < n:
