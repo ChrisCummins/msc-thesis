@@ -4858,3 +4858,402 @@ but a large impact on peak memory usage.
 TODO:
 * Increase GPU time of Canny and Heat equations.
 * Implement fused/unrolled hacks and test.
+
+
+## Tuesday 31st
+
+TODO:
+* Step through a single SkelCL program and check that all time is
+  accounted for.
+
+Notes on profiling GameOfLife:
+* By manually inserting timestamped printouts, I can see there's a
+  significant fraction (>30%) of runtime which is left unaccounted for
+  by the existing profiling.
+* I've added timers around the `prepare(Input|Output)` calls.
+
+Calculating the runtimes by hand:
+
+```
+[========main.cpp:116  001.003s  INFO] PROF: start: skeleton
+[====StencilDef.h:169  001.116s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820] prepare 112 ms
+[========main.cpp:119  001.398s  INFO] PROF: end: skeleton
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][0] 34.4765 ms
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][1] 34.1638 ms
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][2] 25.3092 ms
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][3] 25.8585 ms
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][4] 25.1351 ms
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][5] 24.9954 ms
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][6] 25.1056 ms
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][7] 25.6446 ms
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][8] 25.35 ms
+[====Skeleton.cpp:93   001.398s  PROF] Stencil<Tout(Tin)>[0x7ffff172c820][9] 25.9302 ms
+[=====MatrixDef.h:310  002.438s  PROF] Matrix[0x7ffff172c8a0][0] dl 7.85752
+```
+
+* Elapsed time (recorded by hand): 395 ms
+* Elapsed time (recorded by profiler): 392 ms
+
+```
+Event ms   % total
+prep  112  28
+run   271  67
+ul    16   4
+dl    8    2
+```
+
+**Output** of a single iteration of `GameOfLife` on `tim`, using a single GPU:
+
+```
+[==DeviceList.cpp:90   003.844s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  003.844s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found
+[======Device.cpp:118  003.873s  INFO] Using device `GeForce GTX 590' with id: 0
+[==DeviceList.cpp:107  003.873s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.
+[==DeviceList.cpp:107  003.873s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.
+[==DeviceList.cpp:107  003.873s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.
+[==DeviceList.cpp:122  003.873s  INFO] Using 1 OpenCL device(s) in total
+[======SkelCL.cpp:56   003.873s  PROF] skelcl::init() time 737 ms
+[=====Program.cpp:212  004.200s  PROF] skelcl::Program::build() 0 ms
+[========main.cpp:122  004.200s  INFO] -> stencil
+[====StencilDef.h:169  005.002s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560] prepare 802 ms
+[====StencilDef.h:361  005.003s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][0] global[10016][10000] local[32][4] tile[34][6][4]
+[========main.cpp:125  005.719s  INFO] <- stencil
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][0] 57.610048 ms
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][1] 57.604544 ms
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][2] 57.610816 ms
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][3] 57.610688 ms
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][4] 57.603360 ms
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][5] 57.594944 ms
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][6] 57.595584 ms
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][7] 57.593824 ms
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][8] 57.597216 ms
+[====Skeleton.cpp:93   005.719s  PROF] Stencil<Tout(Tin)>[0x7fffbfb09560][9] 57.594144 ms
+[======SkelCL.cpp:89   013.770s  INFO] SkelCL terminating. Freeing all resources.
+Grid size:    10000 x 10000
+Elapsed time: 1765 ms
+Output:       data/grid.txt
+[=====MatrixDef.h:300  013.770s  PROF] Matrix[0x7fffbfb095e0][0] ul 121.632064 ms
+[=====MatrixDef.h:300  013.770s  PROF] Matrix[0x7fffbfb095e0][0] dl 121.368608 ms
+```
+
+* Elapsed time (recorded by hand): 1519 ms
+* Kernel exec time: 580 ms
+* Elapsed time (recorded by profiler): 1503  ms
+
+**And with 2 GPUs:**
+
+```
+[==DeviceList.cpp:90   003.869s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  003.869s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found
+[======Device.cpp:118  003.897s  INFO] Using device `GeForce GTX 590' with id: 0
+[======Device.cpp:118  003.920s  INFO] Using device `GeForce GTX 590' with id: 1
+[==DeviceList.cpp:107  003.920s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.
+[==DeviceList.cpp:107  003.920s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.
+[==DeviceList.cpp:122  003.920s  INFO] Using 2 OpenCL device(s) in total
+[======SkelCL.cpp:56   003.920s  PROF] skelcl::init() time 784 ms
+[=====Program.cpp:212  004.249s  PROF] skelcl::Program::build() 0 ms
+[========main.cpp:122  004.249s  INFO] -> stencil
+[====StencilDef.h:169  005.055s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0] prepare 806 ms
+[====StencilDef.h:361  005.055s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][0] global[10016][10004] local[32][4] tile[34][6][4]
+[====StencilDef.h:361  005.056s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][1] global[10016][10004] local[32][4] tile[34][6][4]
+[========main.cpp:125  005.531s  INFO] <- stencil
+[====Skeleton.cpp:93   005.531s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][0] 33.367232 ms
+[====Skeleton.cpp:93   005.531s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][1] 31.653440 ms
+[====Skeleton.cpp:93   005.531s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][2] 33.357728 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][3] 31.655488 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][4] 33.371584 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][5] 31.658336 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][6] 33.375840 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][7] 31.656896 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][8] 33.385632 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][9] 31.664672 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][10] 33.380960 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][11] 31.660352 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][12] 33.382240 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][13] 31.668448 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][14] 33.379584 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][15] 31.666592 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][16] 33.383232 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][17] 31.675808 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][18] 33.381632 ms
+[====Skeleton.cpp:93   005.532s  PROF] Stencil<Tout(Tin)>[0x7fff9e1046a0][19] 31.667392 ms
+[======SkelCL.cpp:89   012.637s  INFO] SkelCL terminating. Freeing all resources.
+Grid size:    10000 x 10000
+Elapsed time: 1530 ms
+Output:       data/grid.txt
+[=====MatrixDef.h:300  012.637s  PROF] Matrix[0x7fff9e104720][0] ul 60.937920 ms
+[=====MatrixDef.h:300  012.637s  PROF] Matrix[0x7fff9e104720][1] ul 60.861408 ms
+[=====MatrixDef.h:300  012.637s  PROF] Matrix[0x7fff9e104720][0] dl 60.500928 ms
+[=====MatrixDef.h:300  012.637s  PROF] Matrix[0x7fff9e104720][1] dl 60.540000 ms
+```
+
+* Kernel + download time (recorded by hand): 1282 ms
+
+* Total upload time: 122 ms
+* Kernel exec time: 650 ms
+* Total download time: 122 ms
+* Prepare + Kernel + download time: 1578 ms
+* Prepare + (Kernel + download time) / num_devices: 1192 ms
+* Prepare + Kernel / num_devices + download time: 1253 ms
+
+**And with 4 GPUs:**
+
+```
+[==DeviceList.cpp:90   003.540s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  003.540s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found
+[======Device.cpp:118  003.563s  INFO] Using device `GeForce GTX 590' with id: 0
+[======Device.cpp:118  003.586s  INFO] Using device `GeForce GTX 590' with id: 1
+[======Device.cpp:118  003.610s  INFO] Using device `GeForce GTX 590' with id: 2
+[======Device.cpp:118  003.641s  INFO] Using device `GeForce GTX 590' with id: 3
+[==DeviceList.cpp:122  003.641s  INFO] Using 4 OpenCL device(s) in total
+[======SkelCL.cpp:56   003.641s  PROF] skelcl::init() time 819 ms
+[========main.cpp:102  003.641s  INFO] start transfer
+[========main.cpp:104  003.790s  INFO] end transfer
+[=====Program.cpp:212  004.074s  PROF] skelcl::Program::build() 39 ms
+[========main.cpp:124  004.074s  INFO] -> stencil
+[====StencilDef.h:169  004.832s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80] prepare 757 ms
+[====StencilDef.h:361  004.833s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][0] global[10016][10004] local[32][4] tile[34][6][4]
+[====StencilDef.h:361  004.833s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][1] global[10016][10004] local[32][4] tile[34][6][4]
+[====StencilDef.h:361  004.834s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][2] global[10016][10004] local[32][4] tile[34][6][4]
+[====StencilDef.h:361  004.834s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][3] global[10016][10004] local[32][4] tile[34][6][4]
+[========main.cpp:127  005.202s  INFO] <- stencil
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][0] 21.239264 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][1] 20.139552 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][2] 21.253632 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][3] 21.248416 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][4] 21.239648 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][5] 20.145984 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][6] 21.260672 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][7] 21.255552 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][8] 21.248928 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][9] 20.153344 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][10] 21.265472 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][11] 21.266176 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][12] 21.256128 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][13] 20.167808 ms
+[====Skeleton.cpp:93   005.202s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][14] 21.276256 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][15] 21.272288 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][16] 21.264800 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][17] 20.166176 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][18] 21.285728 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][19] 21.273184 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][20] 21.265088 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][21] 20.170304 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][22] 21.285440 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][23] 21.273696 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][24] 21.265792 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][25] 20.170464 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][26] 21.278688 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][27] 21.277568 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][28] 21.266176 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][29] 20.172512 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][30] 21.286752 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][31] 21.275232 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][32] 21.265920 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][33] 20.170784 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][34] 21.283648 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][35] 21.275072 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][36] 21.268000 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][37] 20.170496 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][38] 21.283104 ms
+[====Skeleton.cpp:93   005.203s  PROF] Stencil<Tout(Tin)>[0x7fffb1d0bb80][39] 21.277152 ms
+[======SkelCL.cpp:89   012.514s  INFO] SkelCL terminating. Freeing all resources.
+Grid size:    10000 x 10000
+Elapsed time: 1414 ms
+Output:       data/grid.txt
+[=====MatrixDef.h:300  012.514s  PROF] Matrix[0x7fffb1d0bc00][0] ul 30.463648 ms
+[=====MatrixDef.h:300  012.514s  PROF] Matrix[0x7fffb1d0bc00][1] ul 30.461408 ms
+[=====MatrixDef.h:300  012.514s  PROF] Matrix[0x7fffb1d0bc00][2] ul 31.241760 ms
+[=====MatrixDef.h:300  012.514s  PROF] Matrix[0x7fffb1d0bc00][3] ul 31.098400 ms
+[=====MatrixDef.h:300  012.515s  PROF] Matrix[0x7fffb1d0bc00][0] dl 30.121312 ms
+[=====MatrixDef.h:300  012.515s  PROF] Matrix[0x7fffb1d0bc00][1] dl 30.142304 ms
+[=====MatrixDef.h:300  012.515s  PROF] Matrix[0x7fffb1d0bc00][2] dl 30.182208 ms
+[=====MatrixDef.h:300  012.515s  PROF] Matrix[0x7fffb1d0bc00][3] dl 30.109312 ms
+```
+
+* Kernel + download time (recorded by hand): 1128 ms
+
+* Total upload time: 122 ms
+* Kernel exec time: 840 ms
+* Total download time: 122 ms
+* Prepare time: 757 ms
+* Prepare + Kernel + download time: 1719 ms
+* Prepare + (Kernel + download time) / num_devices: 998 ms
+* Prepare + Kernel / num_devices + download time: 1089 ms
+
+OK so those numbers don't add. How about swapping time? I'll add a
+timer to `StencilDistribution::swap()` and see if that accounts for
+the missing time.
+
+```
+[==DeviceList.cpp:90   003.691s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  003.691s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found
+[======Device.cpp:118  003.716s  INFO] Using device `GeForce GTX 590' with id: 0
+[======Device.cpp:118  003.744s  INFO] Using device `GeForce GTX 590' with id: 1
+[======Device.cpp:118  003.769s  INFO] Using device `GeForce GTX 590' with id: 2
+[======Device.cpp:118  003.794s  INFO] Using device `GeForce GTX 590' with id: 3
+[==DeviceList.cpp:122  003.794s  INFO] Using 4 OpenCL device(s) in total
+[======SkelCL.cpp:56   003.794s  PROF] skelcl::init() time 809 ms
+[========main.cpp:102  003.794s  INFO] start transfer
+[========main.cpp:104  003.952s  INFO] end transfer
+[=====Program.cpp:212  004.198s  PROF] skelcl::Program::build() 0 ms
+[========main.cpp:124  004.198s  INFO] -> stencil
+[====StencilDef.h:169  005.005s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80] prepare 807 ms
+[====StencilDef.h:361  005.006s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][0] global[10016][10004] local[32][4] tile[34][6][4]
+[====StencilDef.h:361  005.006s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][1] global[10016][10004] local[32][4] tile[34][6][4]
+[====StencilDef.h:361  005.007s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][2] global[10016][10004] local[32][4] tile[34][6][4]
+[====StencilDef.h:361  005.007s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][3] global[10016][10004] local[32][4] tile[34][6][4]
+[StencilDistributionDef.h:98   005.029s  PROF] swap 21 ms
+[StencilDistributionDef.h:98   005.051s  PROF] swap 21 ms
+[StencilDistributionDef.h:98   005.073s  PROF] swap 21 ms
+[StencilDistributionDef.h:98   005.095s  PROF] swap 21 ms
+[StencilDistributionDef.h:98   005.117s  PROF] swap 21 ms
+[StencilDistributionDef.h:98   005.139s  PROF] swap 21 ms
+[StencilDistributionDef.h:98   005.160s  PROF] swap 21 ms
+[StencilDistributionDef.h:98   005.182s  PROF] swap 21 ms
+[StencilDistributionDef.h:98   005.204s  PROF] swap 21 ms
+[========main.cpp:127  005.376s  INFO] <- stencil
+[====Skeleton.cpp:93   005.376s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][0] 21.239904 ms
+[====Skeleton.cpp:93   005.376s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][1] 20.138496 ms
+[====Skeleton.cpp:93   005.376s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][2] 21.242752 ms
+[====Skeleton.cpp:93   005.376s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][3] 21.247104 ms
+[====Skeleton.cpp:93   005.376s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][4] 21.245184 ms
+[====Skeleton.cpp:93   005.376s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][5] 20.140640 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][6] 21.257280 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][7] 21.251584 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][8] 21.254400 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][9] 20.148640 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][10] 21.266336 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][11] 21.253344 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][12] 21.265248 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][13] 20.160384 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][14] 21.271616 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][15] 21.265664 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][16] 21.269248 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][17] 20.161664 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][18] 21.272544 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][19] 21.274144 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][20] 21.270816 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][21] 20.168448 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][22] 21.272416 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][23] 21.273824 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][24] 21.264960 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][25] 20.164032 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][26] 21.270528 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][27] 21.273696 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][28] 21.270080 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][29] 20.167744 ms
+[====Skeleton.cpp:93   005.377s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][30] 21.272000 ms
+[====Skeleton.cpp:93   005.378s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][31] 21.275584 ms
+[====Skeleton.cpp:93   005.378s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][32] 21.266752 ms
+[====Skeleton.cpp:93   005.378s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][33] 20.164096 ms
+[====Skeleton.cpp:93   005.378s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][34] 21.274720 ms
+[====Skeleton.cpp:93   005.378s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][35] 21.275520 ms
+[====Skeleton.cpp:93   005.378s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][36] 21.267424 ms
+[====Skeleton.cpp:93   005.378s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][37] 20.171392 ms
+[====Skeleton.cpp:93   005.378s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][38] 21.278656 ms
+[====Skeleton.cpp:93   005.378s  PROF] Stencil<Tout(Tin)>[0x7fff80802b80][39] 21.276128 ms
+[======SkelCL.cpp:89   012.732s  INFO] SkelCL terminating. Freeing all resources.
+Grid size:    10000 x 10000
+Elapsed time: 1426 ms
+Output:       data/grid.txt
+[=====MatrixDef.h:300  012.732s  PROF] Matrix[0x7fff80802c00][0] ul 30.460128 ms
+[=====MatrixDef.h:300  012.732s  PROF] Matrix[0x7fff80802c00][1] ul 30.417728 ms
+[=====MatrixDef.h:300  012.732s  PROF] Matrix[0x7fff80802c00][2] ul 31.078464 ms
+[=====MatrixDef.h:300  012.732s  PROF] Matrix[0x7fff80802c00][3] ul 31.206016 ms
+[=====MatrixDef.h:300  012.732s  PROF] Matrix[0x7fff80802c00][0] dl 30.179808 ms
+[=====MatrixDef.h:300  012.732s  PROF] Matrix[0x7fff80802c00][1] dl 30.244928 ms
+[=====MatrixDef.h:300  012.732s  PROF] Matrix[0x7fff80802c00][2] dl 30.161056 ms
+[=====MatrixDef.h:300  012.732s  PROF] Matrix[0x7fff80802c00][3] dl 30.109888 ms
+```
+
+* Kernel + download time (recorded by hand): 1167 ms
+
+* Total upload time: 122 ms
+* Kernel exec time: 840 ms
+* Total download time: 122 ms
+* Prepare time: 807 ms
+* Swap time: 189 ms
+* Swap + Prepare time: 996 ms
+* (Kernel + download) / num_devices: 249
+* Prepare + Kernel + swap + download time: 1958 ms
+* Prepare + swap + (Kernel + download time) / num_devices: 1236 ms
+
+Still not exactly right (now I'm overshooting by ~60 ms). Let's try a
+non-Stencil application and see what I get.
+
+**Output of MandelbrotSet with 4 GPUs:**
+
+```
+[==DeviceList.cpp:90   000.720s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  000.721s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found
+[======Device.cpp:118  000.745s  INFO] Using device `GeForce GTX 590' with id: 0
+[======Device.cpp:118  000.770s  INFO] Using device `GeForce GTX 590' with id: 1
+[======Device.cpp:118  000.796s  INFO] Using device `GeForce GTX 590' with id: 2
+[======Device.cpp:118  000.820s  INFO] Using device `GeForce GTX 590' with id: 3
+[==DeviceList.cpp:122  000.820s  INFO] Using 4 OpenCL device(s) in total
+[======SkelCL.cpp:56   000.820s  PROF] skelcl::init() time 820 ms
+[=====Program.cpp:212  000.899s  PROF] skelcl::Program::build() 0 ms
+[========main.cpp:110  000.899s  INFO] -> map
+[========MapDef.h:587  001.061s  PROF] Map<Tout(IndexPoint)>[0x7fffef5fa700] prepare 161 ms
+[========main.cpp:113  001.161s  INFO] <- map
+[=====MatrixDef.h:300  006.542s  PROF] Matrix[0x7fffef5fa770][0] dl 14.478112 ms
+[=====MatrixDef.h:300  006.542s  PROF] Matrix[0x7fffef5fa770][1] dl 14.503072 ms
+[=====MatrixDef.h:300  006.542s  PROF] Matrix[0x7fffef5fa770][2] dl 14.464544 ms
+[=====MatrixDef.h:300  006.542s  PROF] Matrix[0x7fffef5fa770][3] dl 14.532448 ms
+[====Skeleton.cpp:93   006.543s  PROF] Map<Tout(IndexPoint)>[0x7fffef5fa700][0] 21.174848 ms
+[====Skeleton.cpp:93   006.543s  PROF] Map<Tout(IndexPoint)>[0x7fffef5fa700][1] 25.868128 ms
+[====Skeleton.cpp:93   006.543s  PROF] Map<Tout(IndexPoint)>[0x7fffef5fa700][2] 32.123648 ms
+[====Skeleton.cpp:93   006.543s  PROF] Map<Tout(IndexPoint)>[0x7fffef5fa700][3] 34.116544 ms
+Iterations:   100
+Image size:   8000 x 8000
+Elapsed time: 5723 ms
+Output:       data/mandelbrot.ppm
+```
+
+* Kernel + download time (recorded by hand): 262 ms
+
+* Total upload time: 0 ms
+* Kernel exec time: 113 ms
+* Total download time: 59 ms
+* Prepare time: 161 ms
+* (Kernel + download) / num_devices: 87 ms
+* Prepare + Kernel + download time: 333 ms
+* Prepare + (Kernel + download time) / num_devices: 248 ms
+
+**Output of MandelbrotSet with 2 GPUs:**
+
+```
+[==DeviceList.cpp:90   000.722s  INFO] 1 OpenCL platform(s) found
+[==DeviceList.cpp:101  000.722s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found
+[======Device.cpp:118  000.751s  INFO] Using device `GeForce GTX 590' with id: 0
+[======Device.cpp:118  000.777s  INFO] Using device `GeForce GTX 590' with id: 1
+[==DeviceList.cpp:107  000.777s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.
+[==DeviceList.cpp:107  000.777s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.
+[==DeviceList.cpp:122  000.777s  INFO] Using 2 OpenCL device(s) in total
+[======SkelCL.cpp:56   000.777s  PROF] skelcl::init() time 777 ms
+[=====Program.cpp:212  000.855s  PROF] skelcl::Program::build() 0 ms
+[========main.cpp:110  000.855s  INFO] -> map
+[========MapDef.h:587  001.018s  PROF] Map<Tout(IndexPoint)>[0x7fff0a22b1a0] prepare 163 ms
+[========main.cpp:113  001.174s  INFO] <- map
+[=====MatrixDef.h:300  006.628s  PROF] Matrix[0x7fff0a22b210][0] dl 29.107584 ms
+[=====MatrixDef.h:300  006.628s  PROF] Matrix[0x7fff0a22b210][1] dl 29.009760 ms
+[====Skeleton.cpp:93   006.629s  PROF] Map<Tout(IndexPoint)>[0x7fff0a22b1a0][0] 48.569568 ms
+[====Skeleton.cpp:93   006.629s  PROF] Map<Tout(IndexPoint)>[0x7fff0a22b1a0][1] 62.580448 ms
+Iterations:   100
+Image size:   8000 x 8000
+Elapsed time: 5852 ms
+Output:       data/mandelbrot.ppm
+```
+
+* Kernel + download time (recorded by hand): 319 ms
+
+* Total upload time: 0 ms
+* Kernel exec time: 112 ms
+* Total download time: 58 ms
+* Prepare time: 163 ms
+* (Kernel + download) / num_devices: 85 ms
+* Prepare + Kernel + download time: 333 ms
+* Prepare + (Kernel + download time) / num_devices: 248 ms
+
+*Hmm.*
