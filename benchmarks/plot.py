@@ -77,8 +77,9 @@ def _gettimes(samples):
             for type in val:
                 for address in val[type]:
                     for direction in val[type][address]:
-                        [conttimes[direction].append(val[type][address][direction][x] / ndevices)
-                         for x in val[type][address][direction]]
+                        times = [val[type][address][direction][x]
+                                 for x in val[type][address][direction]]
+                        conttimes[direction].append(sum(times) / ndevices)
 
     [parsesample(x) for x in samples]
     return inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes
@@ -101,7 +102,8 @@ def _readchecksum(path):
 
         file.seek(-1024, 2)
         last = file.readlines()[-1].decode()
-        return _checksumre.match(last).group(1)
+        match = _checksumre.match(last)
+        return match.group(1) if match else None
 
 #
 def _finalize(result, name):
@@ -165,9 +167,9 @@ def openCLEventTimes(invars, name="events"):
 
     # Set the graph bounds.
     plt.gca().set_position((.08, # Left padding
-                            .25, # Bottom padding
+                            .21, # Bottom padding
                             .9, # Width
-                            .64)) # Height
+                            .68)) # Height
 
     # Set the caption text.
     gputime = sum([x for x,y in zip(Y,Labels) if search("(upload|run|download)", y)])
@@ -175,17 +177,18 @@ def openCLEventTimes(invars, name="events"):
     plt.figtext(.02, .02,
                 ("Total: {total:.2f} ms. "
                  "Work time: {work:.2f} ms. "
-                 "GPU time: \\textbf{{{gpu:.2f}}} ms.\n"
+                 "GPU time: \\textbf{{{gpu:.2f}}} ms. "
+                 "{n} samples.\n"
                  "ID: \\texttt{{{id}}}"
                  .format(total=sum(Y),
                          gpu=gputime,
                          work=worktime,
-                         id=resultscache.id(invars))))
+                         id=resultscache.id(invars),
+                         n=len(inittimes))))
 
     # Time is always positive.
     plt.ylim(ymin=0)
 
-    plt.xlabel('Event type')
     plt.ylabel('Time (ms)')
 
     plt.title('\n'.join(wrap(', '.join([str(x.val) for x in invars]), 90)),
