@@ -131,6 +131,6 @@ class Colours:
 
     @staticmethod
     def print(colour, *args, **kwargs):
-        print(colour, end="", **kwargs)
-        print(*args, end="", **kwargs)
+        print(colour, end="")
+        print(*args, end="")
         print(Colours.RESET, **kwargs)

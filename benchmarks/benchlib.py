@@ -1,6 +1,7 @@
 from __future__ import print_function
 from itertools import product
 from os.path import basename,exists
+from sys import stdout
 
 import os
 
@@ -113,6 +114,7 @@ class Benchmark:
         [var.post(**kwargs) for var in coutvars]
 
         if exitstatus:
+            Colours.print(Colours.RED, "FAIL")
             Colours.print(Colours.RED,
                           ("Process terminated with exit status {e}. Output:"
                            .format(e=exitstatus)))
@@ -232,8 +234,10 @@ class TestHarness:
         # Sample and store results.
         while self.sampler.hasnext(self._result):
             Colours.print(Colours.YELLOW, "Sampling testcase",
-                          self.testcase, "...")
+                          self.testcase, "... ", end="")
+            stdout.flush()
             o, c, b = self.testcase.sample()
+            print("{t:.1f} s".format(t=lookup1(o, RunTime).val)) # elapsed time
             self._result.outvars.append(o) # dep(endent) vars.
             self._result.couts.update(c) # constant dep vars.
             self._result.bad = b # "bad" flag.
