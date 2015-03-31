@@ -312,6 +312,32 @@ class StencilLocalSizeC(StencilKnob):
         os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {val}/' {path}"
                   .format(val=self.val, path=self.defheader))
 
+class AllPairsKnob(Knob):
+    defheader = path(SKELCL, 'include/SkelCL/detail/AllPairsDef.h')
+
+class AllPairsC(StencilKnob):
+    def __init__(self, val):
+        Knob.__init__(self, "AllPairsC", val)
+
+    def set(self, **kwargs):
+        os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {val}/' {path}"
+                  .format(val=self.val, path=self.defheader))
+
+class AllPairsR(StencilKnob):
+    def __init__(self, val):
+        Knob.__init__(self, "AllPairsR", val)
+
+    def set(self, **kwargs):
+        os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {val}/' {path}"
+                  .format(val=self.val, path=self.defheader))
+
+class AllPairsS(StencilKnob):
+    def __init__(self, val):
+        Knob.__init__(self, "AllPairsS", val)
+
+    def set(self, **kwargs):
+        os.system("sed -r -i 's/(define KNOB_S) [0-9]+/\\1 {val}/' {path}"
+                  .format(val=self.val, path=self.defheader))
 
 ### VARIABLES
 
@@ -377,8 +403,9 @@ def enumerate(e, instantiate):
         argpermutations = [[Argument(x[0], x[1]) for x in args]
                            for args in list(product(*_vals))]
 
-        knobpermutations = [[Knob(x[0], x[1]) for x in knobs]
-                            for knobs in list(product(*_knobs))]
+
+        _vals = list(product(*[_knobs[x] for x in _knobs]))
+        knobpermutations = [[x(y) for x,y in zip(_knobs, k)] for k in _vals]
 
         host = SkelCLHost.create(_host)
         benchmark = SkelCLBenchmark(_benchmark)

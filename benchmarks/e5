@@ -54,6 +54,86 @@ def testMapOverlapVsStencil():
         "knobs": {}
     }, _instantiate)
 
+def testStencilLocalSize():
+    def _instantiate(host, benchmark, args, knobs):
+        sampler = FixedSizeSampler(15)
+        harnesses = []
+
+        for devargs in host.devargs():
+            c = SkelCLTestCase(benchmark, host=host,
+                               invars=knobs + args + devargs)
+            harnesses.append(TestHarness(c, sampler))
+
+        return harnesses
+
+    return enumerate({
+        "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
+        "benchmarks": {
+            "CannyEdgeDetection": {
+                "args": {
+                    "Input": ["--input {base}/{file}".format(base=IMG, file="4160x3120.pgm")]
+                }
+            },
+            "GameOfLife": {
+                "args": {
+                    "Iterations": ["-i {i}".format(i=i) for i in [5, 10, 50]]
+                }
+            },
+            "GaussianBlur": {
+                "args": {
+                    "Input": ["--input {base}/{file}".format(base=IMG, file="4160x3120.pgm")]
+                }
+            },
+            "HeatEquation": {
+                "args": {
+                    "Iterations": ["-i {i}".format(i=i)
+                                   for i in [5, 10, 50]]
+                }
+            },
+            "FDTD": {
+                "args": {}
+            }
+        },
+        "args": {},
+        "knobs": {
+            StencilLocalSizeC: [4, 8, 16, 32, 64, 128, 256],
+            StencilLocalSizeR: [4, 8, 16, 32, 64, 128, 256]
+        }
+    }, _instantiate)
+
+def testAllPairs():
+    def _instantiate(host, benchmark, args, knobs):
+        sampler = FixedSizeSampler(15)
+        harnesses = []
+
+        for devargs in host.devargs():
+            c = SkelCLTestCase(benchmark, host=host,
+                               invars=knobs + args + devargs)
+            harnesses.append(TestHarness(c, sampler))
+
+        return harnesses
+
+    return enumerate({
+        "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
+        "benchmarks": {
+            "MatrixMultiply": {
+                "args": {
+                    "Size": ["--row-count-a {a} --col-count-b {b} --col-count-b {a}"
+                             .format(a=x[0], b=x[1]) for x in [
+                                 [4096, 4096],
+                                 [2048, 4096]]
+                         ]
+                }
+            }
+        },
+        "args": {},
+        "knobs": {
+            AllPairsC: [16, 32, 64, 128, 256],
+            AllPairsR: [16, 32, 64, 128, 256],
+            AllPairsS: [16, 32, 64, 128, 256]
+        }
+    }, _instantiate)
+
 def testrun():
     def _instantiate(host, benchmark, args, knobs):
         sampler = FixedSizeSampler(5)
@@ -75,7 +155,7 @@ def testrun():
         "knobs": {}
     }, _instantiate)
 
-harnesses = testrun() + testMapOverlapVsStencil()
+harnesses = testStencilLocalSize() + testAllPairs() + testrun() + testMapOverlapVsStencil()
 
 q = jobqueue(harnesses)
 
