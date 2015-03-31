@@ -1,0 +1,45 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "4892aa7114f589d44a1139ab126e42dc2c034495",
+    "SkelCL version": "962a7c02f3dcb9edd170c7db7918044dada3ec7a"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "GaussianBlur",
+    "Device type": "--device-type CPU",
+    "Hostname": "monza",
+    "Input": "--input /home/s1469829/src/msc-thesis/benchmarks/data/img/4160x3120.pgm",
+    "MapOverlap": "--map-overlap"
+  },
+  "out": [
+    {
+      "End time": "2015-03-31 18:39:45",
+      "Exit status": -11,
+      "Output": [
+        "[==DeviceList.cpp:90   007.370s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  007.370s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  007.370s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  007.370s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  007.373s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  007.373s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   007.373s  PROF] skelcl::init() time 245 ms",
+        "[=====Program.cpp:212  007.709s  PROF] skelcl::Program::build() 82 ms",
+        "[=MapOverlapDef.h:109  007.739s  PROF] MapOverlap<Tout(Tin)>[0x7fff11703d80] prepare 29 ms",
+        "[=MapOverlapDef.h:182  007.739s  INFO] MapOverlap kernel started"
+      ],
+      "Run time": 8.475795984268188,
+      "Start time": "2015-03-31 18:39:36"
+    }
+  ]
+}
