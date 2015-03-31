@@ -1,6 +1,8 @@
 from __future__ import print_function
 from hashlib import sha1
 from textwrap import wrap
+from matplotlib import rc
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -152,6 +154,9 @@ def openCLEventTimes(invars, name="events"):
 
     ax = plt.axes()
 
+    # Use LaTeX text rendering.
+    rc('text', usetex=True)
+
     # Plot the data. Note the positive zorder.
     plt.bar(X, Y, width, yerr=Yerr,
             color=['yellow', 'green', 'red'], ecolor='k')
@@ -164,10 +169,17 @@ def openCLEventTimes(invars, name="events"):
                             .64)) # Height
 
     # Set the caption text.
-    gputime = sum([x for x,y in zip(Y,Labels) if not search("(init|build)", y)])
+    gputime = sum([x for x,y in zip(Y,Labels) if search("(upload|run|download)", y)])
+    worktime = sum([gputime] + [x for x,y in zip(Y,Labels) if search("(prep|swap)", y)])
     plt.figtext(.02, .02,
-                ("Total: {total:.2f} ms. GPU time: {gpu:.2f} ms"
-                 .format(total=sum(Y), gpu=gputime)))
+                ("Total: {total:.2f} ms. "
+                 "Work time: {work:.2f} ms. "
+                 "GPU time: \\textbf{{{gpu:.2f}}} ms.\n"
+                 "ID: \\texttt{{{id}}}"
+                 .format(total=sum(Y),
+                         gpu=gputime,
+                         work=worktime,
+                         id=resultscache.id(invars))))
 
     # Time is always positive.
     plt.ylim(ymin=0)

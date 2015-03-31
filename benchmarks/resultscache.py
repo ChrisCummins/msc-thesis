@@ -56,7 +56,7 @@ def _loadresults(path):
 def _invars2path(invars, root=config.RESULTS, suffix="", extension=""):
     benchmark = lookup1(invars, BenchmarkName).val
     host = lookup1(invars, Hostname).val
-    key = _HashableInvars(invars).key()
+    key = id(invars)
     return _path(benchmark, key, host, root, suffix, extension)
 
 #
@@ -68,6 +68,10 @@ def resultspath(invars, suffix="", extension=".json"):
 def plotpath(invars, suffix="", extension=".svg"):
     return _invars2path(invars, root=config.PLOTS,
                         suffix=suffix, extension=extension)
+
+#
+def id(invars):
+    return _HashableInvars(invars).key()
 
 #
 def load(invars):
