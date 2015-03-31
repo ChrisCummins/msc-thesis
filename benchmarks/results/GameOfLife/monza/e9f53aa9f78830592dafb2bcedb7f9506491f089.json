@@ -1,0 +1,49 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "3a8280a1afe65a071ac68e02e179a5a1d9b47532",
+    "SkelCL version": "765eff010a94561df6ac79df5fff31e4ebeb89ed"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "GameOfLife",
+    "Device count": "--device-count 2",
+    "Device type": "--device-type GPU",
+    "Hostname": "monza",
+    "Iterations": "-i 2"
+  },
+  "out": [
+    {
+      "End time": "2015-03-31 17:15:58",
+      "Exit status": -11,
+      "Output": [
+        "[==DeviceList.cpp:90   000.720s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.720s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[======Device.cpp:118  000.730s  INFO] Using device `Tahiti' with id: 0",
+        "[======Device.cpp:118  000.735s  INFO] Using device `Tahiti' with id: 1",
+        "[==DeviceList.cpp:107  000.735s  INFO] Skip device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.735s  INFO] Using 2 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.735s  PROF] skelcl::init() time 252 ms",
+        "[=====Program.cpp:212  001.157s  PROF] skelcl::Program::build() 150 ms",
+        "[========main.cpp:122  001.157s  INFO] -> stencil",
+        "[====StencilDef.h:169  001.232s  PROF] Stencil<Tout(Tin)>[0x7fff501a8a60] prepare 74 ms",
+        "[====StencilDef.h:361  001.232s  PROF] Stencil<Tout(Tin)>[0x7fff501a8a60][0] global[4096][4100] local[32][4] tile[34][6][4]",
+        "[====StencilDef.h:361  001.233s  PROF] Stencil<Tout(Tin)>[0x7fff501a8a60][1] global[4096][4100] local[32][4] tile[34][6][4]",
+        "[StencilDistributionDef.h:98   001.233s  PROF]  swap0 ms",
+        "[========main.cpp:125  001.394s  INFO] <- stencil"
+      ],
+      "Run time": 1.4421069622039795,
+      "Start time": "2015-03-31 17:15:57"
+    }
+  ]
+}
