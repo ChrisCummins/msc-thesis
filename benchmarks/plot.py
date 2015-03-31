@@ -34,41 +34,51 @@ class _HashableResult:
 def _gettimes(samples):
     inittimes = []
     buildtimes = []
-    skeltimes = {"submit": [], "run": [], "queue": []}
-    conttimes = {"ul": {"submit": [], "run": [], "queue": []},
-                 "dl": {"submit": [], "run": [], "queue": []}}
+    preptimes = []
+    swaptimes = []
+    skeltimes = []
+    conttimes = {"ul": [], "dl": []}
 
     def parsesample(sample):
         it = lookup1(sample, InitTime)
         bt = lookup1(sample, ProgramBuildTimes)
+        pt = lookup1(sample, PrepareTimes)
+        swt = lookup1(sample, SwapTimes)
         st = lookup(sample, SkeletonEventTimes)
         ct = lookup(sample, ContainerEventTimes)
+        ndevices = len(lookup1(sample, Devices).val)
 
         inittimes.append(it.val)
-        for t in bt.val:
-            buildtimes.append(t)
+        buildtimes.append(sum(bt.val))
+        swaptimes.append(sum(swt.val))
 
+        for type in pt.val:
+            for address in pt.val[type]:
+                preptimes.append(sum(pt.val[type][address]))
+
+        # Collect skeleton and container OpenCL event times. Note here
+        # that we are first summing up the total times for *all*
+        # events of each type, and that each event time is divided by
+        # the number of devices.
+
+        # Skeleton times
         for var in st:
             val = var.val
             for type in val:
                 for address in val[type]:
-                    for event in val[type][address]:
-                        skeltimes["queue"].append(event[0])
-                        skeltimes["submit"].append(event[1])
-                        skeltimes["run"].append(event[2])
+                    skeltimes.append(sum(val[type][address]) / ndevices)
 
+        # Container upload and download times.
         for var in ct:
             val = var.val
             for type in val:
                 for address in val[type]:
                     for direction in val[type][address]:
-                        for event in val[type][address][direction]:
-                            conttimes[direction]["queue"].append(val[type][address][direction][event][0])
-                            conttimes[direction]["submit"].append(val[type][address][direction][event][1])
-                            conttimes[direction]["run"].append(val[type][address][direction][event][2])
+                        [conttimes[direction].append(val[type][address][direction][x] / ndevices)
+                         for x in val[type][address][direction]]
 
     [parsesample(x) for x in samples]
-    return inittimes, buildtimes, skeltimes, conttimes
+    return inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes
 
 def _writechecksum(path, checksum):
     file = open(path, 'a')
@@ -122,19 +132,15 @@ def openCLEventTimes(invars, name="events"):
     result = resultscache.load(invars)
     if _skippable(result, name): return
 
-    inittimes, buildtimes, skeltimes, conttimes = _gettimes(result.outvars)
+    inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes = _gettimes(result.outvars)
     data = [
         ("init", describe(inittimes)),
         ("build", describe(buildtimes)),
-        ("UL-queue", describe(conttimes["ul"]["queue"])),
-        ("UL-submit", describe(conttimes["ul"]["submit"])),
-        ("UL-run", describe(conttimes["ul"]["run"])),
-        ("Skel-queue", describe(skeltimes["queue"])),
-        ("Skel-submit", describe(skeltimes["submit"])),
-        ("Skel-run", describe(skeltimes["run"])),
-        ("DL-queue", describe(conttimes["dl"]["queue"])),
-        ("DL-submit", describe(conttimes["dl"]["submit"])),
-        ("DL-run", describe(conttimes["dl"]["run"]))
+        ("prep", describe(preptimes)),
+        ("upload", describe(conttimes["ul"])),
+        ("run", describe(skeltimes)),
+        ("swap", describe(swaptimes)),
+        ("download", describe(conttimes["dl"])),
     ]
 
     Y, Yerr, Labels = zip(*[(x[1][0], x[1][1], x[0]) for x in data])

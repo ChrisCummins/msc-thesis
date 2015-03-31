@@ -101,6 +101,42 @@ class InitTime(DerivedVariable):
             if match:
                 self.val = match.group(1)
                 return
+        raise LookupError
+
+#
+class PrepareTimes(DerivedVariable):
+    def __init__(self, **kwargs):
+        DerivedVariable.__init__(self, "PrepareTimes")
+
+    def post(self, **kwargs):
+        self.val = {}
+        for line in kwargs['output']:
+            match = search('PROF\] ([a-zA-Z\(<>\)]+)\[0x([0-9a-f]+)\]'
+                           ' prepare ([0-9\.]+) ms',
+                           line)
+            if match:
+                type = match.group(1)
+                address = match.group(2)
+                time = int(match.group(3))
+
+                if type not in self.val:
+                    self.val[type] = {}
+                if address not in self.val[type]:
+                    self.val[type][address] = []
+                self.val[type][address].append(time)
+
+#
+class SwapTimes(DerivedVariable):
+    def __init__(self, **kwargs):
+        DerivedVariable.__init__(self, "SwapTimes")
+
+    def post(self, **kwargs):
+        self.val = []
+        for line in kwargs['output']:
+            match = search('PROF\] swap ([0-9\.]+) ms', line)
+            if match:
+                time = float(match.group(1))
+                self.val.append(time)
 
 #
 class ElapsedTimes(DerivedVariable):
@@ -128,22 +164,20 @@ class SkeletonEventTimes(DerivedVariable):
         for line in kwargs['output']:
             # Parse profiling information.
             match = search('PROF\] ([a-zA-Z\(<>\)]+)\[0x([0-9a-f]+)\]'
-                           '\[([0-9]+)\] ([0-9\.]+) ([0-9\.]+) ([0-9\.]+)',
+                           '\[([0-9]+)\] ([0-9\.]+) ms',
                            line)
             if match:
                 type = match.group(1)
                 address = match.group(2)
                 id = int(match.group(3))
-                queue = float(match.group(4))
-                submit = float(match.group(5))
-                run = float(match.group(6))
+                run = float(match.group(4))
 
                 # Record profiling information.
                 if type not in self.val:
                     self.val[type] = {}
                 if address not in self.val[type]:
                     self.val[type][address] = []
-                self.val[type][address].append([queue, submit, run])
+                self.val[type][address].append(run)
 
 #
 class ContainerEventTimes(DerivedVariable):
@@ -155,23 +189,20 @@ class ContainerEventTimes(DerivedVariable):
         for line in kwargs['output']:
             # Parse profiling information.
             match = search('PROF\] ([a-zA-Z\(<>\)]+)\[0x([0-9a-f]+)\]'
-                           '\[([0-9]+)\] (ul|dl) '
-                           '([0-9\.]+) ([0-9\.]+) ([0-9\.]+)', line)
+                           '\[([0-9]+)\] (ul|dl) ([0-9\.]+) ms', line)
             if match:
                 type = match.group(1)
                 address = match.group(2)
                 id = int(match.group(3))
                 direction = match.group(4)
-                queue = float(match.group(5))
-                submit = float(match.group(6))
-                run = float(match.group(7))
+                run = float(match.group(5))
 
                 # Record profiling information.
                 if type not in self.val:
                     self.val[type] = {}
                 if address not in self.val[type]:
                     self.val[type][address] = {'ul': {}, 'dl': {}}
-                self.val[type][address][direction][id] = [queue, submit, run]
+                self.val[type][address][direction][id] = run
 
 #
 class ProgramBuildTimes(DerivedVariable):
@@ -184,6 +215,31 @@ class ProgramBuildTimes(DerivedVariable):
             match = search('PROF\] skelcl::Program::build\(\) ([0-9]+) ms$', line)
             if match:
                 self.val.append(int(match.group(1)))
+
+#
+class Devices(DerivedVariable):
+    def __init__(self, **kwargs):
+        DerivedVariable.__init__(self, "Devices")
+
+    def post(self, **kwargs):
+        self.val = []
+        for line in kwargs['output']:
+            match = search('INFO\] Using device \`([^\']+)\' with', line)
+            if match:
+                self.val.append(match.group(1))
+
+#
+class DeviceCount(DerivedVariable):
+    def __init__(self, **kwargs):
+        DerivedVariable.__init__(self, "DeviceCount")
+
+    def post(self, **kwargs):
+        self.val = []
+        for line in kwargs['output']:
+            match = search('INFO\] Using ([0-9]+) OpenCL device\(s\) in total$', line)
+            if match:
+                self.val = int(match.group(1))
+                return
 
 #
 class SkelCLBenchmark(Benchmark):
@@ -219,6 +275,10 @@ class SkelCLTestCase(TestCase):
             ElapsedTimes,
             InitTime,
             ProgramBuildTimes,
+            PrepareTimes,
+            SwapTimes,
+            Devices,
+            DeviceCount,
             SkeletonEventTimes,
             ContainerEventTimes
         ]
