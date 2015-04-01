@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+while read line; do
+    image=img/$(echo $line | sed 's,/home/chris/src/msc-thesis/benchmarks/plots/,,' | tr / -)
+    echo ${image%.*}
+    cp $line $image
+done < svg-list.txt

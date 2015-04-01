@@ -30,7 +30,7 @@ def mapOverlapVsStencil():
         "benchmarks": {
             "GameOfLife": {
                 "args": {
-                    "Iterations": ["-i 1", "-i 100", "-i 500"]
+                    "Iterations": ["-i {i}".format(i=i) for i in [1, 2, 3, 4, 5, 100, 500]]
                 }
             },
             "HeatEquation": {

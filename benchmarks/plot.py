@@ -138,7 +138,10 @@ def openCLEventTimes(invars, name="events"):
     result = resultscache.load(invars)
     if _skippable(result, name): return
 
+    # Get the raw data.
     inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes = _gettimes(result.outvars)
+
+    # Process data.
     data = [
         ("init", describe(inittimes)),
         ("build", describe(buildtimes)),
@@ -149,50 +152,55 @@ def openCLEventTimes(invars, name="events"):
         ("download", describe(conttimes["dl"])),
     ]
 
+    # Create plottable data.
     Y, Yerr, Labels = zip(*[(x[1][0], x[1][1], x[0]) for x in data])
     X = np.arange(len(Y))
 
+    # Time subtotals.
+    t_ninit = sum(Y[1:])
+    t_nbuild = t_ninit - Y[1]
+    t_dev = sum([x for x,y in zip(Y,Labels) if search("(upload|run|download)", y)])
+
+    title = ', '.join([str(x.val) for x in invars])
+    caption = ("Times: no-init: \\textbf{{{ninit:.2f}}} ms, "
+               "no-build: \\textbf{{{nbuild:.2f}}} ms. "
+               "device: \\textbf{{{dev:.2f}}} ms. "
+               "\n"
+               "ID: \\texttt{{{id}}}. {n} samples."
+               .format(ninit=t_ninit,
+                       nbuild=t_nbuild,
+                       dev=t_dev,
+                       id=resultscache.id(invars),
+                       n=len(inittimes)))
+
+    # Plot the data.
     width = 1
-
-    ax = plt.axes()
-
-    # Use LaTeX text rendering.
-    rc('text', usetex=True)
-
-    # Plot the data. Note the positive zorder.
     plt.bar(X, Y, width, yerr=Yerr, ecolor='k', color=[
         '#777777', 'yellow', 'red', 'yellow', 'green', 'red', 'yellow'
     ])
+
+    # Use LaTeX text rendering.
+    fontsize=16
+    rc('text', usetex=True)
+    rc('font', size=fontsize)
+
+    ax = plt.axes()
+
+    #  Vertical major gridlines.
     ax.yaxis.grid(b=True, which='major', color="#aaaaaa", linestyle='-')
 
     # Set the graph bounds.
-    plt.gca().set_position((.08, # Left padding
-                            .21, # Bottom padding
-                            .9, # Width
-                            .68)) # Height
+    plt.gca().set_position((.12, # Left padding
+                            .24, # Bottom padding
+                            .85, # Width
+                            .65)) # Height
 
-    # Set the caption text.
-    gputime = sum([x for x,y in zip(Y,Labels) if search("(upload|run|download)", y)])
-    worktime = sum([gputime] + [x for x,y in zip(Y,Labels) if search("(prep|swap)", y)])
-    plt.figtext(.02, .02,
-                ("Total: {total:.2f} ms. "
-                 "Work time: {work:.2f} ms. "
-                 "GPU time: \\textbf{{{gpu:.2f}}} ms. "
-                 "{n} samples.\n"
-                 "ID: \\texttt{{{id}}}"
-                 .format(total=sum(Y),
-                         gpu=gputime,
-                         work=worktime,
-                         id=resultscache.id(invars),
-                         n=len(inittimes))))
-
-    # Time is always positive.
-    plt.ylim(ymin=0)
-
+    # Axis text and limits.
     plt.ylabel('Time (ms)')
-
-    plt.title('\n'.join(wrap(', '.join([str(x.val) for x in invars]), 90)),
-              fontsize=12, weight="bold")
+    plt.ylim(ymin=0) # Time is always positive.
+    plt.title('\n'.join(wrap(title, 90)), fontsize=fontsize, weight="bold")
     plt.xticks(X + width / 2., Labels, rotation=90)
+    plt.figtext(.02, .02, caption)
 
+    # Finish up.
     _finalize(result, name)

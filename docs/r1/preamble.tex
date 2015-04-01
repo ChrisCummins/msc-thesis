@@ -739,6 +739,7 @@
 \usepackage{tikz-qtree}
 
 \usepackage{subcaption}
+\expandafter\def\csname ver@subfig.sty\endcsname{}
 
 % Define an 'myalignat' command which behave as 'alignat' without the
 % vertical top and bottom padding. See:
@@ -836,6 +837,13 @@
 %
 \usepackage[underline=false]{pgf-umlsd}
 
+% Support for SVG graphics.
+%
+% NOTE that you must pass the "--shell-escape" argument to pdflatex to
+% compile. NOTE also that images *MUST* be placed within the graphics
+% path.
+\usepackage{svg}
+\graphicspath{{img/}}
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Tables and lists %%
