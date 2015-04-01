@@ -56,7 +56,7 @@ def testMapOverlapVsStencil():
 
 def testStencilLocalSize():
     def _instantiate(host, benchmark, args, knobs):
-        sampler = FixedSizeSampler(15)
+        sampler = FixedSizeSampler(10)
         harnesses = []
 
         for devargs in host.devargs():
@@ -103,7 +103,7 @@ def testStencilLocalSize():
 
 def testAllPairs():
     def _instantiate(host, benchmark, args, knobs):
-        sampler = FixedSizeSampler(15)
+        sampler = FixedSizeSampler(10)
         harnesses = []
 
         for devargs in host.devargs():
