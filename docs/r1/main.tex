@@ -1,0 +1,92 @@
+%%%%%%%%%%%%%%%%%%%%%%
+%% Document details %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Paper title
+\title{SkelCL Initial Performance Results}
+
+% Author
+\author{Chris Cummins}
+
+\input{preamble}
+
+%%%%%%%%%%
+%% Body %%
+%%%%%%%%%%
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  \noindent
+
+\end{abstract}
+
+\section{Introduction}
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l | l | l |}
+\hline
+\textbf{Name} & \textbf{Application} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
+\hline
+CannyEdgeDetection & Image processing & Stencil & - & 225 / 61\\
+DotProduct & Linear algebra & Zip, Reduce & - & 143 / 2\\
+FDTD & Scientific simulation & Map, Stencil & Y & 375 / 127\\
+GameOfLife & Cellular automata & Stencil & Y & 92 / 12\\
+GaussianBlur & Image processing & Stencil & - & 262 / 47\\
+HeatSimulation & Scientific simulation & Stencil & Y & 180 / 13\\
+MandelbrotSet & Fractal computation & Map & Y & 133 / 78\\
+MatrixMultiply & Linear algebra & AllPairs & - & 267 / 8\\
+SAXPY & Linear algebra & Zip & - & 149 / 3\\
+\hline
+\end{tabular}
+\caption{Benchmark applications. The LOC column shows lines of code, split between host (C++) and device (OpenCL).}
+\label{tab:benchmarks}
+\end{table}
+
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l | l | l |}
+\hline
+\textbf{CPU} & \textbf{Memory} & \textbf{GPUs} & \textbf{Name}\\
+\hline
+Intel i7-4770 & 16GiB & NVIDIA GTX TITAN & \textit{whz5}\\
+Intel i7-2600K & 16GiB & NVIDIA GTX 690 & \textit{dhcp-60-090}\\
+Intel i7-2600K & 8GiB & 2$\times$ NVIDIA GTX 590 & \textit{tim}\\
+Intel i7-3820 & 8GiB & 2$\times$ AMD Tahiti 7970 & \textit{monza}\\
+Intel i5-4570 & 8GiB & - & \textit{cec}\\
+\hline
+\end{tabular}
+\caption{Testing hardware.}
+\label{tab:hw}
+\end{table}
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l |}
+  \hline
+  \textbf{Name} & \textbf{Notes}\\
+  \hline
+  Total runtime & Runtime of entire benchmark application\\
+  Kernel compilation time & Could influence cost/benefit analysis\\
+  Kernel queue time & Time that a command spent queued\\
+  Kernel exec time & Time between command starting and completing\\
+  Data upload time & Host $\rightarrow$ Device\\
+  Data download time & Device $\rightarrow$ Host\\
+  Data sync time & Each device $\leftrightarrow$ Host (multi-GPUs)\\
+  \hline
+\end{tabular}
+\caption{Measurable performance values.}
+\label{tab:metric}
+\end{table}
+
+\section{Conclusions}
+
+\label{bibliography}
+\printbibliography
+\end{document}

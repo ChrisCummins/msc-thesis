@@ -411,6 +411,7 @@ AC_CONFIG_FILES([
         docs/ipp/Makefile
         docs/maths/Makefile
         docs/proposal/Makefile
+        docs/r1/Makefile
         docs/summary/Makefile
         docs/thesis/Makefile
         exercises/Makefile
