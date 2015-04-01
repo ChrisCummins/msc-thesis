@@ -5270,3 +5270,52 @@ Notes on analysing e5 plots:
 * Multi-GPU performance of the Stencil kernel is *aggressively*
   unstable. Segmentation faults are common on `monza` when using
   `--device-count 2`.
+
+
+# April 2015
+
+## Wednesday 1st
+
+Ran `e5` overnight on tim, monza, cec, and whz5. Tim ran out of HDD
+space this morning. It looks like there's a fair amount of contention
+for space:
+
+```
+s1469829@tim:/home> (for d in $(ls); do sudo du -h -s $d; done) | sort -h
+60K	s1050857
+15M	cdubach
+69M	s1042579
+71M	s1104617
+72M	s1469829
+210M	ayamaguc
+245M	s1153015
+564M	s0898672
+651M	s0966855
+656M	s1139243
+935M	cfensch
+2.8G	s1142769
+3.3G	v1bbroc2
+3.5G	zwang4
+5.0G	s1212328
+5.7G	v1jarnau
+11G	s1152011
+20G	s1158370
+38G	s1151734
+44G	v1msteuw
+51G	s0841430
+77G	helter_home
+```
+
+A nice blog extract about immutability:
+
+> There is one important argument in favor of using immutable objects:
+> It dramatically simplifies concurrent programming. Think about it,
+> why does writing proper multithreaded programming is a hard task?
+> Because it is hard to synchronize threads access to resources
+> (objects or others OS resources). Why it is hard to synchronize
+> these accesses? Because it is hard to guarantee that there won’t be
+> race conditions between the multiple write accesses and read
+> accesses done by multiple threads on multiple objects. What if there
+> are no more write accesses? In other words, what if the state of the
+> objects accessed by threads, doesn’t change? There is no more need
+> for synchronization!
