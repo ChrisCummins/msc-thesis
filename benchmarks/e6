@@ -1,0 +1,62 @@
+#!/usr/bin/env python2.7
+#
+# e6
+#
+from __future__ import print_function
+from itertools import product
+
+from benchlib import *
+from skelcl import *
+from util import *
+
+def mapOverlapVsStencil():
+    def _instantiate(host, benchmark, args, knobs):
+        sampler = FixedSizeSampler(15)
+        harnesses = []
+
+        for devargs in host.devargs():
+            mo = [Argument("MapOverlap", "--map-overlap")]
+            c1 = SkelCLTestCase(benchmark, host=host,
+                                invars=knobs + args + devargs)
+            c2 = SkelCLTestCase(benchmark, host=host,
+                                invars=knobs + args + mo + devargs)
+
+            harnesses += [TestHarness(c, sampler) for c in [c1, c2]]
+
+        return harnesses
+
+    return enumerate({
+        "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
+        "benchmarks": {
+            "GameOfLife": {
+                "args": {
+                    "Iterations": ["-i 1", "-i 100", "-i 500"]
+                }
+            },
+            "HeatEquation": {
+                "args": {
+                    "Iterations": ["-i 1", "-i 100", "-i 1000"]
+                }
+            }
+        },
+        "args": {},
+        "knobs": {}
+    }, _instantiate)
+
+harnesses = mapOverlapVsStencil()
+
+q = jobqueue(harnesses)
+
+runJobQueue(q)
+
+# Headless servers stop here.
+if not masterhost(): exit(0)
+
+####### DATA PROCESSING
+
+import plot as plt
+
+# Graph event times.
+[plt.openCLEventTimes(x.testcase.invars) for x in harnesses]
+
+exit(0)
