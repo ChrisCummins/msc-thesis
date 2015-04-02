@@ -5,12 +5,9 @@
 from __future__ import print_function
 from itertools import product
 
-from re import sub
-
 from benchlib import *
 from skelcl import *
 from util import *
-from stats import *
 
 jobdesc =  {
     "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
@@ -60,6 +57,10 @@ runJobQueue(q)
 if not masterhost(): exit(0)
 
 ####### DATA PROCESSING
+
+from re import sub
+
+from stats import *
 
 import plot as plt
 
