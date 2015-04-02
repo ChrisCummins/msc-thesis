@@ -198,7 +198,7 @@ def openCLEventTimes(invars, name="events"):
     # Axis text and limits.
     plt.ylabel('Time (ms)')
     plt.ylim(ymin=0) # Time is always positive.
-    plt.title('\n'.join(wrap(title, 90)), fontsize=fontsize, weight="bold")
+    plt.title('\n'.join(wrap(title, 60)), fontsize=fontsize, weight="bold")
     plt.xticks(X + width / 2., Labels, rotation=90)
     plt.figtext(.02, .02, caption)
 
