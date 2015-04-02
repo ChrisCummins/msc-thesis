@@ -11,9 +11,12 @@ from subprocess import call
 
 import sys
 
-def exit(*args, **kwargs):
-    Colours.print(Colours.GREEN, "Done.")
-    sys.exit(*args, **kwargs)
+def exit(status=0):
+    if status:
+        Colours.print(Colours.RED, "Error {status}.".format(status=status))
+    else:
+        Colours.print(Colours.GREEN, "Done.")
+    sys.exit(status)
 
 def pprint(data):
     print(dumps(data, sort_keys=True, indent=2, separators=(',', ': ')))

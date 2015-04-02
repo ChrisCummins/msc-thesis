@@ -5319,3 +5319,17 @@ A nice blog extract about immutability:
 > are no more write accesses? In other words, what if the state of the
 > objects accessed by threads, doesn’t change? There is no more need
 > for synchronization!
+
+Segfaults during SkelCL benchmarking:
+
+* monza: GameOfLife and HeatEquation, when device-count and iterations
+  are both > 1.
+
+
+## Thursday 2nd
+
+Experimental results:
+* MapOverlap vs Stencil performance for GameOfLife and HeatEquation on
+  5 devices.
+  * Show best speedup.
+* C, R, S parameters for AllPairs skeleton with MatrixMultiply.
