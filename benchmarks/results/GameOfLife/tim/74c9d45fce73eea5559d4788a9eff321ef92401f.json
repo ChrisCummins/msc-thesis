@@ -1,0 +1,50 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "37ffbc834896a4efdc24252aead78359d3f2c939",
+    "SkelCL version": "a7a296da920df80a49fae58ba40f3f010b5a43a7"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "GameOfLife",
+    "Device count": "--device-count 3",
+    "Device type": "--device-type GPU",
+    "Hostname": "tim",
+    "Iterations": "-i 4",
+    "MapOverlap": "--map-overlap",
+    "Size": "--size 1024"
+  },
+  "out": [
+    {
+      "End time": "2015-04-02 17:01:44",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.114s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.114s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.139s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[======Device.cpp:118  000.162s  INFO] Using device `GeForce GTX 590' with id: 1",
+        "[======Device.cpp:118  000.187s  INFO] Using device `GeForce GTX 590' with id: 2",
+        "[==DeviceList.cpp:107  000.187s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.187s  INFO] Using 3 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.187s  PROF] skelcl::init() time 155 ms",
+        "[=====Program.cpp:212  000.369s  PROF] skelcl::Program::build() 0 ms",
+        "[=MapOverlapDef.h:109  000.373s  PROF] MapOverlap<Tout(Tin)>[0x7fff7a48a5b0] prepare 3 ms",
+        "[=MapOverlapDef.h:109  000.377s  PROF] MapOverlap<Tout(Tin)>[0x7fff7a48a5b0] prepare 2 ms",
+        "[=MapOverlapDef.h:109  000.390s  PROF] MapOverlap<Tout(Tin)>[0x7fff7a48a5b0] prepare 2 ms",
+        "[======Device.cpp:148  000.390s ERROR] OpenCL error: CL_OUT_OF_RESOURCES (code: -5) clFlush"
+      ],
+      "Run time": 0.4645400047302246,
+      "Start time": "2015-04-02 17:01:43"
+    }
+  ]
+}
