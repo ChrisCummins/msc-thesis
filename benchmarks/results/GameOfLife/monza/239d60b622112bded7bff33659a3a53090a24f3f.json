@@ -1,0 +1,62 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "d352790b932e7e054a829f3a61cdf42a35c20c70",
+    "SkelCL version": "a7a296da920df80a49fae58ba40f3f010b5a43a7"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "GameOfLife",
+    "Device count": "--device-count 2",
+    "Device type": "--device-type GPU",
+    "Hostname": "monza",
+    "Iterations": "-i 15",
+    "Size": "--size 1024"
+  },
+  "out": [
+    {
+      "End time": "2015-04-02 19:42:38",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.270s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.270s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[======Device.cpp:118  000.280s  INFO] Using device `Tahiti' with id: 0",
+        "[======Device.cpp:118  000.284s  INFO] Using device `Tahiti' with id: 1",
+        "[==DeviceList.cpp:107  000.284s  INFO] Skip device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.284s  INFO] Using 2 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.284s  PROF] skelcl::init() time 251 ms",
+        "[=====Program.cpp:212  000.690s  PROF] skelcl::Program::build() 150 ms",
+        "[====StencilDef.h:169  000.696s  PROF] Stencil<Tout(Tin)>[0x7fff25d84ee0] prepare 6 ms",
+        "[====StencilDef.h:361  000.696s  PROF] Stencil<Tout(Tin)>[0x7fff25d84ee0][0] global[1024][1028] local[32][4] tile[34][6][4]",
+        "[====StencilDef.h:361  000.697s  PROF] Stencil<Tout(Tin)>[0x7fff25d84ee0][1] global[1024][1028] local[32][4] tile[34][6][4]",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[StencilDistributionDef.h:98   000.697s  PROF]  swap0 ms",
+        "[====Skeleton.cpp:93   000.763s  PROF] Stencil<Tout(Tin)>[0x7fff25d84ee0][0] 0.394222 ms"
+      ],
+      "Run time": 0.7831211090087891,
+      "Start time": "2015-04-02 19:42:37"
+    }
+  ]
+}
