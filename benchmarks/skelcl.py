@@ -136,7 +136,7 @@ class SwapTimes(DerivedVariable):
     def post(self, **kwargs):
         self.val = []
         for line in kwargs['output']:
-            match = search('PROF\] swap ([0-9\.]+) ms', line)
+            match = search('PROF\] swap ?([0-9\.]+) ms', line)
             if match:
                 time = float(match.group(1))
                 self.val.append(time)
@@ -414,3 +414,55 @@ def enumerate(e, instantiate):
             harnesses += instantiate(host, benchmark, args, knobs)
 
     return harnesses
+
+
+#
+def gettimes(samples):
+    inittimes = []
+    buildtimes = []
+    preptimes = []
+    swaptimes = []
+    skeltimes = []
+    conttimes = {"ul": [], "dl": []}
+
+    def parsesample(sample):
+        it = lookup1(sample, InitTime)
+        bt = lookup1(sample, ProgramBuildTimes)
+        pt = lookup1(sample, PrepareTimes)
+        swt = lookup1(sample, SwapTimes)
+        st = lookup(sample, SkeletonEventTimes)
+        ct = lookup(sample, ContainerEventTimes)
+        ndevices = len(lookup1(sample, Devices).val)
+
+        inittimes.append(it.val)
+        buildtimes.append(sum(bt.val))
+        swaptimes.append(sum(swt.val))
+
+        for type in pt.val:
+            for address in pt.val[type]:
+                preptimes.append(sum(pt.val[type][address]))
+
+        # Collect skeleton and container OpenCL event times. Note here
+        # that we are first summing up the total times for *all*
+        # events of each type, and that each event time is divided by
+        # the number of devices.
+
+        # Skeleton times
+        for var in st:
+            val = var.val
+            for type in val:
+                for address in val[type]:
+                    skeltimes.append(sum(val[type][address]) / ndevices)
+
+        # Container upload and download times.
+        for var in ct:
+            val = var.val
+            for type in val:
+                for address in val[type]:
+                    for direction in val[type][address]:
+                        times = [val[type][address][direction][x]
+                                 for x in val[type][address][direction]]
+                        conttimes[direction].append(sum(times) / ndevices)
+
+    [parsesample(x) for x in samples]
+    return inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes

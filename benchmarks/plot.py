@@ -33,57 +33,6 @@ class _HashableResult:
     def __repr__(x):
         return str(x.__key()).encode('utf-8')
 
-#
-def _gettimes(samples):
-    inittimes = []
-    buildtimes = []
-    preptimes = []
-    swaptimes = []
-    skeltimes = []
-    conttimes = {"ul": [], "dl": []}
-
-    def parsesample(sample):
-        it = lookup1(sample, InitTime)
-        bt = lookup1(sample, ProgramBuildTimes)
-        pt = lookup1(sample, PrepareTimes)
-        swt = lookup1(sample, SwapTimes)
-        st = lookup(sample, SkeletonEventTimes)
-        ct = lookup(sample, ContainerEventTimes)
-        ndevices = len(lookup1(sample, Devices).val)
-
-        inittimes.append(it.val)
-        buildtimes.append(sum(bt.val))
-        swaptimes.append(sum(swt.val))
-
-        for type in pt.val:
-            for address in pt.val[type]:
-                preptimes.append(sum(pt.val[type][address]))
-
-        # Collect skeleton and container OpenCL event times. Note here
-        # that we are first summing up the total times for *all*
-        # events of each type, and that each event time is divided by
-        # the number of devices.
-
-        # Skeleton times
-        for var in st:
-            val = var.val
-            for type in val:
-                for address in val[type]:
-                    skeltimes.append(sum(val[type][address]) / ndevices)
-
-        # Container upload and download times.
-        for var in ct:
-            val = var.val
-            for type in val:
-                for address in val[type]:
-                    for direction in val[type][address]:
-                        times = [val[type][address][direction][x]
-                                 for x in val[type][address][direction]]
-                        conttimes[direction].append(sum(times) / ndevices)
-
-    [parsesample(x) for x in samples]
-    return inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes
-
 def _writechecksum(path, checksum):
     file = open(path, 'a')
     file.write("<!-- __checksum__ {checksum} -->"
@@ -121,6 +70,7 @@ def _skippable(result, name):
         # Bad data is worth warning about.
         Colours.print(Colours.RED, "skipping plot because of bad data: ", end="")
         print(', '.join([str(x.val) for x in result.invars]))
+        print('   ', resultscache.resultspath(result.invars))
         return True
     if not len(result.outvars):
         return True
@@ -139,18 +89,8 @@ def openCLEventTimes(invars, name="events"):
     if _skippable(result, name): return
 
     # Get the raw data.
-    inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes = _gettimes(result.outvars)
-
-    # Process data.
-    data = [
-        ("init", describe(inittimes)),
-        ("build", describe(buildtimes)),
-        ("prep", describe(preptimes)),
-        ("upload", describe(conttimes["ul"])),
-        ("run", describe(skeltimes)),
-        ("swap", describe(swaptimes)),
-        ("download", describe(conttimes["dl"])),
-    ]
+    inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes = gettimes(result.outvars)
+    data = summarise(inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes)
 
     # Create plottable data.
     Y, Yerr, Labels = zip(*[(x[1][0], x[1][1], x[0]) for x in data])

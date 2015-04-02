@@ -31,7 +31,9 @@ def confinterval(l, c=0.95, n=30):
     if len(l) > 1 and not all(x == 0 for x in l):
         scale = stdev(l) / sqrt(len(l))
 
-        if len(l) < n:
+        if all(x == l[0] for x in l[1:]):
+            c1, c2 = l[0], l[0]
+        elif len(l) < n:
             # For small values of n, use a t-distribution:
             c1, c2 = scipy.stats.t.interval(c, len(l) - 1, loc=mean(l), scale=scale)
         else:
@@ -47,3 +49,12 @@ def describe(num, **kwargs):
     num = [float(x) for x in num] # Cast all to floating points.
     c = confinterval(num, **kwargs)
     return mean(num), c[1] - mean(num)
+
+def summarise(inittimes, buildtimes, preptimes, swaptimes,
+              skeltimes, conttimes):
+    return (("init", describe(inittimes)), ("build", describe(buildtimes)),
+            ("prep", describe(preptimes)),
+            ("upload", describe(conttimes["ul"])),
+            ("run", describe(skeltimes)),
+            ("swap", describe(swaptimes)),
+            ("download", describe(conttimes["dl"])))
