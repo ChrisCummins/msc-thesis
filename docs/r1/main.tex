@@ -28,14 +28,23 @@
 \item \textbf{init}
 \item \textbf{build}
 \item \textbf{prep}
+\end{itemize}
+
+Measured using OpenCL profiling. \texttt{COMMAND\_START} and
+\texttt{COMMAND\_END} event timestamps.
+
+\begin{itemize}
 \item \textbf{upload}
 \item \textbf{run}
 \item \textbf{download}
 \end{itemize}
 
-The upload, run, and download times are the difference between the
-OpenCL profiling \texttt{COMMAND\_START} and \texttt{COMMAND\_END}
-event timestamps.
+\begin{figure}
+\centering
+\includesvg[width=.8\textwidth]{img/GameOfLife-cec-c9b9bcf6c928d805a0730f1789fe205b2f39fc09-events}
+\end{figure}
+
+\section{Performance Parameters}
 
 \begin{figure}
 \includesvg[width=.5\textwidth]{img/GameOfLife-cec-f679f681af6ac3f41dc4f2284ed2039e0a79579a-events}
@@ -50,6 +59,56 @@ event timestamps.
 \caption{b}
 \label{fig:}
 \end{figure}
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l | l | l |}
+\hline
+\textbf{CPU} & \textbf{Memory} & \textbf{GPUs} & \textbf{Name}\\
+\hline
+Intel i7-4770 & 16GiB & NVIDIA GTX TITAN & \textit{whz5}\\
+Intel i7-2600K & 16GiB & NVIDIA GTX 690 & \textit{dhcp-60-090}\\
+Intel i7-2600K & 8GiB & 2$\times$ NVIDIA GTX 590 & \textit{tim}\\
+Intel i7-3820 & 8GiB & 2$\times$ AMD Tahiti 7970 & \textit{monza}\\
+Intel i5-4570 & 8GiB & - & \textit{cec}\\
+\hline
+\end{tabular}
+\caption{Testing hardware.}
+\label{tab:hw}
+\end{table}
+
+Table~\ref{tab:breakeven} shows the ``break-even'' point between
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l | l | l |}
+\hline
+\textbf{Host} & \textbf{Devices} & \textbf{Application} & \textbf{Speedups\ldots} & \textbf{Break-even point}\\
+\hline
+cec & CPU & GameOfLife & 1.95 1.41 1.17 \textit{0.99} & 4 \\
+cec & CPU & HeatEquation & 1.87 1.45 1.14 \textit{0.98} & 4 \\
+whz5 & 1x GPU & GameOfLife & 1.13 \textit{0.91} & 2 \\
+whz5 & 1x GPU & HeatEquation & 1.13 \textit{0.91} & 2 \\
+tim & 1x GPU & GameOfLife & 1.11 \textit{0.79} & 2 \\
+tim & 2x GPU & GameOfLife & 1.28 \textit{0.87} & 2 \\
+tim & 3x GPU & GameOfLife & 1.37 1.23 \textit{0.93} & 3 \\
+tim & 4x GPU & GameOfLife & 1.43 \textit{0.92} & 2 \\
+tim & 1x GPU & HeatEquation & 1.12 \textit{0.79} & 2 \\
+tim & 2x GPU & HeatEquation & 1.29 \textit{0.87} & 2 \\
+tim & 3x GPU & HeatEquation & 1.38 1.22 \textit{0.92} & 3 \\
+tim & 4x GPU & HeatEquation & 1.42 \textit{0.92} & 2 \\
+monza & 1x GPU & GameOfLife & 1.54 1.16 \textit{0.96} & 3 \\
+monza & 2x GPU & GameOfLife & 1.43 1.08 \textit{0.85} & 3 \\
+monza & CPU & GameOfLife & 1.14 \textit{0.83} & 2 \\
+monza & 2x GPU & HeatEquation & 1.45 1.09 \textit{0.93} & 3 \\
+monza & CPU & HeatEquation & 1.14 \textit{0.83} & 2 \\
+\hline
+\end{tabular}
+\caption{}
+\label{tab:breakeven}
+\end{table}
 
 
 \begin{table}
@@ -74,44 +133,6 @@ SAXPY & Linear algebra & Zip & - & 149 / 3\\
 \label{tab:benchmarks}
 \end{table}
 
-
-\begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l | l | l | l |}
-\hline
-\textbf{CPU} & \textbf{Memory} & \textbf{GPUs} & \textbf{Name}\\
-\hline
-Intel i7-4770 & 16GiB & NVIDIA GTX TITAN & \textit{whz5}\\
-Intel i7-2600K & 16GiB & NVIDIA GTX 690 & \textit{dhcp-60-090}\\
-Intel i7-2600K & 8GiB & 2$\times$ NVIDIA GTX 590 & \textit{tim}\\
-Intel i7-3820 & 8GiB & 2$\times$ AMD Tahiti 7970 & \textit{monza}\\
-Intel i5-4570 & 8GiB & - & \textit{cec}\\
-\hline
-\end{tabular}
-\caption{Testing hardware.}
-\label{tab:hw}
-\end{table}
-
-\begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l |}
-  \hline
-  \textbf{Name} & \textbf{Notes}\\
-  \hline
-  Total runtime & Runtime of entire benchmark application\\
-  Kernel compilation time & Could influence cost/benefit analysis\\
-  Kernel queue time & Time that a command spent queued\\
-  Kernel exec time & Time between command starting and completing\\
-  Data upload time & Host $\rightarrow$ Device\\
-  Data download time & Device $\rightarrow$ Host\\
-  Data sync time & Each device $\leftrightarrow$ Host (multi-GPUs)\\
-  \hline
-\end{tabular}
-\caption{Measurable performance values.}
-\label{tab:metric}
-\end{table}
 
 \section{Conclusions}
 
