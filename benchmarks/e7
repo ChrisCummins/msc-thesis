@@ -8,44 +8,47 @@ from itertools import product
 from benchlib import *
 from skelcl import *
 from util import *
+from stats import *
 
-def mapOverlapVsStencil():
-    def _instantiate(host, benchmark, args, knobs):
-        sampler = FixedSizeSampler(15)
-        harnesses = []
-
-        for devargs in host.devargs():
-            mo = [Argument("MapOverlap", "--map-overlap")]
-            c1 = SkelCLTestCase(benchmark, host=host,
-                                invars=knobs + args + devargs)
-            c2 = SkelCLTestCase(benchmark, host=host,
-                                invars=knobs + args + mo + devargs)
-
-            harnesses += [TestHarness(c, sampler) for c in [c1, c2]]
-
-        return harnesses
-
-    return enumerate({
-        "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
-        "benchmarks": {
-            "GameOfLife": {
-                "args": {
-                    "Iterations": ["-i {i}".format(i=i) for i in [1, 2, 3, 4, 5]]
-                }
-            },
-            "HeatEquation": {
-                "args": {
-                    "Iterations": ["-i {i}".format(i=i) for i in [1, 2, 3, 4, 5]]
-                }
+jobdesc =  {
+    "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
+    "benchmarks": {
+        "GameOfLife": {
+            "args": {
+                "Iterations": ["-i {i}".format(i=i) for i in [1, 2, 3, 4, 5]]
             }
         },
-        "args": {},
-        "knobs": {}
-    }, _instantiate)
+        "HeatEquation": {
+            "args": {
+                "Iterations": ["-i {i}".format(i=i) for i in [1, 2, 3, 4, 5]]
+            }
+        }
+    },
+    "args": {},
+    "knobs": {}
+}
 
-harnesses = mapOverlapVsStencil()
+def instantiate(host, benchmark, args, knobs):
+    sampler = FixedSizeSampler(15)
+    harnesses = []
 
-q = jobqueue(harnesses)
+    for devargs in host.devargs():
+        mo = [Argument("MapOverlap", "--map-overlap")]
+        c1 = SkelCLTestCase(benchmark, host=host,
+                            invars=knobs + args + devargs)
+        c2 = SkelCLTestCase(benchmark, host=host,
+                            invars=knobs + args + mo + devargs)
+
+        harnesses += [TestHarness(c, sampler) for c in [c1, c2]]
+
+    return harnesses
+
+def mapOverlapVsStencil():
+    return enumerate(jobdesc, instantiate)
+
+HARNESSES = mapOverlapVsStencil()
+
+q = jobqueue(HARNESSES)
 
 runJobQueue(q)
 
@@ -57,6 +60,65 @@ if not masterhost(): exit(0)
 import plot as plt
 
 # Graph event times.
-[plt.openCLEventTimes(x.testcase.invars) for x in harnesses]
+[plt.openCLEventTimes(x.testcase.invars) for x in HARNESSES]
+
+# Table of
+for h in jobdesc["hosts"]:
+    host = SkelCLHost.create(h)
+    for b in jobdesc["benchmarks"]:
+        benchmark = SkelCLBenchmark(b)
+        for devargs in host.devargs():
+            # t[] is a list of tuples, where each tuple represents the
+            # total time (minus init) to run a benchmark using stencil
+            # (left) and mapoverlap (right).
+            t = []
+            for i in jobdesc["benchmarks"][b]["args"]["Iterations"]:
+                args = [Argument("Iterations", i)]
+                moarg = [Argument("MapOverlap", "--map-overlap")]
+                harnesses = [
+                    TestHarness(SkelCLTestCase(benchmark, host, args + devargs)),
+                    TestHarness(SkelCLTestCase(benchmark, host, args + moarg + devargs))
+                ]
+
+                stencil = harnesses[0].result()
+                mo = harnesses[1].result()
+
+                stenciltimes = summarise(*gettimes(stencil.outvars))
+                motimes = summarise(*gettimes(mo.outvars))
+
+                stenciltotal = sum([x[1][0] for x in stenciltimes[1:]])
+                mototal = sum([x[1][0] for x in motimes[1:]])
+
+                t.append((stenciltotal, mototal))
+
+            # Test whether we have data.
+            skip = False
+            for i in t:
+                if i[0] == 0 or i[1] == 0:
+                    skip = True
+                    break
+            if skip: continue
+
+            speedups = []
+            i = 0
+            while i < len(t):
+                st = t[i][0]
+                mt = t[i][1]
+
+                speedups.append(st / mt)
+
+                i += 1
+                if mt > st:
+                    break
+
+            dt = "GPU" if search("GPU", lookup1(devargs, DeviceTypeArg).val) else "CPU"
+            if dt == "GPU":
+                dt = "{n}x ".format(n=search('([0-9]+)', lookup1(devargs, DeviceCountArg).val).group(1)) + dt
+
+            speedupstrs = ["{0:.2f}".format(x) for x in speedups]
+            speedupstrs[-1] = "\\textit{{{0}}}".format(speedupstrs[-1])
+            
+            print(' & '.join([str(x) for x in [host.NAME, dt, benchmark, ' '.join(speedupstrs), i]]),
+                  '\\\\')
 
 exit(0)
