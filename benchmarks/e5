@@ -25,7 +25,7 @@ def testMapOverlapVsStencil():
 
         return harnesses
 
-    return enumerate({
+    return enumerateHarnesses({
         "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
         "benchmarks": {
             "CannyEdgeDetection": {
@@ -66,7 +66,7 @@ def testStencilLocalSize():
 
         return harnesses
 
-    return enumerate({
+    return enumerateHarnesses({
         "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
         "benchmarks": {
             "CannyEdgeDetection": {
@@ -113,7 +113,7 @@ def testAllPairs():
 
         return harnesses
 
-    return enumerate({
+    return enumerateHarnesses({
         "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
         "benchmarks": {
             "MatrixMultiply": {
@@ -142,7 +142,7 @@ def testrun():
                             sampler)
                 for x in host.devargs()]
 
-    return enumerate({
+    return enumerateHarnesses({
         "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
         "benchmarks": {
             "GameOfLife": {

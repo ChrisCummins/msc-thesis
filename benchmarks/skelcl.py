@@ -388,7 +388,7 @@ benchmarks = [
 def masterhost():
     return hostname() in MASTER_HOSTS
 
-def enumerate(e, instantiate):
+def enumerateHarnesses(e, instantiate):
     harnesses = []
 
     _hosts = e["hosts"]
@@ -421,9 +421,10 @@ def gettimes(samples):
     inittimes = []
     buildtimes = []
     preptimes = []
-    swaptimes = []
+    ultimes = []
     skeltimes = []
-    conttimes = {"ul": [], "dl": []}
+    swaptimes = []
+    dltimes = []
 
     def parsesample(sample):
         it = lookup1(sample, InitTime)
@@ -462,7 +463,12 @@ def gettimes(samples):
                     for direction in val[type][address]:
                         times = [val[type][address][direction][x]
                                  for x in val[type][address][direction]]
-                        conttimes[direction].append(sum(times) / ndevices)
+                        if direction == "ul":
+                            ultimes.append(sum(times) / ndevices)
+                        elif direction == "dl":
+                            dltimes.append(sum(times) / ndevices)
+                        else:
+                            raise Exception("Unknown direction!", direction)
 
     [parsesample(x) for x in samples]
-    return inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes
+    return inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes

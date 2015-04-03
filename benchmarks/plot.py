@@ -3,6 +3,7 @@ from hashlib import sha1
 from textwrap import wrap
 from matplotlib import rc
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -43,26 +44,32 @@ _checksumre = compile("<!-- __checksum__ ([0-9a-f]+) -->")
 
 def _readchecksum(path):
     # The checksum is embedded in the last line of image data, so we
-    # employ a speedy hack to read the last line using seek().
+    # employ a speedy hack to read the last line using seek(). If
+    # anything fucks up, return None.
     #
     # See: http://stackoverflow.com/a/3346492/1318051
     with open(path, 'rb') as file:
-        first = next(file).decode()
+        try:
+            first = next(file).decode()
 
-        file.seek(-1024, 2)
-        last = file.readlines()[-1].decode()
-        match = _checksumre.match(last)
-        return match.group(1) if match else None
+            file.seek(-1024, 2)
+            last = file.readlines()[-1].decode()
+            match = _checksumre.match(last)
+            return match.group(1)
+        except:
+            return None
 
 #
-def _finalize(result, name):
-    path = resultscache.plotpath(result.invars, suffix="-{name}".format(name=name))
-    mkdir(dirname(path))
-    Colours.print(Colours.BLUE, "Wrote {path} ...".format(path=path))
-    plt.savefig(path)
+def _finalize(path=None):
+    if path == None:
+        plt.show()
+    else:
+        mkdir(dirname(path))
+        Colours.print(Colours.BLUE, "Wrote {path} ...".format(path=path))
+        plt.savefig(path)
+
     plt.close()
-    # Embed checksum of graphed data in the plot file.
-    _writechecksum(path, _HashableResult(result).key())
+
 
 #
 def _skippable(result, name):
@@ -89,8 +96,8 @@ def openCLEventTimes(invars, name="events"):
     if _skippable(result, name): return
 
     # Get the raw data.
-    inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes = gettimes(result.outvars)
-    data = summarise(inittimes, buildtimes, preptimes, swaptimes, skeltimes, conttimes)
+    inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptims, dltimes = gettimes(result.outvars)
+    data = summarise(inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptims, dltimes)
 
     # Create plottable data.
     Y, Yerr, Labels = zip(*[(x[1][0], x[1][1], x[0]) for x in data])
@@ -143,4 +150,78 @@ def openCLEventTimes(invars, name="events"):
     plt.figtext(.02, .02, caption)
 
     # Finish up.
-    _finalize(result, name)
+    path = resultscache.plotpath(result.invars, suffix="-{name}".format(name=name))
+    _finalize(path)
+    # Embed checksum of graphed data in the plot file.
+    _writechecksum(path, _HashableResult(result).key())
+
+def speedups(speedups, err=[], labels=[], xlabel="", title="", caption="", ymajorlines=False, path=None):
+    X = np.arange(len(speedups))
+
+    # Plot the data.
+    width = 1
+
+    # Arguments to plt.bar()
+    kwargs = {
+        'width': width,
+        'color': 'r'
+    }
+
+    # Add error bars, if provided.
+    if err:
+        kwargs['yerr'] = err
+        kwargs['ecolor'] = 'k'
+
+    plt.bar(X, speedups, **kwargs)
+
+    ax = plt.axes()
+
+    greenindexes = [x for x,v in enumerate(speedups) if v > 1]
+
+    # Filter out the bars from a complex plot.
+    bars = filter(lambda x: isinstance(x, matplotlib.patches.Rectangle), ax.get_children())
+
+    # Colour the default value red, and the speedup > 1 values
+    # green.
+    for i in greenindexes:
+        bars[i].set_facecolor('g')
+        #ax.get_children()[i].set_edge_color('k')
+
+    # Use LaTeX text rendering.
+    fontsize=16
+    rc('text', usetex=True)
+    rc('font', size=fontsize)
+
+    #  Vertical major gridlines.
+    if ymajorlines:
+        ax.yaxis.grid(b=True, which='major', color="#aaaaaa", linestyle='-')
+
+    # Axis text and limits.
+    plt.ylabel('Speedup')
+    if xlabel:
+        plt.xlabel(xlabel)
+
+    plt.ylim(ymin=0) # Values are always positive.
+    plt.xlim(xmin=0, xmax=X[-1] + 1) # Plot as much data as needed.
+    plt.title('\n'.join(wrap(title, 60)), fontsize=fontsize, weight="bold")
+
+    plt.axhline(y=1, color='k')
+
+    if labels:
+        plt.xticks(X + width / 2., labels, rotation=90)
+
+    position = [.12, # Left padding
+                .14, # Bottom padding
+                .85, # Width
+                .75] # Height
+
+    if caption:
+        plt.figtext(.02, .02, caption)
+        position[1] = .24 # Add extra padding to bottom.
+        position[3] = .65
+
+    # Set the graph bounds.
+    plt.gca().set_position(position)
+
+    # Finish up.
+    _finalize(path)

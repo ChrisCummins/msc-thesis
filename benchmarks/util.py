@@ -82,6 +82,13 @@ def mkdir(path):
     except OSError:
         pass
 
+# A wrapper for the open() builtin which also ensures that the
+# directory exists.
+def mkopen(path, *args, **kwargs):
+    dir = dirname(path)
+    mkdir(dir)
+    return open(path, *args, **kwargs)
+
 def hostname():
     return gethostname()
 

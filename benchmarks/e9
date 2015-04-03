@@ -36,7 +36,7 @@ def instantiate(host, benchmark, args, knobs):
     return harnesses
 
 def mapOverlapVsStencil():
-    return enumerate(jobdesc, instantiate)
+    return enumerateHarnesses(jobdesc, instantiate)
 
 HARNESSES = mapOverlapVsStencil()
 

@@ -50,11 +50,11 @@ def describe(num, **kwargs):
     c = confinterval(num, **kwargs)
     return mean(num), c[1] - mean(num)
 
-def summarise(inittimes, buildtimes, preptimes, swaptimes,
-              skeltimes, conttimes):
+def summarise(inittimes, buildtimes, preptimes,
+              ultimes, skeltimes, swaptimes, dltimes):
     return (("init", describe(inittimes)), ("build", describe(buildtimes)),
             ("prep", describe(preptimes)),
-            ("upload", describe(conttimes["ul"])),
+            ("upload", describe(ultimes),
             ("run", describe(skeltimes)),
             ("swap", describe(swaptimes)),
-            ("download", describe(conttimes["dl"])))
+            ("download", describe(dltimes))))

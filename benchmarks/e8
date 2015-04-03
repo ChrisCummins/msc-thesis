@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 #
-# e6
+# e8
 #
 from __future__ import print_function
 from itertools import product
@@ -17,13 +17,13 @@ jobdesc =  {
         "GameOfLife": {
             "args": {
                 "Size": ["--size {s}".format(s=s) for s in [1024, 2048]],
-                "Iterations": ["-i {i}".format(i=i) for i in range(1, 55)]
+                "Iterations": ["-i {i}".format(i=i) for i in range(1, 100)]
             }
         },
         "HeatEquation": {
             "args": {
                 "Size": ["--size {s}".format(s=s) for s in [1024, 2048]],
-                "Iterations": ["-i {i}".format(i=i) for i in range(1, 30)]
+                "Iterations": ["-i {i}".format(i=i) for i in range(1, 100)]
             }
         }
     },
@@ -47,7 +47,7 @@ def instantiate(host, benchmark, args, knobs):
     return harnesses
 
 def mapOverlapVsStencil():
-    return enumerate(jobdesc, instantiate)
+    return enumerateHarnesses(jobdesc, instantiate)
 
 HARNESSES = mapOverlapVsStencil()
 
@@ -66,35 +66,78 @@ from stats import *
 
 import plot as plt
 
-# Graph event times.
-[plt.openCLEventTimes(x.testcase.invars) for x in HARNESSES]
+#
+def visualise(host, benchmark, size, devargs, speedups, tableFile):
+    # Check we have something to do.
+    if speedups == None:
+        return
 
-def compareStencilMapOverlap(host, benchmark, devargs, iterations, size=4096):
-    #
-    def _print(host, benchmark, size, devargs, speedups, i):
-        dt = "GPU" if search("GPU", lookup1(devargs, DeviceTypeArg).val) else "CPU"
-        if dt == "GPU":
-            dt = "{n}x ".format(n=search('([0-9]+)', lookup1(devargs, DeviceCountArg).val).group(1)) + dt
+    def table(file):
+        def breakEvenIndex(speedups):
+            for i in range(len(speedups)):
+                if speedups[i][0] < 1:
+                    return i + 1
+            return -1
 
-        benchmarkstr = "{b} ({s})".format(b=benchmark.name, s=size)
+        if len(speedups) > 1:
+            be = breakEvenIndex(speedups)
+            positiveSpeedups = speedups[:be]
+            if be < 0:
+                be = "> " + str(len(speedups) + 1)
 
-        speedupstrs = ["{0:.2f}".format(x) for x in speedups]
-        if len(speedups):
+            speedupstrs = ["{0:.2f}".format(x[0]) for x in positiveSpeedups]
             speedupstrs[-1] = "\\textit{{{0}}}".format(speedupstrs[-1])
-        if len(speedups) > 4:
-            speedupstrs = [speedupstrs[0]] + ["\\ldots"] + speedupstrs[-3:]
+            if len(positiveSpeedups) > 4:
+                speedupstrs = [speedupstrs[0]] + ["\\ldots"] + speedupstrs[-3:]
 
-        print(' & '.join([str(x) for x in [host.NAME, dt, benchmarkstr, ' '.join(speedupstrs), i]]),
-              '\\\\')
+        else:
+            speedupstrs = []
+            be = "-"
 
-    # t[] is a list of tuples, where each tuple represents the
-    # total time (minus init) to run a benchmark using stencil
-    # (left) and mapoverlap (right).
-    t = []
+        print(' & '.join([str(x) for x in [host.NAME, dt,
+                                           benchmark.name,
+                                           size,
+                                           ' '.join(speedupstrs),
+                                           be]]), '\\\\',
+              file=file)
+
+    dt = "GPU" if search("GPU", lookup1(devargs, DeviceTypeArg).val) else "CPU"
+    if dt == "GPU":
+        dt = "{n}x ".format(n=search('([0-9]+)', lookup1(devargs, DeviceCountArg).val).group(1)) + dt
+
+    table(tableFile)
+
+    if len(speedups) > 4:
+        name = "{host}-{dev}-{app}-{size}".format(
+            host=host.NAME,
+            dev=sub(" ", "", dt),
+            app=benchmark.name,
+            size=size
+        )
+
+        MAX_DATAPOINTS = 50
+        if len(speedups) > MAX_DATAPOINTS and speedups[MAX_DATAPOINTS][0] > 1:
+            MAX_DATAPOINTS = len(speedups)
+
+        kwargs = {
+            "title": "MapOverlap vs Stencil: " + ", ".join([str(x) for x in [
+                host.NAME,
+                dt,
+                "{benchmark} ({size})".format(benchmark=benchmark.name, size=size)
+            ]]),
+            "xlabel": "Iterations",
+            "err": [x[1] for x in speedups][:MAX_DATAPOINTS],
+            "path": path(config.RESULTS, config.ID, name + ".png")
+        }
+
+        plt.speedups([x[0] for x in speedups][:MAX_DATAPOINTS], **kwargs)
+
+def speedupsMapOverlapStencil(host, benchmark, devargs, iterations, size=4096):
+    speedups = []
     if size == 4096:
         iterations = iterations[0:4]
 
-    bad = set()
+    bad = False
 
     for i in iterations:
         args = [Argument("Iterations", i)]
@@ -109,59 +152,67 @@ def compareStencilMapOverlap(host, benchmark, devargs, iterations, size=4096):
         stencil = harnesses[0].result()
         mo = harnesses[1].result()
 
-        bad.add(stencil.bad)
-        bad.add(mo.bad)
+        stenciltimes = summarise(*gettimes(stencil.outvars))[1:]
+        motimes = summarise(*gettimes(mo.outvars))[1:]
 
-        stenciltimes = summarise(*gettimes(stencil.outvars))
-        motimes = summarise(*gettimes(mo.outvars))
+        stenciltotal = sum([x[1][0] for x in stenciltimes])
+        stencilerr = sum([x[1][1] for x in motimes])
+        mototal = sum([x[1][0] for x in motimes])
 
-        stenciltotal = sum([x[1][0] for x in stenciltimes[1:]])
-        mototal = sum([x[1][0] for x in motimes[1:]])
+        if not stenciltotal and not mototal:
+            # We have run out of data.
+            if len(speedups):
+                break
+            # We have no data.
+            return
 
-        if stenciltotal == 0 or mototal == 0:
-            bad.add(True)
+        # We have bad data.
+        if ((stencil.bad or mo.bad) or (bool(stenciltotal == 0) != bool(mototal == 0))):
+            bad = True
             break
 
-        t.append((stenciltotal, mototal))
+        speedup = stenciltotal / mototal
+        err = ((stenciltotal + stencilerr) / mototal) - speedup
 
-    # Test whether we have data.
-    if all(x[0] == 0 and x[1] == 0 for x in t):
-        return
-    # Test whether data is bad.
-    if True in bad:
-        _print(host, benchmark, size, devargs, [], "-")
+        speedups.append((speedup, err))
 
-    speedups = []
-    i = 0
-    while i < len(t):
-        st = t[i][0]
-        mt = t[i][1]
+    if bad:
+        return speedups
+    else:
+        return speedups
 
-        try:
-            speedups.append(st / mt)
-        except ZeroDivisionError:
-            print(host.NAME, size, devargs)
-            print(t)
-            exit(10)
+tableFile = mkopen(path(config.RESULTS, config.ID, "MapOverlapVsStencilSpeedups.tex"), "w")
 
-        i += 1
-        if mt > st:
-            break
+print("\\begin{tabular}{| l | l | l | l | l | l |}\n\\hline\n\\textbf{Host} & \\textbf{Devices} & \\textbf{Application} & \\textbf{Data Size} & \\textbf{Speedups} & \\textbf{Break-even point}\\\\\n\\hline", file=tableFile)
 
-    _print(host, benchmark, size, devargs, speedups, i)
+allspeedups = []
 
-
-# Table of
+# Create table and visualisations
 for h in jobdesc["hosts"]:
     host = SkelCLHost.create(h)
     for b in jobdesc["benchmarks"]:
         benchmark = SkelCLBenchmark(b)
         for devargs in host.devargs():
             for s in jobdesc["benchmarks"][b]["args"]["Size"]:
-                compareStencilMapOverlap(host, benchmark, devargs,
-                                         jobdesc["benchmarks"][b]["args"]["Iterations"],
-                                         size=int(sub("--size ", "", s)))
-            compareStencilMapOverlap(host, benchmark, devargs, # size = 4096, from e7
-                                     jobdesc["benchmarks"][b]["args"]["Iterations"])
+                size = int(sub("--size ", "", s))
+                speedups = speedupsMapOverlapStencil(host, benchmark, devargs,
+                                                     jobdesc["benchmarks"][b]["args"]["Iterations"],
+                                                     size=size)
+                if speedups: allspeedups += speedups
+                visualise(host, benchmark, size, devargs, speedups, tableFile)
+            speedups = speedupsMapOverlapStencil(host, benchmark, devargs,
+                                                 jobdesc["benchmarks"][b]["args"]["Iterations"])
+            if speedups: allspeedups += speedups
+            visualise(host, benchmark, 4096, devargs, speedups, tableFile)
+
+allpositivespeedups = [x[0] for x in allspeedups if x[0] >= 1]
+print("AVERAGE SPEEDUP:", sum(allpositivespeedups) / len(allpositivespeedups),
+      "NUMBER OF SPEEDUPS:", len(allpositivespeedups))
+
+print("\\hline\n\\end{tabular}", file=tableFile)
+print("Wrote {path}...".format(path=tableFile.name))
+
+# Graph event times.
+[plt.openCLEventTimes(x.testcase.invars) for x in HARNESSES]
 
 exit(0)
