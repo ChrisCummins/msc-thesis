@@ -19,7 +19,11 @@
 
 \begin{abstract}
   \noindent
+  This document describes my methodology for collecting performance
+  data of SkelCL applications, and proposes
 
+  experimental results from two applications show a maximum speedup of
+  3.8$\times$ (average: 1.77$\times$).
 \end{abstract}
 
 \section{Profiling SKelCL programs}
@@ -43,21 +47,71 @@ and \texttt{COMMAND\_END} event timestamps.
 \begin{figure}
 \centering
 \includesvg[width=.8\textwidth]{img/GameOfLife-cec-c9b9bcf6c928d805a0730f1789fe205b2f39fc09-events}
+\caption{%
+Profiling information for.%
+}
+\label{fig:events}
 \end{figure}
 
-\section{Performance Parameters}
+\section{Tuning iterative stencil applications}
+
+\lstset{language=C++}
+\begin{lstlisting}[
+  caption={Source code to implement \texttt{GameOfLife} using the Stencil skeleton.},
+  label=lst:gol-stencil
+]
+Matrix<int> grid(data, numcols);
+Stencil<int(int)> s(std::ifstream{"./Stencil.cl"}, 1, 1, 1, 1,
+                    detail::Padding::NEUTRAL, 0, "func", 0);
+
+grid = s(iterations, grid);
+\end{lstlisting}
+
+\lstset{language=C++}
+\begin{lstlisting}[
+  caption={Implementing the same algorithm as Listing~\ref{lst:gol-stencil}, but using the MapOverlap skeleton.}
+]
+Matrix<int> grid(data, numcols);
+MapOverlap<int(int)> s(std::ifstream{"./MapOverlap.cl"}, 1,
+                       detail::Padding::NEUTRAL, 0, "func");
+
+for (int i = 0; i < iterations; i++) {
+  grid = s(grid);
+}
+\end{lstlisting}
+
+\newpage
+\lstset{language=C++}
+\begin{lstlisting}[
+  caption={My proposed ``SmartStencil'' implementation.},
+  label=lst:gol-stencil
+]
+// Constructor declaration.
+MyStencil<DataType>(kernel, border={0,0,0,0}, padding_type=NEUTRAL);
+
+// "()" operator definition.
+DataType MyStencil::operator()(DataType in, iterations=1) {
+  if (max(border) == 0 && iterations == 1) {
+    // Use Map skeleton
+  } else if (iterations < TUNABLE_KNOB) {
+    // Use MapOverlap skeleton
+  } else {
+    // Use Stencil skeleton
+  }
+}
+\end{lstlisting}
 
 \begin{figure}
 \includesvg[width=.5\textwidth]{img/GameOfLife-cec-f679f681af6ac3f41dc4f2284ed2039e0a79579a-events}
 \includesvg[width=.5\textwidth]{img/GameOfLife-cec-8c5a7452d26b8294e841b29e0e749c40944fd69b-events}
-\caption{a}
+\caption{Problem size of 4096 elements. MapOverlap is 95\% faster.}
 \label{fig:}
 \end{figure}
 
 \begin{figure}
 \includesvg[width=.5\textwidth]{img/GameOfLife-cec-0ed9d7941c644e44e34aab38b6ea031c1f2f0a9f-events}
 \includesvg[width=.5\textwidth]{img/GameOfLife-cec-f88ff13f204fa812571941a74a7cf72941f96fb8-events}
-\caption{b}
+\caption{Problem size of 4096 elements. MapOverlap is 64\% slower.}
 \label{fig:}
 \end{figure}
 
@@ -75,7 +129,9 @@ Intel i7-3820 & 8GiB & 2$\times$ AMD Tahiti 7970 & \textit{monza}\\
 Intel i5-4570 & 8GiB & - & \textit{cec}\\
 \hline
 \end{tabular}
-\caption{Testing hardware.}
+\caption{%
+  Testing hardware.%
+}
 \label{tab:hw}
 \end{table}
 
@@ -84,63 +140,32 @@ Table~\ref{tab:breakeven} shows the ``break-even'' point between
 \begin{table}
 \footnotesize
 \centering
-\begin{tabular}{| l | l | l | l | l |}
-\hline
-\textbf{Host} & \textbf{Devices} & \textbf{Application} & \textbf{Speedups\ldots} & \textbf{Break-even point}\\
-\hline
-cec & CPU & GameOfLife (1024) & 3.44 \ldots 1.91 1.85 \textit{1.78} & 19 \\
-cec & CPU & GameOfLife (2048) & 2.98 \ldots 1.07 1.02 \textit{0.97} & 16 \\
-cec & CPU & GameOfLife (4096) & 1.95 1.41 1.17 \textit{0.99} & 4 \\
-cec & CPU & HeatEquation (1024) & 3.65 \ldots 2.01 1.95 \textit{1.89} & 19 \\
-cec & CPU & HeatEquation (2048) & 3.11 \ldots 1.05 1.01 \textit{0.95} & 16 \\
-cec & CPU & HeatEquation (4096) & 1.87 1.45 1.14 \textit{0.98} & 4 \\
-whz5 & 1x GPU & GameOfLife (4096) & 1.13 \textit{0.91} & 2 \\
-whz5 & 1x GPU & HeatEquation (4096) & 1.13 \textit{0.91} & 2 \\
-tim & 1x GPU & GameOfLife (1024) & 1.20 \textit{0.86} & 2 \\
-tim & 1x GPU & GameOfLife (2048) & 1.12 \textit{0.79} & 2 \\
-tim & 1x GPU & GameOfLife (4096) & 1.11 \textit{0.79} & 2 \\
-tim & 2x GPU & GameOfLife (1024) & 1.21 \textit{0.86} & 2 \\
-tim & 2x GPU & GameOfLife (2048) & 1.29 \textit{0.87} & 2 \\
-tim & 2x GPU & GameOfLife (4096) & 1.28 \textit{0.87} & 2 \\
-tim & 3x GPU & GameOfLife (1024) &  & - \\
-tim & 3x GPU & GameOfLife (1024) & 1.39 1.24 \textit{0.96} & 3 \\
-tim & 3x GPU & GameOfLife (2048) &  & - \\
-tim & 3x GPU & GameOfLife (2048) & 1.37 1.24 \textit{0.93} & 3 \\
-tim & 3x GPU & GameOfLife (4096) &  & - \\
-tim & 3x GPU & GameOfLife (4096) & 1.37 1.23 \textit{0.93} & 3 \\
-tim & 4x GPU & GameOfLife (1024) & 1.32 \textit{0.90} & 2 \\
-tim & 4x GPU & GameOfLife (2048) & 1.42 \textit{0.89} & 2 \\
-tim & 4x GPU & GameOfLife (4096) & 1.43 \textit{0.92} & 2 \\
-tim & 1x GPU & HeatEquation (1024) & 1.23 \textit{0.86} & 2 \\
-tim & 1x GPU & HeatEquation (2048) & 1.12 \textit{0.79} & 2 \\
-tim & 1x GPU & HeatEquation (4096) & 1.12 \textit{0.79} & 2 \\
-tim & 2x GPU & HeatEquation (1024) & 1.21 \textit{0.85} & 2 \\
-tim & 2x GPU & HeatEquation (2048) & 1.30 \textit{0.87} & 2 \\
-tim & 2x GPU & HeatEquation (4096) & 1.29 \textit{0.87} & 2 \\
-tim & 3x GPU & HeatEquation (1024) &  & - \\
-tim & 3x GPU & HeatEquation (1024) & 1.29 1.23 1.09 \textit{0.99} & 4 \\
-tim & 3x GPU & HeatEquation (2048) &  & - \\
-tim & 3x GPU & HeatEquation (2048) & 1.37 1.24 \textit{0.92} & 3 \\
-tim & 3x GPU & HeatEquation (4096) &  & - \\
-tim & 3x GPU & HeatEquation (4096) & 1.38 1.22 \textit{0.92} & 3 \\
-tim & 4x GPU & HeatEquation (1024) & 1.38 \textit{0.90} & 2 \\
-tim & 4x GPU & HeatEquation (2048) & 1.45 \textit{0.92} & 2 \\
-tim & 4x GPU & HeatEquation (4096) & 1.42 \textit{0.92} & 2 \\
-monza & 1x GPU & GameOfLife (4096) & 1.54 1.16 \textit{0.96} & 3 \\
-monza & 2x GPU & GameOfLife (4096) &  & - \\
-monza & 2x GPU & GameOfLife (4096) & 1.43 1.08 \textit{0.85} & 3 \\
-monza & CPU & GameOfLife (4096) & 1.14 \textit{0.83} & 2 \\
-monza & 1x GPU & HeatEquation (4096) &  & - \\
-monza & 1x GPU & HeatEquation (4096) & \textit{1.57} & 1 \\
-monza & 2x GPU & HeatEquation (4096) &  & - \\
-monza & 2x GPU & HeatEquation (4096) & 1.45 1.09 \textit{0.93} & 3 \\
-monza & CPU & HeatEquation (4096) & 1.14 \textit{0.83} & 2 \\
-\hline
-\end{tabular}
-\caption{}
+\input{../../benchmarks/results/e8/MapOverlapVsStencilSpeedups.tex}
+\caption{%
+  Relative performance of MapOverlap vs Stencil skeletons for over an
+  increasing number of iterations. The ``Break-even point'' is the number of
+  iterations at which point the Stencil kernel is faster than MapOverlap.%
+}
 \label{tab:breakeven}
 \end{table}
 
+\begin{figure}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/cec-CPU-GameOfLife-2048.png}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/cec-CPU-HeatEquation-2048.png}
+\caption{%
+  Relative performance of the MapOverlap skeleton over the Stencil
+  skeleton, for two different benchmarks on the same architecture.%
+}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/monza-1xGPU-HeatEquation-1024.png}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/tim-1xGPU-HeatEquation-1024.png}
+\caption{%
+  The same program and input size for two different CP/GPU
+  architectures.%
+}
+\end{figure}
 % \begin{table}
 % \footnotesize
 % \centering
@@ -165,6 +190,11 @@ monza & CPU & HeatEquation (4096) & 1.14 \textit{0.83} & 2 \\
 
 
 \section{Conclusions}
+
+Future work: ``fusing'' kernels of multi-stage iterative skeletons,
+and tuning halo size for multi-GPU systems and .
+
+Also, investigate seg faults in multi-GPU stencil computations.
 
 \label{bibliography}
 \printbibliography

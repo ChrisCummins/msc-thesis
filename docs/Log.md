@@ -5333,3 +5333,21 @@ Experimental results:
   5 devices.
   * Show best speedup.
 * C, R, S parameters for AllPairs skeleton with MatrixMultiply.
+
+
+## Friday 3rd
+
+TODO:
+* Fix summary timings for multi-GPU systems.
+* Plot speedup of MapOverlap over Stencil.
+* Create fused CannyEdgeDetection kernel and test.
+* Write a report of MapOverlap vs Stencil results.
+
+The `benchlib` scripts that I have written are starting to get a
+little unwieldy. The "job description" dictionaries are not very
+flexible, for example, I cannot easily specify different ranges of
+values for different devices. The problem is that the "job
+descriptions" are declarative and coarse grained. It may be useful
+over time to make the library a little more procedural. For example,
+add separate commands to profile a program, build a benchmark, graph a
+set of results, etc.
