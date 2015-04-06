@@ -127,7 +127,7 @@ class Benchmark:
         return outvars, set(coutvars), exitstatus != 0
 
 #
-class Sampler:
+class SamplingPlan:
     def hasnext(self, result):
         return not result.bad
 
@@ -135,13 +135,13 @@ class Sampler:
         return "Null"
 
 #
-class FixedSizeSampler(Sampler):
+class FixedSizeSampler(SamplingPlan):
     def __init__(self, samplecount=10):
         self.samplecount = samplecount
 
     def hasnext(self, result):
         # Check first with superclass.
-        if Sampler.hasnext(self, result):
+        if SamplingPlan.hasnext(self, result):
             return len(result.outvars) < self.samplecount
         else:
             return False
@@ -253,7 +253,7 @@ class TestHarness:
         return self._result
 
     def __repr__(self):
-        return ("{testcase}, Sampler: {sampler}"
+        return ("{testcase}, Sampling plan: {sampler}"
                 .format(sampler=self.sampler, testcase=self.testcase))
 
 def variablerange(Variable, vals, *args, **kwargs):
