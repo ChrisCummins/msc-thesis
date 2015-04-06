@@ -19,11 +19,17 @@
 
 \begin{abstract}
   \noindent
-  This document describes a methodology for collecting performance
-  data of SkelCL applications, and proposes
-
-  experimental results from two applications show a maximum speedup of
-  3.8$\times$ (average: 1.77$\times$).
+  This document describes two methods for gathering performance data
+  of SkelCL applications: the first, using profiling timers embedded
+  in the library code; the second, using timers in benchmark
+  applications. With these methods, the relative performance of the
+  MapOverlap and Stencil skeletons are evaluated for iterative stencil
+  programs. The results demonstrate a maximum 8.36$\times$ speedup
+  (average 2.28$\times$) achieved by using the MapOverlap skeleton for
+  low iteration count stencil operations. The speedup attained depends
+  on the number of iterations, the size of the input data, and
+  properties of the underlying hardware and user function.
+  % 9 hardware configurations
 \end{abstract}
 
 \section{Profiling SKelCL programs}
@@ -62,6 +68,12 @@ is gathered for each type of device operation:
 \item \textbf{download} Device $\rightarrow$ Host data transfer.
 \end{itemize}
 
+Doesn't always approximate ``wall time'', because:
+
+SkelCL is asynchronous, so the ``prep'' counter can be skewed by
+blocking.
+
+Multi-GPU.
 
 
 \begin{figure}

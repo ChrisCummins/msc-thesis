@@ -117,7 +117,7 @@ def visualise(host, benchmark, size, devargs, speedups, tableFile):
         print(' & '.join([str(x) for x in [host.NAME, dt,
                                            benchmark.name,
                                            size,
-                                           ' '.join(speedupstrs),
+                                           ', '.join(speedupstrs),
                                            be]]), '\\\\',
               file=file)
 
@@ -231,7 +231,8 @@ for h in jobdesc["hosts"]:
             visualise(host, benchmark, 4096, devargs, speedups, tableFile)
 
 allpositivespeedups = [x[0] for x in allspeedups if x[0] >= 1]
-print("AVERAGE SPEEDUP:", sum(allpositivespeedups) / len(allpositivespeedups),
+print("MAXIMUM SPEEDUP:", max(allpositivespeedups),
+      "AVERAGE SPEEDUP:", sum(allpositivespeedups) / len(allpositivespeedups),
       "NUMBER OF SPEEDUPS:", len(allpositivespeedups))
 
 print("\\hline\n\\end{tabular}", file=tableFile)
