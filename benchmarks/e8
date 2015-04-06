@@ -211,6 +211,7 @@ print("AVERAGE SPEEDUP:", sum(allpositivespeedups) / len(allpositivespeedups),
 
 print("\\hline\n\\end{tabular}", file=tableFile)
 print("Wrote {path}...".format(path=tableFile.name))
+tableFile.close()
 
 # Graph event times.
 [plt.openCLEventTimes(x.testcase.invars) for x in HARNESSES]

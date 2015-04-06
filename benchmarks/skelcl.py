@@ -102,7 +102,7 @@ class InitTime(DerivedVariable):
         for line in kwargs['output']:
             match = search('skelcl::init\(\) time ([0-9]+) ms$', line)
             if match:
-                self.val = match.group(1)
+                self.val = int(match.group(1))
                 return
         raise LookupError(kwargs)
 

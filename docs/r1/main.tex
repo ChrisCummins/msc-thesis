@@ -19,7 +19,7 @@
 
 \begin{abstract}
   \noindent
-  This document describes my methodology for collecting performance
+  This document describes a methodology for collecting performance
   data of SkelCL applications, and proposes
 
   experimental results from two applications show a maximum speedup of
@@ -28,10 +28,21 @@
 
 \section{Profiling SKelCL programs}
 
+To obtain accurate performance data of SkelCL applications, profiling
+timers have been added which report millisecond execution time of
+three of the
+
 \begin{itemize}
-\item \textbf{init}
+\item \textbf{init} All programs must initialise SkelCL by calling
+  \texttt{skelcl::init()}, passing as parameters the type and count of
+  execution device. A list of OpenCL platforms and devices are then
+  enumerated, and any devices matching the specified type and count
+
 \item \textbf{build}
+Per skeleton.
+Compiled programs are cached for re-use.
 \item \textbf{prep}
+e.g. allocating device buffers for output data.
 \end{itemize}
 
 Measured using profiling information from the OpenCL
@@ -39,46 +50,64 @@ API\footnote{\url{https://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/clG
 and \texttt{COMMAND\_END} event timestamps.
 
 \begin{itemize}
-\item \textbf{upload}
+\item \textbf{upload} Host $\rightarrow$ Device memory transfer.
 \item \textbf{run}
-\item \textbf{download}
+\item \textbf{download} Device $\rightarrow$ Host memory transfer.
 \end{itemize}
 
 \begin{figure}
 \centering
 \includesvg[width=.8\textwidth]{img/GameOfLife-cec-c9b9bcf6c928d805a0730f1789fe205b2f39fc09-events}
 \caption{%
-Profiling information for.%
+Example profiling information.%
 }
 \label{fig:events}
 \end{figure}
 
 \section{Tuning iterative stencil applications}
 
+\begin{figure}
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
 \lstset{language=C++}
-\begin{lstlisting}[
-  caption={Source code to implement \texttt{GameOfLife} using the Stencil skeleton.},
-  label=lst:gol-stencil
-]
+\begin{lstlisting}
 Matrix<int> grid(data, numcols);
-Stencil<int(int)> s(std::ifstream{"./Stencil.cl"}, 1, 1, 1, 1,
-                    detail::Padding::NEUTRAL, 0, "func", 0);
+Stencil<int(int)> s(
+    std::ifstream{"./Stencil.cl"},
+    1, 1, 1, 1, // border size
+    detail::Padding::NEUTRAL, 0,
+    "func", 0);
+
 
 grid = s(iterations, grid);
 \end{lstlisting}
-
+\caption{}
+\label{lst:gol-stencil}
+\end{subfigure}
+~\hspace{1.5em}
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
 \lstset{language=C++}
-\begin{lstlisting}[
-  caption={Implementing the same algorithm as Listing~\ref{lst:gol-stencil}, but using the MapOverlap skeleton.}
-]
+\begin{lstlisting}
 Matrix<int> grid(data, numcols);
-MapOverlap<int(int)> s(std::ifstream{"./MapOverlap.cl"}, 1,
-                       detail::Padding::NEUTRAL, 0, "func");
+MapOverlap<int(int)> s(
+    std::ifstream{"./MapOverlap.cl"},
+    1, // border size
+    detail::Padding::NEUTRAL, 0,
+    "func");
 
-for (int i = 0; i < iterations; i++) {
+for (int i = 0; i < iterations; i++)
   grid = s(grid);
-}
 \end{lstlisting}
+\caption{}
+\label{lst:gol-mo}
+\end{subfigure}
+\caption{%
+  Implementing Game of Life using (\subref{lst:gol-stencil}) Stencil
+  skeleton and (\subref{lst:gol-mo}) MapOverlap skeleton.%
+}
+\end{figure}
+
 
 \newpage
 \lstset{language=C++}
@@ -135,19 +164,8 @@ Intel i5-4570 & 8GiB & - & \textit{cec}\\
 \label{tab:hw}
 \end{table}
 
-Table~\ref{tab:breakeven} shows the ``break-even'' point between
-
-\begin{table}
-\footnotesize
-\centering
-\input{../../benchmarks/results/e8/MapOverlapVsStencilSpeedups.tex}
-\caption{%
-  Relative performance of MapOverlap vs Stencil skeletons for over an
-  increasing number of iterations. The ``Break-even point'' is the number of
-  iterations at which point the Stencil kernel is faster than MapOverlap.%
-}
-\label{tab:breakeven}
-\end{table}
+Appendix~\ref{app:mo-vs-stencil} shows the ``break-even'' point
+between
 
 \begin{figure}
 \includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/cec-CPU-GameOfLife-2048.png}
@@ -198,4 +216,22 @@ Also, investigate seg faults in multi-GPU stencil computations.
 
 \label{bibliography}
 \printbibliography
+
+\clearpage
+\begin{appendices}
+\section{MapOverlap vs Skeleton}\label{app:mo-vs-stencil}
+
+Relative performance of MapOverlap vs Stencil skeletons for over an
+increasing number of iterations. The ``Break-even point'' is the
+number of iterations at which point the Stencil kernel is faster than
+MapOverlap.
+\begin{table}
+\footnotesize
+\centering
+%\input{../../benchmarks/results/e8/MapOverlapVsStencilSpeedups.tex}
+\input{tab/MapOverlapVsStencil.tex}
+\end{table}
+
+\end{appendices}
+
 \end{document}

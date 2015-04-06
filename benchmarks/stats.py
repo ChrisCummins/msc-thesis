@@ -52,9 +52,10 @@ def describe(num, **kwargs):
 
 def summarise(inittimes, buildtimes, preptimes,
               ultimes, skeltimes, swaptimes, dltimes):
-    return (("init", describe(inittimes)), ("build", describe(buildtimes)),
+    return (("init", describe(inittimes)),
+            ("build", describe(buildtimes)),
             ("prep", describe(preptimes)),
-            ("upload", describe(ultimes),
+            ("upload", describe(ultimes)),
             ("run", describe(skeltimes)),
             ("swap", describe(swaptimes)),
-            ("download", describe(dltimes))))
+            ("download", describe(dltimes)))
