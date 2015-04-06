@@ -38,7 +38,8 @@ class Result:
         [d['cout'].update(x.encode()) for x in self.couts]
 
         # Build a list of derived variables.
-        derived = filter(lambda x: isinstance(x, DerivedVariable), self.outvars[-1])
+        target = self.outvars[-1] if len(self.outvars) else []
+        derived = filter(lambda x: isinstance(x, DerivedVariable), target)
         d['dout'] = [x.encode() for x in derived]
 
         # Build a list of outvars dicts.

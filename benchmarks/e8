@@ -31,6 +31,26 @@ jobdesc =  {
     "knobs": {}
 }
 
+# jobdesc =  {
+#     "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
+#     "benchmarks": {
+#         "GameOfLife": {
+#             "args": {
+#                 "Size": ["--size {s}".format(s=s) for s in [8192]],
+#                 "Iterations": ["-i {i}".format(i=i) for i in range(1, 6)]
+#             }
+#         },
+#         "HeatEquation": {
+#             "args": {
+#                 "Size": ["--size {s}".format(s=s) for s in [8192]],
+#                 "Iterations": ["-i {i}".format(i=i) for i in range(1, 6)]
+#             }
+#         }
+#     },
+#     "args": {},
+#     "knobs": {}
+# }
+
 def instantiate(host, benchmark, args, knobs):
     sampler = FixedSizeSampler(5)
     harnesses = []
@@ -134,8 +154,6 @@ def visualise(host, benchmark, size, devargs, speedups, tableFile):
 
 def speedupsMapOverlapStencil(host, benchmark, devargs, iterations, size=4096):
     speedups = []
-    if size == 4096:
-        iterations = iterations[0:4]
 
     bad = False
 
@@ -152,22 +170,29 @@ def speedupsMapOverlapStencil(host, benchmark, devargs, iterations, size=4096):
         stencil = harnesses[0].result()
         mo = harnesses[1].result()
 
-        stenciltimes = summarise(*gettimes(stencil.outvars))[1:]
-        motimes = summarise(*gettimes(mo.outvars))[1:]
-
-        stenciltotal = sum([x[1][0] for x in stenciltimes])
-        stencilerr = sum([x[1][1] for x in motimes])
-        mototal = sum([x[1][0] for x in motimes])
-
-        if not stenciltotal and not mototal:
+        if not len(stencil.outvars) and not len(mo.outvars):
             # We have run out of data.
             if len(speedups):
                 break
             # We have no data.
             return
 
+        if stencil.bad or mo.bad:
+            bad = True
+            break
+
+        stenciltimes = [lookup1(x, ElapsedTimes).val[0] for x in stencil.outvars]
+        motimes = [lookup1(x, ElapsedTimes).val[0] for x in mo.outvars]
+
+        stenciltotal = describe(stenciltimes)[0]
+        stencilerr = describe(stenciltimes)[1]
+        mototal = describe(motimes)[0]
+
+        #print("STENCIL", stencil.invars, resultscache.resultspath(stencil.invars))
+        #print("MO", mo.invars, resultscache.resultspath(mo.invars))
+        
         # We have bad data.
-        if ((stencil.bad or mo.bad) or (bool(stenciltotal == 0) != bool(mototal == 0))):
+        if (bool(stenciltotal == 0) != bool(mototal == 0)):
             bad = True
             break
 
@@ -175,7 +200,7 @@ def speedupsMapOverlapStencil(host, benchmark, devargs, iterations, size=4096):
         err = ((stenciltotal + stencilerr) / mototal) - speedup
 
         speedups.append((speedup, err))
-
+        
     if bad:
         return speedups
     else:
