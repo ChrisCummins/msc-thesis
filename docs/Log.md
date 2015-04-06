@@ -5338,8 +5338,8 @@ Experimental results:
 ## Friday 3rd
 
 TODO:
-* Fix summary timings for multi-GPU systems.
-* Plot speedup of MapOverlap over Stencil.
+* Fix summary timings for multi-GPU systems. DONE
+* Plot speedup of MapOverlap over Stencil. DONE
 * Create fused CannyEdgeDetection kernel and test.
 * Write a report of MapOverlap vs Stencil results.
 
@@ -5351,3 +5351,10 @@ descriptions" are declarative and coarse grained. It may be useful
 over time to make the library a little more procedural. For example,
 add separate commands to profile a program, build a benchmark, graph a
 set of results, etc.
+
+
+## Monday 6th
+
+TODO:
+* Count number of floating point and integer operations in stencil
+  kernels and compute theoretical maximum throughput for a given GPU.
