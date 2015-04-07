@@ -1,0 +1,73 @@
+{
+  "bad": false,
+  "cout": {
+    "Checksum": "decd6985f32f28f68c218ae33eaa9c3f174767d3",
+    "SkelCL version": "66dce503041df4d25a2e5b9c68b67656a0a6c4c9"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "AllPairsC": 64,
+    "AllPairsR": 8,
+    "AllPairsS": 8,
+    "Benchmark": "MatrixMultiply",
+    "Device count": "--device-count 3",
+    "Device type": "--device-type GPU",
+    "Hostname": "tim",
+    "Iterations": "-i 1",
+    "Size": "--row-count-a 4096 --col-count-a 4096 --col-count-b 4096"
+  },
+  "out": [
+    {
+      "End time": "2015-04-07 22:20:22",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.082s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.082s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.114s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[======Device.cpp:118  000.161s  INFO] Using device `GeForce GTX 590' with id: 1",
+        "[======Device.cpp:118  000.192s  INFO] Using device `GeForce GTX 590' with id: 2",
+        "[==DeviceList.cpp:107  000.192s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.192s  INFO] Using 3 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.192s  PROF] skelcl::init() time 192 ms",
+        "[=====Program.cpp:212  000.232s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  000.339s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  000.885s  PROF] skelcl::Program::build() 0 ms",
+        "[===AllPairsDef.h:100  000.885s DEBUG] Created new AllPairs object (0x11e1c00) with CRS values [64,8,8]",
+        "[===AllPairsDef.h:149  001.802s  PROF] AllPairs<Tout(Tleft, Tright)>[0x11e1c00] prepare 118 ms",
+        "[===AllPairsDef.h:187  001.802s DEBUG] dim: 4096 height: 1365 width: 4096",
+        "[===AllPairsDef.h:189  001.802s DEBUG] local: 64,8 global: 4096,176",
+        "[===AllPairsDef.h:187  001.802s DEBUG] dim: 4096 height: 1365 width: 4096",
+        "[===AllPairsDef.h:189  001.802s DEBUG] local: 64,8 global: 4096,176",
+        "[===AllPairsDef.h:187  001.802s DEBUG] dim: 4096 height: 1364 width: 4096",
+        "[===AllPairsDef.h:189  001.802s DEBUG] local: 64,8 global: 4096,176",
+        "[====Skeleton.cpp:93   002.054s  PROF] AllPairs<Tout(Tleft, Tright)>[0x11e1c00][0] 231.782624 ms",
+        "[====Skeleton.cpp:93   002.055s  PROF] AllPairs<Tout(Tleft, Tright)>[0x11e1c00][1] 219.938912 ms",
+        "[====Skeleton.cpp:93   002.055s  PROF] AllPairs<Tout(Tleft, Tright)>[0x11e1c00][2] 233.201792 ms",
+        "Elapsed time: 372 ms",
+        "[=====MatrixDef.h:300  002.055s  PROF] Matrix[0x7fff66954b10][0] dl 6.765824 ms",
+        "[=====MatrixDef.h:300  002.055s  PROF] Matrix[0x7fff66954b10][1] dl 6.775104 ms",
+        "[=====MatrixDef.h:300  002.055s  PROF] Matrix[0x7fff66954b10][2] dl 6.764352 ms",
+        "[=====MatrixDef.h:300  002.055s  PROF] Matrix[0x7fff66954a70][0] ul 20.493440 ms",
+        "[=====MatrixDef.h:300  002.055s  PROF] Matrix[0x7fff66954a70][1] ul 20.392992 ms",
+        "[=====MatrixDef.h:300  002.055s  PROF] Matrix[0x7fff66954a70][2] ul 21.037728 ms",
+        "[=====MatrixDef.h:300  002.056s  PROF] Matrix[0x7fff669549d0][0] ul 6.835520 ms",
+        "[=====MatrixDef.h:300  002.056s  PROF] Matrix[0x7fff669549d0][1] ul 6.798112 ms",
+        "[=====MatrixDef.h:300  002.056s  PROF] Matrix[0x7fff669549d0][2] ul 7.000096 ms",
+        "[======SkelCL.cpp:89   002.136s  INFO] SkelCL terminating. Freeing all resources.",
+        "Matrix sizes: [4096 x 4096] [4096 x 4096]"
+      ],
+      "Run time": 2.1725611686706543,
+      "Start time": "2015-04-07 22:20:20"
+    }
+  ]
+}
