@@ -6,6 +6,7 @@
 from __future__ import print_function
 from itertools import product
 from copy import copy
+from operator import mul
 
 from benchlib import *
 from skelcl import *
@@ -25,20 +26,37 @@ allpairsCRS =  {
     },
     "args": {},
     "knobs": {
-        AllPairsC: [ 16, 32, 64, 128],
-        AllPairsR: [  4,  8, 16,  32],
-        AllPairsS: [  8, 16, 64, 256]
+        AllPairsC: [8, 16, 32, 64, 128],
+        AllPairsR: [4, 8, 16, 32, 64],
+        AllPairsS: [8, 16, 64, 256]
     }
 }
+
+# Check that values are legal.
+def knobvaluesarelegal(host, devargs, knobs):
+    # Get the available devices.
+    cpus, gpus = host.getDevices()
+
+    # Calculate the workgroup size.
+    workgroupsize = reduce(mul, [x.val for x in knobs[:2]], 1)
+
+    # Set the target devices.
+    devices = gpus if search("GPU", devargs[0].val) else cpus
+
+    # Find the smallest max work group size from those devices.
+    maxWorkGroupSize = min([x["max_work_group_size"] for x in devices])
+    return maxWorkGroupSize >= workgroupsize
+
 
 def instantiate(host, benchmark, args, knobs):
     sampler = FixedSizeSampler(5)
     harnesses = []
 
     for devargs in host.devargs():
-        c = SkelCLTestCase(benchmark, host=host,
-                           invars=knobs + args + devargs)
-        harnesses.append(TestHarness(c, sampler))
+        if knobvaluesarelegal(host, devargs, knobs):
+            c = SkelCLTestCase(benchmark, host=host,
+                               invars=knobs + args + devargs)
+            harnesses.append(TestHarness(c, sampler))
 
     return harnesses
 
