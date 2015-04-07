@@ -1,0 +1,51 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "b51f48d6b618cf68eeea443db6be47a4b4154658",
+    "SkelCL version": "ab631ae53742325e8d767c7e9133cdddab0a11cc"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "AllPairsC": 128,
+    "AllPairsR": 32,
+    "AllPairsS": 8,
+    "Benchmark": "MatrixMultiply",
+    "Device type": "--device-type CPU",
+    "Hostname": "cec",
+    "Iterations": "-i 1",
+    "Size": "--row-count-a 4096 --col-count-a 4096 --col-count-b 4096"
+  },
+  "out": [
+    {
+      "End time": "2015-04-07 17:09:41",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.001s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.001s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.130s  INFO] Using device `Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.130s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.130s  PROF] skelcl::init() time 129 ms",
+        "[=====Program.cpp:212  000.187s  PROF] skelcl::Program::build() 21 ms",
+        "[=====Program.cpp:212  000.313s  PROF] skelcl::Program::build() 33 ms",
+        "[=====Program.cpp:212  000.973s  PROF] skelcl::Program::build() 198 ms",
+        "[===AllPairsDef.h:100  000.973s DEBUG] Created new AllPairs object (0x228ea10) with CRS values [128,32,8]",
+        "[===AllPairsDef.h:149  001.784s  PROF] AllPairs<Tout(Tleft, Tright)>[0x228ea10] prepare 43 ms",
+        "[===AllPairsDef.h:187  001.784s DEBUG] dim: 4096 height: 4096 width: 4096",
+        "[===AllPairsDef.h:189  001.784s DEBUG] local: 128,32 global: 4096,512",
+        "[======Device.cpp:148  001.785s ERROR] OpenCL error: CL_OUT_OF_RESOURCES (code: -5) clEnqueueNDRangeKernel"
+      ],
+      "Run time": 2.0963830947875977,
+      "Start time": "2015-04-07 17:09:39"
+    }
+  ]
+}

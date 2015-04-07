@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 #
-# e8
+# e11 - Tuning matrix multiplication by changine the C,R,S knob values
+# for the AllPairs skeleton.
 #
 from __future__ import print_function
 from itertools import product
@@ -140,6 +141,10 @@ for key in GROUPEDTESTS:
 
         iterations = sum([len(result.outvars), len(baselineresult.outvars)]) / 2
         speedups.append((crs, (speedup, err), iterations))
+
+    # Skip if we don't have data.
+    if not len(speedups):
+        continue
 
     ALLSPEEDUPS += speedups
 
