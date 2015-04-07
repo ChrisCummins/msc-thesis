@@ -155,7 +155,8 @@ def openCLEventTimes(invars, name="events"):
     # Embed checksum of graphed data in the plot file.
     _writechecksum(path, _HashableResult(result).key())
 
-def speedups(speedups, err=[], labels=[], xlabel="", title="", caption="", ymajorlines=False, path=None):
+def speedups(speedups, err=[], labels=[], xlabel="",
+             title="", caption="", baseline=-1, ymajorlines=False, path=None):
     X = np.arange(len(speedups))
 
     # Plot the data.
@@ -181,11 +182,12 @@ def speedups(speedups, err=[], labels=[], xlabel="", title="", caption="", ymajo
     # Filter out the bars from a complex plot.
     bars = filter(lambda x: isinstance(x, matplotlib.patches.Rectangle), ax.get_children())
 
-    # Colour the default value red, and the speedup > 1 values
-    # green.
+    # Colour the default value blue, and the speedups > 1 green.
+    if baseline >= 0:
+        bars[baseline].set_facecolor('b')
+
     for i in greenindexes:
         bars[i].set_facecolor('g')
-        #ax.get_children()[i].set_edge_color('k')
 
     # Use LaTeX text rendering.
     fontsize=16

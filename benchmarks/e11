@@ -58,21 +58,25 @@ from stats import *
 
 import plot as plt
 
-allspeedups = []
+ALLSPEEDUPS = []
 
 # Create table and visualisations
-groupedtests = {}
-speedups = {}
+GROUPEDTESTS = {}
+SPEEDUPS = {}
 
 for harness in HARNESSES:
-    host = harness.host
+    invars = harness.testcase.invars
+    host = lookup1(invars, Hostname)
+    dev = getdeviceargs(invars)
+
+    key = "-".join([str(x.val) for x in [host] + dev])
 
     if len(harness.result().outvars):
-        if host not in groupedtests:
-            groupedtests[host] = []
-            speedups[host] = []
+        if key not in GROUPEDTESTS:
+            GROUPEDTESTS[key] = []
+            SPEEDUPS[key] = []
 
-        groupedtests[host].append(harness)
+        GROUPEDTESTS[key].append(harness)
 
 def gettime(result):
     inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes = gettimes(result.outvars)
@@ -87,9 +91,29 @@ def getCRS(invars):
         s = lookup1(invars, AllPairsS).val
         return AllPairsCRS([c, r, s])
 
+def setCRS(invars, *newcrs):
+    newinvars = copy(invars)
 
-for host in groupedtests:
-    harnesses = groupedtests[host]
+    # Lookup existing CRS value.
+    crs = getCRS(newinvars)
+
+    # Remove existing CRS value(s).
+    try:
+        newinvars.remove(crsvar)
+        newinvars.append(AllPairsCRS(*newcrs))
+    except:
+        newinvars.remove(AllPairsC(crs.val[0]))
+        newinvars.remove(AllPairsR(crs.val[1]))
+        newinvars.remove(AllPairsS(crs.val[2]))
+        newinvars.append(AllPairsC(newcrs[0]))
+        newinvars.append(AllPairsR(newcrs[1]))
+        newinvars.append(AllPairsS(newcrs[2]))
+
+    return newinvars
+
+for key in GROUPEDTESTS:
+    harnesses = GROUPEDTESTS[key]
+    speedups = SPEEDUPS[key]
 
     for harness in harnesses:
         invars = harness.testcase.invars
@@ -97,17 +121,16 @@ for host in groupedtests:
         crsvar = getCRS(invars)
         crs = crsvar.val
 
-        # Lookup the baseline.
-        baselineinvars = copy(invars)
-        baselineinvars.remove(crsvar)
-        baselineinvars += [AllPairsCRS(AllPairsCRS.DEFAULT)]
+        # Set the baseline value.
+        baselineinvars = setCRS(invars, *AllPairsCRS.DEFAULT)
 
         result = resultscache.load(invars)
         baselineresult = resultscache.load(baselineinvars)
 
-        if not len(baselineresult.outvars) or not len(result.outvars):
-            print("No runtime information!")
-            exit(1)
+        if (baselineresult.bad or result.bad or
+            not len(baselineresult.outvars) or not len(result.outvars)):
+            # Skip if we don't have data.
+            continue
 
         time = gettime(result)
         baseline = gettime(baselineresult)
@@ -116,9 +139,12 @@ for host in groupedtests:
         err = abs((baseline[0] / sum(time)) - speedup)
 
         iterations = sum([len(result.outvars), len(baselineresult.outvars)]) / 2
-        speedups[host].append((crs, (speedup, err), iterations))
+        speedups.append((crs, (speedup, err), iterations))
+
+    ALLSPEEDUPS += speedups
 
     # Plot results
+    hostname = lookup1(harnesses[0].testcase.invars, Hostname)
     devtArg = lookup1(harnesses[0].testcase.invars, DeviceTypeArg)
     if search("GPU", devtArg.val):
         devCArg = lookup1(harnesses[0].testcase.invars, DeviceCountArg)
@@ -137,38 +163,40 @@ for host in groupedtests:
         dt = "{n}x ".format(n=search('([0-9]+)', devCArg.val).group(1)) + dt
 
     name = "{host}-{dev}-{app}-{size}".format(
-        host=host,
+        host=hostname.val,
         dev=sub(" ", "", dt),
         app="MatrixMultiply",
         size=sizestr
     )
 
-    Labels = [",".join([str(s) for s in x[0]]) for x in speedups[host]]
-    Y = [x[1][0] for x in speedups[host]]
-    Err = [x[1][1] for x in speedups[host]]
-    Iterations = sum([x[2] for x in speedups[host]]) / len(speedups[host])
+    Labels = [",".join([str(s) for s in x[0]]) for x in speedups]
+    Y = [x[1][0] for x in speedups]
+    Err = [x[1][1] for x in speedups]
+    Iterations = sum([x[2] for x in speedups]) / len(speedups)
 
     caption = "Average {n:.1f} iterations.".format(n=Iterations)
+    baseline = 0
 
     kwargs = {
         "title": "MatrixMultiply: " + ", ".join([str(x) for x in [
-            host,
+            hostname.val,
             dt,
             sizestr
         ]]),
         "xlabel": "C,R,S Paramater values",
         "labels": Labels,
         "err": Err,
+        "baseline": baseline,
         "caption": caption,
         "path": path(config.RESULTS, config.ID, name + ".png")
     }
 
     plt.speedups(Y, **kwargs)
 
-# allpositivespeedups = [x[0] for x in allspeedups if x[0] >= 1]
-# print("MAXIMUM SPEEDUP:", max(allpositivespeedups),
-#       "AVERAGE SPEEDUP:", sum(allpositivespeedups) / len(allpositivespeedups),
-#       "NUMBER OF SPEEDUPS:", len(allpositivespeedups))
+ALLPOSITIVESPEEDUPS = [x for x in ALLSPEEDUPS if x[1][0] >= 1]
+print("MAXIMUM SPEEDUP:", max([x[1][0] for x in ALLPOSITIVESPEEDUPS]),
+      "AVERAGE SPEEDUP:", sum([x[1][0] for x in ALLPOSITIVESPEEDUPS]) / len(ALLPOSITIVESPEEDUPS),
+      "NUMBER OF SPEEDUPS:", len(ALLPOSITIVESPEEDUPS))
 
 # print("\\hline\n\\end{tabular}", file=tableFile)
 # print("Wrote {path}...".format(path=tableFile.name))

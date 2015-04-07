@@ -497,3 +497,13 @@ def gettimes(samples):
 
     [parsesample(x) for x in samples]
     return inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes
+
+# Filter a list of invars to return arguments which determine the
+# execution device. E.g. DeviceTypeArg, and DeviceCountArg.
+def getdeviceargs(invars):
+    args = [lookup1(invars, DeviceTypeArg)]
+
+    if not search("CPU", args[0].val):
+        args.append(lookup1(invars, DeviceCountArg))
+
+    return args
