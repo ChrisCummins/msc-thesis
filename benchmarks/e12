@@ -101,7 +101,6 @@ for harness in HARNESSES:
     invars = harness.testcase.invars
     host = lookup1(invars, Hostname)
     benchmark = lookup1(invars, "Benchmark")
-    benchmark = lookup1(invars, BenchmarkName)
     dev = getdeviceargs(invars)
 
     key = "-".join([str(x.val) for x in [host, benchmark] + dev])
