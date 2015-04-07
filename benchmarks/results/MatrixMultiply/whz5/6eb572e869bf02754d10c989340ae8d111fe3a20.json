@@ -1,0 +1,52 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "4015de11c13d780a4bd128c31f5820cf9d398e3b",
+    "SkelCL version": "ab631ae53742325e8d767c7e9133cdddab0a11cc"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "AllPairsC": 128,
+    "AllPairsR": 16,
+    "AllPairsS": 16,
+    "Benchmark": "MatrixMultiply",
+    "Device count": "--device-count 1",
+    "Device type": "--device-type GPU",
+    "Hostname": "whz5",
+    "Iterations": "-i 1",
+    "Size": "--row-count-a 4096 --col-count-a 4096 --col-count-b 4096"
+  },
+  "out": [
+    {
+      "End time": "2015-04-07 15:35:31",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.020s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.020s  INFO] 1 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.072s  INFO] Using device `GeForce GTX TITAN' with id: 0",
+        "[==DeviceList.cpp:122  000.072s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.073s  PROF] skelcl::init() time 72 ms",
+        "[=====Program.cpp:212  000.105s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  000.189s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  000.913s  PROF] skelcl::Program::build() 297 ms",
+        "[===AllPairsDef.h:100  000.913s DEBUG] Created new AllPairs object (0x1e36e50) with CRS values [128,16,16]",
+        "[===AllPairsDef.h:149  001.744s  PROF] AllPairs<Tout(Tleft, Tright)>[0x1e36e50] prepare 121 ms",
+        "[===AllPairsDef.h:187  001.744s DEBUG] dim: 4096 height: 4096 width: 4096",
+        "[===AllPairsDef.h:189  001.744s DEBUG] local: 128,16 global: 4096,256",
+        "[======Device.cpp:148  001.744s ERROR] OpenCL error: CL_INVALID_WORK_GROUP_SIZE (code: -54) clEnqueueNDRangeKernel"
+      ],
+      "Run time": 1.7870209217071533,
+      "Start time": "2015-04-07 15:35:30"
+    }
+  ]
+}
