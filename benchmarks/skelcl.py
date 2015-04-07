@@ -315,29 +315,54 @@ class StencilLocalSizeC(StencilKnob):
 class AllPairsKnob(Knob):
     defheader = path(SKELCL, 'include/SkelCL/detail/AllPairsDef.h')
 
-class AllPairsC(StencilKnob):
+class AllPairsC(AllPairsKnob):
+    DEFAULT = 32
+
     def __init__(self, val):
-        Knob.__init__(self, "AllPairsC", val)
+        AllPairsKnob.__init__(self, "AllPairsC", val)
 
     def set(self, **kwargs):
         os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {val}/' {path}"
                   .format(val=self.val, path=self.defheader))
 
-class AllPairsR(StencilKnob):
+class AllPairsR(AllPairsKnob):
+    DEFAULT = 8
+
     def __init__(self, val):
-        Knob.__init__(self, "AllPairsR", val)
+        AllPairsKnob.__init__(self, "AllPairsR", val)
 
     def set(self, **kwargs):
         os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {val}/' {path}"
                   .format(val=self.val, path=self.defheader))
 
-class AllPairsS(StencilKnob):
+class AllPairsS(AllPairsKnob):
+    DEFAULT = 16
+
     def __init__(self, val):
-        Knob.__init__(self, "AllPairsS", val)
+        AllPairsKnob.__init__(self, "AllPairsS", val)
 
     def set(self, **kwargs):
         os.system("sed -r -i 's/(define KNOB_S) [0-9]+/\\1 {val}/' {path}"
                   .format(val=self.val, path=self.defheader))
+
+class AllPairsCRS(AllPairsKnob):
+    DEFAULT = [
+        AllPairsC.DEFAULT,
+        AllPairsR.DEFAULT,
+        AllPairsS.DEFAULT
+    ]
+
+    def __init__(self, val):
+        AllPairsKnob.__init__(self, "AllPairsCRS", val)
+        self.knobs = [
+            AllPairsC(val[0]),
+            AllPairsR(val[1]),
+            AllPairsS(val[2])
+        ]
+
+    def set(self, **kwargs):
+        [x.set(**kwargs) for x in self.knobs]
+
 
 ### VARIABLES
 
