@@ -1,0 +1,53 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "a9c54ea4483ac930ad8d918f6d8505621a622b1b",
+    "SkelCL version": "ab631ae53742325e8d767c7e9133cdddab0a11cc"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "AllPairsC": 64,
+    "AllPairsR": 32,
+    "AllPairsS": 256,
+    "Benchmark": "MatrixMultiply",
+    "Device type": "--device-type CPU",
+    "Hostname": "monza",
+    "Iterations": "-i 1",
+    "Size": "--row-count-a 4096 --col-count-a 4096 --col-count-b 4096"
+  },
+  "out": [
+    {
+      "End time": "2015-04-07 15:32:50",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.244s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.244s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  000.244s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.244s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  000.246s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.246s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.246s  PROF] skelcl::init() time 246 ms",
+        "[=====Program.cpp:212  000.327s  PROF] skelcl::Program::build() 41 ms",
+        "[=====Program.cpp:212  000.497s  PROF] skelcl::Program::build() 59 ms",
+        "[=====Program.cpp:212  001.188s  PROF] skelcl::Program::build() 133 ms",
+        "[===AllPairsDef.h:100  001.188s DEBUG] Created new AllPairs object (0x28539b0) with CRS values [64,32,256]",
+        "[===AllPairsDef.h:149  002.108s  PROF] AllPairs<Tout(Tleft, Tright)>[0x28539b0] prepare 110 ms",
+        "[===AllPairsDef.h:187  002.108s DEBUG] dim: 4096 height: 4096 width: 4096",
+        "[===AllPairsDef.h:189  002.108s DEBUG] local: 64,32 global: 4096,32",
+        "[======Device.cpp:148  002.108s ERROR] OpenCL error: CL_INVALID_WORK_GROUP_SIZE (code: -54) clEnqueueNDRangeKernel"
+      ],
+      "Run time": 2.128859043121338,
+      "Start time": "2015-04-07 15:32:48"
+    }
+  ]
+}
