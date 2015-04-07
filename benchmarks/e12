@@ -127,10 +127,18 @@ def setworkgroupsize(invars, *newWgSize):
     workgroupsize = getworkgroupsize(newinvars)
 
     # Remove existing CRS value(s).
-    [newinvars.remove(x for x in workgroupsize)]
-    [newinvars.append(x for x in newWgSize)]
+    [newinvars.remove(x) for x in workgroupsize]
+    [newinvars.append(x) for x in newWgSize]
 
     return newinvars
+
+def getBaselineIndex(speedups):
+    for i in range(len(speedups)):
+        workgroupsize = speedups[i][0]
+
+        if (workgroupsize[0] == StencilLocalSizeR.DEFAULT and
+            workgroupsize[1] == StencilLocalSizeC.DEFAULT):
+            return i
 
 for key in GROUPEDTESTS:
     harnesses = GROUPEDTESTS[key]
@@ -162,7 +170,7 @@ for key in GROUPEDTESTS:
         err = abs((baseline[0] / sum(time)) - speedup)
 
         iterations = sum([len(result.outvars), len(baselineresult.outvars)]) / 2
-        speedups.append((crs, (speedup, err), iterations))
+        speedups.append((workgroup, (speedup, err), iterations))
 
     ALLSPEEDUPS += speedups
 
@@ -181,9 +189,8 @@ for key in GROUPEDTESTS:
     name = "{host}-{dev}-{app}".format(
         host=hostname.val,
         dev=sub(" ", "", dt),
-        app=benchmark
+        app=benchmark.val
     )
-
 
     Labels = [",".join([str(s) for s in x[0]]) for x in speedups]
     Y = [x[1][0] for x in speedups]
@@ -191,10 +198,10 @@ for key in GROUPEDTESTS:
     Iterations = sum([x[2] for x in speedups]) / len(speedups)
 
     caption = "Average {n:.1f} iterations.".format(n=Iterations)
-    baseline = 0
+    baseline = getBaselineIndex(speedups)
 
     kwargs = {
-        "title": benchmark + ": " + ", ".join([str(x) for x in [
+        "title": benchmark.val + ": " + ", ".join([str(x) for x in [
             hostname.val,
             dt
         ]]),
