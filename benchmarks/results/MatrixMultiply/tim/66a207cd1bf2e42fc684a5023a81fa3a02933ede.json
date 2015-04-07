@@ -1,0 +1,55 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "d848f6602d421bdaeea71574987273a6fd420ccb",
+    "SkelCL version": "ab631ae53742325e8d767c7e9133cdddab0a11cc"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "AllPairsC": 64,
+    "AllPairsR": 32,
+    "AllPairsS": 16,
+    "Benchmark": "MatrixMultiply",
+    "Device count": "--device-count 2",
+    "Device type": "--device-type GPU",
+    "Hostname": "tim",
+    "Iterations": "-i 1",
+    "Size": "--row-count-a 4096 --col-count-a 4096 --col-count-b 4096"
+  },
+  "out": [
+    {
+      "End time": "2015-04-07 15:46:27",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.082s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.082s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.111s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[======Device.cpp:118  000.164s  INFO] Using device `GeForce GTX 590' with id: 1",
+        "[==DeviceList.cpp:107  000.164s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.164s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.164s  INFO] Using 2 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.164s  PROF] skelcl::init() time 164 ms",
+        "[=====Program.cpp:212  000.206s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  000.312s  PROF] skelcl::Program::build() 0 ms",
+        "[=====Program.cpp:212  000.862s  PROF] skelcl::Program::build() 0 ms",
+        "[===AllPairsDef.h:100  000.862s DEBUG] Created new AllPairs object (0xd565f0) with CRS values [64,32,16]",
+        "[===AllPairsDef.h:149  001.763s  PROF] AllPairs<Tout(Tleft, Tright)>[0xd565f0] prepare 97 ms",
+        "[===AllPairsDef.h:187  001.763s DEBUG] dim: 4096 height: 2048 width: 4096",
+        "[===AllPairsDef.h:189  001.763s DEBUG] local: 64,32 global: 4096,128",
+        "[======Device.cpp:148  001.763s ERROR] OpenCL error: CL_INVALID_WORK_GROUP_SIZE (code: -54) clEnqueueNDRangeKernel"
+      ],
+      "Run time": 1.8238029479980469,
+      "Start time": "2015-04-07 15:46:25"
+    }
+  ]
+}
