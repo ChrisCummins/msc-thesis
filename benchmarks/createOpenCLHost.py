@@ -22,10 +22,10 @@ deviceid = -1
 
 platforms = []
 
-def addprop(name, key):
+def addprop(name, key, cast):
     match = search(name + " *: *(.+)$", l)
     if match:
-        platforms[platformid][deviceid][key] = match.group(1)
+        platforms[platformid][deviceid][key] = cast(match.group(1))
 
 for l in output:
     match = search("^Platform [0-9]+:$", l)
@@ -43,13 +43,13 @@ for l in output:
         }) # Add a new device.
         continue
 
-    addprop("Device Version", "version")
-    addprop("OpenCL C Version", "opencl_version")
-    addprop("Compute Units", "compute_units")
-    addprop("Clock Frequency", "clock_frequency")
-    addprop("Global Memory Size", "global_memory_size")
-    addprop("Local Memory Size", "local_memory_size")
-    addprop("Max Work Group Size", "max_work_group_size")
+    addprop("Device Version", "version", str)
+    addprop("OpenCL C Version", "opencl_version", str)
+    addprop("Compute Units", "compute_units", int)
+    addprop("Clock Frequency", "clock_frequency", int)
+    addprop("Global Memory Size", "global_memory_size", int)
+    addprop("Local Memory Size", "local_memory_size", int)
+    addprop("Max Work Group Size", "max_work_group_size", int)
     match = search("Max Work Item Sizes *: *(.+)$", l)
     if match:
         platforms[platformid][deviceid]["max_work_item_sizes"] = json.loads(match.group(1))
