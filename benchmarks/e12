@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 #
-# e11 - Tuning matrix multiplication by changine the C,R,S knob values
-# for the AllPairs skeleton.
+# e12 - Tuning stencil applications by changine the Stenicl skeleton
+# local size.
 #
 from __future__ import print_function
 from itertools import product
@@ -17,18 +17,33 @@ import config
 allpairsCRS =  {
     "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
     "benchmarks": {
-        "MatrixMultiply": {
+        "GameOfLife": {
             "args": {
-                "Iterations": ["-i 1"],
-                "Size": ["--row-count-a 4096 --col-count-a 4096 --col-count-b 4096"]
+                "Iterations": ["-i 10"],
+                "Size": ["--size 1024"]
             }
-        }
+        },
+        "HeatEquation": {
+            "args": {
+                "Iterations": ["-i 10"],
+                "Size": ["--size 1024"]
+            }
+        },
+        "CannyEdgeDetection": {
+                "args": {
+                    "Input": ["--input {base}/{file}".format(base=IMG, file="4160x3120.pgm")]
+                }
+        },
+        "GaussianBlur": {
+            "args": {
+                "Input": ["--input {base}/{file}".format(base=IMG, file="4160x3120.pgm")]
+            }
+        },
     },
     "args": {},
     "knobs": {
-        AllPairsC: [8, 16, 32, 64, 128],
-        AllPairsR: [4, 8, 16, 32, 64],
-        AllPairsS: [8, 16, 64, 256]
+        StencilLocalSizeR: [  8,  16,  32,  64, 128, 256],
+        StencilLocalSizeC: [  2,   4,   8,  16,  32,  64]
     }
 }
 
@@ -38,7 +53,7 @@ def knobvaluesarelegal(host, devargs, knobs):
     cpus, gpus = host.getDevices()
 
     # Calculate the workgroup size.
-    workgroupsize = reduce(mul, [x.val for x in knobs[:2]], 1)
+    workgroupsize = reduce(mul, [x.val for x in knobs], 1)
 
     # Set the target devices.
     devices = gpus if search("GPU", devargs[0].val) else cpus
@@ -46,7 +61,6 @@ def knobvaluesarelegal(host, devargs, knobs):
     # Find the smallest max work group size from those devices.
     maxWorkGroupSize = min([x["max_work_group_size"] for x in devices])
     return maxWorkGroupSize >= workgroupsize
-
 
 def instantiate(host, benchmark, args, knobs):
     sampler = FixedSizeSampler(5)
@@ -64,7 +78,7 @@ HARNESSES = enumerateHarnesses(allpairsCRS, instantiate)
 
 q = jobqueue(HARNESSES)
 
-runJobQueue(q)
+#runJobQueue(q)
 
 # Headless servers stop here.
 if not masterhost(): exit(0)
@@ -86,9 +100,11 @@ SPEEDUPS = {}
 for harness in HARNESSES:
     invars = harness.testcase.invars
     host = lookup1(invars, Hostname)
+    benchmark = lookup1(invars, "Benchmark")
+    benchmark = lookup1(invars, BenchmarkName)
     dev = getdeviceargs(invars)
 
-    key = "-".join([str(x.val) for x in [host] + dev])
+    key = "-".join([str(x.val) for x in [host, benchmark] + dev])
 
     if len(harness.result().outvars):
         if key not in GROUPEDTESTS:
@@ -101,32 +117,19 @@ def gettime(result):
     inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes = gettimes(result.outvars)
     return describe(skeltimes)
 
-def getCRS(invars):
-    try:
-        return lookup1(invars, AllPairsCRS)
-    except:
-        c = lookup1(invars, AllPairsC).val
-        r = lookup1(invars, AllPairsR).val
-        s = lookup1(invars, AllPairsS).val
-        return AllPairsCRS([c, r, s])
+def getworkgroupsize(invars):
+    return (lookup1(invars, StencilLocalSizeR),
+            lookup1(invars, StencilLocalSizeC))
 
-def setCRS(invars, *newcrs):
+def setworkgroupsize(invars, *newWgSize):
     newinvars = copy(invars)
 
     # Lookup existing CRS value.
-    crs = getCRS(newinvars)
+    workgroupsize = getworkgroupsize(newinvars)
 
     # Remove existing CRS value(s).
-    try:
-        newinvars.remove(crsvar)
-        newinvars.append(AllPairsCRS(*newcrs))
-    except:
-        newinvars.remove(AllPairsC(crs.val[0]))
-        newinvars.remove(AllPairsR(crs.val[1]))
-        newinvars.remove(AllPairsS(crs.val[2]))
-        newinvars.append(AllPairsC(newcrs[0]))
-        newinvars.append(AllPairsR(newcrs[1]))
-        newinvars.append(AllPairsS(newcrs[2]))
+    [newinvars.remove(x for x in workgroupsize)]
+    [newinvars.append(x for x in newWgSize)]
 
     return newinvars
 
@@ -137,11 +140,13 @@ for key in GROUPEDTESTS:
     for harness in harnesses:
         invars = harness.testcase.invars
 
-        crsvar = getCRS(invars)
-        crs = crsvar.val
+        workgroupvars = getworkgroupsize(invars)
+        workgroup = [x.val for x in workgroupvars]
 
         # Set the baseline value.
-        baselineinvars = setCRS(invars, *AllPairsCRS.DEFAULT)
+        baselineinvars = setworkgroupsize(invars,
+                                          StencilLocalSizeR(StencilLocalSizeR.DEFAULT),
+                                          StencilLocalSizeC(StencilLocalSizeC.DEFAULT))
 
         result = resultscache.load(invars)
         baselineresult = resultscache.load(baselineinvars)
@@ -160,37 +165,26 @@ for key in GROUPEDTESTS:
         iterations = sum([len(result.outvars), len(baselineresult.outvars)]) / 2
         speedups.append((crs, (speedup, err), iterations))
 
-    # Skip if we don't have data.
-    if not len(speedups):
-        continue
-
     ALLSPEEDUPS += speedups
 
     # Plot results
     hostname = lookup1(harnesses[0].testcase.invars, Hostname)
+    benchmark = lookup1(harnesses[0].testcase.invars, "Benchmark")
     devtArg = lookup1(harnesses[0].testcase.invars, DeviceTypeArg)
     if search("GPU", devtArg.val):
         devCArg = lookup1(harnesses[0].testcase.invars, DeviceCountArg)
-    sizeArg = lookup1(harnesses[0].testcase.invars, "Size")
-
-    size = [
-        int(search("--row-count-a ([0-9]+)", sizeArg.val).group(1)),
-        int(search("--col-count-a ([0-9]+)", sizeArg.val).group(1)),
-        int(search("--col-count-b ([0-9]+)", sizeArg.val).group(1))
-    ]
-    sizestr = "-".join([str(x) for x in size])
 
     # Human-readable device string.
     dt = "GPU" if search("GPU", devtArg.val) else "CPU"
     if dt == "GPU":
         dt = "{n}x ".format(n=search('([0-9]+)', devCArg.val).group(1)) + dt
 
-    name = "{host}-{dev}-{app}-{size}".format(
+    name = "{host}-{dev}-{app}".format(
         host=hostname.val,
         dev=sub(" ", "", dt),
-        app="MatrixMultiply",
-        size=sizestr
+        app=benchmark
     )
+
 
     Labels = [",".join([str(s) for s in x[0]]) for x in speedups]
     Y = [x[1][0] for x in speedups]
@@ -201,10 +195,9 @@ for key in GROUPEDTESTS:
     baseline = 0
 
     kwargs = {
-        "title": "MatrixMultiply: " + ", ".join([str(x) for x in [
+        "title": benchmark + ": " + ", ".join([str(x) for x in [
             hostname.val,
-            dt,
-            sizestr
+            dt
         ]]),
         "xlabel": "C,R,S Paramater values",
         "labels": Labels,
@@ -221,10 +214,6 @@ if len(ALLPOSITIVESPEEDUPS):
     print("MAXIMUM SPEEDUP:", max([x[1][0] for x in ALLPOSITIVESPEEDUPS]),
           "AVERAGE SPEEDUP:", sum([x[1][0] for x in ALLPOSITIVESPEEDUPS]) / float(len(ALLPOSITIVESPEEDUPS)),
           "NUMBER OF SPEEDUPS:", len(ALLPOSITIVESPEEDUPS))
-
-# print("\\hline\n\\end{tabular}", file=tableFile)
-# print("Wrote {path}...".format(path=tableFile.name))
-# tableFile.close()
 
 # Graph event times.
 [plt.openCLEventTimes(x.testcase.invars) for x in HARNESSES]
