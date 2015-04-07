@@ -297,6 +297,8 @@ class StencilKnob(Knob):
     defheader = path(SKELCL, 'include/SkelCL/detail/StencilDef.h')
 
 class StencilLocalSizeR(StencilKnob):
+    DEFAULT = 32
+
     def __init__(self, val):
         Knob.__init__(self, "StencilLocalSizeR", val)
 
@@ -305,6 +307,8 @@ class StencilLocalSizeR(StencilKnob):
                   .format(val=self.val, path=self.defheader))
 
 class StencilLocalSizeC(StencilKnob):
+    DEFAULT = 4
+
     def __init__(self, val):
         Knob.__init__(self, "StencilLocalSizeC", val)
 
