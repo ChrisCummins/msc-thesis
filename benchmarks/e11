@@ -1,0 +1,180 @@
+#!/usr/bin/env python2.7
+#
+# e8
+#
+from __future__ import print_function
+from itertools import product
+from copy import copy
+
+from benchlib import *
+from skelcl import *
+from util import *
+
+import config
+
+allpairsCRS =  {
+    "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
+    "benchmarks": {
+        "MatrixMultiply": {
+            "args": {
+                "Iterations": ["-i 1"],
+                "Size": ["--row-count-a 4096 --col-count-a 4096 --col-count-b 4096"]
+            }
+        }
+    },
+    "args": {},
+    "knobs": {
+        AllPairsC: [32, 64, 128],
+        AllPairsR: [ 8, 16,  32],
+        AllPairsS: [16, 64, 256]
+    }
+}
+
+def instantiate(host, benchmark, args, knobs):
+    sampler = FixedSizeSampler(5)
+    harnesses = []
+
+    for devargs in host.devargs():
+        c = SkelCLTestCase(benchmark, host=host,
+                           invars=knobs + args + devargs)
+        harnesses.append(TestHarness(c, sampler))
+
+    return harnesses
+
+HARNESSES = enumerateHarnesses(allpairsCRS, instantiate)
+
+q = jobqueue(HARNESSES)
+
+runJobQueue(q)
+
+# Headless servers stop here.
+if not masterhost(): exit(0)
+
+####### DATA PROCESSING
+
+from re import sub
+
+from stats import *
+
+import plot as plt
+
+allspeedups = []
+
+# Create table and visualisations
+groupedtests = {}
+speedups = {}
+
+for harness in HARNESSES:
+    host = harness.host
+
+    if len(harness.result().outvars):
+        if host not in groupedtests:
+            groupedtests[host] = []
+            speedups[host] = []
+
+        groupedtests[host].append(harness)
+
+def gettime(result):
+    inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes = gettimes(result.outvars)
+    return describe(skeltimes)
+
+def getCRS(invars):
+    try:
+        return lookup1(invars, AllPairsCRS)
+    except:
+        c = lookup1(invars, AllPairsC).val
+        r = lookup1(invars, AllPairsR).val
+        s = lookup1(invars, AllPairsS).val
+        return AllPairsCRS([c, r, s])
+
+
+for host in groupedtests:
+    harnesses = groupedtests[host]
+
+    for harness in harnesses:
+        invars = harness.testcase.invars
+
+        crsvar = getcrs(invars)
+        crs = crsvar.val
+
+        # Lookup the baseline.
+        baselineinvars = copy(invars)
+        baselineinvars.remove(crsvar)
+        baselineinvars += [AllPairsCRS(AllPairsCRS.DEFAULT)]
+
+        result = resultscache.load(invars)
+        baselineresult = resultscache.load(baselineinvars)
+
+        if not len(baselineresult.outvars) or not len(result.outvars):
+            print("No runtime information!")
+            exit(1)
+
+        time = gettime(result)
+        baseline = gettime(baselineresult)
+
+        speedup = baseline[0] / time[0]
+        err = abs((baseline[0] / sum(time)) - speedup)
+
+        iterations = sum([len(result.outvars), len(baselineresult.outvars)]) / 2
+        speedups[host].append((crs, (speedup, err), iterations))
+
+    # Plot results
+    devtArg = lookup1(harnesses[0].testcase.invars, DeviceTypeArg)
+    if search("GPU", devtArg.val):
+        devCArg = lookup1(harnesses[0].testcase.invars, DeviceCountArg)
+    sizeArg = lookup1(harnesses[0].testcase.invars, "Size")
+
+    size = [
+        int(search("--row-count-a ([0-9]+)", sizeArg.val).group(1)),
+        int(search("--col-count-a ([0-9]+)", sizeArg.val).group(1)),
+        int(search("--col-count-b ([0-9]+)", sizeArg.val).group(1))
+    ]
+    sizestr = "-".join([str(x) for x in size])
+
+    # Human-readable device string.
+    dt = "GPU" if search("GPU", devtArg.val) else "CPU"
+    if dt == "GPU":
+        dt = "{n}x ".format(n=search('([0-9]+)', devCArg.val).group(1)) + dt
+
+    name = "{host}-{dev}-{app}-{size}".format(
+        host=host,
+        dev=sub(" ", "", dt),
+        app="MatrixMultiply",
+        size=sizestr
+    )
+
+    Labels = [",".join([str(s) for s in x[0]]) for x in speedups[host]]
+    Y = [x[1][0] for x in speedups[host]]
+    Err = [x[1][1] for x in speedups[host]]
+    Iterations = sum([x[2] for x in speedups[host]]) / len(speedups[host])
+
+    caption = "Average {n:.1f} iterations.".format(n=Iterations)
+
+    kwargs = {
+        "title": "MatrixMultiply: " + ", ".join([str(x) for x in [
+            host,
+            dt,
+            sizestr
+        ]]),
+        "xlabel": "C,R,S Paramater values",
+        "labels": Labels,
+        "err": Err,
+        "caption": caption,
+        "path": path(config.RESULTS, config.ID, name + ".png")
+    }
+
+    plt.speedups(Y, **kwargs)
+
+# allpositivespeedups = [x[0] for x in allspeedups if x[0] >= 1]
+# print("MAXIMUM SPEEDUP:", max(allpositivespeedups),
+#       "AVERAGE SPEEDUP:", sum(allpositivespeedups) / len(allpositivespeedups),
+#       "NUMBER OF SPEEDUPS:", len(allpositivespeedups))
+
+# print("\\hline\n\\end{tabular}", file=tableFile)
+# print("Wrote {path}...".format(path=tableFile.name))
+# tableFile.close()
+
+# Graph event times.
+[plt.openCLEventTimes(x.testcase.invars) for x in HARNESSES]
+
+exit(0)
