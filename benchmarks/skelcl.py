@@ -114,7 +114,7 @@ class PrepareTimes(DerivedVariable):
     def post(self, **kwargs):
         self.val = {}
         for line in kwargs['output']:
-            match = search('PROF\] ([a-zA-Z\(<>\)]+)\[0x([0-9a-f]+)\]'
+            match = search('PROF\] ([a-zA-Z\(<>, \)]+)\[0x([0-9a-f]+)\]'
                            ' prepare ([0-9\.]+) ms',
                            line)
             if match:
@@ -166,7 +166,7 @@ class SkeletonEventTimes(DerivedVariable):
         self.val = {}
         for line in kwargs['output']:
             # Parse profiling information.
-            match = search('PROF\] ([a-zA-Z\(<>\)]+)\[0x([0-9a-f]+)\]'
+            match = search('PROF\] ([a-zA-Z\(<>, \)]+)\[0x([0-9a-f]+)\]'
                            '\[([0-9]+)\] ([0-9\.]+) ms',
                            line)
             if match:
@@ -191,7 +191,7 @@ class ContainerEventTimes(DerivedVariable):
         self.val = {}
         for line in kwargs['output']:
             # Parse profiling information.
-            match = search('PROF\] ([a-zA-Z\(<>\)]+)\[0x([0-9a-f]+)\]'
+            match = search('PROF\] ([a-zA-Z\(<>, \)]+)\[0x([0-9a-f]+)\]'
                            '\[([0-9]+)\] (ul|dl) ([0-9\.]+) ms', line)
             if match:
                 type = match.group(1)
