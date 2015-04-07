@@ -41,6 +41,11 @@ def confinterval(l, c=0.95, n=30):
             c1, c2 = scipy.stats.norm.interval(c, loc=mean(l), scale=scale)
 
         return c1, c2
+    # If we have one datapoint, then there is no confidence interval,
+    # so return the value.
+    elif len(l) == 1:
+        return l[0], l[0]
+    # If there is no data, return zeroes.
     else:
         return 0, 0
 
