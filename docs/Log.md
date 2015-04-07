@@ -5358,3 +5358,16 @@ set of results, etc.
 TODO:
 * Count number of floating point and integer operations in stencil
   kernels and compute theoretical maximum throughput for a given GPU.
+
+
+## Tuesday 7th
+
+TODO:
+* Coarse-grained exploration of the space for:
+  * Number of iterations between swaps.
+  * AllPairs R,C,S parameters. DONE
+  * Stencil local sizes. DONE
+
+When considering the effect of border size on program performance,
+it's probably more useful to consider the *ratio* of border size to
+data size.
