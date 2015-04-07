@@ -33,15 +33,30 @@ class Host:
         return "{host}: {specs}".format(host=self.NAME,
                                         specs=", ".join(self._specs))
 
-# Represents an OpenCL-capable host device. All GPUs are assumed to
-# have OpenCL drivers. "opencl_cpu" sets whether the CPU is OpenCL
-# accelerated.
+# Represents an OpenCL-capable host device. Accepts a list of
+# platforms, each containing device descriptions, of the format:
+#
+# [
+#   [
+#     {
+#       "name": <name>,
+#       "version": <version>,
+#       "opencl_version": <version>,
+#       "compute_units": <uint>,
+#       "clock_frequency": <uint>,
+#       "global_memory_size": <uint>,
+#       "local_memory_size": <uint>,
+#       "max_work_group_size": <uint>,
+#       "max_work_item_sizes": [<uint> ...],
+#     },
+#     ...
+#   ]
+#   ...
+# ]
 class OpenCLHost(Host):
-    def __init__(self, name, opencl_cpu=False, **kwargs):
+    def __init__(self, name, platforms=[], **kwargs):
         Host.__init__(self, name, **kwargs)
-        self.OPENCL_CPU = opencl_cpu
-        if opencl_cpu:
-            self._specs[0] += " w/ OpenCL"
+        self.platforms = platforms
 
 # Represents the current host machine.
 class LocalHost(Host):
@@ -281,7 +296,7 @@ _messagesent = False
 
 def runJobQueue(harnesses):
     global _messagesent
-    
+
     numjobs, i = len(harnesses), 1 # counters
 
     # Send out a courtesy message.

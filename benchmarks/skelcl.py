@@ -38,12 +38,25 @@ class MapOverlapArg(Argument):
         Argument.__init__(self, "MapOverlap", "--map-overlap")
 
 class SkelCLHost(OpenCLHost):
+
+    # Return two lists, the first containing CPUs, the second, GPUs.
+    def getDevices(self):
+        cpus, gpus = [], []
+
+        for platform in self.platforms:
+            cpus += filter(lambda x: search("Intel", x["name"]), platform)
+            gpus += filter(lambda x: not search("Intel", x["name"]), platform)
+
+        return cpus, gpus
+
+
     def devargs(self):
         args = []
-        for i in range(1, len(self.GPUS) + 1):
-            args.append([DeviceTypeArg("GPU"), DeviceCountArg(i)])
+        cpus, gpus = self.getDevices()
 
-        if self.OPENCL_CPU:
+        for i in range(1, len(gpus) + 1):
+            args.append([DeviceTypeArg("GPU"), DeviceCountArg(i)])
+        if len(cpus):
             args.append([DeviceTypeArg("CPU")])
 
         return args
@@ -51,36 +64,144 @@ class SkelCLHost(OpenCLHost):
     @staticmethod
     def create(name):
         _hosts = {
+            # FIXME: Generate host descriptions for florence and dhcp-90-060:
             "florence": SkelCLHost("florence",
                                    cpu="Intel i5-2430M",
                                    mem=8,
-                                   opencl_cpu=True),
-            "cec": SkelCLHost("cec",
-                              cpu="Intel i5-4570",
-                              mem=8,
-                              opencl_cpu=True),
+                                   platforms=[]),
             "dhcp-90-060": SkelCLHost("dhcp-90-060",
                                       cpu="Intel i7-2600K",
                                       mem=16,
-                                      gpus=["NVIDIA GTX 690"],
-                                      opencl_cpu=False),
+                                      platforms=[]),
+            "cec": SkelCLHost("cec",
+                              cpu="Intel i5-4570",
+                              mem=8,
+                              platforms=[
+                                  [
+                                      {
+                                          "clock_frequency": 3200,
+                                          "compute_units": 4,
+                                          "global_memory_size": 8284794880,
+                                          "local_memory_size": 32768,
+                                          "max_work_group_size": 8192,
+                                          "max_work_item_sizes": [139746604526696, 139746604526696, 32],
+                                          "name": "Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz",
+                                          "opencl_version": "OpenCL C 1.2",
+                                          "version": "OpenCL 1.2 (Build 8)"
+                                      }
+                                  ]
+                              ]),
             "whz5": SkelCLHost("whz5",
                                cpu="Intel i7-4770",
                                mem=16,
-                               gpus=["NVIDIA GTX TITAN"],
-                               opencl_cpu=False),
+                               platforms=[
+                                   [
+                                       {
+                                           "clock_frequency": 980,
+                                           "compute_units": 14,
+                                           "global_memory_size": 6442123264,
+                                           "local_memory_size": 49152,
+                                           "max_work_group_size": 1024,
+                                           "max_work_item_sizes": [0, 18296011750256928, 78],
+                                           "name": "GeForce GTX TITAN",
+                                           "opencl_version": "OpenCL C 1.1",
+                                           "version": "OpenCL 1.1 CUDA"
+                                       }
+                                   ]
+                               ]),
             "tim": SkelCLHost("tim",
                               cpu="Intel i7-2600K",
                               mem=8,
-                              gpus=["NVIDIA GTX 590", "NVIDIA GTX 590",
-                                    "NVIDIA GTX 590", "NVIDIA GTX 590"],
-                              opencl_cpu=False),
+                              platforms=[
+                                  [
+                                      {
+                                          "clock_frequency": 1215,
+                                          "compute_units": 16,
+                                          "global_memory_size": 1610285056,
+                                          "local_memory_size": 49152,
+                                          "max_work_group_size": 1024,
+                                          "max_work_item_sizes": [0, 18296011750256928, 0],
+                                          "name": "GeForce GTX 590",
+                                          "opencl_version": "OpenCL C 1.1",
+                                          "version": "OpenCL 1.1 CUDA"
+                                      },
+                                      {
+                                          "clock_frequency": 1282,
+                                          "compute_units": 16,
+                                          "global_memory_size": 1610153984,
+                                          "local_memory_size": 49152,
+                                          "max_work_group_size": 1024,
+                                          "max_work_item_sizes": [0, 18296011750256928, 0],
+                                          "name": "GeForce GTX 590",
+                                          "opencl_version": "OpenCL C 1.1",
+                                          "version": "OpenCL 1.1 CUDA"
+                                      },
+                                      {
+                                          "clock_frequency": 1215,
+                                          "compute_units": 16,
+                                          "global_memory_size": 1610285056,
+                                          "local_memory_size": 49152,
+                                          "max_work_group_size": 1024,
+                                          "max_work_item_sizes": [0, 18296011750256928, 0],
+                                          "name": "GeForce GTX 590",
+                                          "opencl_version": "OpenCL C 1.1",
+                                          "version": "OpenCL 1.1 CUDA"
+                                      },
+                                      {
+                                          "clock_frequency": 1215,
+                                          "compute_units": 16,
+                                          "global_memory_size": 1610285056,
+                                          "local_memory_size": 49152,
+                                          "max_work_group_size": 1024,
+                                          "max_work_item_sizes": [0, 18296011750256928, 0],
+                                          "name": "GeForce GTX 590",
+                                          "opencl_version": "OpenCL C 1.1",
+                                          "version": "OpenCL 1.1 CUDA"
+                                      }
+                                  ]
+                              ]),
             "monza": SkelCLHost("monza",
                                 cpu="Intel i7-3820",
                                 mem=8,
-                                gpus=["AMD Tahiti 7970", "AMD Tahiti 7970"],
-                                opencl_cpu=True)
+                                platforms=[
+                                    [
+                                        {
+                                            "clock_frequency": 1000,
+                                            "compute_units": 32,
+                                            "global_memory_size": 3102736384,
+                                            "local_memory_size": 32768,
+                                            "max_work_group_size": 256,
+                                            "max_work_item_sizes": [35260800, 138280841504, 32],
+                                            "name": "Tahiti",
+                                            "opencl_version": "OpenCL C 1.2",
+                                            "version": "OpenCL 1.2 AMD-APP (1526.3)"
+                                        },
+                                        {
+                                            "clock_frequency": 1000,
+                                            "compute_units": 32,
+                                            "global_memory_size": 3111124992,
+                                            "local_memory_size": 32768,
+                                            "max_work_group_size": 256,
+                                            "max_work_item_sizes": [35260800, 138280841504, 32],
+                                            "name": "Tahiti",
+                                            "opencl_version": "OpenCL C 1.2",
+                                            "version": "OpenCL 1.2 AMD-APP (1526.3)"
+                                        },
+                                        {
+                                            "clock_frequency": 1200,
+                                            "compute_units": 8,
+                                            "global_memory_size": 8329752576,
+                                            "local_memory_size": 32768,
+                                            "max_work_group_size": 1024,
+                                            "max_work_item_sizes": [35260800, 138280841504, 32],
+                                            "name": "Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz",
+                                            "opencl_version": "OpenCL C 1.2",
+                                            "version": "OpenCL 1.2 AMD-APP (1526.3)"
+                                        }
+                                    ]
+                                ])
         }
+
         return _hosts[name]
 
 #
@@ -369,38 +490,6 @@ class AllPairsCRS(AllPairsKnob):
 
 
 ### VARIABLES
-
-hosts = [
-    SkelCLHost("florence",
-               cpu="Intel i5-2430M",
-               mem=8,
-               opencl_cpu=True),
-    SkelCLHost("cec",
-               cpu="Intel i5-4570",
-               mem=8,
-               opencl_cpu=True),
-    SkelCLHost("dhcp-90-060",
-               cpu="Intel i7-2600K",
-               mem=16,
-               gpus=["NVIDIA GTX 690"],
-               opencl_cpu=False),
-    SkelCLHost("whz5",
-               cpu="Intel i7-4770",
-               mem=16,
-               gpus=["NVIDIA GTX TITAN"],
-               opencl_cpu=False),
-    SkelCLHost("tim",
-               cpu="Intel i7-2600K",
-               mem=8,
-               gpus=["NVIDIA GTX 590", "NVIDIA GTX 590",
-                     "NVIDIA GTX 590", "NVIDIA GTX 590"],
-               opencl_cpu=False),
-    SkelCLHost("monza",
-               cpu="Intel i7-3820",
-               mem=8,
-               gpus=["AMD Tahiti 7970", "AMD Tahiti 7970"],
-               opencl_cpu=True)
-]
 
 benchmarks = [
     SkelCLBenchmark("CannyEdgeDetection"),
