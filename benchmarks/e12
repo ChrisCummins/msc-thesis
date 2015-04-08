@@ -14,7 +14,7 @@ from util import *
 
 import config
 
-allpairsCRS =  {
+jobdesc =  {
     "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
     "benchmarks": {
         "GameOfLife": {
@@ -74,7 +74,7 @@ def instantiate(host, benchmark, args, knobs):
 
     return harnesses
 
-HARNESSES = enumerateHarnesses(allpairsCRS, instantiate)
+HARNESSES = enumerateHarnesses(jobdesc, instantiate)
 
 q = jobqueue(HARNESSES)
 
@@ -123,10 +123,10 @@ def getworkgroupsize(invars):
 def setworkgroupsize(invars, *newWgSize):
     newinvars = copy(invars)
 
-    # Lookup existing CRS value.
+    # Lookup existing values.
     workgroupsize = getworkgroupsize(newinvars)
 
-    # Remove existing CRS value(s).
+    # Remove existing value(s).
     [newinvars.remove(x) for x in workgroupsize]
     [newinvars.append(x) for x in newWgSize]
 
@@ -172,6 +172,10 @@ for key in GROUPEDTESTS:
         iterations = sum([len(result.outvars), len(baselineresult.outvars)]) / 2
         speedups.append((workgroup, (speedup, err), iterations))
 
+    # Nothing to plot.
+    if not len(speedups):
+        continue
+
     ALLSPEEDUPS += speedups
 
     # Plot results
@@ -205,7 +209,7 @@ for key in GROUPEDTESTS:
             hostname.val,
             dt
         ]]),
-        "xlabel": "C,R,S Paramater values",
+        "xlabel": "Stencil local size",
         "labels": Labels,
         "err": Err,
         "baseline": baseline,
