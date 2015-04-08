@@ -130,6 +130,12 @@ def setCRS(invars, *newcrs):
 
     return newinvars
 
+def getBaselineIndex(speedups):
+    for i in range(len(speedups)):
+        crs = speedups[i][0]
+        if crs == AllPairsCRS.DEFAULT:
+            return i
+
 for key in GROUPEDTESTS:
     harnesses = GROUPEDTESTS[key]
     speedups = SPEEDUPS[key]
@@ -198,7 +204,7 @@ for key in GROUPEDTESTS:
     Iterations = sum([x[2] for x in speedups]) / len(speedups)
 
     caption = "Average {n:.1f} iterations.".format(n=Iterations)
-    baseline = 0
+    baseline = getBaselineIndex(speedups)
 
     kwargs = {
         "title": "MatrixMultiply: " + ", ".join([str(x) for x in [
