@@ -1,0 +1,158 @@
+{
+  "bad": false,
+  "cout": {
+    "Checksum": "6402c928afdf50c3d13bf01c56ba532670a929b4",
+    "SkelCL version": "66dce503041df4d25a2e5b9c68b67656a0a6c4c9"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "GaussianBlur",
+    "Device type": "--device-type CPU",
+    "Hostname": "monza",
+    "Input": "--input /home/s1469829/src/msc-thesis/benchmarks/data/img/4160x3120.pgm",
+    "StencilLocalSizeC": 4,
+    "StencilLocalSizeR": 256
+  },
+  "out": [
+    {
+      "End time": "2015-04-08 01:54:05",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   008.061s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  008.061s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  008.061s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  008.061s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  008.063s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  008.064s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   008.064s  PROF] skelcl::init() time 241 ms",
+        "[=====Program.cpp:212  008.638s  PROF] skelcl::Program::build() 141 ms",
+        "[====StencilDef.h:169  008.694s  PROF] Stencil<Tout(Tin)>[0x7fffa3da3b70] prepare 56 ms",
+        "[====StencilDef.h:384  008.694s  PROF] Stencil<Tout(Tin)>[0x7fffa3da3b70][0] global[4160][3328] local[4][256] tile[14][266][4]",
+        "[====Skeleton.cpp:93   009.443s  PROF] Stencil<Tout(Tin)>[0x7fffa3da3b70][0] 748.507009 ms",
+        "[======SkelCL.cpp:89   010.581s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:300  010.581s  PROF] Matrix[0x7fffa3da3c80][0] ul 15.148784 ms",
+        "[=====MatrixDef.h:300  010.581s  PROF] Matrix[0x7fffa3da3c80][0] dl 8.051858 ms",
+        "[=====VectorDef.h:245  010.581s  PROF] Vector[0x7fffa3da3bf0][0] ul 0.002305 ms",
+        "Image size:   4160 x 3120 px",
+        "Elapsed time: 1380 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 10.593703031539917,
+      "Start time": "2015-04-08 01:53:55"
+    },
+    {
+      "End time": "2015-04-08 01:54:16",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   008.244s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  008.244s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  008.244s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  008.244s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  008.246s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  008.246s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   008.246s  PROF] skelcl::init() time 241 ms",
+        "[=====Program.cpp:212  008.817s  PROF] skelcl::Program::build() 137 ms",
+        "[====StencilDef.h:169  008.874s  PROF] Stencil<Tout(Tin)>[0x7fffbee533c0] prepare 57 ms",
+        "[====StencilDef.h:384  008.874s  PROF] Stencil<Tout(Tin)>[0x7fffbee533c0][0] global[4160][3328] local[4][256] tile[14][266][4]",
+        "[====Skeleton.cpp:93   009.612s  PROF] Stencil<Tout(Tin)>[0x7fffbee533c0][0] 737.117397 ms",
+        "[======SkelCL.cpp:89   010.851s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:300  010.851s  PROF] Matrix[0x7fffbee534d0][0] ul 15.347900 ms",
+        "[=====MatrixDef.h:300  010.851s  PROF] Matrix[0x7fffbee534d0][0] dl 8.118834 ms",
+        "[=====VectorDef.h:245  010.851s  PROF] Vector[0x7fffbee53440][0] ul 0.001607 ms",
+        "Image size:   4160 x 3120 px",
+        "Elapsed time: 1365 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 11.043882131576538,
+      "Start time": "2015-04-08 01:54:05"
+    },
+    {
+      "End time": "2015-04-08 01:54:27",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   008.270s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  008.270s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  008.270s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  008.270s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  008.272s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  008.272s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   008.272s  PROF] skelcl::init() time 241 ms",
+        "[=====Program.cpp:212  008.837s  PROF] skelcl::Program::build() 134 ms",
+        "[====StencilDef.h:169  008.894s  PROF] Stencil<Tout(Tin)>[0x7fff64dd4f10] prepare 57 ms",
+        "[====StencilDef.h:384  008.894s  PROF] Stencil<Tout(Tin)>[0x7fff64dd4f10][0] global[4160][3328] local[4][256] tile[14][266][4]",
+        "[====Skeleton.cpp:93   009.636s  PROF] Stencil<Tout(Tin)>[0x7fff64dd4f10][0] 741.336122 ms",
+        "[======SkelCL.cpp:89   010.882s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:300  010.882s  PROF] Matrix[0x7fff64dd5020][0] ul 15.318777 ms",
+        "[=====MatrixDef.h:300  010.882s  PROF] Matrix[0x7fff64dd5020][0] dl 8.139019 ms",
+        "[=====VectorDef.h:245  010.882s  PROF] Vector[0x7fff64dd4f90][0] ul 0.001815 ms",
+        "Image size:   4160 x 3120 px",
+        "Elapsed time: 1364 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 11.081369161605835,
+      "Start time": "2015-04-08 01:54:16"
+    },
+    {
+      "End time": "2015-04-08 01:54:37",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   007.341s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  007.341s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  007.341s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  007.341s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  007.342s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  007.342s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   007.342s  PROF] skelcl::init() time 248 ms",
+        "[=====Program.cpp:212  007.908s  PROF] skelcl::Program::build() 134 ms",
+        "[====StencilDef.h:169  007.965s  PROF] Stencil<Tout(Tin)>[0x7fff2be2af50] prepare 57 ms",
+        "[====StencilDef.h:384  007.965s  PROF] Stencil<Tout(Tin)>[0x7fff2be2af50][0] global[4160][3328] local[4][256] tile[14][266][4]",
+        "[====Skeleton.cpp:93   008.715s  PROF] Stencil<Tout(Tin)>[0x7fff2be2af50][0] 749.428068 ms",
+        "[======SkelCL.cpp:89   009.903s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:300  009.903s  PROF] Matrix[0x7fff2be2b060][0] ul 16.252476 ms",
+        "[=====MatrixDef.h:300  009.903s  PROF] Matrix[0x7fff2be2b060][0] dl 8.161578 ms",
+        "[=====VectorDef.h:245  009.903s  PROF] Vector[0x7fff2be2afd0][0] ul 0.001607 ms",
+        "Image size:   4160 x 3120 px",
+        "Elapsed time: 1373 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 9.91460394859314,
+      "Start time": "2015-04-08 01:54:27"
+    },
+    {
+      "End time": "2015-04-08 01:54:48",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   008.177s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  008.177s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  008.177s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  008.177s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  008.179s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  008.179s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   008.179s  PROF] skelcl::init() time 250 ms",
+        "[=====Program.cpp:212  008.751s  PROF] skelcl::Program::build() 139 ms",
+        "[====StencilDef.h:169  008.808s  PROF] Stencil<Tout(Tin)>[0x7fff19d302a0] prepare 57 ms",
+        "[====StencilDef.h:384  008.808s  PROF] Stencil<Tout(Tin)>[0x7fff19d302a0][0] global[4160][3328] local[4][256] tile[14][266][4]",
+        "[====Skeleton.cpp:93   009.561s  PROF] Stencil<Tout(Tin)>[0x7fff19d302a0][0] 751.698028 ms",
+        "[======SkelCL.cpp:89   010.786s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:300  010.786s  PROF] Matrix[0x7fff19d303b0][0] ul 16.113702 ms",
+        "[=====MatrixDef.h:300  010.786s  PROF] Matrix[0x7fff19d303b0][0] dl 8.127146 ms",
+        "[=====VectorDef.h:245  010.787s  PROF] Vector[0x7fff19d30320][0] ul 0.001816 ms",
+        "Image size:   4160 x 3120 px",
+        "Elapsed time: 1382 ms",
+        "Output:       data/lena.out.pgm"
+      ],
+      "Run time": 10.979634046554565,
+      "Start time": "2015-04-08 01:54:37"
+    }
+  ]
+}
