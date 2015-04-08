@@ -1,0 +1,64 @@
+{
+  "bad": false,
+  "cout": {
+    "Checksum": "c2af3a26ea17782abb2a5b1a29f41813737ae728",
+    "SkelCL version": "66dce503041df4d25a2e5b9c68b67656a0a6c4c9"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "GameOfLife",
+    "Device type": "--device-type CPU",
+    "Hostname": "monza",
+    "Iterations": "-i 10",
+    "Size": "--size 1024",
+    "StencilLocalSizeC": 2,
+    "StencilLocalSizeR": 8
+  },
+  "out": [
+    {
+      "End time": "2015-04-08 02:50:51",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.273s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.273s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  000.273s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.273s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  000.275s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.275s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.275s  PROF] skelcl::init() time 242 ms",
+        "[=====Program.cpp:212  000.630s  PROF] skelcl::Program::build() 102 ms",
+        "[====StencilDef.h:169  000.641s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480] prepare 10 ms",
+        "[====StencilDef.h:384  000.649s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][0] global[1024][1024] local[2][8] tile[4][10][4]",
+        "[====Skeleton.cpp:93   000.650s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][0] 9.535831 ms",
+        "[====Skeleton.cpp:93   000.659s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][1] 8.795241 ms",
+        "[====Skeleton.cpp:93   000.666s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][2] 7.103353 ms",
+        "[====Skeleton.cpp:93   000.673s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][3] 7.126749 ms",
+        "[====Skeleton.cpp:93   000.681s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][4] 7.147911 ms",
+        "[====Skeleton.cpp:93   000.688s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][5] 7.046083 ms",
+        "[====Skeleton.cpp:93   000.695s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][6] 7.089524 ms",
+        "[====Skeleton.cpp:93   000.702s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][7] 7.007391 ms",
+        "[====Skeleton.cpp:93   000.709s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][8] 7.059073 ms",
+        "[====Skeleton.cpp:93   000.716s  PROF] Stencil<Tout(Tin)>[0x7fffb8a09480][9] 7.016330 ms",
+        "[======SkelCL.cpp:89   000.761s  INFO] SkelCL terminating. Freeing all resources.",
+        "[=====MatrixDef.h:300  000.761s  PROF] Matrix[0x7fffb8a09500][0] ul 1.784289 ms",
+        "[=====MatrixDef.h:300  000.761s  PROF] Matrix[0x7fffb8a09500][0] dl 0.534910 ms",
+        "Iterations:   10",
+        "Grid size:    1024 x 1024",
+        "Elapsed time: 86 ms",
+        "Output:       data/grid.txt"
+      ],
+      "Run time": 0.7836329936981201,
+      "Start time": "2015-04-08 02:50:50"
+    }
+  ]
+}
