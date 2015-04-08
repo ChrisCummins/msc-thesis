@@ -64,11 +64,25 @@ class SkelCLHost(OpenCLHost):
     @staticmethod
     def create(name):
         _hosts = {
-            # FIXME: Generate host descriptions for florence and dhcp-90-060:
             "florence": SkelCLHost("florence",
                                    cpu="Intel i5-2430M",
                                    mem=8,
-                                   platforms=[]),
+                                   platforms=[
+                                       [
+                                           {
+                                               "clock_frequency": 2400,
+                                               "compute_units": 4,
+                                               "global_memory_size": 8321806336,
+                                               "local_memory_size": 32768,
+                                               "max_work_group_size": 8192,
+                                               "max_work_item_sizes": [139989389544552, 139989389544552, 32],
+                                               "name": "Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz",
+                                               "opencl_version": "OpenCL C 1.2",
+                                               "version": "OpenCL 1.2 (Build 8)"
+                                           }
+                                       ]
+                                   ]),
+            # FIXME: Generate host descriptions for dhcp-90-060:
             "dhcp-90-060": SkelCLHost("dhcp-90-060",
                                       cpu="Intel i7-2600K",
                                       mem=16,
