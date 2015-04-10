@@ -19,11 +19,13 @@ jobdesc =  {
     "benchmarks": {
         "GameOfLife": {
             "args": {
+		"Iterations": ["-i {i}".format(i=i) for i in [100]],
                 "Swaps": ["-S {i}".format(i=i) for i in range(1, 5)]
             }
         },
         "HeatEquation": {
             "args": {
+	    	"Iterations": ["-i {i}".format(i=i) for i in [100]],
                 "Swaps": ["-S {i}".format(i=i) for i in range(1, 5)]
             }
         }
