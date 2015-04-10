@@ -210,7 +210,7 @@ def speedups(speedups, err=[], labels=[], xlabel="",
     plt.axhline(y=1, color='k')
 
     if labels:
-        plt.xticks(X + width / 2., labels, rotation=90)
+        plt.xticks(X + width / 2., labels, rotation=90, fontsize=10)
 
     position = [.12, # Left padding
                 .14, # Bottom padding
