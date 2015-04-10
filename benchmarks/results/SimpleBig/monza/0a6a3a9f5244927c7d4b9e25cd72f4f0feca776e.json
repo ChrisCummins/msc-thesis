@@ -1,0 +1,64 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "71cae405cee481170034c3eb903b492a5831673c",
+    "SkelCL version": "0e290b839c259c224e91172fd39335eee2ba8a65"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      1,
+      10,
+      30,
+      30
+    ],
+    "Complexity": "--complex",
+    "Device count": "--device-count 2",
+    "Device type": "--device-type GPU",
+    "Hostname": "monza",
+    "Size": "-w 1024 -h 1024",
+    "StencilLocalSizeC": 4,
+    "StencilLocalSizeR": 4
+  },
+  "out": [
+    {
+      "End time": "2015-04-10 19:50:34",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.240s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.240s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[======Device.cpp:118  000.247s  INFO] Using device `Tahiti' with id: 0",
+        "[======Device.cpp:118  000.250s  INFO] Using device `Tahiti' with id: 1",
+        "[==DeviceList.cpp:107  000.250s  INFO] Skip device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.251s  INFO] Using 2 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.251s  PROF] skelcl::init() time 250 ms",
+        "[=====Program.cpp:212  007.241s  PROF] skelcl::Program::build() 6674 ms",
+        "[====StencilDef.h:169  007.248s  PROF] Stencil<Tout(Tin)>[0x7fff2decc190] prepare 7 ms",
+        "[====StencilDef.h:384  007.248s  PROF] Stencil<Tout(Tin)>[0x7fff2decc190][0] global[1024][1056] local[4][4] tile[44][35][4]",
+        "[====StencilDef.h:384  007.248s  PROF] Stencil<Tout(Tin)>[0x7fff2decc190][1] global[1024][1028] local[4][4] tile[44][35][4]",
+        "[StencilDistributionDef.h:98   007.248s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   007.249s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   007.249s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   007.249s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   007.249s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   007.249s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   007.249s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   007.249s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   007.249s  PROF]  swap 0 ms"
+      ],
+      "Run time": 12.258754968643188,
+      "Start time": "2015-04-10 19:50:22"
+    }
+  ]
+}
