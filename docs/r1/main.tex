@@ -133,7 +133,7 @@ for (int i = 0; i < iterations; i++)
 \newpage
 \lstset{language=C++}
 \begin{lstlisting}[
-  caption={My proposed ``SmartStencil'' implementation.},
+  caption={My proposed self-tuning Stencil implementation.},
   label=lst:gol-stencil
 ]
 // Constructor declaration.
@@ -154,14 +154,14 @@ DataType MyStencil::operator()(DataType in, iterations=1) {
 \begin{figure}
 \includesvg[width=.5\textwidth]{img/GameOfLife-cec-f679f681af6ac3f41dc4f2284ed2039e0a79579a-events}
 \includesvg[width=.5\textwidth]{img/GameOfLife-cec-8c5a7452d26b8294e841b29e0e749c40944fd69b-events}
-\caption{Problem size of 4096 elements. MapOverlap is 95\% faster.}
-\label{fig:}
+\caption{A single iteration with a problem size of 4096 elements. MapOverlap is 95\% faster.}
+\label{fig:1iter}
 \end{figure}
 
 \begin{figure}
 \includesvg[width=.5\textwidth]{img/GameOfLife-cec-0ed9d7941c644e44e34aab38b6ea031c1f2f0a9f-events}
 \includesvg[width=.5\textwidth]{img/GameOfLife-cec-f88ff13f204fa812571941a74a7cf72941f96fb8-events}
-\caption{Problem size of 4096 elements. MapOverlap is 64\% slower.}
+\caption{The same program as in Figure~\ref{fig:1iter}, but running 100 iterations. MapOverlap is 64\% slower.}
 \label{fig:}
 \end{figure}
 
@@ -185,24 +185,33 @@ Intel i5-4570 & 8GiB & - & \textit{cec}\\
 \label{tab:hw}
 \end{table}
 
-Appendix~\ref{app:mo-vs-stencil} shows the ``break-even'' point
-between
+% Appendix~\ref{app:mo-vs-stencil} shows the ``break-even'' point
+% between
 
 \begin{figure}
-\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/cec-CPU-GameOfLife-2048.png}
-\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/cec-CPU-HeatEquation-2048.png}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/monza-1xGPU-GameOfLife-2048.png}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/monza-1xGPU-HeatEquation-2048.png}
 \caption{%
-  Relative performance of the MapOverlap skeleton over the Stencil
-  skeleton, for two different benchmarks on the same architecture.%
+  Two different benchmarks on the same architecture.%
 }
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/monza-1xGPU-HeatEquation-1024.png}
-\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/tim-1xGPU-HeatEquation-1024.png}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/monza-1xGPU-HeatEquation-2048.png}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/monza-CPU-HeatEquation-4096.png}
 \caption{%
-  The same program and input size for two different CP/GPU
-  architectures.%
+  Effect of problem size on performance for a single architecture and program.%
+}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/monza-1xGPU-HeatEquation-1024.png}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/cec-CPU-HeatEquation-1024.png}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/tim-1xGPU-HeatEquation-1024.png}
+\includegraphics[width=.5\textwidth]{/home/chris/src/msc-thesis/benchmarks/results/e8/tim-4xGPU-HeatEquation-1024.png}
+\caption{%
+  The same program and input size for four different CPU/GPU architectures.%
 }
 \end{figure}
 % \begin{table}
@@ -228,6 +237,7 @@ between
 % \end{table}
 
 
+\newpage
 \section{Conclusions}
 
 Future work: ``fusing'' kernels of multi-stage iterative skeletons,

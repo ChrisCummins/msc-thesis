@@ -5371,3 +5371,69 @@ TODO:
 When considering the effect of border size on program performance,
 it's probably more useful to consider the *ratio* of border size to
 data size.
+
+
+## Friday 10th
+
+Notes from meeting with Hugh and Pavlos:
+* I haven't got any data yet to support tuning different values across
+  *programs*. I should have a look at programs using very different
+  kernels and halo regions.
+* Progress has been slow. Think about why this is the case (is the
+  problem me, or the project?). Come up with some ways for how to
+  improve this for the next 3 1/2 years.
+* Have a chat with Alberto about compilation of OpenCL programs with
+  LLVM.
+* How does Intel's OpenCL driver work? Do programs execute on the CPU
+  or integrated GPU?
+
+A high level overview of the Autotuner I am proposing:
+
+```
+[D, Arch, h, k] -> [NumIter, Wg]
+
+D       = Input problem
+Arch    = Architecture
+h       = Halo size
+k       = Kernel
+
+NumIter = Number of iterations to switch between MapOverlap and Stencil
+Wg      = Workgroup size
+```
+
+So far, I have demonstrated that `D` and `Arch` are both highly
+influential on the optimal parameter values for `NumIter` and
+`Wg`. However, I haven't shown that `h` and `k` have a significant
+effect. This is either because:
+* They have little effect.
+* OR due to the relative same-iness of the available benchmarks. They
+  all use similar halo sizes, and the kernels are similar in
+  computational complexity.
+
+In order to test whether `h` and `k` are significant, I should
+generate four test stencils with the following properties:
+1. A large halo size and a simple kernel.
+1. A small halo size and a simple kernel.
+1. A large halo size and a complex kernel.
+1. A large halo size and a complex kernel.
+
+If those show that `h` and `k` are significant, I build a system to
+automatically generate stencil benchmarks. This should take ~2 weeks.
+
+Next meeting is on Monday. I'm going to prepare a self-aggrandising
+presentation and review of my past 6 months' work, and identify the
+challenges and how I'm going to overcome them.
+
+
+TODO:
+* Create (Simple|Complex)(Small|Big) tests.
+* Lookup how Intel's OpenCL implementation works.
+* Lookup how SkelCL compiles stencils.
+
+
+* Loops
+* If/else branches
+* Bitwise instructions
+* Numerical instructions
+* Costly builtins: sqrt(), cos(), sin(), pow()
+* Data types
