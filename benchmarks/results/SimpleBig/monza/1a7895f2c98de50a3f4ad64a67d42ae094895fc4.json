@@ -1,0 +1,53 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "a424481d3e03273bb4df5aed5ed6df2fadf192e6",
+    "SkelCL version": "0e290b839c259c224e91172fd39335eee2ba8a65"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      30,
+      30,
+      30,
+      30
+    ],
+    "Complexity": "--complex",
+    "Device type": "--device-type CPU",
+    "Hostname": "monza",
+    "Size": "-w 1024 -h 1024",
+    "StencilLocalSizeC": 4,
+    "StencilLocalSizeR": 4
+  },
+  "out": [
+    {
+      "End time": "2015-04-10 20:32:44",
+      "Exit status": -8,
+      "Output": [
+        "[==DeviceList.cpp:90   000.244s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.244s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  000.244s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.244s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  000.246s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.247s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.247s  PROF] skelcl::init() time 246 ms",
+        "[=====Program.cpp:212  000.722s  PROF] skelcl::Program::build() 159 ms",
+        "[====StencilDef.h:169  000.731s  PROF] Stencil<Tout(Tin)>[0x7fffd1c45070] prepare 8 ms",
+        "[====StencilDef.h:384  000.731s  PROF] Stencil<Tout(Tin)>[0x7fffd1c45070][0] global[1024][1024"
+      ],
+      "Run time": 0.7485098838806152,
+      "Start time": "2015-04-10 20:32:44"
+    }
+  ]
+}
