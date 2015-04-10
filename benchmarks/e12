@@ -42,8 +42,8 @@ jobdesc =  {
     },
     "args": {},
     "knobs": {
-        StencilLocalSizeR: [  8,  16,  32,  64, 128, 256],
-        StencilLocalSizeC: [  2,   4,   8,  16,  32,  64]
+        StencilLocalSizeC: [  2,   4,   8,  16,  32,  64, 128, 256],
+        StencilLocalSizeR: [  2,   4,   8,  16,  32,  64, 128, 256]
     }
 }
 
@@ -117,8 +117,8 @@ def gettime(result):
     return describe(skeltimes)
 
 def getworkgroupsize(invars):
-    return (lookup1(invars, StencilLocalSizeR),
-            lookup1(invars, StencilLocalSizeC))
+    return (lookup1(invars, StencilLocalSizeC),
+            lookup1(invars, StencilLocalSizeR))
 
 def setworkgroupsize(invars, *newWgSize):
     newinvars = copy(invars)
@@ -136,8 +136,8 @@ def getBaselineIndex(speedups):
     for i in range(len(speedups)):
         workgroupsize = speedups[i][0]
 
-        if (workgroupsize[0] == StencilLocalSizeR.DEFAULT and
-            workgroupsize[1] == StencilLocalSizeC.DEFAULT):
+        if (workgroupsize[0] == StencilLocalSizeC.DEFAULT and
+            workgroupsize[1] == StencilLocalSizeR.DEFAULT):
             return i
 
 for key in GROUPEDTESTS:
@@ -152,8 +152,8 @@ for key in GROUPEDTESTS:
 
         # Set the baseline value.
         baselineinvars = setworkgroupsize(invars,
-                                          StencilLocalSizeR(StencilLocalSizeR.DEFAULT),
-                                          StencilLocalSizeC(StencilLocalSizeC.DEFAULT))
+                                          StencilLocalSizeC(StencilLocalSizeC.DEFAULT),
+                                          StencilLocalSizeR(StencilLocalSizeR.DEFAULT))
 
         result = resultscache.load(invars)
         baselineresult = resultscache.load(baselineinvars)
@@ -196,7 +196,7 @@ for key in GROUPEDTESTS:
         app=benchmark.val
     )
 
-    Labels = [",".join([str(s) for s in x[0]]) for x in speedups]
+    Labels = ["[{r}x{c}]".format(r=x[0][0], c=x[0][1]) for x in speedups]
     Y = [x[1][0] for x in speedups]
     Err = [x[1][1] for x in speedups]
     Iterations = sum([x[2] for x in speedups]) / len(speedups)
@@ -209,7 +209,7 @@ for key in GROUPEDTESTS:
             hostname.val,
             dt
         ]]),
-        "xlabel": "Stencil local size",
+        "xlabel": "Stencil Skeleton work group size",
         "labels": Labels,
         "err": Err,
         "baseline": baseline,
