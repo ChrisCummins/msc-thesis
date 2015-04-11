@@ -1,0 +1,51 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "5abb69c595f4f044fdbf922c87409fe7444c4aef",
+    "SkelCL version": "66dce503041df4d25a2e5b9c68b67656a0a6c4c9"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "AllPairsC": 128,
+    "AllPairsR": 64,
+    "AllPairsS": 64,
+    "Benchmark": "MatrixMultiply",
+    "Device type": "--device-type CPU",
+    "Hostname": "florence",
+    "Iterations": "-i 1",
+    "Size": "--row-count-a 4096 --col-count-a 4096 --col-count-b 4096"
+  },
+  "out": [
+    {
+      "End time": "2015-04-09 08:30:13",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.003s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.003s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.246s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.246s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.246s  PROF] skelcl::init() time 245 ms",
+        "[=====Program.cpp:212  000.332s  PROF] skelcl::Program::build() 31 ms",
+        "[=====Program.cpp:212  000.524s  PROF] skelcl::Program::build() 51 ms",
+        "[=====Program.cpp:212  001.446s  PROF] skelcl::Program::build() 228 ms",
+        "[===AllPairsDef.h:100  001.447s DEBUG] Created new AllPairs object (0x39cc7f0) with CRS values [128,64,64]",
+        "[===AllPairsDef.h:149  002.602s  PROF] AllPairs<Tout(Tleft, Tright)>[0x39cc7f0] prepare 51 ms",
+        "[===AllPairsDef.h:187  002.602s DEBUG] dim: 4096 height: 4096 width: 4096",
+        "[===AllPairsDef.h:189  002.602s DEBUG] local: 128,64 global: 4096,64",
+        "[======Device.cpp:148  002.603s ERROR] OpenCL error: CL_OUT_OF_RESOURCES (code: -5) clEnqueueNDRangeKernel"
+      ],
+      "Run time": 3.379728078842163,
+      "Start time": "2015-04-09 08:30:10"
+    }
+  ]
+}
