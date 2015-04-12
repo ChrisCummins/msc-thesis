@@ -240,3 +240,12 @@ def lookup1(*args):
     if len(var) != 1:
         raise LookupError
     return var[0]
+
+def lookupvals(vars, type):
+    # Filter by type.
+    vars = lookup(vars, type)
+    # Create a set of all values.
+    allvals = set()
+    [allvals.add(x.val) for x in vars]
+    # Return values as a list.
+    return list(allvals)
