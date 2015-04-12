@@ -155,7 +155,7 @@ def openCLEventTimes(invars, name="events"):
     # Embed checksum of graphed data in the plot file.
     _writechecksum(path, _HashableResult(result).key())
 
-def speedups(speedups, err=[], labels=[], xlabel="",
+def speedups(speedups, err=[], labels=[], xlabel="", ylabel="Speedup",
              title="", caption="", baseline=-1, ymajorlines=False, path=None):
     X = np.arange(len(speedups))
 
@@ -199,7 +199,7 @@ def speedups(speedups, err=[], labels=[], xlabel="",
         ax.yaxis.grid(b=True, which='major', color="#aaaaaa", linestyle='-')
 
     # Axis text and limits.
-    plt.ylabel('Speedup')
+    plt.ylabel(ylabel)
     if xlabel:
         plt.xlabel(xlabel)
 
