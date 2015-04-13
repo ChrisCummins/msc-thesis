@@ -6,39 +6,14 @@
 # of the set of independent variables for that result:
 #
 #     <benchmark>/<host>/<key>.json
-from hashlib import sha1
 from os.path import dirname
 from util import path
 from variables import BenchmarkName,Checksum,Hostname,lookup1,Result
 
+from variables import HashableInvars
+
 import config
 import jsoncache
-
-#
-class _HashableInvars:
-    # A set of variable names to exclude from hash results.
-    _EXCLUDED_KEYS = ["Hostname", "Benchmark"]
-
-    def __init__(self, invars):
-
-        # Filter out unhashable invars
-        for key in self._EXCLUDED_KEYS:
-            invars = filter(lambda x: not x.name == key, invars)
-
-        self._invars = sorted(list(invars))
-        self._key = sha1(str(self)).hexdigest()
-
-    def key(self):
-        return self._key
-
-    def __key(x):
-        return tuple(x._invars)
-
-    def __eq__(x, y):
-        return x.__key() == y.__key()
-
-    def __repr__(x):
-        return str(x.__key()).encode('utf-8')
 
 #
 def _path(benchmarkname, key, hostname, root, suffix, extension):
@@ -71,7 +46,7 @@ def plotpath(invars, suffix="", extension=".svg"):
 
 #
 def id(invars):
-    return _HashableInvars(invars).key()
+    return HashableInvars(invars).key()
 
 #
 def load(invars):

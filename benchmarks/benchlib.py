@@ -318,3 +318,26 @@ def runJobQueue(harnesses):
         print()
         job.run()
         i += 1
+
+# Separate a list of harnesses into collections who share the same
+# values for the supplied list of independent variables.
+def groupByInvars(harnesses, *args):
+    grouped = {}
+    # Iterate over harnesses.
+    for harness in sorted(harnesses):
+        invars = harness.testcase.invars
+        matched = [] # List of matching invars.
+        for invar in args:
+            try:
+                matched.append(lookup1(invars, invar))
+            except LookupError: # Ignore lookup errors
+                pass
+        # Create a key.
+        key = HashableInvars(matched, exclude=[]).key()
+        # Add key to dictionary.
+        if key not in grouped:
+            grouped[key] = []
+        # Add harness to dictionary entry.
+        grouped[key].append(harness)
+    # Return the grouped harnesses.
+    return grouped

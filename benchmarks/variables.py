@@ -4,10 +4,12 @@
 # persistent storage through serialising/deserialising to and from
 # JSON.
 from __future__ import print_function
+from copy import copy
 from datetime import datetime
-from time import time
-from socket import gethostname
+from hashlib import sha1
 from inspect import isclass
+from socket import gethostname
+from time import time
 
 from util import checksum
 
@@ -216,6 +218,13 @@ class Output(DependentVariable):
     def post(self, **kwargs):
         self.val = kwargs['output']
 
+######################
+# Derived Variables. #
+######################
+
+class Speedup(DerivedVariable):
+    def __init__(self):
+        DerivedVariable.__init__(self, "Speedup")
 
 ###########
 # Filters #
@@ -238,7 +247,7 @@ def lookup(vars, type):
 def lookup1(*args):
     var = list(lookup(*args))
     if len(var) != 1:
-        raise LookupError
+        raise LookupError(*args)
     return var[0]
 
 def lookupvals(vars, type):
@@ -249,3 +258,32 @@ def lookupvals(vars, type):
     [allvals.add(x.val) for x in vars]
     # Return values as a list.
     return list(allvals)
+
+
+#
+class HashableInvars:
+    def __init__(self, invars, exclude=["Hostname", "Benchmark"]):
+        invars = copy(invars)
+
+        # Filter out excluded variables.
+        for key in exclude:
+            try:
+                var = lookup1(invars, key)
+                invars.remove(var)
+            except LookupError: # Ignore lookup errors
+                pass
+
+        self._invars = sorted(list(invars))
+        self._key = sha1(str(self)).hexdigest()
+
+    def key(self):
+        return self._key
+
+    def __key(x):
+        return tuple(x._invars)
+
+    def __eq__(x, y):
+        return x.__key() == y.__key()
+
+    def __repr__(x):
+        return str(x.__key()).encode('utf-8')

@@ -109,8 +109,6 @@ from stats import *
 
 import plot as plt
 
-ALLSPEEDUPS = []
-
 def getworkgroupsize(invars):
     return (lookup1(invars, StencilLocalSizeC),
             lookup1(invars, StencilLocalSizeR))
@@ -126,6 +124,58 @@ def setworkgroupsize(invars, *newWgSize):
     [newinvars.append(x) for x in newWgSize]
 
     return newinvars
+
+def gettime(result):
+    inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes = gettimes(result.outvars)
+    return describe(skeltimes)
+
+def getBaselineIndex(speedups):
+    for i in range(len(speedups)):
+        workgroupsize = speedups[i][0]
+
+        if (workgroupsize[0] == StencilLocalSizeC.DEFAULT and
+            workgroupsize[1] == StencilLocalSizeR.DEFAULT):
+            return i
+
+#def plotKernelSpeedups(harnesses):
+
+
+def process(key, harnesses):
+    workGroupSizes = groupByInvars(harnesses,
+                                   StencilLocalSizeC,
+                                   StencilLocalSizeR)
+
+    #for key in workGroupSizes:
+    #    plotKernelSpeedups(workGroupSizes[key])
+
+# Calculate speedups
+for harness in HARNESSES:
+    result = harness.result()
+    invars = result.invars
+
+    baselineinvars = setworkgroupsize(invars,
+                                      StencilLocalSizeC(StencilLocalSizeC.DEFAULT),
+                                      StencilLocalSizeR(StencilLocalSizeR.DEFAULT))
+    baseline = resultscache.load(baselineinvars)
+
+    if (baseline.bad or result.bad or
+        not len(baseline.outvars) or not len(result.outvars)):
+        speedup = 0
+        err = 0
+    else:
+        time = gettime(result)
+        baselinetime = gettime(baseline)
+        speedup = baselinetime[0] / time[0]
+        err = abs((baselinetime[0] / sum(time)) - speedup)
+
+    #result.couts.append()
+
+# Group harnesses by Host/Device properties.
+groupedharnesses = groupByInvars(HARNESSES, Hostname, DeviceTypeArg,
+                                 DeviceCountArg, "Size")
+
+for key in groupedharnesses:
+    process(key, groupedharnesses[key])
 
 # Create 3D plots.
 GROUPEDTESTS = {}
