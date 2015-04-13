@@ -223,8 +223,9 @@ class Output(DependentVariable):
 ######################
 
 class Speedup(DerivedVariable):
-    def __init__(self):
+    def __init__(self, val):
         DerivedVariable.__init__(self, "Speedup")
+        self.val = val
 
 ###########
 # Filters #

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from collections import OrderedDict
 from itertools import product
 from os.path import basename,exists
 from sys import stdout
@@ -322,9 +323,9 @@ def runJobQueue(harnesses):
 # Separate a list of harnesses into collections who share the same
 # values for the supplied list of independent variables.
 def groupByInvars(harnesses, *args):
-    grouped = {}
+    grouped = OrderedDict()
     # Iterate over harnesses.
-    for harness in sorted(harnesses):
+    for harness in harnesses:
         invars = harness.testcase.invars
         matched = [] # List of matching invars.
         for invar in args:

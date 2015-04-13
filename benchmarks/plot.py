@@ -230,33 +230,34 @@ def speedups(speedups, err=[], labels=[], xlabel="", ylabel="Speedup",
     # Finish up.
     _finalize(path)
 
-# Plot multiple rows of speedups. Speedups are passed in row-wise as a
-# list of evenyl sized list.
-def speedups3d(speedups, xlabel="", xlabels=[], ylabel="",
+# Plot multiple rows of speedups. Speedups should be a single list of
+# "width" x depth elements.
+def speedups3d(speedups, width, xlabel="", xlabels=[], ylabel="",
                ylabels=[], zlabel="Speedup", title="", caption="",
-               baseline=-1, ymajorlines=False, path=None):
-    width = 1
+               baseline=-1, ymajorlines=False, surface=False, path=None):
+    barWidth = 1
 
     # Matplotlib's 3D bar plot API accepts six lists of points for:
     X = [] # Starting X (horizontal) position
     Y = [] # Starting Y (depth) position
-    Z = [] # Starting Z (height) position
-    dX = width # Bar width
-    dY = width # Bar depth
-    dZ = [] # Bar height
+    Z = [0] * len(speedups) # Starting Z (height) position
+    dX = barWidth # Bar width
+    dY = barWidth # Bar depth
+    dZ = speedups # Bar height
 
-    xmax = len(speedups[0])
-    ymax = len(speedups)
-    zmax = max([max(row) for row in speedups])
+    xmax = width
+    ymax = len(speedups) / width
+    zmax = max(speedups)
+
+    if len(speedups) / width != int(len(speedups) / width):
+        print("Data width does not divide into data length.")
+        exit(1)
 
     # Serialise the list-of-lists to a flat list.
     i = 0
-    for row in speedups:
-        rowlen = len(row)
-        X += list(range(rowlen))
-        Y += [i] * rowlen
-        Z += [0] * rowlen
-        dZ += row
+    for row in range(len(speedups) / width):
+        X += list(range(width))
+        Y += [i] * width
         i += 1
 
     # Arguments to plt.bar3d()
@@ -265,27 +266,25 @@ def speedups3d(speedups, xlabel="", xlabels=[], ylabel="",
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    # 3D bar plot:
-    #
-    ax.bar3d(X, Y, Z, dX, dY, dZ, **kwargs)
+    if surface:
+        # Surface plot:
+        #
+        # vmin and vmax are the limits of the colour maps.
+        vmin, vmax = min(dZ), max(dZ)
+        ax.plot_trisurf(X, Y, dZ, cmap=cm.jet, vmin=vmin, vmax=vmax, linewidth=.2)
+    else:
+        # Bar plot:
+        #
+        ax.bar3d(X, Y, Z, dX, dY, dZ, **kwargs)
 
-    # 3D surface plot:
-    #
-    # vmin and vmax are the limits of the colour maps.
-    # vmin, vmax = min(dZ), max(dZ)
-    # ax.plot_trisurf(X, Y, dZ, cmap=cm.jet, vmin=vmin, vmax=vmax, linewidth=.2)
+        # greenindexes = [x for x,v in enumerate(dZ) if v > 1]
 
-    #greenindexes = [x for x,v in enumerate(dZ) if v > 1]
+        # Filter out the bars from a complex plot.
+        # bars = filter(lambda x: isinstance(x, matplotlib.patches.Rectangle), ax.get_children())
 
-    # Filter out the bars from a complex plot.
-    bars = filter(lambda x: isinstance(x, matplotlib.patches.Rectangle), ax.get_children())
-
-    # # Colour the default value blue, and the speedups > 1 green.
-    # if baseline >= 0:
-    #     bars[baseline].set_facecolor('b')
-
-    for child in ax.get_children():
-        print(child)
+        # # Colour the default value blue, and the speedups > 1 green.
+        # if baseline >= 0:
+        #     bars[baseline].set_facecolor('b')
 
     # Use LaTeX text rendering.
     fontsize=16
@@ -310,16 +309,16 @@ def speedups3d(speedups, xlabel="", xlabels=[], ylabel="",
     plt.axhline(y=1, color='k')
 
     if xlabels:
-        plt.xticks([x + width / 2 for x in range(xmax)],
+        plt.xticks([x + barWidth for x in range(xmax)],
                    xlabels, fontsize=8, rotation=90)
     if ylabels:
-        plt.yticks([x + width / 2 for x in range(ymax)],
+        plt.yticks([y + barWidth / 2 for y in range(ymax)],
                    ylabels, fontsize=8, rotation=90)
 
-    position = [.12, # Left padding
-                .14, # Bottom padding
-                .85, # Width
-                .75] # Height
+    position = [0, # Left padding
+                .05, # Bottom padding
+                .95, # Width
+                .85] # Height
 
     if caption:
         plt.figtext(.02, .02, caption)

@@ -129,30 +129,232 @@ def gettime(result):
     inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes = gettimes(result.outvars)
     return describe(skeltimes)
 
-def getBaselineIndex(speedups):
-    for i in range(len(speedups)):
-        workgroupsize = speedups[i][0]
+def humanReadableDeviceString(invars):
+    s = ""
 
-        if (workgroupsize[0] == StencilLocalSizeC.DEFAULT and
-            workgroupsize[1] == StencilLocalSizeR.DEFAULT):
-            return i
+    deviceType = lookup1(invars, DeviceTypeArg).val
 
-#def plotKernelSpeedups(harnesses):
+    if search("GPU", deviceType):
+        # Get the --device-count argument.
+        deviceCountArg = lookup1(invars, DeviceCountArg).val
+        # Get the numerical count.
+        deviceCount = search('([0-9]+)', deviceCountArg).group(1)
+        return "{count}xGPU".format(count=deviceCount)
+    else:
+        return "CPU"
 
+# Plot speedups of kernel for a fixed Device and Kernel type.
+def plotSpeedupsForDeviceAndWorkGroup(harnesses):
+    speedups = [lookup1(x.result().couts, Speedup).val for x in harnesses]
+    borders = [lookup1(x.testcase.invars, BorderSize).val for x in harnesses]
+    complexities = [lookup1(x.testcase.invars, "Complexity").val for x in harnesses]
 
-def process(key, harnesses):
-    workGroupSizes = groupByInvars(harnesses,
-                                   StencilLocalSizeC,
-                                   StencilLocalSizeR)
+    # Constants across all harnesses:
 
-    #for key in workGroupSizes:
-    #    plotKernelSpeedups(workGroupSizes[key])
+    hostname = lookup1(harnesses[0].testcase.invars, Hostname).val
+    devicename = humanReadableDeviceString(harnesses[0].testcase.invars)
 
-# Calculate speedups
+    iterations = sum([x[2] for x in speedups]) / len(speedups)
+
+    # Work group size.
+    workgroup = [
+        lookup1(harnesses[0].testcase.invars, StencilLocalSizeC).val,
+        lookup1(harnesses[0].testcase.invars, StencilLocalSizeR).val
+    ]
+
+    # Unique plot ID.
+    plotId = ("-".join([str(x) for x in [
+        hostname,
+        devicename,
+        workgroup[0],
+        workgroup[1]
+    ]]))
+    plotPath = path(config.RESULTS, config.ID, "kernel", plotId + ".png")
+
+    # Plot title.
+    title = ("Work group size: [{c} x {r}]. {hostname} {device}"
+             .format(c=workgroup[0], r=workgroup[1],
+                     hostname=hostname, device=devicename))
+
+    # Plot caption.
+    caption = "Average {n:.1f} iterations.".format(n=iterations)
+
+    # Datapoints:
+
+    Y   = [x[0] for x in speedups]
+    Err = [x[1] for x in speedups]
+
+    # Create xtick labels.
+    Labels = []
+    for i in range(len(harnesses)):
+        border = borders[i]
+        is_complex = complexities[i]
+        label = "\\textbf{" if is_complex else ""
+        label += "[{0}]".format(" ".join([str(x) for x in border]))
+        if is_complex: label += "}"
+        Labels.append(label)
+
+    # Keyword arguments to speedup.
+    kwargs = {
+        "title":     title,
+        "xlabel":    "Border size and kernel complexity",
+        "labels":    Labels,
+        "err":       Err,
+        "caption":   caption,
+        "path":      plotPath
+    }
+
+    plt.speedups(Y, **kwargs)
+
+# Plot speedups of work group size and kernel type for a fixed device.
+def plotSpeedupsForDevice(groups):
+    # Workgroup sizes
+    wgVars = [getworkgroupsize(x[0].testcase.invars) for x in groups]
+    wgSizes = [(x[0].val, x[1].val) for x in wgVars]
+
+    # Constants across all harnesses:
+
+    hostname = lookup1(groups[0][0].testcase.invars, Hostname).val
+    devicename = humanReadableDeviceString(groups[0][0].testcase.invars)
+
+    # Constants across all groups:
+
+    borders = [lookup1(x.testcase.invars, BorderSize).val for x in groups[0]]
+    complexities = [lookup1(x.testcase.invars, "Complexity").val for x in groups[0]]
+
+    # Flatten grid data into a list:
+    speedups = []
+    for harnesses in groups:
+        speedups += [lookup1(x.result().couts, Speedup).val for x in harnesses]
+
+    iterations = sum([x[2] for x in speedups]) / len(speedups)
+
+    # Unique plot ID.
+    plotId = ("-".join([str(x) for x in [
+        hostname,
+        devicename
+    ]]))
+    plotPath = path(config.RESULTS, config.ID, "wg-kernel", plotId + ".png")
+
+    # Plot title.
+    title = "{hostname} {device}".format(hostname=hostname, device=devicename)
+
+    # Plot caption.
+    caption = "Average {n:.1f} iterations.".format(n=iterations)
+
+    # Datapoints:
+
+    Y   = [x[0] for x in speedups]
+
+    # Create xtick labels.
+    Xlabels = []
+    for i in range(len(borders)):
+        border = borders[i]
+        is_complex = complexities[i]
+        label = "\\textbf{" if is_complex else ""
+        label += "[{0}]".format(" ".join([str(x) for x in border]))
+        if is_complex: label += "}"
+        Xlabels.append(label)
+
+    Ylabels = ["[{c} x {r}]".format(c=x[0], r=x[1]) for x in wgSizes]
+
+    # Keyword arguments to speedup.
+    kwargs = {
+        "surface":   False, # Surface or bar plot.
+        "title":     title,
+        "xlabel":    "",#"Border size and kernel complexity",
+        "ylabel":    "",#"Work group size",
+        "zlabel":    "Speedup",
+        "xlabels":   Xlabels,
+        "ylabels":   Ylabels,
+        "caption":   caption,
+        "path":      plotPath,
+    }
+
+    plt.speedups3d(Y, len(groups[0]), **kwargs)
+
+# Plot speedups of work group sizes for each a fixed device and kernel.
+def plotSpeedupsForDeviceAndKernel(harnesses):   
+    # Workgroup sizes
+    wgVars = [getworkgroupsize(x.testcase.invars) for x in harnesses]
+    wgSizes = [(x[0].val, x[1].val) for x in wgVars]
+
+    # Constants across all harnesses:
+
+    hostname = lookup1(harnesses[0].testcase.invars, Hostname).val
+    devicename = humanReadableDeviceString(harnesses[0].testcase.invars)
+    border = lookup1(harnesses[0].testcase.invars, BorderSize).val
+    complexity = lookup1(harnesses[0].testcase.invars, "Complexity").val
+
+    kernelString = "[{0}]".format(",".join([str(x) for x in border]))
+    if complexity: kernelString += "c"
+    
+    # Get X,Y cordinate ranges values
+    Xvals, Yvals = [], []
+    for x in wgSizes:
+        if x[0] not in Xvals: Xvals.append(x[0])
+        if x[1] not in Yvals: Yvals.append(x[1])
+    Xvals = list(reversed(sorted(Xvals)))
+    Yvals = list(sorted(Yvals))
+
+    # Create empty data list:
+    speedups = [(0, 0, 0) for i in range(len(Xvals) * len(Yvals))]
+    # Populate data:
+    for i in range(len(harnesses)):
+        # Get harness and work group size
+        harness = harnesses[i]
+        wg = wgSizes[i]
+
+        # Calculate x,y position and 1D array index
+        x, y = Xvals.index(wg[0]), Yvals.index(wg[1])
+        index = y * len(Xvals) + x
+
+        # Add speedup
+        speedups[index] = lookup1(harness.result().couts, Speedup).val
+
+    iterations = sum([x[2] for x in speedups]) / len(speedups)
+
+    # Unique plot ID.
+    plotId = kernelString
+    plotPath = path(config.RESULTS, config.ID, "wg",
+                    hostname + "-" + devicename, plotId + ".png")
+
+    # Plot title.
+    title = ("{hostname} {device} {kernel}"
+             .format(hostname=hostname, device=devicename, kernel=kernelString))
+
+    # Plot caption.
+    caption = "Average {n:.1f} iterations.".format(n=iterations)
+
+    # Datapoints:
+
+    Y   = [x[0] for x in speedups]
+
+    # Create xtick labels.
+    Xlabels = Xvals
+    Ylabels = Yvals
+
+    # Keyword arguments to speedup.
+    kwargs = {
+        "surface":   False, # Surface or bar plot.
+        "title":     title,
+        "xlabel":    "Work group size (C)",
+        "ylabel":    "Work group size (R)",
+        "zlabel":    "Speedup",
+        "xlabels":   Xlabels,
+        "ylabels":   Ylabels,
+        "caption":   caption,
+        "path":      plotPath,
+    }
+
+    plt.speedups3d(Y, len(Xvals), **kwargs)
+    
+# Preprocess data: Add derived speedups over default work group sizes.
 for harness in HARNESSES:
     result = harness.result()
     invars = result.invars
 
+    # Get the baseline result.
     baselineinvars = setworkgroupsize(invars,
                                       StencilLocalSizeC(StencilLocalSizeC.DEFAULT),
                                       StencilLocalSizeR(StencilLocalSizeR.DEFAULT))
@@ -160,285 +362,43 @@ for harness in HARNESSES:
 
     if (baseline.bad or result.bad or
         not len(baseline.outvars) or not len(result.outvars)):
+        # If we are missing data, speedup = 0.
         speedup = 0
         err = 0
     else:
+        # Else, speedup = Tb / Tc
         time = gettime(result)
         baselinetime = gettime(baseline)
         speedup = baselinetime[0] / time[0]
         err = abs((baselinetime[0] / sum(time)) - speedup)
-
-    #result.couts.append()
+    # Average number of iterations.
+    iterations = sum([len(result.outvars), len(baseline.outvars)]) / 2
+    # Add Speedup cout variable.
+    result.couts.add(Speedup((speedup, err, iterations)))
 
 # Group harnesses by Host/Device properties.
-groupedharnesses = groupByInvars(HARNESSES, Hostname, DeviceTypeArg,
-                                 DeviceCountArg, "Size")
+deviceGrouped = groupByInvars(HARNESSES, Hostname, DeviceTypeArg,
+                                 DeviceCountArg, "Size").values()
 
-for key in groupedharnesses:
-    process(key, groupedharnesses[key])
+# Iterate over groups.
+for deviceGroup in deviceGrouped:
+    # Group harnesses by work group size.
+    wgGrouped = groupByInvars(deviceGroup,
+                              StencilLocalSizeC,
+                              StencilLocalSizeR).values()
+    # Plot speedups of work group sizes and kernels for each device.
+    plotSpeedupsForDevice(wgGrouped)
 
-# Create 3D plots.
-GROUPEDTESTS = {}
-SPEEDUPS = {}
+    # Plot speedups of kernels for each device and work group size.
+    [plotSpeedupsForDeviceAndWorkGroup(x) for x in wgGrouped]
 
-for harness in HARNESSES:
-    invars = harness.testcase.invars
-
-    dev = getdeviceargs(invars)
-    host = lookup1(invars, Hostname)
-    wg = getworkgroupsize(invars)
-
-    size = lookup1(invars, "Size")
-    complexity = lookup1(invars, "Complexity")
-    border = lookup1(invars, "BorderSize")
-
-    key = "-".join([str(x.val) for x in dev + [host, size]])
-
-    if len(harness.result().outvars):
-        if key not in GROUPEDTESTS:
-            GROUPEDTESTS[key] = {}
-            SPEEDUPS[key] = {}
-
-
-        wgkey = "-".join([str(x.val) for x in wg])
-        if wgkey not in GROUPEDTESTS[key]:
-            GROUPEDTESTS[key][wgkey] = []
-            SPEEDUPS[key][wgkey] = []
-        GROUPEDTESTS[key][wgkey].append(harness)
-
-def gettime(result):
-    inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes = gettimes(result.outvars)
-    return describe(skeltimes)
-
-def getBaselineIndex(speedups):
-    for i in range(len(speedups)):
-        workgroupsize = speedups[i][0]
-
-        if (workgroupsize[0] == StencilLocalSizeC.DEFAULT and
-            workgroupsize[1] == StencilLocalSizeR.DEFAULT):
-            return i
-
-for key in GROUPEDTESTS:
-    for wgkey in GROUPEDTESTS[key]:
-        harnesses = GROUPEDTESTS[key][wgkey]
-        speedups = SPEEDUPS[key][wgkey]
-
-        for harness in harnesses:
-            invars = harness.testcase.invars
-
-            border = lookup1(invars, "BorderSize").val
-            complexity = lookup1(invars, "Complexity").val
-            wgvars = getworkgroupsize(invars)
-            wg = [wgvars[0].val, wgvars[1].val]
-
-            # Set the baseline value.
-            baselineinvars = setworkgroupsize(invars,
-                                              StencilLocalSizeC(StencilLocalSizeC.DEFAULT),
-                                              StencilLocalSizeR(StencilLocalSizeR.DEFAULT))
-
-            result = resultscache.load(invars)
-            baselineresult = resultscache.load(baselineinvars)
-
-            if (baselineresult.bad or result.bad or
-                not len(baselineresult.outvars) or not len(result.outvars)):
-                speedup = 0
-                err = 0
-            else:
-                time = gettime(result)
-                baseline = gettime(baselineresult)
-                speedup = baseline[0] / time[0]
-                err = abs((baseline[0] / sum(time)) - speedup)
-
-            iterations = sum([len(result.outvars), len(baselineresult.outvars)]) / 2
-            speedups.append(((border, complexity, wg), (speedup, err), iterations))
-
-        ALLSPEEDUPS += speedups
-
-for key in SPEEDUPS:
-    for t in GROUPEDTESTS[key]:
-        dummy = GROUPEDTESTS[key][t]
-        break
-    harnesses = GROUPEDTESTS[key]
-    speedups = SPEEDUPS[key]
-
-    # Plot results
-    hostname = lookup1(dummy[0].testcase.invars, Hostname)
-    size = lookup1(dummy[0].testcase.invars, "Size")
-    devtArg = lookup1(dummy[0].testcase.invars, DeviceTypeArg)
-    if search("GPU", devtArg.val):
-        devCArg = lookup1(dummy[0].testcase.invars, DeviceCountArg)
-
-    # Human-readable device string.
-    dt = "GPU" if search("GPU", devtArg.val) else "CPU"
-    if dt == "GPU":
-        dt = "{n}x ".format(n=search('([0-9]+)', devCArg.val).group(1)) + dt
-
-    name = "{host}-{dev}".format(
-        host=hostname.val,
-        dev=sub(" ", "", dt)
-    )
-
-    # Complex kernels are bold.
-    for wg in speedups:
-        dummy = speedups[wg]
-        break
-
-    Xlabels = ["{bold}[{b}]{endbold}".format(b=",".join([str(y) for y in x[0][0]]),
-                                             bold="\\textbf{" if x[0][1] else "",
-                                             endbold="}" if x[0][1] else "")
-               for x in dummy]
-    Ylabels = Xlabels
-    Y = [[x[1][0] for x in speedups[wg]] for wg in speedups]
-    Err = [[x[1][1] for x in speedups[wg]] for wg in speedups]
-    #Iterations = sum([[x[2] for x in speedups[wg]] for wg in speedups]) / sum([len(speedups[x]) for x in speedups])
-
-    #caption = "Average {n:.1f} iterations.".format(n=Iterations)
-
-    kwargs = {
-        "title": (", ".join([str(x) for x in [
-            hostname.val,
-            dt,
-            size.val
-        ]])),
-        "xlabel": "Border size and kernel complexity",
-        "ylabel": "Work group size",
-        "zlabel": "Speedup over default work group size",
-        "xlabels": Xlabels,
-        "ylabels": Ylabels,
-        #"caption": caption,
-        "path": path(config.RESULTS, config.ID, name + ".png")
-    }
-
-    # TODO: Add 3D plots.
-    plt.speedups3d(Y, **kwargs)
-
-ALLPOSITIVESPEEDUPS = [x for x in ALLSPEEDUPS if x[1][0] >= 1]
-if len(ALLPOSITIVESPEEDUPS):
-    print("MAXIMUM SPEEDUP:", max([x[1][0] for x in ALLPOSITIVESPEEDUPS]),
-          "AVERAGE SPEEDUP:", sum([x[1][0] for x in ALLPOSITIVESPEEDUPS]) / float(len(ALLPOSITIVESPEEDUPS)),
-          "NUMBER OF SPEEDUPS:", len(ALLPOSITIVESPEEDUPS))
-
-# Create 2D plots.
-GROUPEDTESTS = {}
-SPEEDUPS = {}
-
-
-for harness in HARNESSES:
-    invars = harness.testcase.invars
-
-    dev = getdeviceargs(invars)
-    host = lookup1(invars, Hostname)
-    wg = getworkgroupsize(invars)
-
-    size = lookup1(invars, "Size")
-    complexity = lookup1(invars, "Complexity")
-    border = lookup1(invars, "BorderSize")
-
-    key = "-".join([str(x.val) for x in dev + list(wg) + [host, size]])
-
-    if len(harness.result().outvars):
-        if key not in GROUPEDTESTS:
-            GROUPEDTESTS[key] = []
-            SPEEDUPS[key] = []
-
-        GROUPEDTESTS[key].append(harness)
-
-def gettime(result):
-    inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes = gettimes(result.outvars)
-    return describe(skeltimes)
-
-def getBaselineIndex(speedups):
-    for i in range(len(speedups)):
-        workgroupsize = speedups[i][0]
-
-        if (workgroupsize[0] == StencilLocalSizeC.DEFAULT and
-            workgroupsize[1] == StencilLocalSizeR.DEFAULT):
-            return i
-
-for key in GROUPEDTESTS:
-    harnesses = GROUPEDTESTS[key]
-    speedups = SPEEDUPS[key]
-
-    for harness in harnesses:
-        invars = harness.testcase.invars
-
-        border = lookup1(invars, "BorderSize").val
-        complexity = lookup1(invars, "Complexity").val
-
-        # Set the baseline value.
-        baselineinvars = setworkgroupsize(invars,
-                                          StencilLocalSizeC(StencilLocalSizeC.DEFAULT),
-                                          StencilLocalSizeR(StencilLocalSizeR.DEFAULT))
-
-        result = resultscache.load(invars)
-        baselineresult = resultscache.load(baselineinvars)
-
-        if (baselineresult.bad or result.bad or
-            not len(baselineresult.outvars) or not len(result.outvars)):
-            speedup = 0
-            err = 0
-        else:
-            time = gettime(result)
-            baseline = gettime(baselineresult)
-
-            speedup = baseline[0] / time[0]
-            err = abs((baseline[0] / sum(time)) - speedup)
-
-        iterations = sum([len(result.outvars), len(baselineresult.outvars)]) / 2
-        speedups.append(((border, complexity), (speedup, err), iterations))
-
-    # Nothing to plot.
-    if not len(speedups):
-        continue
-
-    ALLSPEEDUPS += speedups
-
-    # Plot results
-    hostname = lookup1(harnesses[0].testcase.invars, Hostname)
-    wg = [lookup1(harnesses[0].testcase.invars, StencilLocalSizeC),
-          lookup1(harnesses[0].testcase.invars, StencilLocalSizeR)]
-    size = lookup1(harnesses[0].testcase.invars, "Size")
-    devtArg = lookup1(harnesses[0].testcase.invars, DeviceTypeArg)
-    if search("GPU", devtArg.val):
-        devCArg = lookup1(harnesses[0].testcase.invars, DeviceCountArg)
-
-    # Human-readable device string.
-    dt = "GPU" if search("GPU", devtArg.val) else "CPU"
-    if dt == "GPU":
-        dt = "{n}x ".format(n=search('([0-9]+)', devCArg.val).group(1)) + dt
-
-    name = "{host}-{dev}-{wg_c}-{wg_r}".format(
-        host=hostname.val,
-        dev=sub(" ", "", dt),
-        wg_c=wg[0].val,
-        wg_r=wg[1].val
-    )
-
-    # Complex kernels are bold.
-    Labels = ["{bold}[{b}]{endbold}".format(b=" ".join([str(y) for y in x[0][0]]),
-                                            bold="\\textbf{" if x[0][1] else "",
-                                            endbold="}" if x[0][1] else "") for x in speedups]
-    Y = [x[1][0] for x in speedups]
-    Err = [x[1][1] for x in speedups]
-    Iterations = sum([x[2] for x in speedups]) / len(speedups)
-
-    caption = "Average {n:.1f} iterations.".format(n=Iterations)
-
-    kwargs = {
-        "title": ("Work group size: [{c} x {r}]. ".format(c=wg[0].val, r=wg[1].val) +
-                  ", ".join([str(x) for x in [
-                      hostname.val,
-                      dt,
-                      size.val
-                  ]])),
-        "xlabel": "Border size and kernel complexity",
-        "labels": Labels,
-        "err": Err,
-        "caption": caption,
-        "path": path(config.RESULTS, config.ID, name + ".png")
-    }
-
-    plt.speedups(Y, **kwargs)
+    # Group harnesses by kernel type.
+    kGrouped = groupByInvars(deviceGroup,
+                             BorderSize,
+                             "Complexity").values()
+    
+    # Plot speedups of work group sizes for each device and kernel.
+    [plotSpeedupsForDeviceAndKernel(x) for x in kGrouped]
 
 # Graph event times.
 [plt.openCLEventTimes(x.testcase.invars) for x in HARNESSES]
