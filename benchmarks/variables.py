@@ -183,8 +183,9 @@ class EndTime(DependentVariable):
 
 # A built-in runtime variable.
 class RunTime(DependentVariable):
-    def __init__(self):
+    def __init__(self, val=None):
         DependentVariable.__init__(self, "Run time")
+        self.val = val
 
     def pre(self, **kwargs):
         self.start = time()

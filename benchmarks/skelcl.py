@@ -1,5 +1,6 @@
 # skelcl.py - SkelCL benchmarking extensions.
 #
+from __future__ import print_function
 from re import search
 from subprocess import check_output
 
@@ -614,3 +615,21 @@ def getdeviceargs(invars):
         args.append(lookup1(invars, DeviceCountArg))
 
     return args
+
+
+# SAMPLERS
+
+# Skeleton event timings sampler. A variable length sampler which uses
+# skeleton event timings as the source of variance.
+class SkeletonEventTimingsSampler(MinimumVarianceSampler):
+    def getvals(self, result):
+        # Grab the event times.
+        e = [lookup1(x, SkeletonEventTimes).val
+             for x in result.outvars]
+        e = [x.values() for x in e]
+        e = [[x.values() for x in d] for d in e]
+        e = [item for sublist in e for item in sublist]
+        e = [item for sublist in e for item in sublist]
+        e = [self.mean(x) for x in e]
+
+        return e

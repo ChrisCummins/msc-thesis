@@ -5437,3 +5437,20 @@ TODO:
 * Numerical instructions
 * Costly builtins: sqrt(), cos(), sin(), pow()
 * Data types
+
+
+## Monday 13th
+
+I have a `SimpleBig` example program for SkelCL, which has two
+kernels: "simple" and "complex". They are specified with a command
+line argument, and the size of the border region is defined at compile
+time. Using this program, I have collected performance data over a
+range of work group sizes, border sizes, and both simple and complex
+kernels.
+
+
+TODO:
+* Build two autotuners using the SimpleBig test data:
+  * The first, performing a search of the space.
+  * The second, using an offline machine learning model.
+* Start writing thesis.

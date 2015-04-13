@@ -4,9 +4,10 @@
 # Stencil applications on multi-GPUs.
 #
 from __future__ import print_function
-from itertools import product
 from copy import copy
+from itertools import product
 from operator import mul
+from re import sub
 
 from benchlib import *
 from skelcl import *
@@ -39,7 +40,7 @@ jobdesc =  {
             "args": {
                 "Size": ["-w {w} -h {h}".format(w=x[0], h=x[1]) for x in [
                     [1024, 1024],
-                    [2048, 2048]
+                    #[2048, 2048]
                 ]],
                 "Complexity": ["", "--complex"]
             }
@@ -82,7 +83,7 @@ def knobvaluesarelegal(host, devargs, knobs):
     return hardwareMaxWorkGroupSize >= workgroupsize
 
 def instantiate(host, benchmark, args, knobs):
-    sampler = FixedSizeSampler(10)
+    sampler = SkeletonEventTimingsSampler()
     harnesses = []
 
     for devargs in host.devargs():
@@ -275,7 +276,7 @@ def plotSpeedupsForDevice(groups):
     plt.speedups3d(Y, len(groups[0]), **kwargs)
 
 # Plot speedups of work group sizes for each a fixed device and kernel.
-def plotSpeedupsForDeviceAndKernel(harnesses):   
+def plotSpeedupsForDeviceAndKernel(harnesses):
     # Workgroup sizes
     wgVars = [getworkgroupsize(x.testcase.invars) for x in harnesses]
     wgSizes = [(x[0].val, x[1].val) for x in wgVars]
@@ -289,7 +290,7 @@ def plotSpeedupsForDeviceAndKernel(harnesses):
 
     kernelString = "[{0}]".format(",".join([str(x) for x in border]))
     if complexity: kernelString += "c"
-    
+
     # Get X,Y cordinate ranges values
     Xvals, Yvals = [], []
     for x in wgSizes:
@@ -349,7 +350,140 @@ def plotSpeedupsForDeviceAndKernel(harnesses):
     }
 
     plt.speedups3d(Y, len(Xvals), **kwargs)
-    
+
+# Return the workgroup size and speedup value of the best speedup.
+def getBestSettingsForDeviceAndKernel(harnesses):
+    bestharness, bestspeedup = None, 0
+
+    for harness in harnesses:
+        speedup = lookup1(harness.result().couts, Speedup).val[0]
+
+        if speedup > bestspeedup:
+            bestharness = harness
+            bestspeedup = speedup
+
+    # Test to see if we have *any* result.
+    if bestharness:
+        bestWgVars = getworkgroupsize(bestharness.testcase.invars)
+        bestWg = (bestWgVars[0].val, bestWgVars[1].val)
+    else:
+        bestWg = None
+
+    return bestWg, bestspeedup
+
+
+def kernelString(invars, tex=False):
+    border = lookup1(invars, BorderSize).val
+    complexity = lookup1(invars, "Complexity").val
+
+    string = "[{0}]".format(",".join([str(x) for x in border]))
+    if complexity:
+        if tex:
+            string = "\\textbf{" + string + "}"
+        else:
+            string += "c"
+
+    return string
+
+def tprint(*args, **kwargs):
+    # Characters to escape.
+    escape_chars = ["[", "]"]
+
+    escaped = [str(x) for x in args]
+    for i in range(len(escaped)):
+        for escape_char in escape_chars:
+            if escape_char in escaped[i]:
+                escaped[i] = escaped[i].replace(escape_char, "{" + escape_char + "}")
+
+    if "end" not in kwargs: kwargs["end"] = "\\\\\n"
+
+    print(" & ".join(escaped), **kwargs)
+
+def tableBestSpeedupsForKernel(harnesses, path):
+    kGrouped = groupByInvars(harnesses, BorderSize, "Complexity", "Sive").values()
+
+    wgs = []
+    speedups = []
+
+    # Create gride of information.
+    for kGroup in kGrouped:
+        # Group by device.
+        deviceGrouped = groupByInvars(kGroup, Hostname, DeviceTypeArg,
+                                      DeviceCountArg).values()
+
+        # Get best work group size and speedup for each device.
+        w, s = zip(*[getBestSettingsForDeviceAndKernel(x)
+                     for x in deviceGrouped])
+
+        # Add to data grids.
+        wgs.append(w)
+        speedups.append(s)
+
+    numDistinctDevVals = []
+    numDistinctKernVals = []
+
+    numRows = len(wgs)
+    numCols = len(wgs[0])
+
+    # Count the number of distint best values (row-wise)
+    for row in range(numRows):
+        allVals = filter(lambda x: x != None, wgs[row])
+        uniqVals = set(allVals)
+        if len(allVals):
+            ratio = int((len(uniqVals) / float(len(allVals))) * 100)
+        else:
+            ratio = 0
+        numDistinctKernVals.append("{n} ({r}\\%)".format(n=len(uniqVals),
+                                                         r=ratio))
+
+    # Count the number of distinct best values (col-wise)
+    for col in range(numCols):
+        allVals = filter(lambda x: x != None,
+                         [wgs[i][col] for i in range(numRows)])
+        uniqVals = set(allVals)
+        if len(allVals):
+            ratio = int((len(uniqVals) / float(len(allVals))) * 100)
+        else:
+            ratio = 0
+        numDistinctDevVals.append("{n} ({r}\\%)".format(n=len(uniqVals),
+                                                        r=ratio))
+
+    # Open output file
+    file = mkopen(path, "w")
+
+    print("\\begin{{tabular}}{{|{sep}|}}"
+          .format(sep=(" | ".join(["p{1.8cm}"] +
+                                  ["p{1cm}" for x in kGrouped[4:]] +
+                                  ["p{1.1cm}"]))), file=file)
+
+    # Print device strings as header.
+    deviceGrouped = groupByInvars(kGrouped[0], Hostname, DeviceTypeArg,
+                                  DeviceCountArg).values()
+    deviceStrings = [("\\textbf{{{host} {dev}}}"
+                      .format(host=lookup1(x[0].testcase.invars, Hostname).val,
+                              dev=humanReadableDeviceString(x[0].testcase.invars)))
+                     for x in deviceGrouped]
+    tprint("\\hline", end="\n", file=file)
+    tprint(*["\\textbf{Kernel}"] + deviceStrings + ["\\textit{Unique}"], file=file)
+    tprint("\\hline", end="\n", file=file)
+
+    for i in range(len(kGrouped)):
+        # Kernel string.
+        kernel = kernelString(kGrouped[i][0].testcase.invars, tex=True)
+
+        tprint(*[kernel] + list(wgs[i]) + [numDistinctKernVals[i]], file=file)
+
+    # Print uniq vlas.
+    tprint("\\hline", end="\n", file=file)
+    tprint(*["\\textit{Unique}"] + numDistinctDevVals + [""], file=file)
+
+    # Print footer.
+    tprint("\\hline", end="\n", file=file)
+    print("\\end{tabular}", file=file)
+
+    # Print completion message.
+    Colours.print(Colours.BLUE, "Wrote {path} ...".format(path=file.name))
+
 # Preprocess data: Add derived speedups over default work group sizes.
 for harness in HARNESSES:
     result = harness.result()
@@ -377,9 +511,12 @@ for harness in HARNESSES:
     # Add Speedup cout variable.
     result.couts.add(Speedup((speedup, err, iterations)))
 
+tableBestSpeedupsForKernel(HARNESSES, path(config.RESULTS, config.ID,
+                                           "bestSpeedupsForKernel.tex"))
+
 # Group harnesses by Host/Device properties.
 deviceGrouped = groupByInvars(HARNESSES, Hostname, DeviceTypeArg,
-                                 DeviceCountArg, "Size").values()
+                              DeviceCountArg, "Size").values()
 
 # Iterate over groups.
 for deviceGroup in deviceGrouped:
@@ -397,7 +534,7 @@ for deviceGroup in deviceGrouped:
     kGrouped = groupByInvars(deviceGroup,
                              BorderSize,
                              "Complexity").values()
-    
+
     # Plot speedups of work group sizes for each device and kernel.
     [plotSpeedupsForDeviceAndKernel(x) for x in kGrouped]
 
