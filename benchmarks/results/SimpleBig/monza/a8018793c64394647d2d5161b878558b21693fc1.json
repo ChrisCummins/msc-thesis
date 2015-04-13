@@ -1,0 +1,66 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "43d0dafc58378a0e1dc60e6b57b54c4710710071",
+    "SkelCL version": "431ae8ea0bb6c146f71636fbcb5b6cdb28c6869c"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      20,
+      10,
+      20,
+      10
+    ],
+    "Complexity": "--complex",
+    "Device count": "--device-count 2",
+    "Device type": "--device-type GPU",
+    "Hostname": "monza",
+    "Size": "-w 2048 -h 2048",
+    "StencilLocalSizeC": 64,
+    "StencilLocalSizeR": 4
+  },
+  "out": [
+    {
+      "End time": "2015-04-13 13:14:47",
+      "Exit status": -11,
+      "Output": [
+        "[==DeviceList.cpp:90   000.249s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.249s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[======Device.cpp:118  000.255s  INFO] Using device `Tahiti' with id: 0",
+        "[======Device.cpp:118  000.258s  INFO] Using device `Tahiti' with id: 1",
+        "[==DeviceList.cpp:107  000.258s  INFO] Skip device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.258s  INFO] Using 2 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.258s  PROF] skelcl::init() time 258 ms",
+        "[=====Program.cpp:212  001.383s  PROF] skelcl::Program::build() 673 ms",
+        "[====StencilDef.h:169  001.408s  PROF] Stencil<Tout(Tin)>[0x7fff983e5df0] prepare 24 ms",
+        "[====StencilDef.h:384  001.408s  PROF] Stencil<Tout(Tin)>[0x7fff983e5df0][0] global[2048][2068] local[64][4] tile[84][44][4]",
+        "[====StencilDef.h:384  001.409s  PROF] Stencil<Tout(Tin)>[0x7fff983e5df0][1] global[2048][2068] local[64][4] tile[84][44][4]",
+        "[StencilDistributionDef.h:98   001.409s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   001.409s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   001.409s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   001.410s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   001.410s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   001.410s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   001.410s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   001.411s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   001.411s  PROF]  swap 0 ms",
+        "[=====MatrixDef.h:300  003.740s  PROF] Matrix[0x7fff983e5ee0][0] dl 3.418815 ms",
+        "[=====MatrixDef.h:300  003.740s  PROF] Matrix[0x7fff983e5ee0][1] dl 3.501185 ms"
+      ],
+      "Run time": 3.75179386138916,
+      "Start time": "2015-04-13 13:14:43"
+    }
+  ]
+}

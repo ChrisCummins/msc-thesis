@@ -1,0 +1,83 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "a8fa6745f7963195400fa6e4083349f87ba7b3ab",
+    "SkelCL version": "431ae8ea0bb6c146f71636fbcb5b6cdb28c6869c"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      20,
+      10,
+      20,
+      10
+    ],
+    "Complexity": "--complex",
+    "Device type": "--device-type CPU",
+    "Hostname": "monza",
+    "Size": "-w 2048 -h 2048",
+    "StencilLocalSizeC": 32,
+    "StencilLocalSizeR": 4
+  },
+  "out": [
+    {
+      "End time": "2015-04-13 15:05:19",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.247s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.247s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  000.247s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.247s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  000.250s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.250s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.250s  PROF] skelcl::init() time 250 ms",
+        "[=====Program.cpp:212  000.860s  PROF] skelcl::Program::build() 159 ms",
+        "[====StencilDef.h:169  000.879s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90] prepare 19 ms",
+        "[====StencilDef.h:384  000.879s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][0] global[2048][2048] local[32][4] tile[52][44][4]",
+        "[=====MatrixDef.h:300  123.829s  PROF] Matrix[0x7fff9eedec80][0] dl 2.606313 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][0] 29822.853602 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][1] 10433.866793 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][2] 10342.113085 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][3] 10335.223519 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][4] 10332.509864 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][5] 10333.585693 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][6] 10337.822510 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][7] 10336.531859 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][8] 10334.511652 ms",
+        "[====Skeleton.cpp:93   123.830s  PROF] Stencil<Tout(Tin)>[0x7fff9eedeb90][9] 10337.618447 ms",
+        "[=====MatrixDef.h:300  123.830s  PROF] Matrix[0x7fff9eedebe0][0] ul 5.773866 ms"
+      ],
+      "Run time": 123.85144090652466,
+      "Start time": "2015-04-13 15:03:15"
+    },
+    {
+      "End time": "2015-04-13 15:05:20",
+      "Exit status": -8,
+      "Output": [
+        "[==DeviceList.cpp:90   000.245s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.245s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[==DeviceList.cpp:107  000.245s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.245s  INFO] Skip device `Tahiti' not machting given criteria for device selection.",
+        "[======Device.cpp:118  000.248s  INFO] Using device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.248s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.248s  PROF] skelcl::init() time 248 ms",
+        "[=====Program.cpp:212  000.851s  PROF] skelcl::Program::build() 154 ms",
+        "[====StencilDef.h:169  000.871s  PROF] Stencil<Tout(Tin)>[0x7fff29774a40] prepare 19 ms",
+        "[====StencilDef.h:384  000.872s  PROF] Stencil<Tout(Tin)>[0x7fff29774a40][0] global[2048][2048] local[32][4] tile[52][44][4]"
+      ],
+      "Run time": 0.8804969787597656,
+      "Start time": "2015-04-13 15:05:19"
+    }
+  ]
+}
