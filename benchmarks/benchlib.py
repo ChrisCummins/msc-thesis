@@ -1,6 +1,7 @@
 from __future__ import print_function
 from collections import OrderedDict
 from itertools import product
+from math import sqrt
 from os.path import basename,exists
 from sys import stdout
 
@@ -150,7 +151,8 @@ class SamplingPlan:
     def __repr__(self):
         return "Null"
 
-#
+# A straightforward sampling plan which continues sampling until
+# "samplecount" has been reached.
 class FixedSizeSampler(SamplingPlan):
     def __init__(self, samplecount=10):
         self.samplecount = samplecount
@@ -164,6 +166,63 @@ class FixedSizeSampler(SamplingPlan):
 
     def __repr__(self):
         return "FixedSize({n})".format(n=self.samplecount)
+
+# A variable length sampling plan which continues sampling until
+# "minsamples" has been reached, then only if the normalised deviation
+# is above "maxvariance", or if the number of samples reaches
+# "maxsamples".
+class MinimumVarianceSampler(SamplingPlan):
+    def __init__(self, variable=RunTime, maxvariance=.15, minsamples=5, maxsamples=30):
+        self.variable = variable
+        self.maxvariance = maxvariance
+        self.minsamples = minsamples
+        self.maxsamples = maxsamples
+
+    # Computer mean.
+    def mean(self, l):
+        return sum(l) / len(l)
+
+    # Compute variance.
+    def variance(self, l):
+        if len(l) > 1:
+            m = self.mean(l)
+            return sum([(x - m) ** 2 for x in l]) / (len(l) - 1)
+        else:
+            return 0
+
+    # Compute stdev.
+    def stdev(self, l):
+        return sqrt(self.variance(l))
+
+    def hasnext(self, result):
+        # Check first with superclass.
+        if SamplingPlan.hasnext(self, result):
+            numsamples = len(result.outvars)
+
+            # Check that we have the minimum number of samples.
+            if numsamples < self.minsamples: return True
+            # Check that we haven't reached the maximum number of samples.
+            if numsamples > self.maxsamples: return False
+
+            # Get the values.
+            vals = self.getvals(result)
+            mean = self.mean(vals)
+            stdev = self.stdev(vals)
+
+            # Return wether the weighted deviation is great than acceptable.
+            return stdev / mean > self.maxvariance
+        else:
+            return False
+
+    # Return a list of values that we're interested in minimising the
+    # variance of.
+    def getvals(self, result):
+        return [lookup1(x, self.variable).val for x in result.outvars]
+
+    def __repr__(self):
+        return "MinimumVarianceSampler({v}:{var})".format(var=self.variable,
+                                                          v=self.maxvariance)
+
 
 #
 class TestCase:
