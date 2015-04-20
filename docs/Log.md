@@ -5448,9 +5448,162 @@ time. Using this program, I have collected performance data over a
 range of work group sizes, border sizes, and both simple and complex
 kernels.
 
-
 TODO:
 * Build two autotuners using the SimpleBig test data:
   * The first, performing a search of the space.
   * The second, using an offline machine learning model.
 * Start writing thesis.
+
+
+## Friday 17th
+
+IPP presentation (20 minutes):
+
+* Objectives
+  * Demonstrate dynamic autotuning of algorithmic skeletons
+    * Targeting heterogeneous parallelism: SkelCL
+* Background
+  * Why is GPU programming hard?
+* Related work
+
+* Progress so far
+  * Benchmarks
+  * Tunable parameters
+  * Optimisation space exploration
+  * `SimpleBig` results
+* Plans for remainder of project
+
+
+## Monday 20th
+
+What I've done for the past 5 months:
+
+* Read about GPU parallelism
+* Read through and become familiar with SkelCL source code
+* Read literature about autotuning and GPU skeleton programming
+* Discover tunable params in SkelCL
+* Write benchmarking scripts for SkelCL
+* Run exploratory tests on SkelCL tunable params
+* Added profiling to SkelCL
+
+Tunable params:
+
+* AllPairs C,R,S
+* Reduce global size
+* Stencil vs Map Overlap "n iterations"
+* Stencil local size
+* Execution device / count
+
+Optimisation targets:
+
+* Memory utilisation vs. number of active threads:
+  * Stencil local size, AllPairs C,R,S
+* Kernel complexity vs communication costs:
+  * MapOverlap vs Stencil
+* Problem decomposition
+  * Stencil local size
+* Redundant compilation vs communication
+  * Number of swaps (TODO)
+
+Objectives:
+
+* Build a dynamic autotuner for algorithmic skeletons - DONE
+* Identify a set of one or more tunable parameters in SkelCL:
+  constants or heuristics for which there is no single optimal
+  value. - DONE
+* Modify SkelCL so that these tunable parameters can be set with an
+  "auto" backend. - DONE
+* Create a set of representative benchmarks to test these parameter
+  values. - DONE
+* Create an autotuner which can determine these values dynamically. -
+  NOT DONE
+
+Methodology:
+
+* Measuring performance of SkelCL programs:
+  * Sequential tasks: CPU time.
+  * Device "Hw" times for OpenCL events.
+  * Actually very hard to measure "total" time, because it's so
+    asynchronous.
+  * GRAPH showing statistical soundness after "n" iterations.
+* Offline enumeration of space:
+  * Python benchmarking
+  * Testing hardware
+
+Plan for remaining time:
+
+* Solve for a "simple" case of Stencil work group size.
+* Test rigorously with automatically generated test cases.
+* Once done, apply solution to other parameters.
+* TODO: GANTT CHART.
+
+Conclusions:
+
+* Things I could have done better:
+  * Tackle "simple" cases first, then scale up.
+  * My approach was to do one big block each for:
+    * benchmarks
+    * parameters
+    * tuning
+  * This is basically imitating the structure of typical iterative
+    compilation literature: identify target application(s), enumerate
+    the optimisation space, describe iterative search approach.
+  * For the remainder of the project (& PhD phase), use a workflow
+    with small, depth first iterations. Write working papers to better
+    communicate with supervision team.
+  * Also, make sure to have convincing preliminary results by the
+    planning stage. I.e. one small demonstration of my idea.
+* Things I think I've done well:
+  * Methodology for collecting statistically sound data is
+    good. A numbers-first approach.
+  * Non ad-hoc approach to collecting benchmarking information (I'll
+    package it up once thesis is done).
+
+Different approaches to tuning:
+
+* Offline ML: enumerate the space with python scripts, label data and
+  shove into an offline machine learning model.
+* Offline search: search the space with python scripts, pick best
+  values, and set them.
+* Online search/ML: enumerate the space "on the fly", either by
+  picking a new point for each program run/skeleton call, or by
+  splitting iterative stencils into epochs.
+  * Epoch-driven tuning of stencils: Instead of dispatching "n" jobs
+    immediately, dispatch "n/2", block until jobs completed, set new
+    tunable values and then dispatch remaining "n/2".
+
+Approach to ML:
+
+* Overview:
+
+Stencil WG size:
+```
+[**a**,**h**, **k**, **d**] -> [c,r]
+```
+
+Num iterations between Stencil/MapOverlap, num iterations between swaps:
+```
+[**a**,**h**, **k**, **d**] -> [n_m, n_s]
+```
+
+AllPairs:
+```
+[**a**,**h**, **k**, **d**] -> [c,r,s]
+```
+
+Reduce global size:
+```
+[**a**,**h**, **k**, **d**] -> [s]
+```
+
+Execution device/count:
+```
+[**a**,**h**, **k**, **d**] -> [e_d, e_c]
+```
+
+Simplified ML approach:
+
+* Features:
+  * Architecture: {CATEGORICAL}
+  * Size of halo (north,south,east,west): {INT,INT,INT,INT}
+  * Complexity of kernel: {BOOL}
