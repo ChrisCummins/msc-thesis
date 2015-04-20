@@ -5577,29 +5577,24 @@ Approach to ML:
 * Overview:
 
 Stencil WG size:
-```
-[**a**,**h**, **k**, **d**] -> [c,r]
-```
+
+> [**a**,**h**, **k**, **d**] -> [c,r]
 
 Num iterations between Stencil/MapOverlap, num iterations between swaps:
-```
-[**a**,**h**, **k**, **d**] -> [n_m, n_s]
-```
+
+>[**a**,**h**, **k**, **d**] -> [n_m, n_s]
 
 AllPairs:
-```
-[**a**,**h**, **k**, **d**] -> [c,r,s]
-```
+
+> [**a**,**h**, **k**, **d**] -> [c,r,s]
 
 Reduce global size:
-```
-[**a**,**h**, **k**, **d**] -> [s]
-```
+
+> [**a**,**h**, **k**, **d**] -> [s]
 
 Execution device/count:
-```
-[**a**,**h**, **k**, **d**] -> [e_d, e_c]
-```
+
+> [**a**,**h**, **k**, **d**] -> [e_d, e_c]
 
 Simplified ML approach:
 
