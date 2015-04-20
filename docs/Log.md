@@ -5596,6 +5596,16 @@ Execution device/count:
 
 > [**a**,**h**, **k**, **d**] -> [e_d, e_c]
 
+Where:
+
+* **a** is a feature vector describing the execution devices.
+* **h** is a vector: `{h1, h2, h3, h4}` describing the north, south,
+  east, and west halo sizes.
+* **k** is a feature vector describing the kernel function (e.g. some
+  measure of complexity, memory access patterns).
+* **d** is a feature vector describing the input problem (e.g. number
+  of elements, data types).
+
 Simplified ML approach:
 
 * Features:
