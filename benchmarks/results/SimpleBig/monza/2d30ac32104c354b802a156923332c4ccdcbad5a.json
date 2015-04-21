@@ -1,0 +1,88 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "e55404c9c305bd932bf4d39f4ae79e99b5d4b332",
+    "SkelCL version": "431ae8ea0bb6c146f71636fbcb5b6cdb28c6869c"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      10,
+      10,
+      10,
+      10
+    ],
+    "Complexity": "",
+    "Device count": "--device-count 2",
+    "Device type": "--device-type GPU",
+    "Hostname": "monza",
+    "Size": "-w 2048 -h 2048",
+    "StencilLocalSizeC": 4,
+    "StencilLocalSizeR": 32
+  },
+  "out": [
+    {
+      "End time": "2015-04-21 09:37:31",
+      "Exit status": -11,
+      "Output": [
+        "[==DeviceList.cpp:90   000.242s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.242s  INFO] 3 device(s) for OpenCL platform `AMD Accelerated Parallel Processing' found",
+        "[======Device.cpp:118  000.250s  INFO] Using device `Tahiti' with id: 0",
+        "[======Device.cpp:118  000.254s  INFO] Using device `Tahiti' with id: 1",
+        "[==DeviceList.cpp:107  000.254s  INFO] Skip device `Intel(R) Core(TM) i7-3820 CPU @ 3.60GHz' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.254s  INFO] Using 2 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.254s  PROF] skelcl::init() time 253 ms",
+        "[=====Program.cpp:212  000.943s  PROF] skelcl::Program::build() 231 ms",
+        "[====StencilDef.h:169  000.963s  PROF] Stencil<Tout(Tin)>[0x7fff50479190] prepare 19 ms",
+        "[====StencilDef.h:384  000.963s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][0] global[2048][2080] local[4][32] tile[24][52][4]",
+        "[====StencilDef.h:384  000.964s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][1] global[2048][2080] local[4][32] tile[24][52][4]",
+        "[StencilDistributionDef.h:98   000.964s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   000.964s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   000.964s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   000.964s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   000.965s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   000.965s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   000.965s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   000.965s  PROF]  swap 0 ms",
+        "[StencilDistributionDef.h:98   000.965s  PROF]  swap 0 ms",
+        "[=====MatrixDef.h:300  001.240s  PROF] Matrix[0x7fff50479280][0] dl 1.509630 ms",
+        "[=====MatrixDef.h:300  001.240s  PROF] Matrix[0x7fff50479280][1] dl 3.545037 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][0] 12.343259 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][1] 12.328889 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][2] 8.724000 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][3] 8.891852 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][4] 6.669333 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][5] 8.329630 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][6] 6.441778 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][7] 6.662963 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][8] 3.512740 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][9] 6.663704 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][10] 3.512000 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][11] 3.874371 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][12] 3.516889 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][13] 3.509926 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][14] 3.511703 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][15] 3.513185 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][16] 3.870222 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][17] 3.512000 ms",
+        "[====Skeleton.cpp:93   001.241s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][18] 3.511259 ms",
+        "[====Skeleton.cpp:93   001.242s  PROF] Stencil<Tout(Tin)>[0x7fff50479190][19] 3.878074 ms",
+        "[=====MatrixDef.h:300  001.242s  PROF] Matrix[0x7fff504791e0][0] ul 2.536555 ms",
+        "[=====MatrixDef.h:300  001.242s  PROF] Matrix[0x7fff504791e0][1] ul 2.528592 ms"
+      ],
+      "Run time": 1.2596139907836914,
+      "Start time": "2015-04-21 09:37:30"
+    }
+  ]
+}
