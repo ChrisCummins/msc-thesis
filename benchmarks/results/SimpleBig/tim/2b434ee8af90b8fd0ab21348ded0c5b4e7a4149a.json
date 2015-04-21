@@ -1,0 +1,58 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "cdcbdc301bd6dde2fc8dd7161ca0d3fd3a86b8c2",
+    "SkelCL version": "431ae8ea0bb6c146f71636fbcb5b6cdb28c6869c"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      1,
+      10,
+      30,
+      30
+    ],
+    "Complexity": "--complex",
+    "Device count": "--device-count 3",
+    "Device type": "--device-type GPU",
+    "Hostname": "tim",
+    "Size": "-w 2048 -h 2048",
+    "StencilLocalSizeC": 4,
+    "StencilLocalSizeR": 32
+  },
+  "out": [
+    {
+      "End time": "2015-04-21 08:44:57",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.711s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.712s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.734s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[======Device.cpp:118  000.757s  INFO] Using device `GeForce GTX 590' with id: 1",
+        "[======Device.cpp:118  000.780s  INFO] Using device `GeForce GTX 590' with id: 2",
+        "[==DeviceList.cpp:107  000.781s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.781s  INFO] Using 3 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.781s  PROF] skelcl::init() time 780 ms",
+        "[=====Program.cpp:212  001.228s  PROF] skelcl::Program::build() 1 ms",
+        "[====StencilDef.h:169  001.252s  PROF] Stencil<Tout(Tin)>[0x7fff89b08140] prepare 23 ms",
+        "[====StencilDef.h:384  001.252s  PROF] Stencil<Tout(Tin)>[0x7fff89b08140][0] global[2048][2080] local[4][32] tile[44][63][4]",
+        "[====StencilDef.h:384  001.255s  PROF] Stencil<Tout(Tin)>[0x7fff89b08140][1] global[2048][2080] local[4][32] tile[44][63][4]",
+        "[====StencilDef.h:384  001.258s  PROF] Stencil<Tout(Tin)>[0x7fff89b08140][2] global[2048][2080] local[4][32] tile[44][63][4]",
+        "[======Device.cpp:284  001.261s ERROR] OpenCL error: CL_OUT_OF_RESOURCES (code: -5) clEnqueueReadBuffer"
+      ],
+      "Run time": 1.6165618896484375,
+      "Start time": "2015-04-21 08:44:55"
+    }
+  ]
+}

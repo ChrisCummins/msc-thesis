@@ -1,0 +1,57 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "feec1c0e7aa2a60d2359547bda68cdec6c5c4031",
+    "SkelCL version": "431ae8ea0bb6c146f71636fbcb5b6cdb28c6869c"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      1,
+      10,
+      30,
+      30
+    ],
+    "Complexity": "--complex",
+    "Device count": "--device-count 2",
+    "Device type": "--device-type GPU",
+    "Hostname": "tim",
+    "Size": "-w 2048 -h 2048",
+    "StencilLocalSizeC": 4,
+    "StencilLocalSizeR": 4
+  },
+  "out": [
+    {
+      "End time": "2015-04-21 08:45:16",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.706s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.707s  INFO] 4 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.732s  INFO] Using device `GeForce GTX 590' with id: 0",
+        "[======Device.cpp:118  000.755s  INFO] Using device `GeForce GTX 590' with id: 1",
+        "[==DeviceList.cpp:107  000.755s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:107  000.755s  INFO] Skip device `GeForce GTX 590' not machting given criteria for device selection.",
+        "[==DeviceList.cpp:122  000.755s  INFO] Using 2 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.755s  PROF] skelcl::init() time 755 ms",
+        "[=====Program.cpp:212  001.237s  PROF] skelcl::Program::build() 1 ms",
+        "[====StencilDef.h:169  001.261s  PROF] Stencil<Tout(Tin)>[0x7fffbf0819a0] prepare 23 ms",
+        "[====StencilDef.h:384  001.261s  PROF] Stencil<Tout(Tin)>[0x7fffbf0819a0][0] global[2048][2080] local[4][4] tile[44][35][4]",
+        "[====StencilDef.h:384  001.268s  PROF] Stencil<Tout(Tin)>[0x7fffbf0819a0][1] global[2048][2052] local[4][4] tile[44][35][4]",
+        "[======Device.cpp:284  001.268s ERROR] OpenCL error: CL_OUT_OF_RESOURCES (code: -5) clEnqueueReadBuffer"
+      ],
+      "Run time": 1.6162049770355225,
+      "Start time": "2015-04-21 08:45:15"
+    }
+  ]
+}
