@@ -1,0 +1,51 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "c7cb1ebbd434f2b9c2bcebe45266271582491cc5",
+    "SkelCL version": "431ae8ea0bb6c146f71636fbcb5b6cdb28c6869c"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      20,
+      20,
+      20,
+      20
+    ],
+    "Complexity": "--complex",
+    "Device type": "--device-type CPU",
+    "Hostname": "florence",
+    "Size": "-w 2048 -h 2048",
+    "StencilLocalSizeC": 64,
+    "StencilLocalSizeR": 64
+  },
+  "out": [
+    {
+      "End time": "2015-04-20 14:12:52",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.003s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.003s  INFO] 1 device(s) for OpenCL platform `Intel(R) OpenCL' found",
+        "[======Device.cpp:118  000.244s  INFO] Using device `       Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz' with id: 0",
+        "[==DeviceList.cpp:122  000.244s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.244s  PROF] skelcl::init() time 244 ms",
+        "[=====Program.cpp:212  001.272s  PROF] skelcl::Program::build() 446 ms",
+        "[====StencilDef.h:169  001.303s  PROF] Stencil<Tout(Tin)>[0x7ffc4cce7300] prepare 30 ms",
+        "[======Device.cpp:148  001.304s ERROR] OpenCL error: CL_OUT_OF_RESOURCES (code: -5) clEnqueueNDRangeKernel"
+      ],
+      "Run time": 1.5754988193511963,
+      "Start time": "2015-04-20 14:12:50"
+    }
+  ]
+}

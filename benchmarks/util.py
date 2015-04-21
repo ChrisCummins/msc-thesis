@@ -8,6 +8,7 @@ from os import chdir,getcwd,listdir,makedirs,getpid
 from os.path import abspath,basename,dirname,exists
 from socket import gethostname
 from subprocess import call
+from sys import stdout
 
 import sys
 
@@ -144,3 +145,28 @@ class Colours:
         print(colour, end="")
         print(*args, end="")
         print(Colours.RESET, **kwargs)
+
+# @schema a list of tuple pairs, where each pair identifies a
+# (name,type) attribute. E.g. (foo,NUMERIC), (bar,{0,4,10}).
+#
+# @data a list of data points, in the format specified by the schema.
+#
+# @relation the name of the relation set.
+#
+# @file a file object to write output to.
+def json2arff(schema, data, relation="data", file=stdout):
+    print("@RELATION {0}".format(relation), file=file)
+    print(file=file)
+
+    for attribute in schema:
+        print("@ATTRIBUTE {0} {1}"
+              .format(attribute[0], attribute[1]), file=file)
+
+    print(file=file)
+    print("@DATA", file=file)
+    for d in data:
+        dd = [str(x) for x in d]
+        print(','.join(dd), file=file)
+
+    if file != stdout:
+        print("Wrote '{0}'...".format(file.name))

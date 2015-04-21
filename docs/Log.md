@@ -5606,9 +5606,16 @@ Where:
 * **d** is a feature vector describing the input problem (e.g. number
   of elements, data types).
 
-Simplified ML approach:
+Simplified ML attributes:
 
-* Features:
-  * Architecture: {CATEGORICAL}
-  * Size of halo (north,south,east,west): {INT,INT,INT,INT}
-  * Complexity of kernel: {BOOL}
+```
+Host        {florence, dhcp-90-060, cec, ...}
+Device      {GeForce GTX TITAN, Intel i5-2430M, ...}
+DevType     {CPU,GPU}
+DevCount    NUMERIC
+BorderNorth NUMERIC
+BorderSouth NUMERIC
+BorderEast  NUMERIC
+BorderWest  NUMERIC
+Complexity  {0,1}
+```
