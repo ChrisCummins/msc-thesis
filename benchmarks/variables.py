@@ -261,6 +261,16 @@ def lookupvals(vars, type):
     # Return values as a list.
     return list(allvals)
 
+def filterbyval(var_lists, type, val):
+    v = []
+    for var_list in var_lists:
+        try:
+            list_val = lookup1(var_list, type, val).val
+            if list_val == val:
+                v.append(var_list)
+        except:
+            pass
+    return v
 
 #
 class HashableInvars:
