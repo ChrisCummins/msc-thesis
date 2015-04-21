@@ -115,6 +115,12 @@ def getworkgroupsize(invars):
     return (lookup1(invars, StencilLocalSizeC),
             lookup1(invars, StencilLocalSizeR))
 
+def getinputsize(invars):
+    size_arg = lookup1(invars, "Size").val
+    width  = search("-w (\d+)", size_arg).group(1)
+    height = search("-h (\d+)", size_arg).group(1)
+    return int(width), int(height)
+
 def setworkgroupsize(invars, *newWgSize):
     newinvars = copy(invars)
 
@@ -153,6 +159,7 @@ def plotSpeedupsForDeviceAndWorkGroup(harnesses):
 
     # Constants across all harnesses:
 
+    width, height = getinputsize(harnesses[0].testcase.invars)
     hostname = lookup1(harnesses[0].testcase.invars, Hostname).val
     devicename = humanReadableDeviceString(harnesses[0].testcase.invars)
 
@@ -169,14 +176,18 @@ def plotSpeedupsForDeviceAndWorkGroup(harnesses):
         hostname,
         devicename,
         workgroup[0],
-        workgroup[1]
+        workgroup[1],
+        width,
+        height
     ]]))
     plotPath = path(config.RESULTS, config.ID, "kernel", plotId + ".png")
 
     # Plot title.
-    title = ("Work group size: [{c} x {r}]. {hostname} {device}"
+    title = ("Work group size: [{c} x {r}]. {hostname} "
+             "{device} {width}x{height}"
              .format(c=workgroup[0], r=workgroup[1],
-                     hostname=hostname, device=devicename))
+                     hostname=hostname, device=devicename,
+                     width=width, height=height))
 
     # Plot caption.
     caption = "Average {n:.1f} iterations.".format(n=iterations)
@@ -213,6 +224,7 @@ def plotSpeedupsForDevice(groups):
     # Workgroup sizes
     wgVars = [getworkgroupsize(x[0].testcase.invars) for x in groups]
     wgSizes = [(x[0].val, x[1].val) for x in wgVars]
+    width, height = getinputsize(groups[0][0].testcase.invars)
 
     # Constants across all harnesses:
 
@@ -234,12 +246,16 @@ def plotSpeedupsForDevice(groups):
     # Unique plot ID.
     plotId = ("-".join([str(x) for x in [
         hostname,
-        devicename
+        devicename,
+        width,
+        height
     ]]))
     plotPath = path(config.RESULTS, config.ID, "wg-kernel", plotId + ".png")
 
     # Plot title.
-    title = "{hostname} {device}".format(hostname=hostname, device=devicename)
+    title = ("{hostname} {device} {width}x{height}"
+             .format(hostname=hostname, device=devicename,
+                     width=width, height=height))
 
     # Plot caption.
     caption = "Average {n:.1f} iterations.".format(n=iterations)
@@ -283,6 +299,7 @@ def plotSpeedupsForDeviceAndKernel(harnesses):
 
     # Constants across all harnesses:
 
+    width, height = getinputsize(harnesses[0].testcase.invars)
     hostname = lookup1(harnesses[0].testcase.invars, Hostname).val
     devicename = humanReadableDeviceString(harnesses[0].testcase.invars)
     border = lookup1(harnesses[0].testcase.invars, BorderSize).val
@@ -317,13 +334,18 @@ def plotSpeedupsForDeviceAndKernel(harnesses):
     iterations = sum([x[2] for x in speedups]) / len(speedups)
 
     # Unique plot ID.
-    plotId = kernelString
+    plotId = "-".join([str(x) for x in [
+        kernelString,
+        width,
+        height
+    ]])
     plotPath = path(config.RESULTS, config.ID, "wg",
                     hostname + "-" + devicename, plotId + ".png")
 
     # Plot title.
-    title = ("{hostname} {device} {kernel}"
-             .format(hostname=hostname, device=devicename, kernel=kernelString))
+    title = ("{hostname} {device} {kernel} {width}x{height}"
+             .format(hostname=hostname, device=devicename, kernel=kernelString,
+                     width=width, height=height))
 
     # Plot caption.
     caption = "Average {n:.1f} iterations.".format(n=iterations)
@@ -400,7 +422,7 @@ def tprint(*args, **kwargs):
     print(" & ".join(escaped), **kwargs)
 
 def tableBestSpeedupsForKernel(harnesses, path):
-    kGrouped = groupByInvars(harnesses, BorderSize, "Complexity", "Sive").values()
+    kGrouped = groupByInvars(harnesses, BorderSize, "Complexity", "Size").values()
 
     wgs = []
     speedups = []
