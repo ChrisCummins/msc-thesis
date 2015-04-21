@@ -5617,5 +5617,15 @@ BorderNorth NUMERIC
 BorderSouth NUMERIC
 BorderEast  NUMERIC
 BorderWest  NUMERIC
+DataWidth   NUMERIC
+DataHeight  NUMERIC
 Complexity  {0,1}
 ```
+
+## Tuesday 21st
+
+I've gathered data for Stencil work group size performance using
+differing input sizes in addition to the existing differing halo size
+& kernel complexity. Looking through the results, it doesn't look like
+there is appreciable difference between the two problem sizes
+investigated: 1024, and 2048.
