@@ -5630,3 +5630,64 @@ differing input sizes in addition to the existing differing halo size
 & kernel complexity. Looking through the results, it doesn't look like
 there is appreciable difference between the two problem sizes
 investigated: 1024, and 2048.
+
+## Wendesday 22nd
+
+I've exported the data from e14 to an arff file, and found that the
+J48 decision tree classifier correctly classifies 76.5714% of
+instances using the simplified ML attributes described in Monday's log
+entry. Decision tree:
+
+DevType = GPU
+|   BorderEast <= 10: 64x4 (70.0/14.0)
+|   BorderEast > 10
+|   |   Hostname = monza: 64x4 (8.0)
+|   |   Hostname = whz5: 32x32 (8.0)
+|   |   Hostname = tim
+|   |   |   Complexity = 0
+|   |   |   |   BorderNorth <= 20: 64x4 (4.0)
+|   |   |   |   BorderNorth > 20: 32x32 (4.0)
+|   |   |   Complexity = 1: 32x32 (13.0)
+DevType = CPU
+|   BorderNorth <= 20
+|   |   BorderSouth <= 10
+|   |   |   Hostname = cec
+|   |   |   |   BorderNorth <= 1: 64x4 (4.0)
+|   |   |   |   BorderNorth > 1: 64x32 (8.0/5.0)
+|   |   |   Hostname = monza: 32x32 (6.0)
+|   |   |   Hostname = florence
+|   |   |   |   DataWidth <= 1024: 64x32 (6.0/2.0)
+|   |   |   |   DataWidth > 1024: 64x64 (6.0/1.0)
+|   |   BorderSouth > 10
+|   |   |   Hostname = cec
+|   |   |   |   Complexity = 0: 32x64 (6.0)
+|   |   |   |   Complexity = 1
+|   |   |   |   |   BorderNorth <= 10: 32x4 (2.0)
+|   |   |   |   |   BorderNorth > 10
+|   |   |   |   |   |   BorderEast <= 10: 32x64 (2.0/1.0)
+|   |   |   |   |   |   BorderEast > 10: 64x32 (2.0)
+|   |   |   Hostname = monza: 4x64 (4.0/1.0)
+|   |   |   Hostname = florence
+|   |   |   |   Complexity = 0
+|   |   |   |   |   BorderNorth <= 10: 4x64 (2.0)
+|   |   |   |   |   BorderNorth > 10
+|   |   |   |   |   |   BorderEast <= 10: 64x32 (2.0/1.0)
+|   |   |   |   |   |   BorderEast > 10: 4x32 (2.0)
+|   |   |   |   Complexity = 1: 32x64 (6.0/1.0)
+|   BorderNorth > 20
+|   |   Hostname = cec: 64x4 (4.0)
+|   |   Hostname = monza: 4x64 (2.0)
+|   |   Hostname = florence: 64x4 (4.0)
+
+A nice quote from a page about
+[reporting project status](http://www.projectsmart.co.uk/how-to-report-status-on-a-project.php):
+
+> There is enormous value in a project manager who can report status
+> without narrative.
+
+According to the page, the three most important messages to convey in
+a status report are:
+
+* Overall
+* Milestones
+* Issues
