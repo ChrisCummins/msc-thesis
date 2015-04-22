@@ -533,8 +533,13 @@ for harness in HARNESSES:
     # Add Speedup cout variable.
     result.couts.add(Speedup((speedup, err, iterations)))
 
-tableBestSpeedupsForKernel(HARNESSES, path(config.RESULTS, config.ID,
-                                           "bestSpeedupsForKernel.tex"))
+harnesses_1024 = filterHarnessesByInvarVal(HARNESSES, "Size", "-w 1024 -h 1024")
+harnesses_2048 = filterHarnessesByInvarVal(HARNESSES, "Size", "-w 2048 -h 2048")
+
+tableBestSpeedupsForKernel(harnesses_1024, path(config.RESULTS, config.ID,
+                                                "bestSpeedupsForKernel-1024.tex"))
+tableBestSpeedupsForKernel(harnesses_2048, path(config.RESULTS, config.ID,
+                                                "bestSpeedupsForKernel-2048.tex"))
 
 # Group harnesses by Host/Device properties.
 deviceGrouped = groupByInvars(HARNESSES, Hostname, DeviceTypeArg,

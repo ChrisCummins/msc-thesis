@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 while read line; do
-    image=img/$(echo $line | sed 's,/home/chris/src/msc-thesis/benchmarks/plots/,,' | tr / -)
-    echo "\includesvg[width=.5\textwidth]{${image%.*}}"
-    cp $line $image
+    if [ -f $line ]; then
+        image=img/$(echo $line | sed 's,/home/chris/src/msc-thesis/benchmarks/plots/,,' | tr / -)
+        echo "\includesvg[width=.5\textwidth]{${image%.*}}"
+        cp $line $image
+    fi
 done < svg-list.txt

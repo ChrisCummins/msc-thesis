@@ -401,3 +401,14 @@ def groupByInvars(harnesses, *args):
         grouped[key].append(harness)
     # Return the grouped harnesses.
     return grouped
+
+def filterHarnessesByInvarVal(harnesses, type, val):
+    output = []
+    for harness in harnesses:
+        try:
+            harness_val = lookup1(harness.testcase.invars, type).val
+            if val == harness_val:
+                output.append(harness)
+        except:
+            pass
+    return output

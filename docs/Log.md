@@ -5620,6 +5620,7 @@ BorderWest  NUMERIC
 DataWidth   NUMERIC
 DataHeight  NUMERIC
 Complexity  {0,1}
+LocalSize   {4x4,4x32,4x64,32x4,32x32,32x64,64x4,64x32,64x64}
 ```
 
 ## Tuesday 21st
