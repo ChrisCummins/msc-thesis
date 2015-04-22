@@ -8,6 +8,7 @@ from copy import copy
 from itertools import product
 from operator import mul
 from re import sub
+from sys import stdout
 
 from benchlib import *
 from skelcl import *
@@ -120,6 +121,9 @@ def getinputsize(invars):
     width  = search("-w (\d+)", size_arg).group(1)
     height = search("-h (\d+)", size_arg).group(1)
     return int(width), int(height)
+
+def getcomplexity(invars):
+    return 1 if lookup1(invars, "Complexity").val else 0
 
 def setworkgroupsize(invars, *newWgSize):
     newinvars = copy(invars)
@@ -374,9 +378,10 @@ def plotSpeedupsForDeviceAndKernel(harnesses):
     plt.speedups3d(Y, len(Xvals), **kwargs)
 
 # Return the workgroup size and speedup value of the best speedup.
-def getBestSettingsForDeviceAndKernel(harnesses):
+def getBestSpeedupFromHarnesses(harnesses):
     bestharness, bestspeedup = None, 0
 
+    # Iterate over all harnesses to find the best speedup.
     for harness in harnesses:
         speedup = lookup1(harness.result().couts, Speedup).val[0]
 
@@ -384,7 +389,7 @@ def getBestSettingsForDeviceAndKernel(harnesses):
             bestharness = harness
             bestspeedup = speedup
 
-    # Test to see if we have *any* result.
+    # Test to see if we have a result.
     if bestharness:
         bestWgVars = getworkgroupsize(bestharness.testcase.invars)
         bestWg = (bestWgVars[0].val, bestWgVars[1].val)
@@ -421,6 +426,75 @@ def tprint(*args, **kwargs):
 
     print(" & ".join(escaped), **kwargs)
 
+def createArff(harnesses, file=stdout):
+    # Dataset.
+    data = []
+
+    # Group harnesses by explanatory variable values.
+    groups = groupByInvars(harnesses,
+                           Hostname, DeviceTypeArg, DeviceCountArg,
+                           BorderSize, "Complexity", "Size").values()
+
+    # Iterate over each group.
+    for group in groups:
+        # Get the best work group size and speedup.
+        wg, speedup = getBestSpeedupFromHarnesses(group)
+
+        invars = group[0].testcase.invars
+        border = lookup1(invars, BorderSize).val
+        deviceArgs = lookup1(invars, DeviceTypeArg).val
+
+        # Get the attribute values.
+        hostname = lookup1(invars, Hostname).val
+        device = "f" # TODO: get device id
+        if search("GPU", deviceArgs):
+            deviceType = "GPU"
+            deviceCountArg = lookup1(invars, DeviceCountArg).val
+            deviceCount = int(search("(\d+)", deviceCountArg).group(1))
+        else:
+            deviceType = "CPU"
+            deviceCount = 1
+        borderNorth = border[0]
+        borderEast = border[1]
+        borderSouth = border[2]
+        borderWest = border[3]
+        dataWidth, dataHeight = getinputsize(invars)
+        complexity = getcomplexity(invars)
+        if wg == None:
+            # We're deliberately excluding cases where no results were
+            # found.
+            continue
+        else:
+            localSize = "{w}x{h}".format(w=wg[0], h=wg[1])
+
+        # Set the attributes.
+        attributes = [
+            ("Hostname", "NOMINAL", hostname),
+            ("Dev", "NOMINAL", device),
+            ("DevType", "NOMINAL", deviceType),
+            ("DevCount", "NUMERIC", deviceCount),
+            ("BorderNorth", "NUMERIC", borderNorth),
+            ("BorderEast", "NUMERIC", borderEast),
+            ("BorderSouth", "NUMERIC", borderSouth),
+            ("BorderWest", "NUMERIC", borderWest),
+            ("DataWidth", "NUMERIC", dataWidth),
+            ("DataHeight", "NUMERIC", dataHeight),
+            ("Complexity", "NOMINAL", complexity),
+            ("LocalSize", "NOMINAL", localSize)
+        ]
+
+        # Add a row to dataset.
+        data.append([x[2] for x in attributes])
+
+    # Set the schema.
+    schema = [(x[0], x[1]) for x in attributes]
+
+    # Determine the path to the output file.
+    arffPath = path(config.RESULTS, config.ID, "data.arff")
+
+    # Write the output file.
+    mkarff(schema, data, relation="e14", file=mkopen(arffPath, "w"))
+
 def tableBestSpeedupsForKernel(harnesses, path):
     kGrouped = groupByInvars(harnesses, BorderSize, "Complexity", "Size").values()
 
@@ -434,7 +508,7 @@ def tableBestSpeedupsForKernel(harnesses, path):
                                       DeviceCountArg).values()
 
         # Get best work group size and speedup for each device.
-        w, s = zip(*[getBestSettingsForDeviceAndKernel(x)
+        w, s = zip(*[getBestSpeedupFromHarnesses(x)
                      for x in deviceGrouped])
 
         # Add to data grids.
@@ -532,6 +606,9 @@ for harness in HARNESSES:
     iterations = sum([len(result.outvars), len(baseline.outvars)]) / 2
     # Add Speedup cout variable.
     result.couts.add(Speedup((speedup, err, iterations)))
+
+# Create a .arff dataset file.
+createArff(HARNESSES)
 
 harnesses_1024 = filterHarnessesByInvarVal(HARNESSES, "Size", "-w 1024 -h 1024")
 harnesses_2048 = filterHarnessesByInvarVal(HARNESSES, "Size", "-w 2048 -h 2048")

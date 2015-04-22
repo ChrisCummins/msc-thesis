@@ -147,22 +147,38 @@ class Colours:
         print(Colours.RESET, **kwargs)
 
 # @schema a list of tuple pairs, where each pair identifies a
-# (name,type) attribute. E.g. (foo,NUMERIC), (bar,{0,4,10}).
+# (name,type) attribute. E.g. (foo,NUMERIC). If type is NOMINAL, get
+# all the unique values from the dataset and create {val1,...,valn}
+# nominal description. The ordering of nominal values is not
+# guaranteed.
 #
 # @data a list of data points, in the format specified by the schema.
 #
 # @relation the name of the relation set.
 #
 # @file a file object to write output to.
-def json2arff(schema, data, relation="data", file=stdout):
+def mkarff(schema, data, relation="data", file=stdout):
     print("@RELATION {0}".format(relation), file=file)
     print(file=file)
 
-    for attribute in schema:
+    # Iterate over each attribute in schema, using indexes so that we
+    # can reference the dataset for nominal types.
+    for i in range(len(schema)):
+        attribute = schema[i]
+        attribute_type = attribute[1]
+
+        if attribute_type == "NOMINAL":
+            # Get unique values for nominal set:
+            uniq = set()
+            [uniq.add(x[i]) for x in data]
+            # Create a type string of the form: {val1,...valn}
+            attribute_type = "{" + ",".join([str(x) for x in uniq]) + "}"
+
         print("@ATTRIBUTE {0} {1}"
-              .format(attribute[0], attribute[1]), file=file)
+              .format(attribute[0], attribute_type), file=file)
 
     print(file=file)
+    # Print the dataset values.
     print("@DATA", file=file)
     for d in data:
         dd = [str(x) for x in d]
