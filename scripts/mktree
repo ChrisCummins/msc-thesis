@@ -1,0 +1,160 @@
+#!/usr/bin/env python2.7
+
+from __future__ import print_function
+from re import compile,search,sub
+from sys import stdout
+
+f = open("output")
+
+file = [x.rstrip() for x in f.readlines()]
+
+tree = {}
+
+currentdepth = 0
+currentnode = tree
+
+# Return the depth of the node described by line.
+def getdepth(line, depth=0):
+    # Each line of depth > 0 starts with one or more "|   " patterns.
+    prefix_re = compile("^\|   ")
+    # Search for prefix pattern.
+    match = search(prefix_re, line)
+    if match:
+        # If found, strip the pattern and recurse.
+        return getdepth(sub(prefix_re, "", line), depth + 1)
+    else:
+        # Else return the current depth.
+        return depth, line
+
+def getname(line):
+    name_re = compile("^([^<>=]+)")
+    match = search(name_re, line)
+    return match.group(1).strip(), sub(name_re, "", line)
+
+def getclassifiedinstances(line):
+    val_re = compile(" \(\d+\.\d+(/\d+\.\d+)?\)$")
+    match = search(val_re, line)
+    if match:
+        # Strip match from line.
+        line = sub(val_re, "", line)
+
+        # Strip backets from match.
+        string = match.group(0)
+        string = sub("^ \(", "", string)
+        string = sub("\)$", "", string)
+        #
+        vals = string.split("/")
+        if len(vals) > 1:
+            incorrect = float(vals[1])
+        else:
+            incorrect = 0
+        correct = float(vals[0])
+        return correct, incorrect, line
+
+    return 0, 0, line
+
+
+def getleaf(line):
+    leaf_re = compile(": (.+)$")
+    match = search(leaf_re, line)
+    if match:
+        return match.group(1), sub(leaf_re, "", line)
+    else:
+        return None, line
+
+def parseline(line):
+    # Determine the node depth and strip.
+    depth, line = getdepth(line)
+
+    # Get the node name and strip.
+    name, line = getname(line)
+
+    # Get the node vals
+    correct, incorrect, line = getclassifiedinstances(line)
+
+    leaf, label = getleaf(line)
+
+    return depth, name, label, leaf, correct, incorrect
+
+class Node:
+    def __init__(self, parent, edge_label, label):
+        self.parent = parent
+        self.edge_label = edge_label
+        self.label = label
+        self.children = []
+
+def print_tree(tree, depth=0):
+    for i in range(depth):
+        print("  ", end="")
+    print("({0})".format(tree.edge_label), tree.label)
+    for node in tree.children:
+        print_tree(node, depth + 1)
+
+root = None
+tree = None
+current_depth = 0
+
+def getcomp(val):
+    comp_re = compile("^(=|<=|>=|<|>) ")
+
+    comp = search(comp_re, val).group(1)
+    if comp == "=": comp = "=="
+    val = sub(comp_re, "", val)
+    return comp, val
+
+def getwg(val):
+    return tuple([int(x) for x in val.split("x")])
+
+def gencode(depth, attribute, comp, val, file=stdout):
+    indent="  "
+
+    print(indent, end="", file=file)
+
+    for i in range(depth):
+        print(indent, end="", file=file)
+
+    comp, compval = getcomp(comp)
+
+    print('if x["{attr}"] {comp} "{compval}":'
+          .format(attr=attribute, comp=comp, compval=compval),
+          end="", file=file)
+
+    if val:
+        print(' return {val}'.format(val=getwg(val)), end="", file=file)
+    print(file=file)
+
+print("def classify(x):")
+for line in file:
+    depth, name, edge_label, leaf, correct, incorrect = parseline(line)
+    #print(parseline(line))
+
+    gencode(depth, name, edge_label, leaf)
+
+    # Create root node.
+    # if depth == 0 and not root:
+    #     root = Node(None, "", name)
+    #     root.children.append(Node(root, edge_label, ""))
+    #     if leaf:
+    #         root.children[-1].edge_label = leaf
+    #         current_depth = 0
+    #     else:
+    #         tree = root.children[-1]
+    #         current_depth = 1
+    #     continue
+
+    # if depth < current_depth:
+    #     for i in range(current_depth - depth):
+    #         tree = tree.parent
+    #     current_depth = depth
+
+    # if depth == current_depth:
+    #     tree.label = name
+    #     tree.children.append(Node(tree, edge_label, ""))
+
+    #     if leaf:
+    #         tree.children[-1].label = leaf
+    #     else:
+    #         tree = tree.children[-1]
+    #         current_depth += 1
+
+#print_tree(root)

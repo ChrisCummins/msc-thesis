@@ -16,6 +16,8 @@ from util import *
 
 import config
 
+from e14_tree import classify
+
 class SimpleBigKnob(Knob):
     cxxSrc = path(SKELCL, 'examples/SimpleBig/main.cpp')
     clSrc = path(SKELCL, 'examples/SimpleBig/kernels.cl')
@@ -426,9 +428,51 @@ def tprint(*args, **kwargs):
 
     print(" & ".join(escaped), **kwargs)
 
+# Get speedup of invars over basline default stencil work group
+# size.
+def getspeedup(invars):
+    # Get the result.
+    result = resultscache.load(invars)
+
+    # Get the baseline result.
+    baselineinvars = setworkgroupsize(invars,
+                                      StencilLocalSizeC(StencilLocalSizeC.DEFAULT),
+                                      StencilLocalSizeR(StencilLocalSizeR.DEFAULT))
+    baseline = resultscache.load(baselineinvars)
+
+    if (baseline.bad or result.bad or
+        not len(baseline.outvars) or not len(result.outvars)):
+        # If we are missing data, speedup = 0.
+        speedup = 0
+        err = 0
+    else:
+        # Else, speedup = Tb / Tc
+        time = gettime(result)
+        baselinetime = gettime(baseline)
+        speedup = baselinetime[0] / time[0]
+        err = abs((baselinetime[0] / sum(time)) - speedup)
+    # Average number of iterations.
+    iterations = sum([len(result.outvars), len(baseline.outvars)]) / 2
+    # Add Speedup cout variable.
+    return Speedup((speedup, err, iterations))
+
+# Run classifier on attribute "x" with invars.
+def getPrediction(x, invars):
+    # Get predicted work group size.
+    wg = classify(x)
+    # Create invars for predicted wg size.
+    invars = setworkgroupsize(invars,
+                              StencilLocalSizeC(wg[0]),
+                              StencilLocalSizeR(wg[1]))
+    # Get speedup of prediction.
+    speedup = getspeedup(invars).val[0]
+
+    return wg, speedup
+
 def createArff(harnesses, file=stdout):
     # Dataset.
     data = []
+    predictions = []
 
     # Group harnesses by explanatory variable values.
     groups = groupByInvars(harnesses,
@@ -486,6 +530,28 @@ def createArff(harnesses, file=stdout):
         # Add a row to dataset.
         data.append([x[2] for x in attributes])
 
+        # Test the classifier.
+        x = {
+            "Hostname": str(hostname),
+            "Dev": str(device),
+            "DevType": str(deviceType),
+            "DevCount": str(deviceCount),
+            "BorderNorth": str(borderNorth),
+            "BorderEast": str(borderEast),
+            "BorderSouth": str(borderSouth),
+            "BorderWest": str(borderWest),
+            "DataWidth": str(dataWidth),
+            "DataHeight": str(dataHeight),
+            "Complexity": str(complexity),
+        }
+        # Store relative performance of prediction against oracle.
+        predicted, predictedSpeedup = getPrediction(x, invars)
+        diff = speedup - predictedSpeedup
+        ratio = (diff / float(speedup)) * 100
+        predictions.append(("x".join([str(x) for x in predicted]),
+                            predictedSpeedup, localSize, speedup,
+                            diff, ratio))
+
     # Set the schema.
     schema = [(x[0], x[1]) for x in attributes]
 
@@ -494,6 +560,37 @@ def createArff(harnesses, file=stdout):
 
     # Write the output file.
     mkarff(schema, data, relation="e14", file=mkopen(arffPath, "w"))
+
+    # Print predictions.
+    for x in predictions:
+        string = "\t".join([str(y) for y in [
+            x[0], "\t",
+            x[2], "\t",
+            "{0:.4f}".format(x[1]), "\t",
+            "{0:.4f}".format(x[3]), "\t"
+            "{0:.4f}".format(x[4]),
+            "{0:.1f}%".format(x[5])
+        ]])
+        print(string)
+
+    averageOracle = sum([x[3] for x in predictions]) / len(predictions)
+    averagePrediction = sum([x[1] for x in predictions]) / len(predictions)
+
+    # Number of orcale values for which the best speedup is "1",
+    # i.e. where the baseline values were the best.
+    oracle1count = len(list(filter(lambda x: x[3] == 1, predictions)))
+
+    print("ORACLE     ", "{0:.3f}".format(averageOracle),
+          "MIN", "{0:.3f}".format(min([x[3] for x in predictions])),
+          "MAX", "{0:.3f}".format(max([x[3] for x in predictions])))
+    print("PREDICTION ", "{0:.3f}".format(averagePrediction),
+          "MIN", "{0:.3f}".format(min([x[1] for x in predictions])),
+          "MAX", "{0:.3f}".format(max([x[1] for x in predictions])))
+    print("Prediction performance is", "{0:.2f}%"
+          .format(100 - sum([x[5] for x in predictions]) / len(predictions)),
+          "of oracle.")
+    print("Default values were optimal for {0:.2f}% of cases."
+          .format(oracle1count / float(len(predictions)) * 100))
 
 def tableBestSpeedupsForKernel(harnesses, path):
     kGrouped = groupByInvars(harnesses, BorderSize, "Complexity", "Size").values()
@@ -582,30 +679,7 @@ def tableBestSpeedupsForKernel(harnesses, path):
 
 # Preprocess data: Add derived speedups over default work group sizes.
 for harness in HARNESSES:
-    result = harness.result()
-    invars = result.invars
-
-    # Get the baseline result.
-    baselineinvars = setworkgroupsize(invars,
-                                      StencilLocalSizeC(StencilLocalSizeC.DEFAULT),
-                                      StencilLocalSizeR(StencilLocalSizeR.DEFAULT))
-    baseline = resultscache.load(baselineinvars)
-
-    if (baseline.bad or result.bad or
-        not len(baseline.outvars) or not len(result.outvars)):
-        # If we are missing data, speedup = 0.
-        speedup = 0
-        err = 0
-    else:
-        # Else, speedup = Tb / Tc
-        time = gettime(result)
-        baselinetime = gettime(baseline)
-        speedup = baselinetime[0] / time[0]
-        err = abs((baselinetime[0] / sum(time)) - speedup)
-    # Average number of iterations.
-    iterations = sum([len(result.outvars), len(baseline.outvars)]) / 2
-    # Add Speedup cout variable.
-    result.couts.add(Speedup((speedup, err, iterations)))
+    harness.result().couts.add(getspeedup(harness.result().invars))
 
 # Create a .arff dataset file.
 createArff(HARNESSES)
