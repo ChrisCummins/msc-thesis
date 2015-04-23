@@ -5691,3 +5691,20 @@ a status report are:
 * Overall
 * Milestones
 * Issues
+
+
+## Thursday 23rd
+
+Notes from going through slides with Pavlos:
+* Detailed profiling information is not needed early on in the
+  presentation. If needed, put it near the end.
+* For the stencil slides, explain each term in detail. Don't expect
+  the audience to remember the terminology after the slides.
+* I can explain the scripting at a higher level of detail than
+  provided.
+* Implementation is not the main focus. The results are.
+* For the results section, "uniform" is not the right word.
+* The most important bullet point in the presentation is: 95% of
+  oracle.
+* Add content about the research which didn't pay off, for example,
+  the other params.
