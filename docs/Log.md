@@ -5708,3 +5708,22 @@ Notes from going through slides with Pavlos:
   oracle.
 * Add content about the research which didn't pay off, for example,
   the other params.
+
+
+## Friday 24th
+
+Notes from intermediate progress presentation:
+* Have a chat with Thibaut about his research.
+* Read PATUS paper.
+* When reporting speedups, show the *median* value in addition to
+  mean.
+* Progress seems fair, results are good.
+
+Questions to answer:
+* How do I position my work in the landscape of prior research? There
+  has been lots of research into autotuning Stencils. One possible
+  angle would be show how training on synthetic benchmarks provides
+  good results when applied to real world problems.
+* What real world problems do stencils solve, and how does my
+  autotuner improve their performance?
+* How does SkelCL compare against competitors? I.e. SkePU.
