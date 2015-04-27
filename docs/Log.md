@@ -5727,3 +5727,36 @@ Questions to answer:
 * What real world problems do stencils solve, and how does my
   autotuner improve their performance?
 * How does SkelCL compare against competitors? I.e. SkePU.
+
+
+## Monday 27th
+
+Notes from meeting with Michel:
+* Typical real world image processing applications do not use large
+  stencil sizes.
+* There's no "magic" in determining the maximum work group size for a
+  kernel. It's just a calculation based on the number of registers
+  used, amount of local memory allocated, and the static hardware
+  limit. This can be queried at runtime.
+* The `clinfo` program lists a number of attributes describing the
+  platforms and CL devices. I could turn those into features for the
+  training set, remove the "hostname" attribute, and see how that
+  affects classification importance.
+* I should read through an NVIDIA whitepaper to get a decent
+  understanding of how the SMX architecture works. AMD publishes
+  similar papers.
+* For extracting features from kernels, I can use the LLVM API to
+  query compiled OpenCL IR. I should talk to Thibault and Alberto
+  about this, as they have both done similar things and are familiar
+  with the idiosyncrasies of the library.
+* Additional tuning parameters for Stencils could include different
+  implementation strategies. For example, switching between MapOverlap
+  and Stencil. Additionally, I could launch work items for the entire
+  *tile size* and then have the work items in the border region
+  perform the loading of items from global to local memory. This could
+  be faster for simple problems than launching only the *work group
+  size* number of work items and then having some of them load the
+  additional tile elements.
+* Michel is very keen to integrate autotuning into SkelCL. I should
+  meet with him again soon to discuss how we could go about this, as
+  it will heavily influence the implementation.
