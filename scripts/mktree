@@ -4,157 +4,125 @@ from __future__ import print_function
 from re import compile,search,sub
 from sys import stdout
 
-f = open("output")
-
-file = [x.rstrip() for x in f.readlines()]
-
-tree = {}
-
-currentdepth = 0
-currentnode = tree
-
-# Return the depth of the node described by line.
-def getdepth(line, depth=0):
-    # Each line of depth > 0 starts with one or more "|   " patterns.
-    prefix_re = compile("^\|   ")
-    # Search for prefix pattern.
-    match = search(prefix_re, line)
-    if match:
-        # If found, strip the pattern and recurse.
-        return getdepth(sub(prefix_re, "", line), depth + 1)
-    else:
-        # Else return the current depth.
-        return depth, line
-
-def getname(line):
-    name_re = compile("^([^<>=]+)")
-    match = search(name_re, line)
-    return match.group(1).strip(), sub(name_re, "", line)
-
-def getclassifiedinstances(line):
-    val_re = compile(" \(\d+\.\d+(/\d+\.\d+)?\)$")
-    match = search(val_re, line)
-    if match:
-        # Strip match from line.
-        line = sub(val_re, "", line)
-
-        # Strip backets from match.
-        string = match.group(0)
-        string = sub("^ \(", "", string)
-        string = sub("\)$", "", string)
-        #
-        vals = string.split("/")
-        if len(vals) > 1:
-            incorrect = float(vals[1])
-        else:
-            incorrect = 0
-        correct = float(vals[0])
-        return correct, incorrect, line
-
-    return 0, 0, line
-
-
-def getleaf(line):
-    leaf_re = compile(": (.+)$")
-    match = search(leaf_re, line)
-    if match:
-        return match.group(1), sub(leaf_re, "", line)
-    else:
-        return None, line
-
-def parseline(line):
-    # Determine the node depth and strip.
-    depth, line = getdepth(line)
-
-    # Get the node name and strip.
-    name, line = getname(line)
-
-    # Get the node vals
-    correct, incorrect, line = getclassifiedinstances(line)
-
-    leaf, label = getleaf(line)
-
-    return depth, name, label, leaf, correct, incorrect
-
+# Represents a decision tree node. Each node compares an attribute
+# against a value, and optionally classifies the instance with a label
+# based on the result of the comparison.
 class Node:
-    def __init__(self, parent, edge_label, label):
-        self.parent = parent
-        self.edge_label = edge_label
-        self.label = label
-        self.children = []
+    def __init__(self, attribute, operator, value, label=None, correct=0, incorrect=0, depth=0):
+        self.depth     = depth
+        self.attribute = attribute
+        self.operator  = operator
+        self.value     = value
+        self.label     = label
+        self.correct   = correct
+        self.incorrect = incorrect
+        self.total = correct + incorrect
+        # Determine the classification accuracy in the range [0,1]
+        self.accuracy  = correct / float(self.total) if correct > 0 else 0
 
-def print_tree(tree, depth=0):
-    for i in range(depth):
-        print("  ", end="")
-    print("({0})".format(tree.edge_label), tree.label)
-    for node in tree.children:
-        print_tree(node, depth + 1)
+    # Generate the code for the node.
+    def to_code(self):
+        # Generate an indentation of depth.
+        def gen_indent(depth):
+            indent="  "
+            return "".join([indent for i in range(depth + 1)])
 
-root = None
-tree = None
-current_depth = 0
+        # Generate the decision statement
+        code = 'if x[{attr}] {op} {val}:'.format(attr=self.attribute,
+                                                 op=self.operator,
+                                                 val=self.value)
+        # Comment starts off empty.
+        comment = "# "
 
-def getcomp(val):
-    comp_re = compile("^(=|<=|>=|<|>) ")
+        # If there is a label, set it and the comment.
+        if self.label:
+            code += ' return {label}'.format(label=self.label)
+            # Report the number of correctly and incorrectly classified
+            # instances.
+            comment += ("{c} correct / {i} incorrect"
+                        .format(c=self.correct, i=self.incorrect))
+            # Report the classification accuracy.
+            if self.total > 0:
+                comment += ", {p:.0f}% accurate".format(p=self.accuracy * 100)
+            comment += ":"
 
-    comp = search(comp_re, val).group(1)
-    if comp == "=": comp = "=="
-    val = sub(comp_re, "", val)
-    return comp, val
+        # Determine the correct indentation level.
+        indent = gen_indent(self.depth)
+        # Build the returned string.
+        string = indent + code
+        # Return the comment only if it is not empty.
+        if comment != "# ":
+            string = indent + comment + "\n" + string
+        return string
 
-def getwg(val):
-    return tuple([int(x) for x in val.split("x")])
+# Line format:
+#    (|   )*<attribute> <operator> <value>(: <class> \(<correct>/<incorrect>\))?
+def parse_line(line):
+    # Line format regular expression.
+    line_re = compile("^(?P<depth>(\|   )*)"
+                      "(?P<attribute>([^<>=]+))"
+                      "(?P<operator>(=|<=|>=|<|>))"
+                      "(?P<value>([^:]+))"
+                      "(: "
+                      "(?P<label>([^\(]+))"
+                      "\((?P<correct>([^/]+))(/(?P<incorrect>(.+)))?\)"
+                      ")?")
 
-def gencode(depth, attribute, comp, val, file=stdout):
-    indent="  "
+    def parse_depth(string):
+        depth = 0
+        for c in string:
+            if c == "|":
+                depth += 1
+        return depth
 
-    print(indent, end="", file=file)
+    def parse_attribute(string):
+        return '"' + string.strip() + '"'
 
-    for i in range(depth):
-        print(indent, end="", file=file)
+    def parse_operator(string):
+        op = string.strip()
+        if op == "=": op = "=="
+        return op
 
-    comp, compval = getcomp(comp)
+    def parse_value(string):
+        if string != None:
+            return '"' + string.strip() + '"'
 
-    print('if x["{attr}"] {comp} "{compval}":'
-          .format(attr=attribute, comp=comp, compval=compval),
-          end="", file=file)
+    def parse_label(string):
+        if string != None:
+            return tuple([int(x) for x in string.split("x")])
 
-    if val:
-        print(' return {val}'.format(val=getwg(val)), end="", file=file)
-    print(file=file)
+    def parse_int(string):
+        if string != None:
+            return int(float(string))
+        else:
+            return 0
 
-print("def classify(x):")
-for line in file:
-    depth, name, edge_label, leaf, correct, incorrect = parseline(line)
-    #print(parseline(line))
+    # Set the regex matches.
+    match = search(line_re, line)
 
-    gencode(depth, name, edge_label, leaf)
+    # Parse each pattern.
+    return Node(parse_attribute(match.group("attribute")),
+                parse_operator(match.group("operator")),
+                parse_value(match.group("value")),
+                parse_label(match.group("label")),
+                parse_int(match.group("correct")),
+                parse_int(match.group("incorrect")),
+                parse_depth(match.group("depth")))
 
-    # Create root node.
-    # if depth == 0 and not root:
-    #     root = Node(None, "", name)
-    #     root.children.append(Node(root, edge_label, ""))
-    #     if leaf:
-    #         root.children[-1].edge_label = leaf
-    #         current_depth = 0
-    #     else:
-    #         tree = root.children[-1]
-    #         current_depth = 1
-    #     continue
+# Read an input file and print a classifier implementation to output
+# file.
+def gen_classifier(input, output=stdout):
+    # Print classifier function definition.
+    print("def classify(x):", file=output)
 
-    # if depth < current_depth:
-    #     for i in range(current_depth - depth):
-    #         tree = tree.parent
-    #     current_depth = depth
+    # Iterate over lines in the input.
+    for line in input.readlines():
+        node = parse_line(line.rstrip())
+        print(node.to_code(), file=output)
 
-    # if depth == current_depth:
-    #     tree.label = name
-    #     tree.children.append(Node(tree, edge_label, ""))
+# Set the input and output files.
+input = open("output")
+output = stdout
 
-    #     if leaf:
-    #         tree.children[-1].label = leaf
-    #     else:
-    #         tree = tree.children[-1]
-    #         current_depth += 1
-
-#print_tree(root)
+# Generate the classifier.
+gen_classifier(input, output)
