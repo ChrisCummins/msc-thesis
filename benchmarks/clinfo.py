@@ -1,8 +1,8 @@
 #!/usr/bin/env python2.7
 #
-#   mkopenclinfo - Generate a JSON OpenCL device description blob.
+#   clinfo - Generate a JSON OpenCL device description blob.
 #
-# The function mkinfo() returns a dictionary of the format:
+# The function get_clinfo() returns a dictionary of the format:
 #
 # {
 #   <platform-name>: [
@@ -21,15 +21,9 @@
 from __future__ import print_function
 
 from subprocess import check_output
-from sys import exit
-from json import dumps
 from re import compile,search
 
 CLINFO="clinfo"
-
-# Pretty-print a JSON blob.
-def pprint(data):
-    print(dumps(data, sort_keys=True, indent=2, separators=(',', ': ')))
 
 ######################
 # clinfo output parser
@@ -109,9 +103,5 @@ def parse(output):
     return platforms
 
 # Generate a device description blob.
-def mkinfo():
+def get_clinfo():
     return parse(check_output(CLINFO))
-
-# Main function, run mkinfo() and print output.
-if __name__ == "__main__":
-    pprint(mkinfo())
