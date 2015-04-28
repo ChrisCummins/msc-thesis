@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import proj3d
 
-# Return the dot product of two variables.
+# Return the dot product of two vectors.
 def dp(x, y):
     return sum([x[i] * y[i] for i in range(len(x))])
 
