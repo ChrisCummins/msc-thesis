@@ -11,14 +11,15 @@ from mpl_toolkits.mplot3d import proj3d
 def dp(x, y):
     return sum([x[i] * y[i] for i in range(len(x))])
 
-def plot_3d(data):
-    fig = plt.figure(figsize=(8,8))
-    ax = fig.add_subplot(111, projection='3d')
-    plt.rcParams['legend.fontsize'] = 10
-
+def plot_3d(data, title=""):
     A = list(filter(lambda x: x[3] == "A", data))
     B = list(filter(lambda x: x[3] == "B", data))
 
+    # Create plot.
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Plot classes.
     ax.plot([a[0] for a in A],
             [a[1] for a in A],
             [a[2] for a in A],
@@ -28,27 +29,44 @@ def plot_3d(data):
             [b[2] for b in B],
             'o', markersize=8, color='red', alpha=0.5, label='B')
 
-    plt.title('Samples for class 1 and class 2')
-    ax.legend(loc='upper right')
+    # Add a legend.
+    plt.legend()
+
+    # Set text.
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+    if title: plt.title(title)
+
     plt.show()
     plt.close()
 
-def plot_2d(data):
+def plot_2d(data, title=""):
     A = list(filter(lambda x: x[2] == "A", data))
     B = list(filter(lambda x: x[2] == "B", data))
 
-    plt.plot([a[0] for a in A],
-             [a[1] for a in A],
-             'o', markersize=8, color='blue', alpha=0.5, label='A')
-    plt.plot([b[0] for b in B],
-             [b[1] for b in B],
-             'o', markersize=8, color='red', alpha=0.5, label='B')
-    plt.xlabel('x_values')
-    plt.ylabel('y_values')
+    # Create plot.
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    # Plot classes.
+    ax.plot([a[0] for a in A],
+            [a[1] for a in A],
+            'o', markersize=8, color='blue', alpha=0.5, label='A')
+    ax.plot([b[0] for b in B],
+            [b[1] for b in B],
+            'o', markersize=8, color='red', alpha=0.5, label='B')
+
+    # Add a legend.
     plt.legend()
-    plt.title('Transformed samples with class labels')
+
+    # Set text.
+    plt.xlabel("e1")
+    plt.ylabel("e2")
+    if title: plt.title(title)
 
     plt.show()
+    plt.close()
 
 # PCA to reduce a d-dimensional data set to a k-dimensional data set:
 #####################################################################
@@ -69,7 +87,7 @@ d = len(X[0]) - 1
 # The reduced dimensionality size.
 k = 2
 
-plot_3d(X)
+plot_3d(X, "Data in original space")
 
 ###
 ### Perform PCA:
@@ -123,7 +141,7 @@ for i in range(n):
         X[i][3]
     ]
 
-plot_2d(X)
+plot_2d(X, "Data in transformed subspace")
 
 print("Mean", mean)
 print("Covariance", covariance)
