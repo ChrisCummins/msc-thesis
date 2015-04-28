@@ -100,7 +100,7 @@ for i in range(d):
         c = 0
         for l in range(n):
             c += X[l][i] * X[l][j]
-        covariance[i][j] = c / (n - 1)
+        covariance[i][j] = c / n
 
 # 4. Compute the eigenvectors and eigenvalues.
 eigen_values, eigen_vectors = np.linalg.eig(covariance)
