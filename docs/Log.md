@@ -5728,6 +5728,30 @@ Questions to answer:
   autotuner improve their performance?
 * How does SkelCL compare against competitors? I.e. SkePU.
 
+Feedback from supervisors:
+
+> Chris gave a clear presentation on the progress of his project. He
+> covered the project goals, their current status, preliminary
+> results, and his plans for achieving the remaining goals. All
+> supervisors agree that his progress is satisfactory and that he has
+> a clear plan about what needs to be done in the next 4 months. The
+> supervisors recommend to Chris that he expands his autotuning system
+> so that it covers more parameters. Using synthetic benchmarks for
+> developing and training his autotuner is an excellent idea. The
+> supervising team thinks that Chris could dedicate a part of his
+> thesis to evaluate the usefulness of synthetic benchmarks for
+> learning. Beyond synthetic benchmarks, the evaluation part should
+> also use real applications to test the effectiveness of
+> autotuning. He should contact Thibaut Lutz to discuss with him about
+> such applications. Evaluation should also incorporate comparisons
+> with other skeleton frameworks targeted at GPUs. The supervising
+> team believes that Chris should provide in his thesis a more
+> complete discussion of autotuning parameters, including also
+> parameters which don't affect significantly the performance of the
+> application or which affect it in a consistent or easily predictable
+> manner. Finally, his thesis should show that he has awareness of
+> other stencil tuning work, particularly the "PATUS" framework.
+
 
 ## Monday 27th
 
@@ -5760,3 +5784,140 @@ Notes from meeting with Michel:
 * Michel is very keen to integrate autotuning into SkelCL. I should
   meet with him again soon to discuss how we could go about this, as
   it will heavily influence the implementation.
+
+
+## Tuesday 28th
+
+Some of the simplifications made for the `e14` autotuning experiment:
+* The autotuner selects only one of 9 possible work group sizes.
+* Only two types of kernel are considered (simple or complex).
+* There's no feature extraction from input kernels: they are
+  explicitly labelled simple or complex.
+* There's no feature extraction from hardware: devices are identified
+  by hostname, and device type + count.
+* The autotuner is trained using synthetic benchmarks, but not
+  validated on real programs.
+* I selected the best performing of three different classifiers:
+  decision tree, Naive Bayes, and SMV. I don't understand what causes
+  the difference in classification accuracy.
+
+Notes on debugging the missing Nvidia driver problem in `whz5`:
+* The problem: `FATAL: Module nvidia not found.` when trying to run an
+  OpenCL application.
+* The cause: there's no `nvidia.ko` file:
+```
+$ find /lib/modules/`uname -r`/kernel/ -type f | grep nvidia
+/lib/modules/3.7.10-1.45-desktop/kernel/drivers/video/nvidia/nvidiafb.ko
+/lib/modules/3.7.10-1.45-desktop/kernel/drivers/net/ethernet/nvidia/forcedeth.ko
+```
+
+On tim:
+
+```
+$ find /lib/modules/`uname -r`/kernel/ -type f | grep nvidia
+/lib/modules/3.7.10-1.40-desktop/kernel/drivers/net/ethernet/nvidia/forcedeth.ko
+/lib/modules/3.7.10-1.40-desktop/kernel/drivers/video/nvidia/nvidiafb.ko
+/lib/modules/3.7.10-1.40-desktop/kernel/drivers/video/nvidia.ko
+```
+
+* Following the CArD wiki nvidia installations.
+* Skipping the step about blacklisting nouveau, as there is already a
+  file containing this rule:
+  `/etc/modprobe.d/nvidia-installer-disable-nouveau.conf`.
+* Checking OpenSUSE version: 12.3 Dartmouth (`/etc/os-release`).
+* Downloading NVIDIA's OpenSUSE 13.2 Linuz x86 network installer RPM:
+  `http://developer.download.nvidia.com/compute/cuda/repos/opensuse132/x86_64/cuda-repo-opensuse132-7.0-28.x86_64.rpm`
+* Installing driver:
+
+```
+$ sudo rpm -i cuda-repo-opensuse132-7.0-28.x86_64.rpm
+warning: cuda-repo-opensuse132-7.0-28.x86_64.rpm: Header V3 DSA/SHA1 Signature, key ID 5c37d3be: NOKEY
+```
+
+* Package is now installed:
+
+```
+$ sudo rpm -q cuda-repo-opensuse132
+cuda-repo-opensuse132-7.0-28.x86_64
+```
+
+```
+# Adding NVIDIA repo:
+$ sudo zypper ar -f ftp://download.nvidia.com/opensuse/13.2/ nvidia
+Repository 'nvidia' successfully added
+Enabled: Yes
+Autorefresh: Yes
+GPG check: Yes
+URI: ftp://download.nvidia.com/opensuse/13.2/
+
+# Checking NVIDIA device:
+$ sudo /sbin/lspci | grep VGA
+04:00.0 VGA compatible controller: NVIDIA Corporation Device 1005 (rev a1)
+
+# Installing NVIDIA package:
+sudo zypper install x11-video-nvidiaG03
+
+New repository or package signing key received:
+Key ID: D88C3D385C37D3BE
+Key Name: cudatools <cudatools@nvidia.com>
+Key Fingerprint: 889BEE522DA690103C4B085ED88C3D385C37D3BE
+Key Created: Fri 12 Apr 2013 22:10:59 BST
+Key Expires: (does not expire)
+Repository: cuda
+
+Do you want to reject the key, trust temporarily, or trust always? [r/t/a/? shows all options] (r): t
+Building repository 'cuda' cache ...................................................................[done]
+Retrieving repository 'nvidia' metadata ---------------------------------------------------------------[|]
+
+New repository or package signing key received:
+Key ID: F5113243C66B6EAE
+Key Name: NVIDIA Corporation <linux-bugs@nvidia.com>
+Key Fingerprint: 9B763D49D8A5C892FC178BACF5113243C66B6EAE
+Key Created: Thu 15 Jun 2006 17:13:18 BST
+Key Expires: (does not expire)
+Repository: nvidia
+
+Do you want to reject the key, trust temporarily, or trust always? [r/t/a/? shows all options] (r): t
+Retrieving repository 'nvidia' metadata ............................................................[done]
+Building repository 'nvidia' cache .................................................................[done]
+Loading repository data...
+Warning: Repository 'openSUSE-12.3-Update' appears to be outdated. Consider using a different mirror or server.
+Reading installed packages...
+Resolving package dependencies...
+
+The following NEW packages are going to be installed:
+  cuda-drivers gpu-deployment-kit kernel-default-devel libXext6-32bit nvidia-computeG03
+  nvidia-gfxG03-kmp-default nvidia-glG03 nvidia-uvm-gfxG03-kmp-default x11-video-nvidiaG03
+
+9 new packages to install.
+Overall download size: 106.6 MiB. After the operation, additional 356.5 MiB will be used.
+Continue? [y/n/? shows all options] (y): y
+<snip>
+```
+
+* Rebooted.
+* Retried `clinfo`. It still fails, but with a different error:
+
+```
+FATAL: Module nvidia not found.
+FATAL: Module nvidia_uvm not found.
+mknod: missing operand after '0'
+Try 'mknod --help' for more information.
+
+# Installing additional package listed on CArD wiki:
+$ sudo zypper install nvidia-uvm-gfxG03-kmp-desktop
+Loading repository data...
+Warning: Repository 'openSUSE-12.3-Update' appears to be outdated. Consider using a different mirror or server.
+Reading installed packages...
+Resolving package dependencies...
+
+The following NEW packages are going to be installed:
+  nvidia-gfxG03-kmp-desktop nvidia-uvm-gfxG03-kmp-desktop
+
+2 new packages to install.
+Overall download size: 8.7 MiB. After the operation, additional 42.7 MiB will be used.
+Continue? [y/n/? shows all options] (y): y
+```
+
+* Rebooted.
+* Hooray! Now `clinfo` works.
