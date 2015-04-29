@@ -5921,3 +5921,37 @@ Continue? [y/n/? shows all options] (y): y
 
 * Rebooted.
 * Hooray! Now `clinfo` works.
+
+
+## Wednesday 29th
+
+Testing classifier performance with different feature sets:
+
+```
+# J48 performance with HOST_ATTR
+Correctly Classified Instances         130               74.2857 %
+Incorrectly Classified Instances        45               25.7143 %
+
+# J48 performance with HOST_ATTR and DEV_ATTR
+Correctly Classified Instances         131               74.8571 %
+Incorrectly Classified Instances        44               25.1429 %
+
+# J48 performance with HOST_ATTR and DEV_ATTR, without hostname
+Correctly Classified Instances         131               74.8571 %
+Incorrectly Classified Instances        44               25.1429 %
+
+# J48 performance with DEV_ATTR, without hostname
+Correctly Classified Instances         131               74.8571 %
+Incorrectly Classified Instances        44               25.1429 %
+
+# J48 performance without *any* host features
+Correctly Classified Instances          89               50.8571 %
+Incorrectly Classified Instances        86               49.1429 %
+
+# J48 performance without *only* dev_count
+Correctly Classified Instances          79               45.1429 %
+Incorrectly Classified Instances        96               54.8571 %
+```
+
+I should add a derived `cout` which describes the OpenCL devices which
+were used in a particular testcase.
