@@ -1,6 +1,7 @@
 # skelcl.py - SkelCL benchmarking extensions.
 #
 from __future__ import print_function
+from json import load
 from re import search
 from subprocess import check_output
 
@@ -15,6 +16,9 @@ SKELCL_BUILD = path(SKELCL, 'build')
 
 DATA = path(CWD, 'data')
 IMG = path(DATA, 'img')
+
+# Load hardware description file.
+HW_INFO = load(open("hw.json"), "utf-8")
 
 # Get the current SkelCL git version.
 def skelcl_version():
@@ -633,3 +637,34 @@ class SkeletonEventTimingsSampler(MinimumVarianceSampler):
         e = [self.mean(x) for x in e]
 
         return e
+
+# Accepts a list of platforms and returns two lists of devices based
+# on whether they are a CPU or GPU.
+def group_devices_by_type(platforms):
+    cpu, gpu = [], []
+
+    for platform in platforms:
+        for device in platforms[platform]:
+            # Determine whether the device is a CPU or GPU
+            if device["device type"] == "cl_device_type_cpu":
+                cpu.append(device)
+            else:
+                gpu.append(device)
+
+    return cpu, gpu
+
+# Return a description of the execution hardware for a given set of
+# invars.
+def get_hw_info(invars):
+    hostname = lookup1(invars, Hostname).val
+    cpu, gpu = group_devices_by_type(HW_INFO[hostname]["platforms"])
+
+    # Determine the device info based on whether a CPU or GPU was used
+    # for execution.
+    deviceTypeArg = lookup1(invars, DeviceTypeArg).val
+    is_cpu = search("CPU", deviceTypeArg)
+
+    return {
+        "host": HW_INFO[hostname]["host"],
+        "device": cpu[0] if is_cpu else gpu[0]
+    }
