@@ -8,6 +8,7 @@
 
 % Lit Review:
 
+\section{Heterogeneous Parallelism}
 
 \note{OPTIMISING PROGRAMS FOR GPUs}
 
@@ -50,53 +51,6 @@ were optimised and hand-tuned by programmers with expert knowledge of
 the target architectures. It is unclear whether their performance
 results still hold for subsequent generations of devices.
 
-
-%%%%%%%%%%
-% TIER 3 %
-%%%%%%%%%%
-
-\note{ALGORITHMIC SKELETONS}
-
-% Cole, M. I. (1989). Algorithmic Skeletons: Structured Management of
-% Parallel Computation. Pitman London. Retrieved from
-% http://homepages.inf.ed.ac.uk/mic/Pubs/skeletonbook.pdf
-\TODO{\cite{Cole1989}}
-
-% Cole, M. I. (2004). Bringing skeletons out of the closet: a
-% pragmatic manifesto for skeletal parallel programming. Parallel
-% Computing, 30(3), 389–406. doi:10.1016/j.parco.2003.12.002
-\TODO{\cite{Cole2004}}
-
-% Striegnitz, J. (2000). Making C ++ Ready for Algorithmic Skeletons
-% (Vol. 2000). Retrieved from http://www.fz-juelich.de/zam/FACT
-\TODO{\cite{Striegnitz2000}}
-
-% Jeffrey, O., & David, M. (2003). The Vision of Autonomic
-% Computing. Computer, 36(1), 41–50.
-\TODO{\cite{Jeffrey2003}}
-
-% Contreras, G., & Martonosi, M. (2008). Characterizing and improving
-% the performance of Intel Threading Building Blocks. In Workload
-% Characterization, 2008. IISWC 2008. IEEE International Symposium on
-% (pp. 57–66). IEEE. doi:10.1109/IISWC.2008.4636091
-\TODO{INTEL TBB \cite{Contreras2008}}
-
-
-% J. Bilmes, K. Asanovic, C.-W. Chin, and J. Demmel, “Optimizing
-% Matrix Multiply Using PHiPAC: A Portable, High-performance, ANSI C
-% Coding Methodology,” in Proceedings of the 11th International
-% Conference on Supercomputing, 1997, pp. 340–347.
-\TODO{Guidelines for optimising, using an automatic code generator and
-a search engine to optimise parameters: \cite{Bilmes1997}}
-
-
-% O. Jeffrey and M. David, “The Vision of Autonomic Computing,”
-%Computer (Long. Beach. Calif)., vol. 36, no. 1, pp. 41–50, 2003.
-\TODO{The ideal vision of self-governing agents in complex
-environments. We can draw a parallel to the use of self-optimizing
-agents: \cite{Jeffrey2003}}
-
-
 % S. Ryoo, C. I. Rodrigues, S. S. Stone, S. S. Baghsorkhi, S.-Z. Ueng,
 % J. a. Stratton, and W. W. Hwu, “Program optimization space pruning
 % for a multithreaded GPU,” in Proceedings of the 6th annual IEEE/ACM
@@ -104,7 +58,6 @@ agents: \cite{Jeffrey2003}}
 % pp. 195–204.
 \TODO{Background info about optimizing for GPUs, including a checklist
 of optimization metrics: \cite{Ryoo2008}}
-
 
 \note{SUPEROPTIMIZERS}
 
@@ -136,9 +89,38 @@ enumerating instruction set search space: \cite{Massalin1987}}
 \cite{Bitirgen2008}}
 
 
-%%%%%%%%%%
-% TIER 2 %
-%%%%%%%%%%
+\section{Algorithmic Skeletons}
+
+% Cole, M. I. (1989). Algorithmic Skeletons: Structured Management of
+% Parallel Computation. Pitman London. Retrieved from
+% http://homepages.inf.ed.ac.uk/mic/Pubs/skeletonbook.pdf
+\TODO{\cite{Cole1989}}
+
+% Cole, M. I. (2004). Bringing skeletons out of the closet: a
+% pragmatic manifesto for skeletal parallel programming. Parallel
+% Computing, 30(3), 389–406. doi:10.1016/j.parco.2003.12.002
+\TODO{\cite{Cole2004}}
+
+% Striegnitz, J. (2000). Making C ++ Ready for Algorithmic Skeletons
+% (Vol. 2000). Retrieved from http://www.fz-juelich.de/zam/FACT
+\TODO{\cite{Striegnitz2000}}
+
+\subsubsection{SkePU}
+
+% Enmyren, J., & Kessler, C. (2010). SkePU: a multi-backend skeleton
+% programming library for multi-GPU systems. In Proceedings of the
+% fourth international workshop on High-level parallel programming and
+% applications (pp. 5–14). ACM. Retrieved from
+% http://dl.acm.org/citation.cfm?id=1863487
+\TODO{\cite{Enmyren2010}}
+
+\section{Autotuning}
+
+% O. Jeffrey and M. David, “The Vision of Autonomic Computing,”
+%Computer (Long. Beach. Calif)., vol. 36, no. 1, pp. 41–50, 2003.
+\TODO{The ideal vision of self-governing agents in complex
+environments. We can draw a parallel to the use of self-optimizing
+agents: \cite{Jeffrey2003}}
 
 % Ryoo, S., Rodrigues, C. I., Stone, S. S., Baghsorkhi, S. S., Ueng,
 % S.-Z., Stratton, J. a., & Hwu, W. W. (2008). Program optimization
@@ -155,6 +137,13 @@ enumerating instruction set search space: \cite{Massalin1987}}
 \TODO{Offline ML for partitioning streaming applications:
 \cite{Wang2010}}
 
+% J. Bilmes, K. Asanovic, C.-W. Chin, and J. Demmel, “Optimizing
+% Matrix Multiply Using PHiPAC: A Portable, High-performance, ANSI C
+% Coding Methodology,” in Proceedings of the 11th International
+% Conference on Supercomputing, 1997, pp. 340–347.
+\TODO{Guidelines for optimising, using an automatic code generator and
+a search engine to optimise parameters: \cite{Bilmes1997}}
+
 \note{ONLINE AUTOTUNING}
 
 % Ansel, J., & Reilly, U. O. (2012). SiblingRivalry: Online Autotuning
@@ -163,30 +152,7 @@ enumerating instruction set search space: \cite{Massalin1987}}
 % Systems (pp. 91–100). ACM. doi:10.1145/2380403.2380425
 \TODO{\cite{Ansel2012}}
 
-
-\note{SKEPU}
-
-
-% Enmyren, J., & Kessler, C. (2010). SkePU: a multi-backend skeleton
-% programming library for multi-GPU systems. In Proceedings of the
-% fourth international workshop on High-level parallel programming and
-% applications (pp. 5–14). ACM. Retrieved from
-% http://dl.acm.org/citation.cfm?id=1863487
-\TODO{\cite{Enmyren2010}}
-
-% Dastgeer, U., Enmyren, J., & Kessler, C. W. (2011). Auto-tuning
-% SkePU: a multi-backend skeleton programming framework for multi-GPU
-% systems. In Proceedings of the 4th International Workshop on
-% Multicore Software Engineering (pp. 25–32). ACM. Retrieved from
-% http://dl.acm.org/citation.cfm?id=1984697
-\citeauthor{Dastgeer2011} developed a machine learning based autotuner
-for the SkePU skeleton library in~\cite{Dastgeer2011}. Training data
-is used to select the optimal backend (i.e.\ CPU, GPU) for a given
-program by estimating execution time and memory copy overhead based on
-problem size. There is limited cross-architecture evaluation, and the
-autotuner only supports vector operations.
-
-
+\subsubsection{PETABRICKS}
 \note{PETABRICKS}
 
 % Ansel, J. (2009). PetaBricks: a language and compiler for
@@ -207,13 +173,29 @@ autotuner only supports vector operations.
 % Choice. Massachusetts Institute of Technology.
 \TODO{\cite{Ansel2014}}
 
+\subsection{Autotuning Algorithmic Skeletons}
 
-%%%%%%%%%%
-% TIER 1 %
-%%%%%%%%%%
+% Contreras, G., & Martonosi, M. (2008). Characterizing and improving
+% the performance of Intel Threading Building Blocks. In Workload
+% Characterization, 2008. IISWC 2008. IEEE International Symposium on
+% (pp. 57–66). IEEE. doi:10.1109/IISWC.2008.4636091
+\TODO{INTEL TBB \cite{Contreras2008}}
 
-\note{MASIF}
+\subsubsection{SkePU}
 
+% Dastgeer, U., Enmyren, J., & Kessler, C. W. (2011). Auto-tuning
+% SkePU: a multi-backend skeleton programming framework for multi-GPU
+% systems. In Proceedings of the 4th International Workshop on
+% Multicore Software Engineering (pp. 25–32). ACM. Retrieved from
+% http://dl.acm.org/citation.cfm?id=1984697
+\citeauthor{Dastgeer2011} developed a machine learning based autotuner
+for the SkePU skeleton library in~\cite{Dastgeer2011}. Training data
+is used to select the optimal backend (i.e.\ CPU, GPU) for a given
+program by estimating execution time and memory copy overhead based on
+problem size. There is limited cross-architecture evaluation, and the
+autotuner only supports vector operations.
+
+\subsubsection{MaSiF}
 
 % Collins, A., Fensch, C., & Leather, H. (2012). Auto-Tuning Parallel
 % Skeletons. Parallel Processing Letters, 22(02),
@@ -227,7 +209,18 @@ autotuner only supports vector operations.
 \TODO{\cite{Collins2013}}
 
 
-\note{AUTOTUNING on GPUs}
+\subsection{Autotuning Stencil Codes}
+
+\subsubsection{PATUS}
+
+% Christen, M., Schenk, O., & Burkhart, H. (2011). PATUS: A Code
+% Generation and Autotuning Framework for Parallel Iterative Stencil
+% Computations on Modern Microarchitectures. In Parallel & Distributed
+% Processing Symposium (IPDPS), 2011 IEEE International
+% (pp. 676–687). IEEE. doi:10.1109/IPDPS.2011.70
+\cite{Christen2011}
+
+\subsubsection{PARTANS}
 
 % T. Lutz, C. Fensch, and M. Cole, “PARTANS: An Autotuning Framework
 % for Stencil Computation on Multi-GPU Systems,” ACM
