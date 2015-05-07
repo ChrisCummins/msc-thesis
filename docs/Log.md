@@ -5955,3 +5955,57 @@ Incorrectly Classified Instances        96               54.8571 %
 
 I should add a derived `cout` which describes the OpenCL devices which
 were used in a particular testcase.
+
+
+# May 2015
+
+## Monday 7th
+
+**Multigrid methods:** a group of algorithms used for solving
+  differential equations. E.g. smoothing, restriction, interpolation.
+
+**Simplex:** a generalisation of a triangle to arbitrary
+  dimensions. The *k-simplex* is a k-dimensional polytope which is the
+  convex hull of it's k+1 vertices. It is the smallest convex set
+  containing the given vertices. E.g. a 2-simplex is a triangle.
+
+**Nelder-Mead method, or downhill simplex method:** a numerical method
+  used to find the minimum or maximum of an objective function in a
+  high-dimensional space. In *n* dimensions, it maintains a set of
+  *n+1* test points arranged as a simplex. It then extrapolates the
+  behaviour of the objective function measured at each test point, in
+  order to find a new test point and to replace of the old test points
+  with the new one. The simplest approach is to replace the worst
+  point with a point reflected through the centroid of the remaining
+  *n* points.
+
+Detailed notes of first read of PATUS:
+
+* PATUS consists of a DSL for expressing stencil codes, a C code
+  generator, and an autotuner for exploring the optimisation space,
+  using blocking and vectorisation strategies.
+* Pro: Supports arbitrarily high dimensional grids.
+* They introduce *2* new DSLs without comment on why they were
+  needed. This is a huge price of entry for anyone who actually wants
+  to *use* PATUS to solve problems, and a decision that I think they
+  could have justified better.
+* They provide nice and concise explanations of stencil codes and the
+  types of optimisation methods used by other autotuners (ATLAS,
+  FLAME, FFTW, SPIRAL). However, they *barely* explain their own,
+  saying only that they perform *either* an exhaustive, multi-run
+  Powell, Nelder Mead, or evolutionary algorithms.
+* Their evaluation uses 6 benchmarks, and 3 architectures. Only 1 of
+  those is a GPU. It would have been nice to shown performance across
+  GPU architectures.
+* From the perspective of autotuning, the paper comes as across quite
+  weak:
+  * They do not present an "oracle" performance, so we can't compare
+    the quality of their autotuner compared to it.
+  * They don't show how the optimal tunable parameter values vary
+    across results, so they don't demonstrate how autotuning is
+    *necessary* (maybe there's one single value which works well for
+    all results?).
+  * They do not give any indication of convergence time of their
+    autotuner.
+  * They do not report the number of different combinations that their
+    autotuner tries.
