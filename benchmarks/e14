@@ -40,6 +40,21 @@ class BorderSize(SimpleBigKnob):
 jobdesc =  {
     "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
     "benchmarks": {
+        # Real benchmark
+        "CannyEdgeDetection": { "args": {} },
+        "FDTD": { "args": {} },
+        "GaussianBlur": { "args": {} },
+        "GameOfLife": {
+            "args": {
+                "Size": ["--size {s}".format(s=s) for s in [1024]]
+            }
+        },
+        "HeatEquation": {
+            "args": {
+                "Size": ["--size {s}".format(s=s) for s in [1024]]
+            }
+        },
+        # Synthetic benchmark
         "SimpleBig": {
             "args": {
                 "Size": ["-w {w} -h {h}".format(w=x[0], h=x[1]) for x in [
@@ -86,12 +101,37 @@ def knobvaluesarelegal(host, devargs, knobs):
     # hardware enforced maximum.
     return hardwareMaxWorkGroupSize >= workgroupsize
 
+# For "Real" programs (i.e. not the SimpleBig benchmark), the
+# BorderSize knob is a fixed value.
+def set_border_size(benchmark, knobs):
+    def get_border_size(benchmark, border):
+        if benchmark == "SimpleBig":
+            return border
+        elif benchmark == "CannyEdgeDetection":
+            return [5, 5, 5, 5]
+        elif benchmark == "FDTD":
+            return [1, 1, 1, 1]
+        elif benchmark == "GaussianBlur":
+            return [5, 5, 5, 5]
+        elif benchmark == "GameOfLife":
+            return [1, 1, 1, 1]
+        elif benchmark == "HeatEquation":
+            return [1, 1, 1, 1]
+        else:
+            print("Unrecognised benchmark '{0}'!".format(benchmark))
+
+    border = lookup1(knobs, BorderSize)
+    border.val = get_border_size(benchmark.name, border.val)
+
+
 def instantiate(host, benchmark, args, knobs):
     sampler = SkeletonEventTimingsSampler()
     harnesses = []
 
     for devargs in host.devargs():
         if knobvaluesarelegal(host, devargs, knobs):
+            set_border_size(benchmark, knobs)
+
             c = SkelCLTestCase(benchmark, host=host,
                                invars=knobs + args + devargs)
             harnesses.append(TestHarness(c, sampler))
