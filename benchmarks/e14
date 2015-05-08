@@ -7,8 +7,13 @@ from __future__ import print_function
 from copy import copy
 from itertools import product
 from operator import mul
+from os import remove
 from re import sub
 from sys import stdout
+
+import os
+
+# Benchlib imports.
 
 from benchlib import *
 from skelcl import *
@@ -736,6 +741,10 @@ def tableBestSpeedupsForKernel(harnesses, path):
     numDistinctKernVals = []
 
     numRows = len(wgs)
+    if not numRows:
+        print("warning: skipping '{0}' because of no data.".format(path))
+        remove(path)
+        return
     numCols = len(wgs[0])
 
     # Count the number of distint best values (row-wise)
@@ -801,11 +810,17 @@ def tableBestSpeedupsForKernel(harnesses, path):
 for harness in HARNESSES:
     harness.result().couts.add(getspeedup(harness.result().invars))
 
-# Create a .arff dataset file.
-createArff(HARNESSES)
+training_harnesses = list(filter(lambda x: lookup1(x.testcase.invars, BenchmarkName).val == "SimpleBig", HARNESSES))
+testing_harnesses  = list(filter(lambda x: lookup1(x.testcase.invars, BenchmarkName).val != "SimpleBig", HARNESSES))
 
-harnesses_1024 = filterHarnessesByInvarVal(HARNESSES, "Size", "-w 1024 -h 1024")
-harnesses_2048 = filterHarnessesByInvarVal(HARNESSES, "Size", "-w 2048 -h 2048")
+print("Number of training instances... {0}".format(len(training_harnesses)))
+print("Number of testing instances... {0}".format(len(testing_harnesses)))
+
+# Create a .arff dataset file.
+createArff(training_harnesses)
+
+harnesses_1024 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 1024 -h 1024")
+harnesses_2048 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 2048 -h 2048")
 
 tableBestSpeedupsForKernel(harnesses_1024, path(config.RESULTS, config.ID,
                                                 "bestSpeedupsForKernel-1024.tex"))
@@ -813,7 +828,7 @@ tableBestSpeedupsForKernel(harnesses_2048, path(config.RESULTS, config.ID,
                                                 "bestSpeedupsForKernel-2048.tex"))
 
 # Group harnesses by Host/Device properties.
-deviceGrouped = groupByInvars(HARNESSES, Hostname, DeviceTypeArg,
+deviceGrouped = groupByInvars(training_harnesses, Hostname, DeviceTypeArg,
                               DeviceCountArg, "Size").values()
 
 # Iterate over groups.
@@ -837,6 +852,6 @@ for deviceGroup in deviceGrouped:
     [plotSpeedupsForDeviceAndKernel(x) for x in kGrouped]
 
 # Graph event times.
-[plt.openCLEventTimes(x.testcase.invars) for x in HARNESSES]
+[plt.openCLEventTimes(x.testcase.invars) for x in training_harnesses]
 
 exit(0)
