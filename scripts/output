@@ -1,48 +1,66 @@
-host_nproc <= 4
-|   host_freq <= 3000000
-|   |   BorderNorth <= 20
-|   |   |   BorderWest <= 10
-|   |   |   |   DataWidth <= 1024
-|   |   |   |   |   Complexity = 0: 64x32 (4.0)
-|   |   |   |   |   Complexity = 1
-|   |   |   |   |   |   BorderNorth <= 5: 64x32 (2.0/1.0)
-|   |   |   |   |   |   BorderNorth > 5: 32x32 (2.0)
-|   |   |   |   DataWidth > 1024
-|   |   |   |   |   BorderNorth <= 10: 64x64 (6.0/1.0)
-|   |   |   |   |   BorderNorth > 10: 32x64 (2.0)
-|   |   |   BorderWest > 10
+dev_max_number_of_images_read_arguments <= 128
+|   dev_denorms = 1
+|   |   host_freq <= 3401000
+|   |   |   BorderEast <= 10: 64x4 (34.0/5.0)
+|   |   |   BorderEast > 10
+|   |   |   |   Complexity = 1: 32x32 (13.0)
+|   |   |   |   Complexity = 0
+|   |   |   |   |   BorderNorth <= 20: 64x4 (4.0)
+|   |   |   |   |   BorderNorth > 20: 32x32 (4.0)
+|   |   host_freq > 3401000
+|   |   |   BorderNorth <= 10
+|   |   |   |   DataWidth <= 1024: 64x16 (3.0/1.0)
+|   |   |   |   DataWidth > 1024: 32x32 (3.0)
+|   |   |   BorderNorth > 10: 4x64 (6.0/2.0)
+|   dev_denorms = 0
+|   |   BorderEast <= 5: 64x4 (8.0/3.0)
+|   |   BorderEast > 5
+|   |   |   DataWidth <= 1024: 16x16 (10.0/2.0)
+|   |   |   DataWidth > 1024
+|   |   |   |   Complexity = 1: 16x16 (5.0/1.0)
+|   |   |   |   Complexity = 0: 64x4 (5.0)
+dev_max_number_of_images_read_arguments > 128
+|   BorderSouth <= 10
+|   |   host_freq <= 3000000
+|   |   |   DataWidth <= 1024: 64x16 (6.0/3.0)
+|   |   |   DataWidth > 1024: 64x64 (6.0/1.0)
+|   |   host_freq > 3000000
+|   |   |   BorderNorth <= 1: 64x4 (8.0)
+|   |   |   BorderNorth > 1
+|   |   |   |   BorderNorth <= 5
+|   |   |   |   |   host_freq <= 3401000
+|   |   |   |   |   |   Complexity = 1: 16x16 (2.0)
+|   |   |   |   |   |   Complexity = 0: 64x4 (2.0)
+|   |   |   |   |   host_freq > 3401000
+|   |   |   |   |   |   Complexity = 1: 16x32 (2.0/1.0)
+|   |   |   |   |   |   Complexity = 0: 64x16 (2.0)
+|   |   |   |   BorderNorth > 5: 64x16 (8.0/1.0)
+|   BorderSouth > 10
+|   |   host_freq <= 3000000
+|   |   |   BorderNorth <= 20
+|   |   |   |   Complexity = 1: 32x64 (6.0/1.0)
 |   |   |   |   Complexity = 0
 |   |   |   |   |   BorderNorth <= 10: 4x64 (2.0)
-|   |   |   |   |   BorderNorth > 10: 4x32 (2.0)
-|   |   |   |   Complexity = 1: 32x64 (4.0)
-|   |   BorderNorth > 20: 64x4 (4.0)
-|   host_freq > 3000000
-|   |   BorderEast <= 1: 64x4 (4.0)
-|   |   BorderEast > 1
-|   |   |   BorderEast <= 20
-|   |   |   |   BorderNorth <= 1
-|   |   |   |   |   Complexity = 0: 16x32 (2.0)
-|   |   |   |   |   Complexity = 1: 16x4 (2.0)
-|   |   |   |   BorderNorth > 1
-|   |   |   |   |   BorderNorth <= 10: 64x16 (8.0/3.0)
 |   |   |   |   |   BorderNorth > 10
-|   |   |   |   |   |   BorderEast <= 10: 32x64 (4.0/1.0)
-|   |   |   |   |   |   BorderEast > 10
-|   |   |   |   |   |   |   Complexity = 0: 16x16 (2.0/1.0)
+|   |   |   |   |   |   BorderEast <= 10: 64x32 (2.0/1.0)
+|   |   |   |   |   |   BorderEast > 10: 4x32 (2.0)
+|   |   |   BorderNorth > 20
+|   |   |   |   DataWidth <= 1024: 16x32 (2.0/1.0)
+|   |   |   |   DataWidth > 1024: 64x4 (2.0)
+|   |   host_freq > 3000000
+|   |   |   BorderNorth <= 10
+|   |   |   |   Complexity = 1: 16x4 (2.0)
+|   |   |   |   Complexity = 0: 16x32 (2.0)
+|   |   |   BorderNorth > 10
+|   |   |   |   BorderEast <= 10
+|   |   |   |   |   host_freq <= 3401000: 32x16 (4.0)
+|   |   |   |   |   host_freq > 3401000: 32x64 (4.0/1.0)
+|   |   |   |   BorderEast > 10
+|   |   |   |   |   host_freq <= 3401000
+|   |   |   |   |   |   BorderNorth <= 20: 32x16 (4.0/1.0)
+|   |   |   |   |   |   BorderNorth > 20: 64x16 (4.0)
+|   |   |   |   |   host_freq > 3401000
+|   |   |   |   |   |   BorderNorth <= 20
 |   |   |   |   |   |   |   Complexity = 1: 64x16 (2.0)
-|   |   |   BorderEast > 20: 32x16 (4.0/1.0)
-host_nproc > 4
-|   dev_address_bits <= 32
-|   |   BorderEast <= 10: 64x4 (70.0/14.0)
-|   |   BorderEast > 10
-|   |   |   host_freq <= 3401000
-|   |   |   |   Complexity = 0
-|   |   |   |   |   BorderNorth <= 20
-|   |   |   |   |   |   host_mem <= 8158500: 64x4 (4.0)
-|   |   |   |   |   |   host_mem > 8158500: 32x32 (2.0)
-|   |   |   |   |   BorderNorth > 20: 32x32 (6.0)
-|   |   |   |   Complexity = 1: 32x32 (17.0)
-|   |   |   host_freq > 3401000: 64x4 (8.0)
-|   dev_address_bits > 32
-|   |   BorderEast <= 10: 32x32 (8.0/1.0)
-|   |   BorderEast > 10: 4x64 (4.0)
+|   |   |   |   |   |   |   Complexity = 0: 16x16 (2.0/1.0)
+|   |   |   |   |   |   BorderNorth > 20: 32x16 (4.0/1.0)
