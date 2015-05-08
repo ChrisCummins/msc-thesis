@@ -309,6 +309,29 @@ autotuner only supports vector operations.
 
 \subsection{Autotuning Stencil Codes}
 
+\TODO{In~\cite{Ganapathi2009}, \citeauthor{Ganapathi2009} argues for
+  applying statistical machine learning (SML) techniques to develop
+  autotuners for multicore software. They present an autotuner for
+  Stencil codes which can achieve performance within 1\% or up to 18\%
+  better than that of a human expert after 2 hours of running. They
+  evaluate the performance of a randomly selected 1500 configurations
+  (from a posible 10 million configs), and use Kernel Canonical
+  Correlation Analysis (KCCA) to build correlations between tunable
+  parameter values and measured performance values. Performance is
+  measured using hardware counters (L1 cache misses, TLB misses,
+  cycles per thread) and power consumtion in Watts/sec. KCCA seems
+  like a strange choice: it scales exponentially with the feature
+  vector sizes, and it takes 2 hours (!!!) to build the ML model for
+  400 sec worth of benchmark data. They present an interesting
+  argument that enegy efficiency should be used as an autotuning
+  target as well as just run time, since it was the power wall that
+  lead to the multicore revolution in the first place. They explain
+  the motivation and results well. I like that they compare their
+  results with human expert and hardware upper bound. It is a solid
+  paper which makes a compelling argument, but their choice of only 2
+  benchmarks and 2 platforms makes the evaluation of their autotuner a
+  little limited. Cited by 52.}
+
 \TODO{Kamil presents an auto-tuning framework which accepts as input a
   Fortran 95 stencil expression, and generates tuned parallel
   implementations in Fortan, C, or CUDA. The system uses an IR to

@@ -6009,3 +6009,93 @@ Detailed notes of first read of PATUS:
     autotuner.
   * They do not report the number of different combinations that their
     autotuner tries.
+
+
+## Friday 8th
+
+Today I'm going to evaluate the performance of the e14 autotuner when
+tested against four *unseen* example programs. For this I need to:
+
+* Modify e14 to separate training and test harnesses.
+* Create separate training and test arff files.
+* Evaluate using Weka.
+* Evaluate classifier performance.
+
+I've been thinking about how to evaluate the performance of the e14
+autotuner. In the literature, the success of autotuners is usually
+compared against either the oracle performance, or a "human
+expert". While comparing against the performance of a human expert is
+nice, it seems too dependent on picking the right expert. It would be
+nice to compare the average performance that can be achieved by
+picking the *best* single work group size, along with combinations of
+different work group sizes. For example, an expert may have two or
+three work group sizes which they know to work well over different
+problems. The method would be:
+
+* For each of the *scenarios* (a combination of device and program and
+  problem size), calculate the relative performance of the 9 different
+  work group sizes.
+* For each of the 9 different work group sizes, calculate the *average*
+  relative performance across all scenarios.
+* Report the *average* performance for the work group size which
+  provides the best speedup across scenarios.
+* Report an *average* of the speedup achieved by using combinations of
+  any two pairs of work group sizes.
+* Report for three, four, five, etc work group sizes. When the number
+  of work group sizes is 9, the performance is 100% of oracle.
+
+**Evaluating the performance of e14:*
+
+```
+On training set:
+
+ORACLE      2.560 MIN 1.000 MAX 10.679
+PREDICTION  2.478 MIN 0.699 MAX 10.679
+Prediction performance is 95.90% of oracle.
+Default values were optimal for 1.71% of cases.
+
+On test set (i.e. all unseen data):
+
+ORACLE      3.325 MIN 1.028 MAX 15.626
+PREDICTION  2.682 MIN 0.000 MAX 11.483
+Prediction performance is 82.38% of oracle.
+Default values were optimal for 0.00% of cases.
+```
+
+NOTE that this has the shortcoming that I've *manually* labelled all
+of the test programs as having complexity 0. This will need to be
+replaced with feature extraction through OpenCL/LLVM.
+
+Notes on e14 performance profiling:
+
+* Profiler output captured using: `python2.7 -m cProfile -s tottime
+  ./e14 > e14.prof`.
+* Regexp functions dominate the total execution time. In particular,
+  calls to `search()`. While each call executes very quickly, there
+  are ~90 million of them, so culling the amount of regexp searching
+  could seriously improve program performance.
+* The second most time consuming functions are the `post()` callbacks
+  on `DerivedVariable` types, especially the `SkeletonEventTimings`,
+  `PrepareTimes`, and `ContainerEventTimes` classes. Since each of
+  those iterate over the entire program output line by line, an
+  optimisation could be made to coalesce those loops.
+
+Notes from meeting with Pavlos:
+* The evaluation of SkelCL against other skeleton libraries could
+  easily be very time consuming. Get a rough estimate of the required
+  time before committing. For the purpose of the thesis, it may be
+  sufficient to just port 1 benchmark.
+* Have there been any follow-up papers about PATUS?
+* I could manually prune the set of OpenCL features. Aim for a small
+  set of features.
+* I should run a small experiment to see if alternate loading strategy
+  is profitable.
+* I should focus on adding *more features*. < 3 isn't enough. OpenCL
+  optimisations would be a good idea.
+
+TODO(Monday):
+* Read through Weka primer. Invoke J48 from the command line.
+* Have a look through PATUS source code. Test a benchmark.
+* Build a *small* experiment to test alternative border loading
+  strategy.
+* Read Google's Python style guide.
