@@ -98,7 +98,11 @@ class Variable:
         return (x.name, x.val)
 
     def __eq__(x, y):
-        return x.__key() == y.__key()
+        try:
+            return x.__key() == y.__key()
+        except AttributeError as e:
+            print("rhs operator of incorrect type:", y)
+            raise e
 
     def __lt__(x, y):
         if x.name == y.name:
