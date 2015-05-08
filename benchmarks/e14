@@ -124,6 +124,7 @@ def set_border_size(benchmark, knobs):
             return [1, 1, 1, 1]
         else:
             print("Unrecognised benchmark '{0}'!".format(benchmark))
+            exit(1)
 
     border = lookup1(knobs, BorderSize)
     border.val = get_border_size(benchmark.name, border.val)
@@ -163,15 +164,6 @@ import plot as plt
 def getworkgroupsize(invars):
     return (lookup1(invars, StencilLocalSizeC),
             lookup1(invars, StencilLocalSizeR))
-
-def getinputsize(invars):
-    size_arg = lookup1(invars, "Size").val
-    width  = search("-w (\d+)", size_arg).group(1)
-    height = search("-h (\d+)", size_arg).group(1)
-    return int(width), int(height)
-
-def getcomplexity(invars):
-    return 1 if lookup1(invars, "Complexity").val else 0
 
 def setworkgroupsize(invars, *newWgSize):
     newinvars = copy(invars)
@@ -271,6 +263,47 @@ def plotSpeedupsForDeviceAndWorkGroup(harnesses):
 
     plt.speedups(Y, **kwargs)
 
+def getinputsize(invars):
+    benchmark = lookup1(invars, BenchmarkName).val
+
+    if benchmark == "SimpleBig":
+        size_arg = lookup1(invars, "Size").val
+        width  = search("-w (\d+)", size_arg).group(1)
+        height = search("-h (\d+)", size_arg).group(1)
+        return int(width), int(height)
+    elif benchmark == "CannyEdgeDetection":
+        return 512, 512
+    elif benchmark == "FDTD":
+        return 1024, 1024
+    elif benchmark == "GaussianBlur":
+        return 512, 512
+    elif benchmark == "GameOfLife":
+        return 1024, 1024
+    elif benchmark == "HeatEquation":
+        return 1024, 1024
+    else:
+        print("Unrecognised benchmark '{0}'!".format(benchmark))
+        exit(1)
+
+def getcomplexity(invars):
+    benchmark = lookup1(invars, BenchmarkName).val
+
+    if benchmark == "SimpleBig":
+        return 1 if lookup1(invars, "Complexity").val else 0
+    elif benchmark == "CannyEdgeDetection":
+        return 0
+    elif benchmark == "FDTD":
+        return 0
+    elif benchmark == "GaussianBlur":
+        return 0
+    elif benchmark == "GameOfLife":
+        return 0
+    elif benchmark == "HeatEquation":
+        return 0
+    else:
+        print("Unrecognised benchmark '{0}'!".format(benchmark))
+        exit(1)
+
 # Plot speedups of work group size and kernel type for a fixed device.
 def plotSpeedupsForDevice(groups):
     # Workgroup sizes
@@ -343,6 +376,24 @@ def plotSpeedupsForDevice(groups):
 
     plt.speedups3d(Y, len(groups[0]), **kwargs)
 
+def get_kernel_string(invars, tex=False):
+    benchmark = lookup1(invars, BenchmarkName).val
+    border = lookup1(invars, BorderSize).val
+    complexity = getcomplexity(invars)
+
+    if benchmark == "SimpleBig":
+        string = "[{0}]".format(",".join([str(x) for x in border]))
+    else:
+        string = benchmark
+
+    if complexity:
+        if tex:
+            string = "\\textbf{" + string + "}"
+        else:
+            string += "c"
+
+    return string
+
 # Plot speedups of work group sizes for each a fixed device and kernel.
 def plotSpeedupsForDeviceAndKernel(harnesses):
     # Workgroup sizes
@@ -357,8 +408,7 @@ def plotSpeedupsForDeviceAndKernel(harnesses):
     border = lookup1(harnesses[0].testcase.invars, BorderSize).val
     complexity = lookup1(harnesses[0].testcase.invars, "Complexity").val
 
-    kernelString = "[{0}]".format(",".join([str(x) for x in border]))
-    if complexity: kernelString += "c"
+    kernelString = get_kernel_string(harnesses[0].testcase.invars)
 
     # Get X,Y cordinate ranges values
     Xvals, Yvals = [], []
@@ -446,19 +496,6 @@ def getBestSpeedupFromHarnesses(harnesses):
 
     return bestWg, bestspeedup
 
-
-def kernelString(invars, tex=False):
-    border = lookup1(invars, BorderSize).val
-    complexity = lookup1(invars, "Complexity").val
-
-    string = "[{0}]".format(",".join([str(x) for x in border]))
-    if complexity:
-        if tex:
-            string = "\\textbf{" + string + "}"
-        else:
-            string += "c"
-
-    return string
 
 def tprint(*args, **kwargs):
     # Characters to escape.
@@ -611,7 +648,7 @@ def hw_info_to_attributes(info, host_attr, dev_attr):
 
     return attributes
 
-def createArff(harnesses, file=stdout):
+def createArff(harnesses, filename, verbose=True):
     # Dataset.
     data = []
     predictions = []
@@ -681,22 +718,23 @@ def createArff(harnesses, file=stdout):
                             diff, ratio))
 
     # Determine the path to the output file.
-    arffPath = path(config.RESULTS, config.ID, "data.arff")
+    arffPath = path(config.RESULTS, config.ID, filename)
 
     # Write the output file.
     mkarff(data, relation="e14", file=mkopen(arffPath, "w"))
 
     # Print predictions.
-    for x in predictions:
-        string = "\t".join([str(y) for y in [
-            x[0], "\t",
-            x[2], "\t",
-            "{0:.4f}".format(x[1]), "\t",
-            "{0:.4f}".format(x[3]), "\t"
-            "{0:.4f}".format(x[4]),
-            "{0:.1f}%".format(x[5])
-        ]])
-        print(string)
+    if verbose:
+        for x in predictions:
+            string = "\t".join([str(y) for y in [
+                x[0], "\t",
+                x[2], "\t",
+                "{0:.4f}".format(x[1]), "\t",
+                "{0:.4f}".format(x[3]), "\t"
+                "{0:.4f}".format(x[4]),
+                "{0:.1f}%".format(x[5])
+            ]])
+            print(string)
 
     averageOracle = sum([x[3] for x in predictions]) / len(predictions)
     averagePrediction = sum([x[1] for x in predictions]) / len(predictions)
@@ -791,7 +829,7 @@ def tableBestSpeedupsForKernel(harnesses, path):
 
     for i in range(len(kGrouped)):
         # Kernel string.
-        kernel = kernelString(kGrouped[i][0].testcase.invars, tex=True)
+        kernel = get_kernel_string(kGrouped[i][0].testcase.invars, tex=True)
 
         tprint(*[kernel] + list(wgs[i]) + [numDistinctKernVals[i]], file=file)
 
@@ -817,7 +855,9 @@ print("Number of training instances... {0}".format(len(training_harnesses)))
 print("Number of testing instances... {0}".format(len(testing_harnesses)))
 
 # Create a .arff dataset file.
-createArff(training_harnesses)
+createArff(HARNESSES,          "data.arff", verbose=False)
+createArff(training_harnesses, "training.arff")
+createArff(testing_harnesses,  "test.arff")
 
 harnesses_1024 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 1024 -h 1024")
 harnesses_2048 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 2048 -h 2048")
