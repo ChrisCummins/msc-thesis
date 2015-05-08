@@ -648,7 +648,7 @@ def hw_info_to_attributes(info, host_attr, dev_attr):
 
     return attributes
 
-def createArff(harnesses, filename, verbose=True):
+def createArff(harnesses, filename, schema=None, verbose=True):
     # Dataset.
     data = []
     predictions = []
@@ -720,8 +720,12 @@ def createArff(harnesses, filename, verbose=True):
     # Determine the path to the output file.
     arffPath = path(config.RESULTS, config.ID, filename)
 
+    # Determine the schema.
+    if schema == None:
+        schema = make_arff_schema(data)
+
     # Write the output file.
-    mkarff(data, relation="e14", file=mkopen(arffPath, "w"))
+    mkarff(data, relation="e14", file=mkopen(arffPath, "w"), schema=schema)
 
     # Print predictions.
     if verbose:
@@ -754,6 +758,8 @@ def createArff(harnesses, filename, verbose=True):
           "of oracle.")
     print("Default values were optimal for {0:.2f}% of cases."
           .format(oracle1count / float(len(predictions)) * 100))
+
+    return schema
 
 def tableBestSpeedupsForKernel(harnesses, path):
     kGrouped = groupByInvars(harnesses, BorderSize, "Complexity", "Size").values()
@@ -855,9 +861,9 @@ print("Number of training instances... {0}".format(len(training_harnesses)))
 print("Number of testing instances... {0}".format(len(testing_harnesses)))
 
 # Create a .arff dataset file.
-createArff(HARNESSES,          "data.arff", verbose=False)
-createArff(training_harnesses, "training.arff")
-createArff(testing_harnesses,  "test.arff")
+schema = createArff(HARNESSES, "data.arff",     verbose=False)
+createArff(training_harnesses, "training.arff", schema=schema)
+createArff(testing_harnesses,  "test.arff",     schema=schema)
 
 harnesses_1024 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 1024 -h 1024")
 harnesses_2048 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 2048 -h 2048")

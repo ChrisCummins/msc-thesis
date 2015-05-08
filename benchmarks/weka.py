@@ -44,7 +44,7 @@ class ArffAttribute:
             return self._escape_str(value)
 
 # Return the schema for a dataset.
-def _get_schema(data):
+def make_arff_schema(data):
     schema = [copy(attr) for attr in data[0]]
 
     # Iterate over each attribute in the schema. If the attribute is
@@ -62,12 +62,16 @@ def _get_schema(data):
 # @data a list of ArffAtributes.
 # @relation the name of the relation set.
 # @file a file object to write output to.
-def mkarff(data, relation="data", file=stdout):
+def mkarff(data, relation="data", file=stdout, schema=None):
     print("@RELATION {0}".format(relation), file=file)
     print(file=file)
 
-    # Determine the schema, and print.
-    for attr in _get_schema(data):
+    # Calculate the schema, if needed.
+    if schema == None:
+        schema = make_arff_schema(data)
+
+    # Print the schema.
+    for attr in schema:
         print("@ATTRIBUTE {0} {1}".format(attr.name, attr.type), file=file)
     print(file=file)
 
