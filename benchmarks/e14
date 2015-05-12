@@ -182,20 +182,6 @@ def gettime(result):
     inittimes, buildtimes, preptimes, ultimes, skeltimes, swaptimes, dltimes = gettimes(result.outvars)
     return describe(skeltimes)
 
-def humanReadableDeviceString(invars):
-    s = ""
-
-    deviceType = lookup1(invars, DeviceTypeArg).val
-
-    if search("GPU", deviceType):
-        # Get the --device-count argument.
-        deviceCountArg = lookup1(invars, DeviceCountArg).val
-        # Get the numerical count.
-        deviceCount = search('([0-9]+)', deviceCountArg).group(1)
-        return "{count}xGPU".format(count=deviceCount)
-    else:
-        return "CPU"
-
 # Plot speedups of kernel for a fixed Device and Kernel type.
 def plotSpeedupsForDeviceAndWorkGroup(harnesses):
     speedups = [lookup1(x.result().couts, Speedup).val for x in harnesses]
@@ -394,6 +380,20 @@ def get_kernel_string(invars, tex=False):
             string += "c"
 
     return string
+
+def humanReadableDeviceString(invars):
+    s = ""
+
+    deviceType = lookup1(invars, DeviceTypeArg).val
+
+    if search("GPU", deviceType):
+        # Get the --device-count argument.
+        deviceCountArg = lookup1(invars, DeviceCountArg).val
+        # Get the numerical count.
+        deviceCount = search('([0-9]+)', deviceCountArg).group(1)
+        return "{count}xGPU".format(count=deviceCount)
+    else:
+        return "CPU"
 
 # Plot speedups of work group sizes for each a fixed device and kernel.
 def plotSpeedupsForDeviceAndKernel(harnesses):
@@ -773,7 +773,9 @@ def createArff(harnesses, filename, schema=None, verbose=True):
         ratio = (diff / float(speedup)) * 100
         predictions.append(("x".join([str(x) for x in predicted]),
                             predictedSpeedup, localSize, speedup,
-                            diff, ratio))
+                            diff, ratio, get_kernel_string(invars),
+                            lookup1(invars, Hostname).val + " " +
+                            humanReadableDeviceString(invars)))
 
     # Determine the path to the output file.
     arffPath = path(config.RESULTS, config.ID, filename)
@@ -789,12 +791,14 @@ def createArff(harnesses, filename, schema=None, verbose=True):
     if verbose:
         for x in predictions:
             string = "\t".join([str(y) for y in [
+                x[7], "\t",
+                x[6], "\t",
                 x[0], "\t",
                 x[2], "\t",
                 "{0:.4f}".format(x[1]), "\t",
                 "{0:.4f}".format(x[3]), "\t"
                 "{0:.4f}".format(x[4]),
-                "{0:.1f}%".format(x[5])
+                "{0:.1f}%".format(x[5]),
             ]])
             print(string)
 
