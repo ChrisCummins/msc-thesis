@@ -434,7 +434,7 @@ class SkelCLTestCase(TestCase):
                           coutvars=couts.union(coutvars))
 
 class StencilKnob(Knob):
-    defheader = path(SKELCL, 'include/SkelCL/detail/StencilDef.h')
+    header = path(SKELCL, 'include/SkelCL/detail/StencilKnobs.h')
 
 class StencilLocalSizeR(StencilKnob):
     DEFAULT = 32
@@ -443,8 +443,8 @@ class StencilLocalSizeR(StencilKnob):
         Knob.__init__(self, "StencilLocalSizeR", val)
 
     def set(self, **kwargs):
-        os.system("sed -r -i 's/(define KNOB_R) [0-9]+/\\1 {val}/' {path}"
-                  .format(val=self.val, path=self.defheader))
+        os.system("sed -r -i 's/(define STENCIL_WORKGROUP_SIZE_R) [0-9]+/\\1 {val}/' {path}"
+                  .format(val=self.val, path=self.header))
 
 class StencilLocalSizeC(StencilKnob):
     DEFAULT = 4
@@ -453,8 +453,8 @@ class StencilLocalSizeC(StencilKnob):
         Knob.__init__(self, "StencilLocalSizeC", val)
 
     def set(self, **kwargs):
-        os.system("sed -r -i 's/(define KNOB_C) [0-9]+/\\1 {val}/' {path}"
-                  .format(val=self.val, path=self.defheader))
+        os.system("sed -r -i 's/(define STENCIL_WORKGROUP_SIZE_C) [0-9]+/\\1 {val}/' {path}"
+                  .format(val=self.val, path=self.header))
 
 class AllPairsKnob(Knob):
     defheader = path(SKELCL, 'include/SkelCL/detail/AllPairsDef.h')
