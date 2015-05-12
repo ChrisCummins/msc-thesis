@@ -6099,3 +6099,21 @@ TODO(Monday):
 * Build a *small* experiment to test alternative border loading
   strategy.
 * Read Google's Python style guide.
+
+
+## Monday 11th
+
+Time to refactor the stencil kernels! Line counts before...
+
+```
+  191 StencilKernelNearest.cl
+  191 StencilKernelNearestInitial.cl
+  176 StencilKernelNeutral.cl
+  558 total
+```
+
+After...
+
+```
+217 StencilKernel.cl
+```
