@@ -12,6 +12,7 @@ from re import sub
 from sys import stdout
 
 import os
+import json
 
 # Benchlib imports.
 
@@ -634,6 +635,46 @@ DEV_ATTR = [
     ("version", "NOMINAL")
 ]
 
+KERNEL_ATTR = [
+    ("instructions (of all types)", "NUMERIC"),
+    ("ratio AShr insts", "NUMERIC"),
+    ("ratio Add insts", "NUMERIC"),
+    ("ratio Alloca insts", "NUMERIC"),
+    ("ratio And insts", "NUMERIC"),
+    ("ratio Br insts", "NUMERIC"),
+    ("ratio Call insts", "NUMERIC"),
+    ("ratio FAdd insts", "NUMERIC"),
+    ("ratio FCmp insts", "NUMERIC"),
+    ("ratio FDiv insts", "NUMERIC"),
+    ("ratio FMul insts", "NUMERIC"),
+    ("ratio FPExt insts", "NUMERIC"),
+    ("ratio FPToSI insts", "NUMERIC"),
+    ("ratio FSub insts", "NUMERIC"),
+    ("ratio GetElementPtr insts", "NUMERIC"),
+    ("ratio ICmp insts", "NUMERIC"),
+    ("ratio InsertValue insts", "NUMERIC"),
+    ("ratio Load insts", "NUMERIC"),
+    ("ratio Mul insts", "NUMERIC"),
+    ("ratio Or insts", "NUMERIC"),
+    ("ratio PHI insts", "NUMERIC"),
+    ("ratio Ret insts", "NUMERIC"),
+    ("ratio SDiv insts", "NUMERIC"),
+    ("ratio SExt insts", "NUMERIC"),
+    ("ratio SIToFP insts", "NUMERIC"),
+    ("ratio SRem insts", "NUMERIC"),
+    ("ratio Select insts", "NUMERIC"),
+    ("ratio Shl insts", "NUMERIC"),
+    ("ratio Store insts", "NUMERIC"),
+    ("ratio Sub insts", "NUMERIC"),
+    ("ratio Trunc insts", "NUMERIC"),
+    ("ratio UDiv insts", "NUMERIC"),
+    ("ratio Xor insts", "NUMERIC"),
+    ("ratio ZExt insts", "NUMERIC"),
+    ("ratio basic blocks", "NUMERIC"),
+    ("ratio memory instructions", "NUMERIC"),
+    ("ratio non-external functions", "NUMERIC")
+]
+
 # Conert a hardware description into a list of host and device
 # attributes.
 def hw_info_to_attributes(info, host_attr, dev_attr):
@@ -647,6 +688,21 @@ def hw_info_to_attributes(info, host_attr, dev_attr):
         attributes.append(ArffAttribute("dev_" + attr[0], attr[1], val))
 
     return attributes
+
+INSTCOUNTS = json.load(open("./instcounts.json"))
+def get_kernel_attributes(benchmark, complexity):
+    data = INSTCOUNTS[benchmark]
+
+    if benchmark == "SimpleBig":
+        data = data["complex"] if complexity else data["simple"]
+
+    attributes = []
+    for attr in KERNEL_ATTR:
+        attributes.append(ArffAttribute("kernel_" + attr[0],
+                                        attr[1], data[attr[0]]))
+
+    return attributes
+
 
 def createArff(harnesses, filename, schema=None, verbose=True):
     # Dataset.
@@ -690,8 +746,11 @@ def createArff(harnesses, filename, schema=None, verbose=True):
         else:
             localSize = "{w}x{h}".format(w=wg[0], h=wg[1])
 
+        benchmark = lookup1(invars, BenchmarkName).val
+        kernel_attributes = get_kernel_attributes(benchmark, complexity)
+
         # Set the attributes.
-        attributes = hw_attributes + [
+        attributes = hw_attributes + kernel_attributes + [
             ArffAttribute("DeviceCount", "NUMERIC", deviceCount),
             ArffAttribute("BorderNorth", "NUMERIC", borderNorth),
             ArffAttribute("BorderEast",  "NUMERIC", borderEast),
@@ -699,7 +758,6 @@ def createArff(harnesses, filename, schema=None, verbose=True):
             ArffAttribute("BorderWest",  "NUMERIC", borderWest),
             ArffAttribute("DataWidth",   "NUMERIC", dataWidth),
             ArffAttribute("DataHeight",  "NUMERIC", dataHeight),
-            ArffAttribute("Complexity",  "NOMINAL", complexity),
             ArffAttribute("LocalSize",   "NOMINAL", localSize)
         ]
 
