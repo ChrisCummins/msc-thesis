@@ -6117,3 +6117,355 @@ After...
 ```
 217 StencilKernel.cl
 ```
+
+
+## Tuesday 12th
+
+To compile OpenCL to LLVM IR:
+
+```
+clang -Dcl_clang_storage_class_specifiers -isystem libclc/generic/include -include clc/clc.h -target nvptx64-nvidia-nvcl -xcl test.cl -emit-llvm -S -o test.ll
+```
+
+Notes from meeting with Alberto:
+
+* Once you're compiled LLVM bitcode from OpenCL file, use the `opt`
+  program and use the `InstCount.cpp` pass (flag: `-instcount`) to get
+  static instruction counts.
+* Instcount does not distinguish loads from different address spaces.
+* To do this programatically, you could implement an LLVM instruction
+  visitor which could internally store counters for the different
+  instruction types.
+* Bruno has been looking into dynamic instruction counting using a
+  tool which creates a fake OpenCL device to evaluate code (i.e. a
+  simulator).
+
+```
+# Compile bitcode
+clang++ test.cc -emit-llvm -c -o test.bc
+# Run instcount
+opt -stats -analyze -instcount test.bc
+```
+
+```
+~/src/msc-thesis/llvm/Release+Asserts/bin/clang -Dcl_clang_storage_class_specifiers -isystem libclc/generic/include -include clc/clc.h -target nvptx64-nvidia-nvcl -xcl -emit-llvm -c integrate_eom_kernel.cl -o integrate_eom_kernel.bc
+~/src/msc-thesis/llvm/Release+Asserts/bin/opt -analyze -stats -instcount integrate_eom_kernel.bc
+```
+
+Example output:
+
+```
+Printing analysis 'Counts the various types of Instructions' for function 'getData':
+Printing analysis 'Counts the various types of Instructions' for function 'func':
+===-------------------------------------------------------------------------===
+                          ... Statistics Collected ...
+===-------------------------------------------------------------------------===
+
+ 2 instcount - Number of AShr insts
+18 instcount - Number of Add insts
+ 6 instcount - Number of Br insts
+10 instcount - Number of Call insts
+ 2 instcount - Number of FAdd insts
+ 1 instcount - Number of FDiv insts
+ 1 instcount - Number of FMul insts
+ 1 instcount - Number of FPToSI insts
+ 5 instcount - Number of GetElementPtr insts
+ 3 instcount - Number of ICmp insts
+ 5 instcount - Number of Load insts
+ 6 instcount - Number of Mul insts
+12 instcount - Number of PHI insts
+ 2 instcount - Number of Ret insts
+ 1 instcount - Number of SDiv insts
+ 4 instcount - Number of SExt insts
+ 2 instcount - Number of Shl insts
+ 3 instcount - Number of Sub insts
+ 1 instcount - Number of Trunc insts
+ 3 instcount - Number of ZExt insts
+ 8 instcount - Number of basic blocks
+88 instcount - Number of instructions (of all types)
+20 instcount - Number of memory instructions
+ 2 instcount - Number of non-external functions
+```
+
+For each benchmark, I've recorded the static instruction counts for
+the *user functions*, and derived ratios of each type of instruction
+(and number of functions and basic blocks) by dividing each value by
+the total number of instructions. For example:
+
+```
+"CannyEdgeDetection": {
+    "instructions (of all types)": 589,
+    "ratio AShr insts": 0.042444821731748725,
+    "ratio Add insts": 0.2563667232597623,
+    "ratio Alloca insts": 0,
+    "ratio And insts": 0.003395585738539898,
+    "ratio Br insts": 0.044142614601018676,
+    "ratio Call insts": 0.21731748726655348,
+    "ratio FAdd insts": 0.006791171477079796,
+    "ratio FCmp insts": 0.023769100169779286,
+    "ratio FDiv insts": 0.001697792869269949,
+    "ratio FMul insts": 0.0050933786078098476,
+    "ratio FPExt insts": 0,
+    "ratio FPToSI insts": 0.0050933786078098476,
+    "ratio FSub insts": 0.010186757215619695,
+    "ratio GetElementPtr insts": 0.06112054329371817,
+    "ratio ICmp insts": 0.01867572156196944,
+    "ratio InsertValue insts": 0,
+    "ratio Load insts": 0.100169779286927,
+    "ratio Mul insts": 0.05602716468590832,
+    "ratio Or insts": 0.006791171477079796,
+    "ratio PHI insts": 0.025466893039049237,
+    "ratio Ret insts": 0.01697792869269949,
+    "ratio SDiv insts": 0.001697792869269949,
+    "ratio SExt insts": 0.010186757215619695,
+    "ratio SIToFP insts": 0.008488964346349746,
+    "ratio SRem insts": 0,
+    "ratio Select insts": 0.003395585738539898,
+    "ratio Shl insts": 0.042444821731748725,
+    "ratio Store insts": 0,
+    "ratio Sub insts": 0.022071307300509338,
+    "ratio Trunc insts": 0.001697792869269949,
+    "ratio UDiv insts": 0,
+    "ratio Xor insts": 0,
+    "ratio ZExt insts": 0.008488964346349746,
+    "ratio basic blocks": 0.06112054329371817,
+    "ratio memory instructions": 0.37860780984719866,
+    "ratio non-external functions": 0.01697792869269949
+},
+```
+
+After removing the prior "Complexity" feature from the arff dataset, I
+added these new values as features. Here is the J48 classifier
+performance of this new training set:
+
+```
+# 10 fold classification:
+Correctly Classified Instances         114               65.1429 %
+Incorrectly Classified Instances        61               34.8571 %
+
+# Tested against unseen data:
+Correctly Classified Instances          15               71.4286 %
+Incorrectly Classified Instances         6               28.5714 %
+```
+
+And after building the classifier:
+
+```
+# Tested against training data:
+ORACLE      2.571 MIN 1.000 MAX 10.679
+PREDICTION  2.478 MIN 0.699 MAX 10.679
+Prediction performance is 95.34% of oracle.
+Default values were optimal for 1.71% of cases.
+
+# Tested against unseen data:
+ORACLE      3.325 MIN 1.028 MAX 15.626
+PREDICTION  2.682 MIN 0.000 MAX 11.483
+Prediction performance is 82.38% of oracle.
+Default values were optimal for 0.00% of cases.
+```
+
+Detailed results for classifier:
+
+```
+Host      Device  Program         Predicted  Oracle  Predicted-Speedup  Oracle-Speedup  Difference  Difference(%)
+florence  CPU     [1,1,1,1]       64x16      64x16   1.5997             1.5997          0.0000      0.0%
+florence  CPU     [5,5,5,5]       16x32      64x32   1.0013             1.0338          0.0325      3.1%
+florence  CPU     [10,10,10,10]   64x16      64x16   1.0237             1.0237          0.0000      0.0%
+florence  CPU     [20,20,20,20]   4x32       4x32    1.0000             1.0000          0.0000      0.0%
+florence  CPU     [30,30,30,30]   16x32      16x32   1.0442             1.0442          0.0000      0.0%
+florence  CPU     [1,10,30,30]    4x64       4x64    1.0022             1.0022          0.0000      0.0%
+florence  CPU     [20,10,20,10]   4x64       64x32   1.0122             1.0512          0.0390      3.7%
+florence  CPU     [1,1,1,1]       64x64      64x32   1.5649             1.6168          0.0519      3.2%
+florence  CPU     [5,5,5,5]       64x4       64x64   0.9934             1.0544          0.0611      5.8%
+florence  CPU     [10,10,10,10]   64x64      64x64   1.0711             1.0711          0.0000      0.0%
+florence  CPU     [20,20,20,20]   4x32       4x32    1.0000             1.0000          0.0000      0.0%
+florence  CPU     [30,30,30,30]   64x4       64x4    1.0246             1.0246          0.0000      0.0%
+florence  CPU     [1,10,30,30]    4x64       4x64    1.0080             1.0080          0.0000      0.0%
+florence  CPU     [20,10,20,10]   4x64       32x64   1.0084             1.0580          0.0496      4.7%
+florence  CPU     [1,1,1,1]c      64x16      64x16   1.0695             1.0695          0.0000      0.0%
+florence  CPU     [5,5,5,5]c      16x32      32x64   1.1272             1.1328          0.0056      0.5%
+florence  CPU     [10,10,10,10]c  64x16      32x32   1.1992             1.1997          0.0004      0.0%
+florence  CPU     [20,20,20,20]c  32x64      32x64   1.2136             1.2136          0.0000      0.0%
+florence  CPU     [30,30,30,30]c  16x32      32x16   1.1039             1.2742          0.1703      13.4%
+florence  CPU     [1,10,30,30]c   32x64      32x64   1.2454             1.2454          0.0000      0.0%
+florence  CPU     [20,10,20,10]c  32x64      16x64   1.2429             1.2438          0.0009      0.1%
+florence  CPU     [1,1,1,1]c      64x64      64x64   1.0953             1.0953          0.0000      0.0%
+florence  CPU     [5,5,5,5]c      64x4       64x64   1.1234             1.2179          0.0945      7.8%
+florence  CPU     [10,10,10,10]c  64x64      64x64   1.3118             1.3118          0.0000      0.0%
+florence  CPU     [20,20,20,20]c  32x64      32x64   1.1949             1.1949          0.0000      0.0%
+florence  CPU     [30,30,30,30]c  64x4       64x4    1.2903             1.2903          0.0000      0.0%
+florence  CPU     [1,10,30,30]c   32x64      32x64   1.1557             1.1557          0.0000      0.0%
+florence  CPU     [20,10,20,10]c  32x64      32x64   1.2714             1.2714          0.0000      0.0%
+cec       CPU     [1,1,1,1]       64x4       64x4    3.0214             3.0214          0.0000      0.0%
+cec       CPU     [5,5,5,5]       32x16      64x16   5.5747             5.6440          0.0693      1.2%
+cec       CPU     [10,10,10,10]   64x16      64x64   6.0798             6.1748          0.0950      1.5%
+cec       CPU     [20,20,20,20]   16x16      16x32   6.2440             6.2829          0.0389      0.6%
+cec       CPU     [30,30,30,30]   32x16      16x16   6.2143             6.2324          0.0181      0.3%
+cec       CPU     [1,10,30,30]    16x32      16x32   5.9810             5.9810          0.0000      0.0%
+cec       CPU     [20,10,20,10]   32x64      32x64   6.4765             6.4765          0.0000      0.0%
+cec       CPU     [1,1,1,1]       64x4       64x4    3.0254             3.0254          0.0000      0.0%
+cec       CPU     [5,5,5,5]       32x16      64x16   5.5633             5.7251          0.1618      2.8%
+cec       CPU     [10,10,10,10]   64x16      64x16   6.1325             6.1325          0.0000      0.0%
+cec       CPU     [20,20,20,20]   16x16      16x16   6.3424             6.3424          0.0000      0.0%
+cec       CPU     [30,30,30,30]   32x16      32x16   6.2484             6.2484          0.0000      0.0%
+cec       CPU     [1,10,30,30]    16x32      16x32   6.0503             6.0503          0.0000      0.0%
+cec       CPU     [20,10,20,10]   32x64      32x64   6.4880             6.4880          0.0000      0.0%
+cec       CPU     [1,1,1,1]c      64x4       64x4    3.7884             3.7884          0.0000      0.0%
+cec       CPU     [5,5,5,5]c      32x16      16x32   4.4748             4.5000          0.0252      0.6%
+cec       CPU     [10,10,10,10]c  16x32      64x16   4.9536             5.0010          0.0473      0.9%
+cec       CPU     [20,20,20,20]c  64x16      64x16   5.9181             5.9181          0.0000      0.0%
+cec       CPU     [30,30,30,30]c  32x16      32x16   6.4974             6.4974          0.0000      0.0%
+cec       CPU     [1,10,30,30]c   16x4       16x4    5.2252             5.2252          0.0000      0.0%
+cec       CPU     [20,10,20,10]c  32x64      32x64   5.4497             5.4497          0.0000      0.0%
+cec       CPU     [1,1,1,1]c      64x4       64x4    3.8158             3.8158          0.0000      0.0%
+cec       CPU     [5,5,5,5]c      32x16      64x64   4.4669             4.4813          0.0144      0.3%
+cec       CPU     [10,10,10,10]c  16x32      64x16   4.9914             5.0367          0.0452      0.9%
+cec       CPU     [20,20,20,20]c  64x16      64x16   5.6998             5.6998          0.0000      0.0%
+cec       CPU     [30,30,30,30]c  32x16      32x16   6.5488             6.5488          0.0000      0.0%
+cec       CPU     [1,10,30,30]c   16x4       16x4    5.2625             5.2625          0.0000      0.0%
+cec       CPU     [20,10,20,10]c  32x64      32x32   5.3492             5.4252          0.0760      1.4%
+whz5      1xGPU   [1,1,1,1]       64x4       64x4    5.7573             5.7573          0.0000      0.0%
+whz5      1xGPU   [5,5,5,5]       64x16      64x4    1.6998             2.8342          1.1344      40.0%
+whz5      1xGPU   [10,10,10,10]   64x4       64x16   2.0224             2.1318          0.1094      5.1%
+whz5      1xGPU   [20,20,20,20]   32x16      32x16   2.7445             2.7445          0.0000      0.0%
+whz5      1xGPU   [30,30,30,30]   64x16      64x16   9.7705             9.7705          0.0000      0.0%
+whz5      1xGPU   [20,10,20,10]   32x16      32x16   2.0838             2.0838          0.0000      0.0%
+whz5      1xGPU   [1,1,1,1]       64x4       64x4    4.9631             4.9631          0.0000      0.0%
+whz5      1xGPU   [5,5,5,5]       64x16      64x4    1.6490             2.4555          0.8065      32.8%
+whz5      1xGPU   [10,10,10,10]   64x4       64x16   1.8047             1.8984          0.0937      4.9%
+whz5      1xGPU   [20,20,20,20]   32x16      32x16   2.8375             2.8375          0.0000      0.0%
+whz5      1xGPU   [30,30,30,30]   64x16      64x16   10.6786            10.6786         0.0000      0.0%
+whz5      1xGPU   [20,10,20,10]   32x16      32x16   1.8474             1.8474          0.0000      0.0%
+whz5      1xGPU   [1,1,1,1]c      64x4       64x4    3.7935             3.7935          0.0000      0.0%
+whz5      1xGPU   [5,5,5,5]c      64x16      16x16   1.6344             1.7414          0.1070      6.1%
+whz5      1xGPU   [10,10,10,10]c  16x16      64x16   1.7843             1.8229          0.0387      2.1%
+whz5      1xGPU   [20,20,20,20]c  32x16      32x16   4.4627             4.4627          0.0000      0.0%
+whz5      1xGPU   [30,30,30,30]c  64x16      64x16   8.2285             8.2285          0.0000      0.0%
+whz5      1xGPU   [20,10,20,10]c  32x16      32x16   2.1979             2.1979          0.0000      0.0%
+whz5      1xGPU   [1,1,1,1]c      64x4       64x4    3.7525             3.7525          0.0000      0.0%
+whz5      1xGPU   [5,5,5,5]c      64x16      16x16   1.3533             1.4451          0.0919      6.4%
+whz5      1xGPU   [10,10,10,10]c  16x16      64x16   1.8799             1.9132          0.0333      1.7%
+whz5      1xGPU   [20,20,20,20]c  32x16      16x32   4.4442             4.5205          0.0763      1.7%
+whz5      1xGPU   [30,30,30,30]c  64x16      64x16   8.2882             8.2882          0.0000      0.0%
+whz5      1xGPU   [20,10,20,10]c  32x16      32x16   2.3124             2.3124          0.0000      0.0%
+tim       1xGPU   [1,1,1,1]       64x4       64x4    7.1922             7.1922          0.0000      0.0%
+tim       2xGPU   [1,1,1,1]       64x4       64x4    6.1051             6.1051          0.0000      0.0%
+tim       3xGPU   [1,1,1,1]       64x4       64x4    5.1397             5.1397          0.0000      0.0%
+tim       4xGPU   [1,1,1,1]       64x4       64x4    4.8066             4.8066          0.0000      0.0%
+tim       1xGPU   [5,5,5,5]       32x32      64x4    0.6990             2.2554          1.5564      69.0%
+tim       2xGPU   [5,5,5,5]       32x32      64x4    0.7100             2.2176          1.5076      68.0%
+tim       3xGPU   [5,5,5,5]       32x32      64x4    0.7132             2.1015          1.3883      66.1%
+tim       4xGPU   [5,5,5,5]       32x32      64x4    0.7286             2.1274          1.3989      65.8%
+tim       1xGPU   [10,10,10,10]   64x4       64x4    1.4005             1.4005          0.0000      0.0%
+tim       2xGPU   [10,10,10,10]   64x4       64x4    1.4165             1.4165          0.0000      0.0%
+tim       3xGPU   [10,10,10,10]   64x4       64x4    1.4013             1.4013          0.0000      0.0%
+tim       4xGPU   [10,10,10,10]   64x4       64x4    1.4338             1.4338          0.0000      0.0%
+tim       1xGPU   [20,20,20,20]   64x4       64x4    1.2462             1.2462          0.0000      0.0%
+tim       2xGPU   [20,20,20,20]   64x4       64x4    1.2679             1.2679          0.0000      0.0%
+tim       3xGPU   [20,20,20,20]   64x4       64x4    1.2736             1.2736          0.0000      0.0%
+tim       4xGPU   [20,20,20,20]   64x4       64x4    1.2907             1.2907          0.0000      0.0%
+tim       1xGPU   [30,30,30,30]   32x32      32x32   3.4070             3.4070          0.0000      0.0%
+tim       2xGPU   [30,30,30,30]   32x32      32x32   3.4220             3.4220          0.0000      0.0%
+tim       3xGPU   [30,30,30,30]   32x32      32x32   3.4667             3.4667          0.0000      0.0%
+tim       4xGPU   [30,30,30,30]   32x32      32x32   3.4204             3.4204          0.0000      0.0%
+tim       1xGPU   [20,10,20,10]   64x4       64x4    1.2696             1.2696          0.0000      0.0%
+tim       2xGPU   [20,10,20,10]   64x4       64x4    1.2823             1.2823          0.0000      0.0%
+tim       3xGPU   [20,10,20,10]   64x4       64x4    1.2797             1.2797          0.0000      0.0%
+tim       4xGPU   [20,10,20,10]   64x4       64x4    1.2986             1.2986          0.0000      0.0%
+tim       1xGPU   [1,1,1,1]c      64x4       64x4    2.6657             2.6657          0.0000      0.0%
+tim       2xGPU   [1,1,1,1]c      64x4       64x4    2.6436             2.6436          0.0000      0.0%
+tim       3xGPU   [1,1,1,1]c      64x4       64x4    2.4908             2.4908          0.0000      0.0%
+tim       4xGPU   [1,1,1,1]c      64x4       64x4    2.5382             2.5382          0.0000      0.0%
+tim       1xGPU   [5,5,5,5]c      32x32      64x4    0.9065             1.0735          0.1669      15.6%
+tim       2xGPU   [5,5,5,5]c      32x32      64x4    0.9170             1.0961          0.1791      16.3%
+tim       3xGPU   [5,5,5,5]c      32x32      64x4    0.9287             1.0936          0.1649      15.1%
+tim       4xGPU   [5,5,5,5]c      32x32      64x4    0.9341             1.1232          0.1891      16.8%
+tim       1xGPU   [10,10,10,10]c  64x4       4x64    0.9505             1.0003          0.0498      5.0%
+tim       2xGPU   [10,10,10,10]c  64x4       4x64    0.9671             1.0003          0.0333      3.3%
+tim       3xGPU   [10,10,10,10]c  64x4       4x64    0.9735             1.0156          0.0422      4.2%
+tim       4xGPU   [10,10,10,10]c  64x4       4x32    0.9792             1.0000          0.0208      2.1%
+tim       1xGPU   [20,20,20,20]c  32x32      32x32   1.1525             1.1525          0.0000      0.0%
+tim       2xGPU   [20,20,20,20]c  32x32      32x32   1.1758             1.1758          0.0000      0.0%
+tim       3xGPU   [20,20,20,20]c  32x32      32x32   1.1773             1.1773          0.0000      0.0%
+tim       4xGPU   [20,20,20,20]c  32x32      32x32   1.1933             1.1933          0.0000      0.0%
+tim       1xGPU   [30,30,30,30]c  32x32      32x32   2.0943             2.0943          0.0000      0.0%
+tim       2xGPU   [30,30,30,30]c  32x32      32x32   2.1185             2.1185          0.0000      0.0%
+tim       3xGPU   [30,30,30,30]c  32x32      32x32   2.1585             2.1585          0.0000      0.0%
+tim       4xGPU   [30,30,30,30]c  32x32      32x32   2.1261             2.1261          0.0000      0.0%
+tim       1xGPU   [20,10,20,10]c  64x4       64x4    1.1508             1.1508          0.0000      0.0%
+tim       2xGPU   [20,10,20,10]c  64x4       64x4    1.0900             1.0900          0.0000      0.0%
+tim       3xGPU   [20,10,20,10]c  64x4       64x4    1.0486             1.0486          0.0000      0.0%
+tim       4xGPU   [20,10,20,10]c  64x4       64x4    1.0538             1.0538          0.0000      0.0%
+tim       4xGPU   [20,20,20,20]c  32x32      32x32   1.1792             1.1792          0.0000      0.0%
+tim       1xGPU   [30,30,30,30]c  32x32      32x32   2.2804             2.2804          0.0000      0.0%
+tim       2xGPU   [30,30,30,30]c  32x32      32x32   2.2836             2.2836          0.0000      0.0%
+tim       3xGPU   [30,30,30,30]c  32x32      32x32   2.3299             2.3299          0.0000      0.0%
+tim       4xGPU   [30,30,30,30]c  32x32      32x32   2.2827             2.2827          0.0000      0.0%
+tim       1xGPU   [20,10,20,10]c  64x4       4x64    0.9999             1.0031          0.0032      0.3%
+tim       2xGPU   [20,10,20,10]c  64x4       64x4    1.0104             1.0104          0.0000      0.0%
+monza     1xGPU   [1,1,1,1]       64x4       64x4    1.9208             1.9208          0.0000      0.0%
+monza     CPU     [1,1,1,1]       64x16      64x16   1.1259             1.1259          0.0000      0.0%
+monza     1xGPU   [5,5,5,5]       64x4       64x4    1.6624             1.6624          0.0000      0.0%
+monza     CPU     [5,5,5,5]       4x64       64x16   0.9999             1.0301          0.0303      2.9%
+monza     1xGPU   [10,10,10,10]   64x4       64x4    1.5662             1.5662          0.0000      0.0%
+monza     CPU     [10,10,10,10]   64x16      32x32   1.0066             1.0081          0.0016      0.2%
+monza     1xGPU   [20,20,20,20]   64x4       16x16   1.1996             1.6515          0.4519      27.4%
+monza     CPU     [20,20,20,20]   16x64      16x64   1.0034             1.0034          0.0000      0.0%
+monza     1xGPU   [30,30,30,30]   64x4       16x16   2.5918             2.7561          0.1643      6.0%
+monza     CPU     [30,30,30,30]   4x64       4x64    1.0022             1.0022          0.0000      0.0%
+monza     1xGPU   [1,10,30,30]    64x4       16x16   1.6378             2.1739          0.5361      24.7%
+monza     1xGPU   [20,10,20,10]   64x4       16x16   1.0072             1.3154          0.3082      23.4%
+monza     CPU     [20,10,20,10]   4x64       4x64    1.0056             1.0056          0.0000      0.0%
+monza     1xGPU   [1,1,1,1]       64x4       16x4    1.4948             3.0601          1.5653      51.2%
+monza     CPU     [1,1,1,1]       64x16      64x16   1.3231             1.3231          0.0000      0.0%
+monza     1xGPU   [5,5,5,5]       64x4       64x4    1.7634             1.7634          0.0000      0.0%
+monza     CPU     [5,5,5,5]       4x64       64x16   1.0125             1.0576          0.0452      4.3%
+monza     1xGPU   [10,10,10,10]   64x4       64x4    1.8049             1.8049          0.0000      0.0%
+monza     CPU     [10,10,10,10]   64x16      32x32   1.0117             1.0147          0.0029      0.3%
+monza     1xGPU   [20,20,20,20]   64x4       16x16   1.2566             1.8305          0.5738      31.3%
+monza     CPU     [20,20,20,20]   16x64      16x64   1.0039             1.0039          0.0000      0.0%
+monza     1xGPU   [30,30,30,30]   64x4       16x16   2.6435             2.7686          0.1252      4.5%
+monza     CPU     [30,30,30,30]   4x64       4x64    1.0023             1.0023          0.0000      0.0%
+monza     1xGPU   [1,10,30,30]    64x4       16x16   1.6847             2.4998          0.8151      32.6%
+monza     1xGPU   [20,10,20,10]   64x4       16x16   1.0423             1.3426          0.3003      22.4%
+monza     CPU     [20,10,20,10]   4x64       32x32   1.0065             1.0082          0.0017      0.2%
+monza     1xGPU   [1,1,1,1]c      64x4       4x16    0.7681             1.0441          0.2760      26.4%
+monza     1xGPU   [5,5,5,5]c      64x4       16x4    1.0894             1.1029          0.0135      1.2%
+monza     1xGPU   [10,10,10,10]c  64x4       16x16   1.0519             1.0673          0.0154      1.4%
+monza     1xGPU   [20,20,20,20]c  64x4       16x16   1.2336             1.4186          0.1850      13.0%
+monza     1xGPU   [30,30,30,30]c  64x4       64x4    2.1877             2.1877          0.0000      0.0%
+monza     1xGPU   [1,10,30,30]c   64x4       16x16   1.4344             1.5881          0.1536      9.7%
+monza     1xGPU   [20,10,20,10]c  64x4       16x16   1.1364             1.1552          0.0187      1.6%
+monza     1xGPU   [1,1,1,1]c      64x4       64x4    1.7687             1.7687          0.0000      0.0%
+monza     1xGPU   [5,5,5,5]c      64x4       64x4    1.1127             1.1127          0.0000      0.0%
+monza     1xGPU   [10,10,10,10]c  64x4       16x16   1.0103             1.0192          0.0089      0.9%
+monza     1xGPU   [20,20,20,20]c  64x4       16x16   1.1803             1.3606          0.1803      13.3%
+monza     1xGPU   [30,30,30,30]c  64x4       64x4    2.0167             2.0167          0.0000      0.0%
+monza     1xGPU   [1,10,30,30]c   64x4       16x16   1.3701             1.5979          0.2279      14.3%
+monza     1xGPU   [20,10,20,10]c  64x4       16x16   1.1505             1.1638          0.0133      1.1%
+```
+
+```
+Host      Device  Program       Predicted  Oracle  Predicted-Speedup  Oracle-Speedup  Difference  Difference(%)
+florence  CPU     GaussianBlur  64x4       32x64   0.0000             2.3079          2.3079      100.0%
+florence  CPU     FDTD          64x16      64x4    1.1322             1.1426          0.0104      0.9%
+florence  CPU     GameOfLife    64x16      64x16   1.5940             1.6759          0.0819      4.9%
+cec       CPU     GaussianBlur  32x16      32x16   11.4833            15.6264         4.1431      26.5%
+cec       CPU     FDTD          64x4       64x4    1.2471             1.2471          0.0000      0.0%
+cec       CPU     GameOfLife    64x4       64x4    2.6004             2.7159          0.1155      4.3%
+whz5      1xGPU   GaussianBlur  64x16      64x4    1.0215             1.4058          0.3843      27.3%
+whz5      1xGPU   FDTD          64x4       32x4    2.5669             2.6020          0.0351      1.3%
+whz5      1xGPU   GameOfLife    64x4       64x4    5.7595             5.9227          0.1632      2.8%
+tim       1xGPU   GameOfLife    64x4       64x4    6.7478             6.7478          0.0000      0.0%
+tim       2xGPU   GameOfLife    64x4       64x4    5.7988             5.7988          0.0000      0.0%
+tim       3xGPU   GameOfLife    64x4       32x4    0.0000             3.3799          3.3799      100.0%
+tim       4xGPU   GameOfLife    64x4       64x4    4.6277             4.6277          0.0000      0.0%
+monza     1xGPU   GaussianBlur  64x4       64x4    1.4676             2.0055          0.5379      26.8%
+monza     2xGPU   GaussianBlur  64x4       64x4    1.5082             2.0365          0.5283      25.9%
+monza     CPU     GaussianBlur  4x64       64x16   1.0020             1.0283          0.0263      2.6%
+monza     1xGPU   FDTD          64x4       64x4    1.5885             1.5885          0.0000      0.0%
+monza     2xGPU   FDTD          64x4       64x4    1.3579             1.3579          0.0000      0.0%
+monza     CPU     FDTD          64x16      64x4    1.2089             1.2424          0.0335      2.7%
+monza     1xGPU   GameOfLife    64x4       64x4    2.4860             4.2186          1.7326      41.1%
+monza     CPU     GameOfLife    64x16      64x16   1.1232             1.1569          0.0337      2.9%
+```
