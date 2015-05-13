@@ -427,6 +427,7 @@ AC_CONFIG_FILES([
         experiments/20141105-skel-opt-space/Makefile
         experiments/20141120-stable-sort/Makefile
         skepu/Makefile
+        omnitune/Makefile
         skepu/examples/Makefile
 ])
 

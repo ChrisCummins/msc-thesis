@@ -6473,3 +6473,37 @@ monza     CPU     GameOfLife    64x16      64x16   1.1232             1.1569    
 TODO:
 * Why don't I have more experimental data? Check to see what e14 is
   doing and ensure all test harnesses are instantiated correctly.
+
+
+## Wednesday 13th
+
+IDEA: **Omnitune**. Using DBUS to communicate with a deamon process
+that would act as the autotuner "brain". It would listen for messages
+`requestWgSize(features : String[])`, and respond *quickly* with a
+`wgSize()`. It could also listen for `addDatapoint(features :
+String[], wgSize: int[], runtime: double)` messages and update the
+model/classifier accordingly.
+
+TODO:
+* Test python dbus interface.
+* Test C++ dbus interface.
+* Test pythoon<->C++ dbus comms.
+* Implement SkelCL omnitune client send.
+* Implement omnitune proxy.
+* Implement omnitune server.
+
+Omnitune DBus Interface:
+
+```
+org.omnitune.SkelCLProxy.requestWgSize(void) : (int,int)
+org.omnitune.SkelCLProxy.addData(double) : void
+```
+
+"The Brain" interface:
+
+```
+modelIsUpdated(string) : bool # Check if classifier checksum is current
+getModel(void): string # Python classifier to exec
+addData(string[]) : void # Add new set of hw+kernel features, runtime
+
+```
