@@ -350,18 +350,17 @@ def plotSpeedupsForDevice(groups):
 def get_kernel_string(invars, tex=False):
     benchmark = lookup1(invars, BenchmarkName).val
     border = lookup1(invars, BorderSize).val
-    complexity = getcomplexity(invars)
 
     if benchmark == "SimpleBig":
+        complexity = getcomplexity(invars)
         string = "[{0}]".format(",".join([str(x) for x in border]))
+        if complexity:
+            if tex:
+                string = "\\textbf{" + string + "}"
+            else:
+                string += "c"
     else:
         string = benchmark
-
-    if complexity:
-        if tex:
-            string = "\\textbf{" + string + "}"
-        else:
-            string += "c"
 
     return string
 
@@ -900,8 +899,8 @@ def tableBestSpeedupsForKernel(harnesses, path):
 for harness in HARNESSES:
     harness.result().couts.add(getspeedup(harness.result().invars))
 
-training_harnesses = list(filter(lambda x: lookup1(x.testcase.invars, BenchmarkName).val == "SimpleBig", HARNESSES))
-testing_harnesses  = list(filter(lambda x: lookup1(x.testcase.invars, BenchmarkName).val != "SimpleBig", HARNESSES))
+training_harnesses = [x for x in HARNESSES if lookup1(x.testcase.invars, BenchmarkName).val == "SimpleBig"]
+testing_harnesses = [x for x in HARNESSES if lookup1(x.testcase.invars, BenchmarkName).val != "SimpleBig"]
 
 print("Number of training instances... {0}".format(len(training_harnesses)))
 print("Number of testing instances... {0}".format(len(testing_harnesses)))
