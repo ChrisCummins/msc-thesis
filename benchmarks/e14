@@ -273,23 +273,7 @@ def getinputsize(invars):
         exit(1)
 
 def getcomplexity(invars):
-    benchmark = lookup1(invars, BenchmarkName).val
-
-    if benchmark == "SimpleBig":
-        return 1 if lookup1(invars, "Complexity").val else 0
-    elif benchmark == "CannyEdgeDetection":
-        return 0
-    elif benchmark == "FDTD":
-        return 0
-    elif benchmark == "GaussianBlur":
-        return 0
-    elif benchmark == "GameOfLife":
-        return 0
-    elif benchmark == "HeatEquation":
-        return 0
-    else:
-        print("Unrecognised benchmark '{0}'!".format(benchmark))
-        exit(1)
+    return 1 if lookup1(invars, "Complexity", default=False).val else 0
 
 # Plot speedups of work group size and kernel type for a fixed device.
 def plotSpeedupsForDevice(groups):

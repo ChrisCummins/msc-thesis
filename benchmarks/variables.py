@@ -88,6 +88,10 @@ class Result:
 
 #
 class Variable:
+    def __init__(self, name, val):
+        self.name = name
+        self.val = val
+
     def encode(self):
         return {self.name: self.val}
 
@@ -250,10 +254,14 @@ def lookup(vars, type):
     return list(f)
 
 #
-def lookup1(*args):
+def lookup1(*args, **kwargs):
     var = list(lookup(*args))
     if len(var) != 1:
-        raise LookupError(*args)
+        default = kwargs.pop("default", None)
+        if default is None:
+            raise LookupError(*args)
+        else:
+            return Variable(args[0], default)
     return var[0]
 
 def lookupvals(vars, type):
