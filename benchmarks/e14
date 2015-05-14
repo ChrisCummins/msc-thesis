@@ -703,32 +703,39 @@ def createArff(harnesses, filename, schema=None, verbose=True):
         wg, speedup = getBestSpeedupFromHarnesses(group)
 
         invars = group[0].testcase.invars
-        border = lookup1(invars, BorderSize).val
-        deviceArgs = lookup1(invars, DeviceTypeArg).val
 
-        # Get the hardware attributes.
-        hw_info = get_hw_info(invars)
-        hw_attributes = hw_info_to_attributes(hw_info, HOST_ATTR, DEV_ATTR)
+        hostname = lookup1(invars, Hostname).val
+        kernel_string = get_kernel_string(invars)
+        device_string = humanReadableDeviceString(invars)
+        if wg == None:
+            # We're deliberately excluding cases where no results were
+            # found.
+            print("IGNORED:", hostname, device_string, kernel_string)
+            continue
+        else:
+            localSize = "{w}x{h}".format(w=wg[0], h=wg[1])
 
         # Get the additional attributes.
+        deviceArgs = lookup1(invars, DeviceTypeArg).val
         if search("GPU", deviceArgs):
             deviceCountArg = lookup1(invars, DeviceCountArg).val
             deviceCount = int(search("(\d+)", deviceCountArg).group(1))
         else:
             deviceCount = 1
+
+        border = lookup1(invars, BorderSize).val
         borderNorth = border[0]
         borderEast  = border[1]
         borderSouth = border[2]
         borderWest  = border[3]
         dataWidth, dataHeight = getinputsize(invars)
-        complexity = getcomplexity(invars)
-        if wg == None:
-            # We're deliberately excluding cases where no results were
-            # found.
-            continue
-        else:
-            localSize = "{w}x{h}".format(w=wg[0], h=wg[1])
 
+        # Get the hardware attributes.
+        hw_info = get_hw_info(invars)
+        hw_attributes = hw_info_to_attributes(hw_info, HOST_ATTR, DEV_ATTR)
+
+        # Get the kernel features.
+        complexity = getcomplexity(invars)
         benchmark = lookup1(invars, BenchmarkName).val
         kernel_attributes = get_kernel_attributes(benchmark, complexity)
 
@@ -756,9 +763,8 @@ def createArff(harnesses, filename, schema=None, verbose=True):
         ratio = (diff / float(speedup)) * 100
         predictions.append(("x".join([str(x) for x in predicted]),
                             predictedSpeedup, localSize, speedup,
-                            diff, ratio, get_kernel_string(invars),
-                            lookup1(invars, Hostname).val + " " +
-                            humanReadableDeviceString(invars)))
+                            diff, ratio, kernel_string,
+                            hostname + " " + device_string))
 
     # Determine the path to the output file.
     arffPath = path(config.RESULTS, config.ID, filename)
