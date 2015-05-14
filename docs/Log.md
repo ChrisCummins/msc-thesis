@@ -6477,6 +6477,28 @@ TODO:
 
 ## Wednesday 13th
 
+TODO:
+* Collect e14 test data from additional benchmarks (see above).
+* Evaluate e14 results *in detail*.
+* Create high level system diagram of e14.
+* Create violin plots for PPar conf slides.
+
+Notes from meeting with Michel:
+* Refactored Stencil code now works, the issue was I wasn't marking
+  the output buffer as dirty after completion.
+* The `out()` wrapper is used to differentiate overloaded method
+  prototypes when working with variable number of arguments.
+* The name "Pipeline" invokes pipelined parallelism, so we should use
+  "Sequence" to be clear.
+* Both the `Stencil()` and `StencilSequence()` skeletons .
+* There should be
+```
+Stencil<float(float)> s(std::ifstream { "./Stencil2D.cl" },
+                        StencilShape(South(1), North(1), East(1), West(1)),
+                        Padding(padding::NEUTRAL, 255), "func")
+```
+* Grigori Fursin has worked extensively on collective autotuning.
+
 IDEA: **Omnitune**. Using DBUS to communicate with a deamon process
 that would act as the autotuner "brain". It would listen for messages
 `requestWgSize(features : String[])`, and respond *quickly* with a
@@ -6495,15 +6517,22 @@ TODO:
 Omnitune DBus Interface:
 
 ```
+# Get a new workgroup size.
 org.omnitune.SkelCLProxy.requestWgSize(void) : (int,int)
+
+# Add a new *result* datapoint.
 org.omnitune.SkelCLProxy.addData(double) : void
 ```
 
 "The Brain" interface:
 
 ```
-modelIsUpdated(string) : bool # Check if classifier checksum is current
-getModel(void): string # Python classifier to exec
-addData(string[]) : void # Add new set of hw+kernel features, runtime
+# Check if classifier has been updated.
+classifierIsUpdated(string) : bool
 
+# Retrieve classifier (as python string to exec (!)).
+getClassifier(void): string
+
+# Add a new datapoint.
+addData(string[]) : void
 ```
