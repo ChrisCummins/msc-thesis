@@ -147,27 +147,9 @@ def instantiate(host, benchmark, args, knobs):
 
 HARNESSES = enumerateHarnesses(jobdesc, instantiate)
 
-#q = jobqueue(HARNESSES)
+q = jobqueue(HARNESSES)
 
-# groups = groupByInvars(HARNESSES, Hostname, DeviceTypeArg, DeviceCountArg,
-#                        BenchmarkName, BorderSize, "Complexity", "Size",
-#                        StencilLocalSizeC, StencilLocalSizeR).values()
-
-# print("groups:", len(groups))
-
-# for group in groups:
-#     print("group size", len(group))
-
-#     group_invars = group[0].testcase.invars
-
-#     for harness in group:
-#         if harness.testcase.invars != group_invars:
-#             print(harness.testcase.invars)
-#             print("NOT EQUAL:")
-#             print(group_invars)
-#             exit(1)
-
-#runJobQueue(q)
+runJobQueue(q)
 
 # Headless servers stop here.
 if not masterhost(): exit(0)
