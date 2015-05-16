@@ -147,9 +147,27 @@ def instantiate(host, benchmark, args, knobs):
 
 HARNESSES = enumerateHarnesses(jobdesc, instantiate)
 
-q = jobqueue(HARNESSES)
+#q = jobqueue(HARNESSES)
 
-runJobQueue(q)
+# groups = groupByInvars(HARNESSES, Hostname, DeviceTypeArg, DeviceCountArg,
+#                        BenchmarkName, BorderSize, "Complexity", "Size",
+#                        StencilLocalSizeC, StencilLocalSizeR).values()
+
+# print("groups:", len(groups))
+
+# for group in groups:
+#     print("group size", len(group))
+
+#     group_invars = group[0].testcase.invars
+
+#     for harness in group:
+#         if harness.testcase.invars != group_invars:
+#             print(harness.testcase.invars)
+#             print("NOT EQUAL:")
+#             print(group_invars)
+#             exit(1)
+
+#runJobQueue(q)
 
 # Headless servers stop here.
 if not masterhost(): exit(0)
@@ -905,50 +923,58 @@ def tableBestSpeedupsForKernel(harnesses, path):
 for harness in HARNESSES:
     harness.result().couts.add(getspeedup(harness.result().invars))
 
-training_harnesses = [x for x in HARNESSES if lookup1(x.testcase.invars, BenchmarkName).val == "SimpleBig"]
-testing_harnesses = [x for x in HARNESSES if lookup1(x.testcase.invars, BenchmarkName).val != "SimpleBig"]
+def do_harness(harness):
+    print(harness, harness.result())
 
-print("Number of training instances... {0}".format(len(training_harnesses)))
-print("Number of testing instances... {0}".format(len(testing_harnesses)))
-
-# Create a .arff dataset file.
-schema = createArff(HARNESSES, "data.arff",     verbose=False)
-createArff(training_harnesses, "training.arff", schema=schema)
-createArff(testing_harnesses,  "test.arff",     schema=schema)
-
-harnesses_1024 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 1024 -h 1024")
-harnesses_2048 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 2048 -h 2048")
-
-tableBestSpeedupsForKernel(harnesses_1024, path(config.RESULTS, config.ID,
-                                                "bestSpeedupsForKernel-1024.tex"))
-tableBestSpeedupsForKernel(harnesses_2048, path(config.RESULTS, config.ID,
-                                                "bestSpeedupsForKernel-2048.tex"))
-
-# Group harnesses by Host/Device properties.
-deviceGrouped = groupByInvars(training_harnesses, Hostname, DeviceTypeArg,
-                              DeviceCountArg, "Size").values()
-
-# Iterate over groups.
-for deviceGroup in deviceGrouped:
-    # Group harnesses by work group size.
-    wgGrouped = groupByInvars(deviceGroup,
-                              StencilLocalSizeC,
-                              StencilLocalSizeR).values()
-    # Plot speedups of work group sizes and kernels for each device.
-    plotSpeedupsForDevice(wgGrouped)
-
-    # Plot speedups of kernels for each device and work group size.
-    [plotSpeedupsForDeviceAndWorkGroup(x) for x in wgGrouped]
-
-    # Group harnesses by kernel type.
-    kGrouped = groupByInvars(deviceGroup,
-                             BorderSize,
-                             "Complexity").values()
-
-    # Plot speedups of work group sizes for each device and kernel.
-    [plotSpeedupsForDeviceAndKernel(x) for x in kGrouped]
-
-# Graph event times.
-[plt.openCLEventTimes(x.testcase.invars) for x in training_harnesses]
+for harness in HARNESSES:
+    do_harness(harness)
 
 exit(0)
+
+# training_harnesses = [x for x in HARNESSES if lookup1(x.testcase.invars, BenchmarkName).val == "SimpleBig"]
+# testing_harnesses = [x for x in HARNESSES if lookup1(x.testcase.invars, BenchmarkName).val != "SimpleBig"]
+
+# print("Number of training instances... {0}".format(len(training_harnesses)))
+# print("Number of testing instances... {0}".format(len(testing_harnesses)))
+
+# # Create a .arff dataset file.
+# schema = createArff(HARNESSES, "data.arff",     verbose=False)
+# createArff(training_harnesses, "training.arff", schema=schema)
+# createArff(testing_harnesses,  "test.arff",     schema=schema)
+
+# harnesses_1024 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 1024 -h 1024")
+# harnesses_2048 = filterHarnessesByInvarVal(training_harnesses, "Size", "-w 2048 -h 2048")
+
+# tableBestSpeedupsForKernel(harnesses_1024, path(config.RESULTS, config.ID,
+#                                                 "bestSpeedupsForKernel-1024.tex"))
+# tableBestSpeedupsForKernel(harnesses_2048, path(config.RESULTS, config.ID,
+#                                                 "bestSpeedupsForKernel-2048.tex"))
+
+# # Group harnesses by Host/Device properties.
+# deviceGrouped = groupByInvars(training_harnesses, Hostname, DeviceTypeArg,
+#                               DeviceCountArg, "Size").values()
+
+# # Iterate over groups.
+# for deviceGroup in deviceGrouped:
+#     # Group harnesses by work group size.
+#     wgGrouped = groupByInvars(deviceGroup,
+#                               StencilLocalSizeC,
+#                               StencilLocalSizeR).values()
+#     # Plot speedups of work group sizes and kernels for each device.
+#     plotSpeedupsForDevice(wgGrouped)
+
+#     # Plot speedups of kernels for each device and work group size.
+#     [plotSpeedupsForDeviceAndWorkGroup(x) for x in wgGrouped]
+
+#     # Group harnesses by kernel type.
+#     kGrouped = groupByInvars(deviceGroup,
+#                              BorderSize,
+#                              "Complexity").values()
+
+#     # Plot speedups of work group sizes for each device and kernel.
+#     [plotSpeedupsForDeviceAndKernel(x) for x in kGrouped]
+
+# # Graph event times.
+# [plt.openCLEventTimes(x.testcase.invars) for x in training_harnesses]
+
+# exit(0)
