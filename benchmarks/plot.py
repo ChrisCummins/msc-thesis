@@ -158,7 +158,8 @@ def openCLEventTimes(invars, name="events"):
     _writechecksum(path, _HashableResult(result).key())
 
 def speedups(speedups, err=[], labels=[], xlabel="", ylabel="Speedup",
-             title="", caption="", baseline=-1, ymajorlines=False, path=None):
+             title="", caption="", baseline=-1, usetex=True, ymajorlines=False,
+             path=None):
     X = np.arange(len(speedups))
 
     # Plot the data.
@@ -193,7 +194,7 @@ def speedups(speedups, err=[], labels=[], xlabel="", ylabel="Speedup",
 
     # Use LaTeX text rendering.
     fontsize=16
-    rc('text', usetex=True)
+    rc('text', usetex=usetex)
     rc('font', size=fontsize)
 
     #  Vertical major gridlines.
