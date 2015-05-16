@@ -1,0 +1,181 @@
+#!/usr/bin/env python2
+#
+# eval_e14 - Evaluate e14 data.
+#
+from __future__ import print_function
+
+import itertools
+import json
+import re
+
+# benchlib
+import plot
+
+import labm8
+from labm8 import io
+from labm8 import fs
+from labm8 import math as labmath
+
+WGSIZES= [
+    [4, 16, 32, 64],
+    [4, 16, 32, 64],
+]
+
+def get_data(path):
+    with open(path) as file:
+        return json.load(file)["data"]
+
+
+def group_by_values(data, *keys):
+    groups = {}
+
+    for result in data:
+        val = ", ".join([str(result[key]) for key in keys])
+
+        if val in groups:
+            groups[val].append(result)
+        else:
+            groups[val] = [result]
+
+    return groups
+
+
+def get_speedup(wg_str, result):
+    key = "Speedup{0}".format(wg_str)
+    return result[key]
+
+
+def get_scenario_str(scenario):
+    title = []
+    benchmark = scenario["Benchmark"]
+    devcount = scenario["DeviceCount"]
+    devname = scenario["dev_name"]
+    datasize = (scenario["DataHeight"], scenario["DataWidth"])
+
+    title.append(benchmark)
+    title.append("(" + "x".join([str(x) for x in datasize]) + "), ")
+
+    if devcount > 1:
+        title.append("%sx " % devcount)
+    # Convert devname to human readable form.
+    devname = " ".join(devname.split("_"))
+    # Remove " cpu @ x.x GHZ" suffix:
+    devname = re.sub(" cpu @.*$", "", devname)
+    # Remove " r " and " tm " noisewords:
+    devname = re.sub(" (r|tm) ", " ", devname)
+
+    title.append(devname.title())
+
+    return "".join([str(x) for x in title])
+
+
+def process(scenarios, wgsizes, name):
+    # Statistics collected across all scenarios.
+    stats = {
+        "num scenarios": [len(scenarios)],
+        "num valid": [],
+        "mean": [],
+        "mean (valid)": [],
+        "predicted": [],
+        "diff (mean)": [],
+        "diff (valid)": [],
+        "diff (oracle)": [],
+        "ratio (oracle)": []
+    }
+
+    # Add keys for each individual wg size.
+    for wg in wgsizes:
+        stats[wg[2]] = []
+
+    for key in sorted(scenarios.keys()):
+        if len(scenarios[key]) > 1:
+            io.fatal("Scenarios should be unique!")
+
+        scenario = scenarios[key][0]
+        scenario_str = get_scenario_str(scenario)
+
+        is_synthetic = scenario["Benchmark"][0] == "["
+
+        # io.debug(scenario_str)
+
+        results = [[x[1]] + scenario[x[2]] for x in wgsizes]
+        valid_results = [x for x in results if x[1] != 0]
+
+        mean = labmath.mean([x[1] for x in results])
+        mean_valid = labmath.mean([x[1] for x in valid_results])
+
+        e14_wg = scenario["PredictedLocalSize"]
+        e14_key = "Speedup" + e14_wg
+        e14_speedup = scenario[e14_key]
+
+        oracle_wg = scenario["OracleLocalSize"]
+        oracle_key = "Speedup" + oracle_wg
+        oracle_speedup = scenario[oracle_key]
+
+        stats["num valid"].append(len(valid_results))
+        stats["mean"].append(mean)
+        stats["mean (valid)"].append(mean_valid)
+        stats["predicted"].append(e14_speedup[0])
+        stats["diff (mean)"].append(e14_speedup[0] - mean)
+        stats["diff (valid)"].append(e14_speedup[0] - mean_valid)
+        stats["diff (oracle)"].append(e14_speedup[0] - oracle_speedup[0])
+        try:
+            stats["ratio (oracle)"].append(e14_speedup[0] / oracle_speedup[0])
+        except ZeroDivisionError:
+            stats["ratio (oracle)"].append(0)
+
+        for wg in wgsizes:
+            stats[wg[2]].append(scenario[wg[2]][0])
+
+        # Plot results
+        filename = re.sub("[, ]+", "_", scenario_str) + ".png"
+        path = "./results/e14/speedups/" + filename
+        if not is_synthetic and not fs.isfile(path):
+            y = [x[1] for x in results]
+            err = [x[2] for x in results]
+            labels= [x[0] for x in results]
+
+            plot.speedups(y, err=err, labels=labels, title=scenario_str,
+                          usetex=False, path=path)
+
+    for stat in sorted(stats):
+        print(name, stat, "\t",
+              min(stats[stat]), "\t",
+              labmath.median(stats[stat]), "\t",
+              labmath.mean(stats[stat]), "\t",
+              max(stats[stat]))
+
+
+def main():
+    print("stat \t min \t median \t mean \t max")
+
+    alldata = get_data("results/e14/data.arff.json")
+    training_data = [x for x in alldata if x["Benchmark"][0] == "["]
+    test_data = [x for x in alldata if x not in training_data]
+
+    keys = [key for key in alldata[0]]
+    invars = [
+        "dev_name",
+        "DeviceCount",
+        "dev_device_type",
+        "Benchmark",
+        "DataHeight",
+        "DataWidth"
+    ]
+
+    wgsize_vals = list(itertools.product(*WGSIZES))
+    wgsize_strs = ["{0}x{1}".format(*x) for x in wgsize_vals]
+    wgsize_keys = ["Speedup{0}".format(x) for x in wgsize_strs]
+    wgsizes = zip(wgsize_vals, wgsize_strs, wgsize_keys)
+
+    scenarios = group_by_values(alldata, *invars)
+    training_scenarios = group_by_values(training_data, *invars)
+    test_scenarios = group_by_values(test_data, *invars)
+
+    process(scenarios, wgsizes, "all")
+    process(training_scenarios, wgsizes, "training")
+    process(test_scenarios, wgsizes, "test")
+
+
+if __name__ == "__main__":
+    main()
