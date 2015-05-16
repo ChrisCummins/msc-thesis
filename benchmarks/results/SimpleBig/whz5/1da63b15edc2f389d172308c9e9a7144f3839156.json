@@ -1,0 +1,64 @@
+{
+  "bad": false,
+  "cout": {
+    "Checksum": "201f7d88ada02f94ca95ed6a4e758c72b0f3560d",
+    "SkelCL version": "b875ccef0d7471667aea65c75e842990f69b28d3"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      30,
+      30,
+      30,
+      30
+    ],
+    "Complexity": "--complex",
+    "Device count": "--device-count 1",
+    "Device type": "--device-type GPU",
+    "Hostname": "whz5",
+    "Size": "-w 2048 -h 2048",
+    "StencilLocalSizeC": 48,
+    "StencilLocalSizeR": 16
+  },
+  "out": [
+    {
+      "End time": "2015-05-16 21:38:15",
+      "Exit status": 0,
+      "Output": [
+        "[==DeviceList.cpp:90   000.659s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.659s  INFO] 1 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.712s  INFO] Using device `GeForce GTX TITAN' with id: 0",
+        "[==DeviceList.cpp:122  000.712s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.712s  PROF] skelcl::init() time 712 ms",
+        "[=====Program.cpp:220  001.119s  PROF] skelcl::Program::build() 1 ms",
+        "[====StencilDef.h:168  001.146s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60] prepare 26 ms",
+        "[====StencilDef.h:387  001.146s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][0] global[2064][2048] local[48][16] tile[108][76][4]",
+        "[=====MatrixDef.h:300  009.521s  PROF] Matrix[0x7fffa4c53d50][0] dl 10.170144 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][0] 2224.699552 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][1] 2205.777120 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][2] 491.603072 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][3] 491.632544 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][4] 491.570240 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][5] 491.612416 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][6] 491.620384 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][7] 491.649280 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][8] 491.641984 ms",
+        "[====Skeleton.cpp:93   009.521s  PROF] Stencil<Tout(Tin)>[0x7fffa4c53c60][9] 491.710176 ms",
+        "[=====MatrixDef.h:300  009.521s  PROF] Matrix[0x7fffa4c53cb0][0] ul 11.093152 ms"
+      ],
+      "Run time": 9.818355798721313,
+      "Start time": "2015-05-16 21:38:05"
+    }
+  ]
+}
