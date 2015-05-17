@@ -428,6 +428,7 @@ AC_CONFIG_FILES([
         experiments/20141120-stable-sort/Makefile
         skepu/Makefile
         omnitune/Makefile
+        omnitune/native/Makefile
         skepu/examples/Makefile
 ])
 
