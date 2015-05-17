@@ -69,7 +69,7 @@ fi
 git flow feature start $feature_branch
 
 # Previous report.
-prevreport="$(find "$report_dir" | grep -E '[0-9]{2}-[0-9]{2}-[0-9]{2}.md' | tail -n1)"
+prevreport="$(find "$report_dir" | grep -E '[0-9]{2}-[0-9]{2}-[0-9]{2}.md' | sort | tail -n1)"
 echo "Previous report: '$prevreport'"
 
 echo "Generating file: '$report'"
