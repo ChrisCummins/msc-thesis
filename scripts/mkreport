@@ -11,9 +11,6 @@ report_dir="docs/reports"
 # Path to the template file.
 template="docs/reports/template.md"
 
-# Path to the reading log.
-reading_log="docs/ReadingLog.md"
-
 editor="emacsclient -n"
 
 ## END OF CONFIGURATION.
@@ -69,13 +66,6 @@ if [ ! -f "$test_file" ]; then
     exit 1
 fi
 
-# Check for the presence of $reading_log. If it is not found, then
-# abort.
-if [ ! -f "$reading_log" ]; then
-    echo "Could not find the reading log '$reading_log'. Aborting." >&2
-    exit 1
-fi
-
 git flow feature start $feature_branch
 
 # Previous report.
@@ -97,19 +87,5 @@ sed -n $((startn+1)),$((endn-1))p "$prevreport" >> "$report"
 
 # Add the rest of the report template.
 sed -n '/## What I actually did this week/,$p' "$template" >> "$report"
-
-echo "Flushing reading log: '$reading_log'"
-
-# Append the reading log to the end of the report.
-sed 's/^# /###### /' "$reading_log" >> "$report"
-
-# Generate a new reading log by stripping out everything by the lines
-# beginning with "# ", and inserting blank lines after every line but
-# the last.
-grep '^# ' "$reading_log" | sed 's/$/\n/' | head -n-1 > "$reading_log".tmp
-mv "$reading_log".tmp "$reading_log"
-
-# Stage new changes.
-git add "$reading_log"
 
 $editor "$report" &
