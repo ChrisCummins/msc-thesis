@@ -100,8 +100,6 @@ def process(scenarios, wgsizes, name):
 
         is_synthetic = scenario["Benchmark"][0] == "["
 
-        # io.debug(scenario_str)
-
         results = [[x[1]] + scenario[x[2]] for x in wgsizes]
         valid_results = [x for x in results if x[1] != 0]
 
@@ -150,6 +148,9 @@ def process(scenarios, wgsizes, name):
               max(stats[stat]))
 
 def violinplot(data, wgsize_keys):
+    """
+    Create violin plot of all speedups.
+    """
     benchmarks = group_by_values(data, "Benchmark")
     violindata = {}
     for benchmark in benchmarks:
@@ -186,31 +187,56 @@ def violinplot(data, wgsize_keys):
     plt.close()
 
 
-def hist_speedups(results, wgsizes):
+def hist_speedups(results):
+    """
+    Create histogram of oracle and omnitune speedups.
+    """
     oracle_speedups, predicted_speedups = [], []
     for result in results:
         oracle_wgsize = result["OracleLocalSize"]
         oracle_speedup = result["Speedup" + oracle_wgsize][0]
-        oracle_speedups.append(oracle_speedup)
-
         predicted_wgsize = result["PredictedLocalSize"]
         predicted_speedup = result["Speedup" + predicted_wgsize][0]
-        predicted_speedups.append(predicted_speedup)
 
-    max_data = np.r_[oracle_speedups, predicted_speedups].max()
-    bins = np.linspace(0, max_data, max_data + 1)
-    plt.hist(oracle_speedups, bins, normed=True, color="#6495ED", alpha=.5)
-    plt.hist(predicted_speedups, bins, normed=True, color="#F08080", alpha=.5)
-    plt.show()
+        if oracle_speedup > 0:
+            oracle_speedups.append(oracle_speedup)
+            predicted_speedups.append(predicted_speedup)
+
+    fig, axes = plt.subplots(nrows=1, ncols=2)
+    bins = np.logspace(0, 1, 20)
+    axes[0].hist(oracle_speedups, bins)
+    axes[0].set_xlabel("Oracle")
+    axes[0].set_ylabel("Frequency")
+
+    axes[1].hist(predicted_speedups, bins,
+                 color=sns.desaturate("indianred", .75))
+    axes[1].set_xlabel("OmniTune")
+
+    ymin, ymax = 0, 35
+    xticks = [1, 1.5, 2, 3, 4, 5, 6, 8, 10]
+
+    for ax in axes:
+        ax.set_xscale("log")
+        ax.set_ylim([ymin, ymax])
+        ax.set_xticks(xticks)
+        ax.set_xticklabels(xticks)
+
+    plt.figtext(.5, .935, "Distribution of speedups", ha='center')
+    plt.savefig("./results/e14/hist.png")
     plt.close()
 
 
 def plot_val_frequency(results, wgsizes):
+    """
+    Plot frequencies that parameter values are optimal or predicted by
+    omnitune.
+    """
     freqs = {}
     for wgsize in wgsizes:
         wgsize_str = wgsize[1]
         freqs[wgsize_str] = [0,0]
 
+    # Create data.
     for result in results:
         oracle_wgsize = result["OracleLocalSize"]
         freqs[oracle_wgsize][0] += 1
@@ -232,8 +258,6 @@ def plot_val_frequency(results, wgsizes):
     oracle_freqs, predicted_freqs = zip(*reversed(sorted(zip(oracle_freqs,
                                                              predicted_freqs),
                                                          key=lambda x: x[0])))
-
-    # Set plot size.
     width = 7 / 16.
     ax = plt.subplot(111)
 
@@ -246,14 +270,58 @@ def plot_val_frequency(results, wgsizes):
     plt.ylabel('Frequency')
     plt.xlabel('Parameter values')
     # TODO: This is a shit plot title
-    plt.title(("Classification accuracy for {0} instances"
+    plt.title(("Parameter values of {0} instances"
                .format(sum(oracle_freqs))))
-
     plt.savefig("./results/e14/freq.png")
     plt.close()
 
 
+def clusters(results):
+    oracle_x, oracle_y = [], []
+    predicted_x, predicted_y = [], []
+    for result in results:
+        oracle_wgsize = [int(x) for x in result["OracleLocalSize"].split("x")]
+        oracle_x.append(oracle_wgsize[0])
+        oracle_y.append(oracle_wgsize[1])
+        predicted_wgsize = [int(x) for x in result["PredictedLocalSize"].split("x")]
+        predicted_x.append(predicted_wgsize[0])
+        predicted_y.append(predicted_wgsize[1])
+
+    fig, axes = plt.subplots(nrows=1, ncols=2)
+    for ax in axes:
+        ax.set_xlim([0, 80])
+        ax.set_ylim([0, 70])
+
+    axes[0].set_xlabel("Oracle")
+    axes[1].set_xlabel("OmniTune")
+
+    sns.kdeplot(np.array(oracle_x), np.array(oracle_y),
+                gridsize=128, shade=True, ax=axes[0], cmap="Blues")
+    sns.kdeplot(np.array(predicted_x), np.array(predicted_y),
+                gridsize=128, shade=True, cmap="Reds")
+    plt.figtext(.5, .935, "Clustering of parameter values", ha='center')
+    plt.savefig("./results/e14/clusters.png")
+    plt.close()
+
+
+def cluster_invalid(results, wgsizes):
+    x_val, y_val = [], []
+    for result in results:
+        for  wgsize in wgsizes:
+            if result[wgsize[2]][0] == 0:
+                x_val.append(wgsize[0][0])
+                y_val.append(wgsize[0][1])
+
+    sns.kdeplot(np.array(x_val), np.array(y_val), gridsize=64, shade=True)
+    plt.figtext(.5, .935, "Invalid parameter values", ha='center')
+    plt.savefig("./results/e14/invalid-clusters.png")
+    plt.close()
+
+
 def main():
+    """
+    Generate plots.
+    """
     wgsize_vals = list(itertools.product(*WGSIZES))
     wgsize_strs = ["{0}x{1}".format(*x) for x in wgsize_vals]
     wgsize_keys = ["Speedup{0}".format(x) for x in wgsize_strs]
@@ -281,8 +349,7 @@ def main():
         "DataWidth"
     ]
 
-    hist_speedups(alldata, wgsizes)
-    plot_val_frequency(alldata, wgsizes)
+    cluster_invalid(alldata, wgsizes)
 
     scenarios = group_by_values(alldata, *invars)
     training_scenarios = group_by_values(training_data, *invars)
@@ -293,6 +360,9 @@ def main():
     process(test_scenarios, wgsizes, "test")
 
     violinplot(alldata, wgsize_keys)
+    hist_speedups(alldata)
+    plot_val_frequency(alldata, wgsizes)
+    clusters(alldata)
 
 
 if __name__ == "__main__":
