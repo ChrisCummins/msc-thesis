@@ -6624,3 +6624,74 @@ test num valid 	 0 	 13 	 11.4761904762 	 16
 test predicted 	 0 	 1.50819018918 	 2.6819668538 	 11.4833360312
 test ratio (oracle) 	 0.0 	 1.0 	 0.902323018323 	 1.0078183724
 ```
+
+
+## Monday 18th
+
+It looks like the `e14` script caused an unplanned reboot on `tim`. I
+left the script running on Saturday evening, and the output today
+looks like:
+
+```
+<snip>
+Beginning test harness 9 of 8503
+
+Preparing testcase Hostname: tim, Benchmark: SimpleBig, BorderSize: [20, 10, 20, 10], StencilLocalSizeC: 48, StencilLocalSizeR: 8, Complexity: --complex, Size: -w 2048 -h 2048, Device type: --device-type GPU, Device count: --device-count 4 ...
+Setting BorderSize: [20, 10, 20, 10] ...
+Setting StencilLocalSizeC: 48 ...
+Setting StencilLocalSizeR: 8 ...
+Building SimpleBig ...
+[ 25%] Built target stooling
+[ 46%] Built target pvsutil
+[ 97%] Built target SkelCL
+[100%] Building CXX object examples/SimpleBig/CMakeFiles/SimpleBig.dir/main.cpp.o
+Linking CXX executable SimpleBig
+[100%] Built target SimpleBig
+Sampling testcase Hostname: tim, Benchmark: SimpleBig, BorderSize: [20, 10, 20, 10], StencilLocalSizeC: 48, StencilLocalSizeR: 8, Complexity: --complex, Size: -w 2048 -h 2048, Device type: --device-type GPU, Device count: --device-count 4 ... 3.4 s
+Sampling testcase Hostname: tim, Benchmark: SimpleBig, BorderSize: [20, 10, 20, 10], StencilLocalSizeC: 48, StencilLocalSizeR: 8, Complexity: --complex, Size: -w 2048 -h 2048, Device type: --device-type GPU, Device count: --device-count 4 ... 3.4 s
+Sampling testcase Hostname: tim, Benchmark: SimpleBig, BorderSize: [20, 10, 20, 10], StencilLocalSizeC: 48, StencilLocalSizeR: 8, Complexity: --complex, Size: -w 2048 -h 2048, Device type: --device-type GPU, Device count: --device-count 4 ... packet_write_wait: Connection to 129.215.197.113: Broken pipe
+```
+
+Running `e14` again causes this error:
+
+```
+<snip>
+Beginning test harness 1 of 8497
+
+Preparing testcase Hostname: tim, Benchmark: SimpleBig, BorderSize: [20, 10, 20, 10], StencilLocalSizeC: 48, StencilLocalSizeR: 16, Complexity: --complex, Size: -w 2048 -h 2048, Device type: --device-type GPU, Device count: --device-count 2 ...
+Setting BorderSize: [20, 10, 20, 10] ...
+Setting StencilLocalSizeC: 48 ...
+Setting StencilLocalSizeR: 16 ...
+Building SimpleBig ...
+[ 25%] Built target stooling
+[ 46%] Built target pvsutil
+[ 97%] Built target SkelCL
+[100%] Building CXX object examples/SimpleBig/CMakeFiles/SimpleBig.dir/main.cpp.o
+Linking CXX executable SimpleBig
+/usr/lib64/gcc/x86_64-suse-linux/4.7/../../../../lib64/crt1.o: In function `_start':
+/home/abuild/rpmbuild/BUILD/glibc-2.17/csu/../sysdeps/x86_64/start.S:119: undefined reference to `main'
+collect2: error: ld returned 1 exit status
+make[3]: *** [examples/SimpleBig/SimpleBig] Error 1
+make[2]: *** [examples/SimpleBig/CMakeFiles/SimpleBig.dir/all] Error 2
+make[1]: *** [examples/SimpleBig/CMakeFiles/SimpleBig.dir/rule] Error 2
+make: *** [examples/SimpleBig/CMakeFiles/SimpleBig.dir/rule] Error 2
+fatal: make SimpleBig
+Error 2.
+```
+
+Weirdly, the contents of files: `examples/SimpleBig/main.cpp` and
+`include/SkelCL/detail/StencilKnobs.h` have both been erased (they're
+now empty). If I restore those files then `e14` starts to run again.
+
+Here's a
+[great article](http://rayli.net/blog/data/top-10-data-mining-algorithms-in-plain-english/)
+containing plain English explanations of 10 data mining
+algorithms. Some great explanations of SVMs, kNN, NaiveBayes, and
+others.
+
+TODO:
+* Pen and paper design of poster.
+* Pen and paper design of PPar slides.
+* Test `detail::Padding` patch.
+* Plot and evaluate all e14 data.
+* Implement async exec (issue #54).
