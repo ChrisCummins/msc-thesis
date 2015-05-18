@@ -8,8 +8,9 @@ import itertools
 import json
 import re
 
-import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 
 # benchlib
 import plot
@@ -159,24 +160,96 @@ def violinplot(data, wgsize_keys):
         if len(speedups):
             violindata[benchmark] = speedups
 
-    for key in reversed(sorted(violindata)):
-        io.info("KEY", key)
-
     labels = list(reversed(sorted(violindata)))
     y_vals = [violindata[x] for x in labels]
 
-    syn = 1
+    # Set axis labels.
+    syn, exp = 1, 1
     for i in range(len(labels)):
         if labels[i][0] == "[":
-            labels[i] = "Synthetic {0}".format(syn)
+            labels[i] = "S" + str(syn)
             syn += 1
+        else:
+            labels[i] = "E" + str(exp)
+            exp += 1
 
+    fig, ax = plt.subplots()
     sns.violinplot(y_vals, names=labels, inner="points", ymin=0)
     plt.ylabel('Speedup')
-    plt.xlabel('Program')
-    axes = plt.gca()
-    axes.set_ylim([0,12])
+    plt.xlabel('Programs')
+    plt.title(("Distribution of speedups for {0} samples"
+               .format(sum([len(x) for x in y_vals]))))
+    ymin, ymax = 0, 10
+    plt.ylim(ymin=ymin, ymax=ymax)
+    ax.yaxis.set_ticks(np.arange(ymin, ymax + 1, 1.0))
+    plt.savefig("./results/e14/violin.png")
+    plt.close()
+
+
+def hist_speedups(results, wgsizes):
+    oracle_speedups, predicted_speedups = [], []
+    for result in results:
+        oracle_wgsize = result["OracleLocalSize"]
+        oracle_speedup = result["Speedup" + oracle_wgsize][0]
+        oracle_speedups.append(oracle_speedup)
+
+        predicted_wgsize = result["PredictedLocalSize"]
+        predicted_speedup = result["Speedup" + predicted_wgsize][0]
+        predicted_speedups.append(predicted_speedup)
+
+    max_data = np.r_[oracle_speedups, predicted_speedups].max()
+    bins = np.linspace(0, max_data, max_data + 1)
+    plt.hist(oracle_speedups, bins, normed=True, color="#6495ED", alpha=.5)
+    plt.hist(predicted_speedups, bins, normed=True, color="#F08080", alpha=.5)
     plt.show()
+    plt.close()
+
+
+def plot_val_frequency(results, wgsizes):
+    freqs = {}
+    for wgsize in wgsizes:
+        wgsize_str = wgsize[1]
+        freqs[wgsize_str] = [0,0]
+
+    for result in results:
+        oracle_wgsize = result["OracleLocalSize"]
+        freqs[oracle_wgsize][0] += 1
+        predicted_wgsize = result["PredictedLocalSize"]
+        freqs[predicted_wgsize][1] += 1
+
+    # Prune param values which are never picked.
+    for wgsize in wgsizes:
+        key = wgsize[1]
+        if freqs[key][0] < 1 and freqs[key][1] < 1:
+            del freqs[key]
+
+    oracle_freqs = [x[0] for x in freqs.values()]
+    predicted_freqs = [x[1] for x in freqs.values()]
+    labels = freqs.keys()
+    x_vals = np.arange(len(labels))
+
+    # Sort by decreasing value.
+    oracle_freqs, predicted_freqs = zip(*reversed(sorted(zip(oracle_freqs,
+                                                             predicted_freqs),
+                                                         key=lambda x: x[0])))
+
+    # Set plot size.
+    width = 7 / 16.
+    ax = plt.subplot(111)
+
+    ax.bar(x_vals, oracle_freqs, width=width, label="Oracle")
+    ax.bar(x_vals + width, predicted_freqs,
+           color=sns.desaturate("indianred", .75), width=width,
+           label="OmniTune")
+    plt.xticks(x_vals + .5, labels, rotation=90)
+    plt.legend()
+    plt.ylabel('Frequency')
+    plt.xlabel('Parameter values')
+    # TODO: This is a shit plot title
+    plt.title(("Classification accuracy for {0} instances"
+               .format(sum(oracle_freqs))))
+
+    plt.savefig("./results/e14/freq.png")
     plt.close()
 
 
@@ -207,6 +280,9 @@ def main():
         "DataHeight",
         "DataWidth"
     ]
+
+    hist_speedups(alldata, wgsizes)
+    plot_val_frequency(alldata, wgsizes)
 
     scenarios = group_by_values(alldata, *invars)
     training_scenarios = group_by_values(training_data, *invars)
