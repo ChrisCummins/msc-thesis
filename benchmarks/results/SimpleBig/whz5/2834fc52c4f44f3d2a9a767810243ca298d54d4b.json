@@ -1,0 +1,53 @@
+{
+  "bad": true,
+  "cout": {
+    "Checksum": "465eafcde81338c2aff9bc7f70a0fad0e419225a",
+    "SkelCL version": "b875ccef0d7471667aea65c75e842990f69b28d3"
+  },
+  "dout": [
+    "ElapsedTimes",
+    "InitTime",
+    "ProgramBuildTimes",
+    "PrepareTimes",
+    "SwapTimes",
+    "Devices",
+    "DeviceCount",
+    "SkeletonEventTimes",
+    "ContainerEventTimes"
+  ],
+  "in": {
+    "Benchmark": "SimpleBig",
+    "BorderSize": [
+      1,
+      10,
+      30,
+      30
+    ],
+    "Complexity": "",
+    "Device count": "--device-count 1",
+    "Device type": "--device-type GPU",
+    "Hostname": "whz5",
+    "Size": "-w 1024 -h 1024",
+    "StencilLocalSizeC": 64,
+    "StencilLocalSizeR": 8
+  },
+  "out": [
+    {
+      "End time": "2015-05-18 11:53:15",
+      "Exit status": -6,
+      "Output": [
+        "[==DeviceList.cpp:90   000.644s  INFO] 1 OpenCL platform(s) found",
+        "[==DeviceList.cpp:101  000.644s  INFO] 1 device(s) for OpenCL platform `NVIDIA CUDA' found",
+        "[======Device.cpp:118  000.698s  INFO] Using device `GeForce GTX TITAN' with id: 0",
+        "[==DeviceList.cpp:122  000.698s  INFO] Using 1 OpenCL device(s) in total",
+        "[======SkelCL.cpp:56   000.698s  PROF] skelcl::init() time 698 ms",
+        "[=====Program.cpp:220  000.986s  PROF] skelcl::Program::build() 1 ms",
+        "[====StencilDef.h:168  000.993s  PROF] Stencil<Tout(Tin)>[0x7ffff077c4f0] prepare 6 ms",
+        "[====StencilDef.h:387  000.993s  PROF] Stencil<Tout(Tin)>[0x7ffff077c4f0][0] global[1024][1024] local[64][8] tile[104][39][4]",
+        "[======Device.cpp:148  001.050s ERROR] OpenCL error: unknown error (code: -9999) clFlush"
+      ],
+      "Run time": 1.332848072052002,
+      "Start time": "2015-05-18 11:53:14"
+    }
+  ]
+}
