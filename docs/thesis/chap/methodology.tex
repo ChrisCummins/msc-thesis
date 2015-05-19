@@ -108,3 +108,28 @@ Intel i5-4570 & 8GiB & -\\
 \end{table}
 
 \TODO{Table of derived dependent variables (e.g. FLOPS, GPU utilisation)}
+
+\newpage
+\begin{algorithm}[H]
+ \KwData{$k,h,d$ = kernel, hardware, data feature vectors}
+ \KwResult{$c$ = parameter values vector}
+ $C = \{c_1,c_2,\ldots,c_n\}$ = all legal permutations of $c$\;
+ \eIf{no control flow in kernel}{
+   return $\underset{c}{\argmin} f(k,h,d,c) = r$\;
+ }{
+   converged = false\;
+   $c_b$ = baseline values\;
+   evaluate $c_b$, measuring runtime $r_b$\;
+   \While{not converged}{
+     return $\underset{c}{\argmax} g(k,h,d,c) = s$\;
+     evaluate $c$, measuring runtime $r$\;
+     \If{measured speedup $\frac{r_b}{r} \approx$ predicted speedup $s$}{
+       converged = true\;
+     }{
+       $C = C - \{c\}$\;
+     }
+   }
+   return $c$\;
+ }
+ \caption{Classification using regressors}
+\end{algorithm}

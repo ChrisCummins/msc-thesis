@@ -6715,6 +6715,8 @@ Notes from meeting with Hugh and Pavlos:
 * Plot speedup against ZeroR.
 * Make three of four different block diagrams of the autotuner and get
   supervisors to pick their favourite.
+* As well as testing the classifier on unseen *programs*, I should
+  also test the classifier against unseen *architectures*.
 * Is it possible to predict the *runtime* of a kernel? If so, we could
   use regressors to perform classification:
 
@@ -6736,22 +6738,33 @@ Predict *speedup*:
 
 (**k**,**h**,**d**,**c**) -> *s*
 
-GET_PARAM_VALUES(**k**, **h**, **d**):<br/>
-  IF no control flow:<br/>
-    FOR ALL **c**:<br/>
-      predict runtime(**k**, **h**, **d**, **c**)<br/>
-    return **c** with lowest expected runtime *r*<br/>
-  ELSE:<br/>
-    *cb* = baseline parameter values<br/>
-    evaluate **cb**, measuring runtime *rb*<br/>
-    *C* = set of all possible values of **c**<br/>
-    WHILE not converged:<br/>
-      FOR **c** in C:<br/>
-        predict runtime(**k**, **h**, **d**, **c**)<br/>
-      return **c** with highest expected speedup *s*<br/>
-      evaluate **c**, measuring runtime *r*<br/>
-      IF measured speedup *rb*/*r* is close to predicted speedup *s*:<br/>
-        converged = true<br/>
-      ELSE:<br/>
-        remove **c** from set C<br/>
-    END WHILE<br/>
+```
+GET_PARAM_VALUES(**k**, **h**, **d**):
+  IF no control flow:
+    FOR ALL **c**:
+      predict runtime(**k**, **h**, **d**, **c**)
+    return **c** with lowest expected runtime *r*
+  ELSE:
+    *cb* = baseline parameter values
+    evaluate **cb**, measuring runtime *rb*
+    *C* = set of all possible values of **c**
+    WHILE not converged:
+      FOR **c** in C:
+        predict runtime(**k**, **h**, **d**, **c**)
+      return **c** with highest expected speedup *s*
+      evaluate **c**, measuring runtime *r*
+      IF measured speedup *rb*/*r* is close to predicted speedup *s*:
+        converged = true
+      ELSE:
+        remove **c** from set C
+    END WHILE
+```
+
+Working with `python-weka-wrapper`:
+
+* Packages installed `python-weka-wrapper`, `Pygraphviz`.
+* To plot graphs, you need
+  [PIL](http://www.pythonware.com/products/pil/). Download the latest
+  release, symlink some missing headers using `sudo ln -s
+  /usr/include/freetype2 /usr/include/freetype`, then run `sudo
+  python2 ./setup.py install`.
