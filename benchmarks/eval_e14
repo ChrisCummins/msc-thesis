@@ -11,9 +11,11 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import weka.plot.graph as graph
 
 # benchlib
 import plot
+import ml
 
 import labm8
 from labm8 import io
@@ -357,6 +359,40 @@ def print_classifier_performance(results):
                                                (max(predicted_speedups) / max(oracle_speedups)) * 100))
     print("    Failure rate    {0:.2f}%".format(fail_rate * 100))
 
+def print_speedups(speedups):
+    mean = labmath.mean(speedups)
+    median = labmath.median(speedups)
+
+    print("    Num instances: ", len(speedups))
+    print("    Mean speedup:   {0:.2f}".format(mean))
+    print("    Median speedup: {0:.2f}".format(median))
+    print("    Min speedup:    {0:.2f}".format(min(speedups)))
+    print("    Max speedup:    {0:.2f}".format(max(speedups)))
+
+def validate(results):
+    k = 10
+    training_paths, validation_paths = ml.split_arff("./results/e14/training.arff",
+                                                     k=k)
+    xspeedups = []
+    for training,validation in zip(training_paths, validation_paths):
+        training_data = ml.load_arff(training)
+        test_data = ml.load_arff(validation)
+        xspeedups += ml.evaluate_J48(training_data, test_data)
+
+    training_data = ml.load_arff("./results/e14/training.arff")
+    test_data = ml.load_arff("./results/e14/test.arff")
+    tspeedups = ml.evaluate_J48(training_data, test_data)
+
+    print("\n{0}-Fold cross validation:".format(k))
+    print_speedups(xspeedups)
+
+    print("\nTest programs:")
+    print_speedups(tspeedups)
+
+    # Plot classifier.
+    # tree = ml.get_J48(training_data)
+    # graph.plot_dot_graph(tree.graph)
+
 
 def main():
     """
@@ -389,8 +425,6 @@ def main():
         "DataWidth"
     ]
 
-    cluster_invalid(alldata, wgsizes)
-
     scenarios = group_by_values(alldata, *invars)
     training_scenarios = group_by_values(training_data, *invars)
     test_scenarios = group_by_values(test_data, *invars)
@@ -409,6 +443,9 @@ def main():
 
     print("\nTest Data:")
     print_classifier_performance(test_data)
+
+    validate(alldata)
+    cluster_invalid(alldata, wgsizes)
 
 
 if __name__ == "__main__":
