@@ -19,7 +19,7 @@ import json
 from benchlib import *
 from skelcl import *
 from util import *
-from weka import *
+from ml import *
 
 import config
 
@@ -42,6 +42,8 @@ class BorderSize(SimpleBigKnob):
                   .format(val=self.val[2], path=self.cxxSrc))
         os.system("sed -r -i 's/(define EAST) [0-9]+/\\1 {val}/' {path}"
                   .format(val=self.val[3], path=self.cxxSrc))
+
+WGSIZE = [4, 8, 16, 24, 32, 48, 64]
 
 jobdesc =  {
     "hosts": [ "florence", "cec", "dhcp-90-060", "whz5", "tim", "monza" ],
@@ -82,8 +84,8 @@ jobdesc =  {
             [ 1, 10, 30, 30],
             [20, 10, 20, 10]
         ],
-        StencilLocalSizeC: [4, 8, 16, 24, 32, 48, 64],
-        StencilLocalSizeR: [4, 8, 16, 24, 32, 48, 64]
+        StencilLocalSizeC: WGSIZE,
+        StencilLocalSizeR: WGSIZE
     }
 }
 
@@ -510,18 +512,20 @@ def getspeedup(invars):
     if (baseline.bad or result.bad or
         not len(baseline.outvars) or not len(result.outvars)):
         # If we are missing data, speedup = 0.
+        runtime = 0
         speedup = 0
         err = 0
     else:
         # Else, speedup = Tb / Tc
         time = gettime(result)
+        runtime = time[0]
         baselinetime = gettime(baseline)
         speedup = baselinetime[0] / time[0]
         err = abs((baselinetime[0] / sum(time)) - speedup)
     # Average number of iterations.
     iterations = sum([len(result.outvars), len(baseline.outvars)]) / 2
     # Add Speedup cout variable.
-    return Speedup((speedup, err, iterations))
+    return Speedup((speedup, err, iterations, runtime))
 
 # Run classifier on attribute "x" with invars.
 def getPrediction(x, invars):
@@ -787,14 +791,16 @@ def createArff(harnesses, filename, schema=None, verbose=True):
                                         StencilLocalSizeR(y))
             myspeedup = getspeedup(myinvars).val
             attributes.append(ArffAttribute("Speedup{0}x{1}".format(x, y),
-                                            "NUMERIC", myspeedup))
+                                            "NUMERIC", myspeedup[0:3]))
+            attributes.append(ArffAttribute("Runtime{0}x{1}".format(x, y),
+                                            "NUMERIC", myspeedup[3]))
 
         predicted = "{0}x{1}".format(*predicted)
         attributes += [
             ArffAttribute("Hostname", "NOMINAL", hostname),
             ArffAttribute("Benchmark", "NOMINAL", kernel_string),
             ArffAttribute("PredictedLocalSize", "NOMINAL", predicted),
-            ArffAttribute("OracleLocalSize", "NOMINAL", localSize)
+            ArffAttribute("OracleLocalSize", "NOMINAL", localSize),
         ]
         # Add a row to dataset.
         alldata.append(attributes)
