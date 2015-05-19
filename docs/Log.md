@@ -6695,3 +6695,63 @@ TODO:
 * Test `detail::Padding` patch.
 * Plot and evaluate all e14 data.
 * Implement async exec (issue #54).
+
+
+## Tuesday 19th
+
+Notes from meeting with Hugh and Pavlos:
+
+* TODO: Pen and paper draft of poster design.
+* Violin plots look suspicious. Why does shape extend below 0, and
+  well above the maximum? Use a scatter plot to verify data, and
+  perhaps try box plots.
+* I need to cross-validate my results. Never test classifier on
+  training data.
+* For plot "Distribution of speedups", are there are results beyond
+  the limit of the x axis?
+* Plot "clustering of parameter values" doesn't seem to reflect the
+  data. It would be simple enough to just plot all of the values on a
+  grid, not using clustering.
+* Plot speedup against ZeroR.
+* Make three of four different block diagrams of the autotuner and get
+  supervisors to pick their favourite.
+* Is it possible to predict the *runtime* of a kernel? If so, we could
+  use regressors to perform classification:
+
+Definitions:
+* **k** Kernel features (e.g. instruction counts, stencil size).
+* **h** Hardware features (e.g. local mem size, num devices).
+* **d** Data features (e.g. num elements, data type).
+* **c** Configurable parameter values (aka. workgroup size).
+* **r** Runtime.
+* **s** Speedup over baseline values of **c**.
+
+Two regression models:
+
+Predict *runtime*:
+
+(**k**,**h**,**d**,**c**) -> *r*
+
+Predict *speedup*:
+
+(**k**,**h**,**d**,**c**) -> *s*
+
+GET_PARAM_VALUES(**k**, **h**, **d**):<br/>
+  IF no control flow:<br/>
+    FOR ALL **c**:<br/>
+      predict runtime(**k**, **h**, **d**, **c**)<br/>
+    return **c** with lowest expected runtime *r*<br/>
+  ELSE:<br/>
+    *cb* = baseline parameter values<br/>
+    evaluate **cb**, measuring runtime *rb*<br/>
+    *C* = set of all possible values of **c**<br/>
+    WHILE not converged:<br/>
+      FOR **c** in C:<br/>
+        predict runtime(**k**, **h**, **d**, **c**)<br/>
+      return **c** with highest expected speedup *s*<br/>
+      evaluate **c**, measuring runtime *r*<br/>
+      IF measured speedup *rb*/*r* is close to predicted speedup *s*:<br/>
+        converged = true<br/>
+      ELSE:<br/>
+        remove **c** from set C<br/>
+    END WHILE<br/>
