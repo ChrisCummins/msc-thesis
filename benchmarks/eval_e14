@@ -318,6 +318,46 @@ def cluster_invalid(results, wgsizes):
     plt.close()
 
 
+def print_classifier_performance(results):
+    oracle_speedups, predicted_speedups = [], []
+    failed_count = 0
+
+    for result in results:
+        oracle_wgsize = result["OracleLocalSize"]
+        oracle_speedup = result["Speedup" + oracle_wgsize][0]
+
+        if oracle_speedup > 0:
+            oracle_speedups.append(oracle_speedup)
+            predicted_wgsize = result["PredictedLocalSize"]
+
+            predicted_speedup = result["Speedup" + predicted_wgsize][0]
+            if predicted_speedup == 0:
+                failed_count += 1
+                predicted_speedup = result["Speedup32x4"][0]
+
+            predicted_speedups.append(predicted_speedup)
+
+    oracle_mean = labmath.mean(oracle_speedups)
+    predicted_mean = labmath.mean(predicted_speedups)
+    mean_ratio = predicted_mean / oracle_mean
+
+    oracle_median = labmath.median(oracle_speedups)
+    predicted_median = labmath.median(predicted_speedups)
+    median_ratio = predicted_median / oracle_median
+
+    fail_rate = failed_count / float(len(oracle_speedups))
+
+    print("    Num instances: ", len(oracle_speedups))
+    print("    Mean speedup:   {0:.2f} ({1:.2f}%)".format(predicted_mean,
+                                                          mean_ratio * 100))
+    print("    Median speedup: {0:.2f} ({1:.2f}%)".format(predicted_median,
+                                                          median_ratio * 100))
+    print("    Min speedup:    {0:.2f}".format(min(predicted_speedups)))
+    print("    Max speedup:    {0:.2f} ({1:.2f}%)".format(max(predicted_speedups),
+                                               (max(predicted_speedups) / max(oracle_speedups)) * 100))
+    print("    Failure rate    {0:.2f}%".format(fail_rate * 100))
+
+
 def main():
     """
     Generate plots.
@@ -363,6 +403,12 @@ def main():
     hist_speedups(alldata)
     plot_val_frequency(alldata, wgsizes)
     clusters(alldata)
+
+    print("\nAll Data:")
+    print_classifier_performance(alldata)
+
+    print("\nTest Data:")
+    print_classifier_performance(test_data)
 
 
 if __name__ == "__main__":
