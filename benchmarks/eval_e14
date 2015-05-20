@@ -11,7 +11,6 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-import weka.plot.graph as graph
 
 # benchlib
 import plot
@@ -409,38 +408,55 @@ def get_oracle_speedups(results):
 
 def print_speedups(speedups, oracle_speedups):
     mean = labmath.mean(speedups)
+    oracle_mean = labmath.mean(oracle_speedups)
+    mean_ratio = mean / oracle_mean
+
     median = labmath.median(speedups)
+    oracle_median = labmath.median(oracle_speedups)
+    median_ratio = median / oracle_median
+
+    _min = min(speedups)
+    oracle_min = min(oracle_speedups)
+    min_ratio = _min / oracle_min
+
+    _max = max(speedups)
+    oracle_max = max(oracle_speedups)
+    max_ratio = _max / oracle_max
 
     print("    Num instances: ", len(speedups))
-    print("    Mean speedup:   {0:.2f}".format(mean))
-    print("    Median speedup: {0:.2f}".format(median))
-    print("    Min speedup:    {0:.2f}".format(min(speedups)))
-    print("    Max speedup:    {0:.2f}".format(max(speedups)))
+    print(("    Mean speedup:   {0:.2f} ({1:.2f}%) {2:.2f}"
+           .format(mean, mean_ratio * 100, oracle_mean)))
+    print(("    Median speedup: {0:.2f} ({1:.2f}%) {2:.2f}"
+           .format(median, median_ratio * 100, oracle_median)))
+    print(("    Min speedup:    {0:.2f} ({1:.2f}) {2:.2f}"
+           .format(_min, min_ratio * 100, oracle_min)))
+    print(("    Max speedup:    {0:.2f} ({1:.2f}%) {2:.2f}"
+           .format(_max, max_ratio * 100, oracle_max)))
 
-def validate(training_data_json, test_data_json):
-    k = 10
+def validate(training_data_json, test_data_json, k=10):
     training_paths, validation_paths = ml.split_arff("./results/e14/training.arff",
                                                      k=k)
-    xspeedups = []
+    xspeedups, oracle_speedups = [], []
     for training,validation in zip(training_paths, validation_paths):
         training_data = ml.load_arff(training)
         test_data = ml.load_arff(validation)
-        xspeedups += ml.evaluate_J48(training_data, test_data)
+        xspeedup, oracle_speedup = ml.evaluate_J48(training_data, test_data)
+        xspeedups += xspeedup
+        oracle_speedups += oracle_speedup
+
+    print("\n{0}-Fold cross validation:".format(k))
+    print_speedups(xspeedups, oracle_speedups)
 
     training_data = ml.load_arff("./results/e14/training.arff")
     test_data = ml.load_arff("./results/e14/test.arff")
-    tspeedups = ml.evaluate_J48(training_data, test_data)
-
-    print("\n{0}-Fold cross validation:".format(k))
-    oracle_speedups = get_oracle_speedups(training_data_json)
-    print_speedups(xspeedups, oracle_speedups)
+    tspeedups, oracle_speedups = ml.evaluate_J48(training_data, test_data)
 
     print("\nTest programs:")
-    oracle_speedups = get_oracle_speedups(test_data_json)
     print_speedups(tspeedups, oracle_speedups)
 
     # Plot classifier.
     # tree = ml.get_J48(training_data)
+    # import weka.plot.graph as graph
     # graph.plot_dot_graph(tree.graph)
 
 
@@ -454,12 +470,6 @@ def main():
     wgsizes = zip(wgsize_vals, wgsize_strs, wgsize_keys)
 
     alldata = get_data("results/e14/data.arff.json")
-
-    # Ensure that all datapoints have all speedup keys.
-    for result in alldata:
-        for key in wgsize_keys:
-            if key not in result:
-                result[key] = [0, 0, 0]
 
     training_data = [x for x in alldata if x["Benchmark"][0] == "["]
     test_data = [x for x in alldata if x not in training_data]
