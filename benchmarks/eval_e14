@@ -385,13 +385,15 @@ def print_classifier_performance(results):
     fail_rate = failed_count / float(len(oracle_speedups))
 
     print("    Num instances: ", len(oracle_speedups))
-    print("    Mean speedup:   {0:.2f} ({1:.2f}%)".format(predicted_mean,
-                                                          mean_ratio * 100))
-    print("    Median speedup: {0:.2f} ({1:.2f}%)".format(predicted_median,
-                                                          median_ratio * 100))
+    print(("    Mean speedup:   {0:.2f} ({1:.2f}%) {2:.2f}"
+           .format(predicted_mean, mean_ratio * 100, oracle_mean)))
+    print(("    Median speedup: {0:.2f} ({1:.2f}%) {2:.2f}"
+           .format(predicted_median, median_ratio * 100, oracle_median)))
     print("    Min speedup:    {0:.2f}".format(min(predicted_speedups)))
-    print("    Max speedup:    {0:.2f} ({1:.2f}%)".format(max(predicted_speedups),
-                                               (max(predicted_speedups) / max(oracle_speedups)) * 100))
+    print(("    Max speedup:    {0:.2f} ({1:.2f}%) {2:.2f}"
+           .format(max(predicted_speedups),
+                   (max(predicted_speedups) / max(oracle_speedups)) * 100,
+                   max(oracle_speedups))))
     print("    Failure rate    {0:.2f}%".format(fail_rate * 100))
 
 def print_speedups(speedups):
