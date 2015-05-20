@@ -185,7 +185,42 @@ def violinplot(data, wgsize_keys):
     ymin, ymax = 0, 10
     plt.ylim(ymin=ymin, ymax=ymax)
     ax.yaxis.set_ticks(np.arange(ymin, ymax + 1, 1.0))
-    plt.savefig("./results/e14/violin.png")
+    plt.savefig("./results/e14/violin-prog.png")
+    plt.close()
+
+    devices = group_by_values(data, "dev_name", "DeviceCount")
+    violindata = {}
+    for device in devices:
+        results = devices[device]
+        speedups = []
+        for result in results:
+            speedups += [result[x][0] for x in wgsize_keys if result[x][0] > 0]
+        if len(speedups):
+            violindata[device] = speedups
+
+    labels = list(violindata)
+    y_vals = [violindata[x] for x in labels]
+
+    # Set axis labels.
+    cpu, gpu = 1, 1
+    for i in range(len(labels)):
+        if labels[i][0] == "i":
+            labels[i] = "CPU" + str(cpu)
+            cpu += 1
+        else:
+            labels[i] = "GPU" + str(gpu)
+            gpu += 1
+
+    fig, ax = plt.subplots()
+    sns.violinplot(y_vals, names=labels, inner="points", ymin=0)
+    plt.ylabel('Speedup')
+    plt.xlabel('Devices')
+    plt.title(("Distribution of speedups for {0} samples"
+               .format(sum([len(x) for x in y_vals]))))
+    ymin, ymax = 0, 10
+    plt.ylim(ymin=ymin, ymax=ymax)
+    ax.yaxis.set_ticks(np.arange(ymin, ymax + 1, 1.0))
+    plt.savefig("./results/e14/violin-dev.png")
     plt.close()
 
 
