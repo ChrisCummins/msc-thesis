@@ -129,17 +129,20 @@ def split_arff(path, k=10):
 
     training_paths, validation_paths = [], []
 
-    for i in range(1, k+1, 1):
-        shuffle(rows)
+    # Shuffle data randomly.
+    shuffle(rows)
 
+    j = 0
+    for i in range(0, len(rows), splitsize):
+        j += 1
         training_path = path + "-{0:02d}-training".format(i)
         validation_path = path + "-{0:02d}-validation".format(i)
 
-        validation_data = rows[0:splitsize]
-        training_data = rows[splitsize:]
+        validation_data = rows[i:i+splitsize]
+        training_data = rows[:i] + rows[i+splitsize:]
 
         with open(validation_path, "w") as file:
-            file.write("\n".join(header + validation_data))
+             file.write("\n".join(header + validation_data))
         with open(training_path, "w") as file:
             file.write("\n".join(header + training_data))
 

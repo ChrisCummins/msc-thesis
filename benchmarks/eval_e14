@@ -396,7 +396,18 @@ def print_classifier_performance(results):
                    max(oracle_speedups))))
     print("    Failure rate    {0:.2f}%".format(fail_rate * 100))
 
-def print_speedups(speedups):
+
+def get_oracle_speedups(results):
+    oracle_speedups = []
+    for result in results:
+        oracle_wgsize = result["OracleLocalSize"]
+        oracle_speedup = result["Speedup" + oracle_wgsize][0]
+        if oracle_speedup > 1:
+            oracle_speedups.append(oracle_speedup)
+    return oracle_speedups
+
+
+def print_speedups(speedups, oracle_speedups):
     mean = labmath.mean(speedups)
     median = labmath.median(speedups)
 
@@ -406,7 +417,7 @@ def print_speedups(speedups):
     print("    Min speedup:    {0:.2f}".format(min(speedups)))
     print("    Max speedup:    {0:.2f}".format(max(speedups)))
 
-def validate(results):
+def validate(training_data_json, test_data_json):
     k = 10
     training_paths, validation_paths = ml.split_arff("./results/e14/training.arff",
                                                      k=k)
@@ -421,10 +432,12 @@ def validate(results):
     tspeedups = ml.evaluate_J48(training_data, test_data)
 
     print("\n{0}-Fold cross validation:".format(k))
-    print_speedups(xspeedups)
+    oracle_speedups = get_oracle_speedups(training_data_json)
+    print_speedups(xspeedups, oracle_speedups)
 
     print("\nTest programs:")
-    print_speedups(tspeedups)
+    oracle_speedups = get_oracle_speedups(test_data_json)
+    print_speedups(tspeedups, oracle_speedups)
 
     # Plot classifier.
     # tree = ml.get_J48(training_data)
@@ -440,7 +453,6 @@ def main():
     wgsize_keys = ["Speedup{0}".format(x) for x in wgsize_strs]
     wgsizes = zip(wgsize_vals, wgsize_strs, wgsize_keys)
 
-    print("stat \t min \t median \t mean \t max")
     alldata = get_data("results/e14/data.arff.json")
 
     # Ensure that all datapoints have all speedup keys.
@@ -466,10 +478,6 @@ def main():
     training_scenarios = group_by_values(training_data, *invars)
     test_scenarios = group_by_values(test_data, *invars)
 
-    process(scenarios, wgsizes, "all")
-    process(training_scenarios, wgsizes, "training")
-    process(test_scenarios, wgsizes, "test")
-
     violinplot(alldata, wgsize_keys)
     hist_speedups(alldata)
     plot_val_frequency(alldata, wgsizes)
@@ -481,7 +489,7 @@ def main():
     print("\nTest Data:")
     print_classifier_performance(test_data)
 
-    validate(alldata)
+    validate(training_data, test_data)
     cluster_invalid(alldata, wgsizes)
 
 
