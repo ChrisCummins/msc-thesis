@@ -6768,3 +6768,10 @@ Working with `python-weka-wrapper`:
   release, symlink some missing headers using `sudo ln -s
   /usr/include/freetype2 /usr/include/freetype`, then run `sudo
   python2 ./setup.py install`.
+
+
+## Wednesday 20th
+
+Started reading an excellent article about
+[Lisp](http://www.defmacro.org/ramblings/lisp.html). I stopped at the
+"C Macros Reloaded" section. Will continue tomorrow.
