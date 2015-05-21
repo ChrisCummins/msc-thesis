@@ -6775,3 +6775,13 @@ Working with `python-weka-wrapper`:
 Started reading an excellent article about
 [Lisp](http://www.defmacro.org/ramblings/lisp.html). I stopped at the
 "C Macros Reloaded" section. Will continue tomorrow.
+
+
+## Thursday 21st
+
+I read an
+[interesting article](https://news.ycombinator.com/item?id=6398650)
+bashing Hadoop for "big" data handling (the conclusion was that most
+data is best stored in simple SQL tables, and in RAM). I should
+checkout out the [Pandas](http://pandas.pydata.org/) library for
+Python data processing.
