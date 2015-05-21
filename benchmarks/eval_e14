@@ -294,19 +294,15 @@ def plot_val_frequency(results, wgsizes):
     oracle_freqs, predicted_freqs = zip(*reversed(sorted(zip(oracle_freqs,
                                                              predicted_freqs),
                                                          key=lambda x: x[0])))
-    width = 7 / 16.
+    width = 1.
     ax = plt.subplot(111)
 
     ax.bar(x_vals, oracle_freqs, width=width, label="Oracle")
-    ax.bar(x_vals + width, predicted_freqs,
-           color=sns.desaturate("indianred", .75), width=width,
-           label="OmniTune")
     plt.xticks(x_vals + .5, labels, rotation=90)
-    plt.legend()
     plt.ylabel('Frequency')
     plt.xlabel('Parameter values')
     # TODO: This is a shit plot title
-    plt.title(("Parameter values of {0} instances"
+    plt.title(("Optimal parameter values for {0} instances"
                .format(sum(oracle_freqs))))
     plt.savefig("./results/e14/freq.png")
     plt.close()
@@ -460,6 +456,37 @@ def validate(training_data_json, test_data_json, k=10):
     # graph.plot_dot_graph(tree.graph)
 
 
+def zero_r(results, wgsizes):
+    speedups = {}
+    for wgsize in wgsizes:
+        speedups[wgsize[2]] = []
+
+    for result in results:
+        for wgsize in wgsizes:
+            speedup = result[wgsize[2]][0]
+            if speedup > 0:
+                speedups[wgsize[2]].append(speedup)
+
+    data = []
+    for wgsize in wgsizes:
+        s = speedups[wgsize[2]]
+        num_results = len(s)
+        mean = labmath.mean(s)
+        data.append((wgsize[1], num_results, mean, s))
+
+    data = list(reversed(sorted(data, key=lambda x: x[1])))
+
+    #universal = [x for x in data if x[1] == len(results) - 1]
+    universal = data
+    universal = list(reversed(sorted(universal, key=lambda x: x[2])))
+    print([[x[0], x[1], x[2]] for x in universal])
+    best = universal[0]
+    zero_r = best[3]
+
+    print("ZERO_R", best[0], "MIN", min(zero_r), "MAX", max(zero_r),
+          "MEAN", labmath.mean(zero_r), "MEDIAN", labmath.median(zero_r))
+
+
 def main():
     """
     Generate plots.
@@ -487,6 +514,10 @@ def main():
     scenarios = group_by_values(alldata, *invars)
     training_scenarios = group_by_values(training_data, *invars)
     test_scenarios = group_by_values(test_data, *invars)
+
+    zero_r(alldata, wgsizes)
+    zero_r(training_data, wgsizes)
+    zero_r(test_data, wgsizes)
 
     violinplot(alldata, wgsize_keys)
     hist_speedups(alldata)

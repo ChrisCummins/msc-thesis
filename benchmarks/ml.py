@@ -62,7 +62,7 @@ def match_result(result, d):
     return True
 
 
-def lookup_speedup(instances, instance, wgsize):
+def lookup_speedups(instances, instance, wgsize):
     a = []
     for attr in instances.attributes():
         a.append(attr.name)
@@ -85,8 +85,14 @@ def lookup_speedup(instances, instance, wgsize):
     try:
         speedup = result["Speedup" + wgsize]
     except Exception:
+        print("PREDICT BOOB")
         speedup = result["Speedup32x4"]
-    return speedup[0]
+    try:
+        oracle_speedup=result["Speedup" + result["OracleLocalSize"]]
+    except Exception:
+        print("ORACLE BOOB")
+        oracle_speedup = result["Speedup32x4"]
+    return speedup[0], oracle_speedup[0]
 
 def evaluate_J48(training_data, testing_data, *args, **kwargs):
     """
@@ -95,15 +101,16 @@ def evaluate_J48(training_data, testing_data, *args, **kwargs):
     """
     tree = get_J48(training_data, *args, **kwargs)
 
-    speedups = []
+    speedups, oracle_speedups = [], []
     for index, inst in enumerate(testing_data):
         pred = tree.classify_instance(inst)
         wgsize = get_wgsize(training_data, pred)
-        speedup = lookup_speedup(testing_data, inst, wgsize)
+        speedup, oracle_speedup = lookup_speedups(testing_data, inst, wgsize)
         if speedup > 0:
             speedups.append(speedup)
+            oracle_speedups.append(oracle_speedup)
 
-    return speedups
+    return speedups, oracle_speedups
 
 
 def split_arff(path, k=10):
@@ -135,8 +142,8 @@ def split_arff(path, k=10):
     j = 0
     for i in range(0, len(rows), splitsize):
         j += 1
-        training_path = path + "-{0:02d}-training".format(i)
-        validation_path = path + "-{0:02d}-validation".format(i)
+        training_path = path + "-{0:02d}-training".format(j)
+        validation_path = path + "-{0:02d}-validation".format(j)
 
         validation_data = rows[i:i+splitsize]
         training_data = rows[:i] + rows[i+splitsize:]
