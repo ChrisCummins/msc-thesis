@@ -430,6 +430,8 @@ AC_CONFIG_FILES([
         omnitune/Makefile
         omnitune/native/Makefile
         skepu/examples/Makefile
+        scraps/Makefile
+        scraps/05-20/Makefile
 ])
 
 AC_OUTPUT

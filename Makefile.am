@@ -8,6 +8,7 @@ if ENABLE_EXERCISES
 SUBDIRS += \
 	benchmarks \
 	exercises \
+	scraps \
 	skepu \
 	$(NULL)
 endif
