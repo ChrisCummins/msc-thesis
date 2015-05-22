@@ -14,12 +14,14 @@ LDADD = -L$(OPENCL_LIB) -lOpenCL
 #------------------------------------------------------------------------
 noinst_PROGRAMS = 			\
 	mandelbrot_opencl		\
+	mandelbrot_seq			\
 	$(NULL)
 
 #------------------------------------------------------------------------
 # Build target requisites.
 #------------------------------------------------------------------------
 mandelbrot_opencl_SOURCES = mandelbrot_opencl.cc
+mandelbrot_seq_SOURCES = mandelbrot_seq.cc
 
 #------------------------------------------------------------------------
 # Auxiliary build targets.
