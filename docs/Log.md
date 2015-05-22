@@ -6785,3 +6785,9 @@ bashing Hadoop for "big" data handling (the conclusion was that most
 data is best stored in simple SQL tables, and in RAM). I should
 checkout out the [Pandas](http://pandas.pydata.org/) library for
 Python data processing.
+
+
+## Friday 22nd
+
+Packages installed on florence: `libclc`, `python-pyopencl`,
+`python2-pyopencl`.
