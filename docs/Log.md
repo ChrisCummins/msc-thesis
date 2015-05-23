@@ -6791,3 +6791,30 @@ Python data processing.
 
 Packages installed on florence: `libclc`, `python-pyopencl`,
 `python2-pyopencl`.
+
+
+## Saturday 23rd
+
+Installing omnitune on wzh5:
+
+```
+cd ~/src/
+git clone git@github.com:ChrisCummins/labm8.git
+cd labm8
+sudo python2 ./setup.py install
+python2 ./setup.py check
+sudo zypper install \
+    python-distribute \
+    python-devel \
+    python-numpy-devel \
+    gtkmm3-devel
+sudo cp -Rv ~/src/msc-thesis/skelcl/include/CL /usr/include
+cd ~/src/msc-thesis/skelcl
+git reset --hard HEAD
+cd ..
+git reset --hard HEAD
+git pull --rebase
+cd omnitune
+sudo python2 ./setup.py install
+python2 ./setup.py check
+```
