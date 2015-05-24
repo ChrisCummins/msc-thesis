@@ -456,6 +456,19 @@ def validate(training_data_json, test_data_json, k=10):
     # graph.plot_dot_graph(tree.graph)
 
 
+def plot_speedups(results, title=""):
+    X = np.arange(len(results))
+
+    plt.bar(X, results)
+    plt.ylabel('Speedup')
+    plt.xlabel('Programs')
+    plt.title("Speedups of " + str(title))
+    plt.axhline(y=1, color='k')
+
+    plt.show()
+    plt.close()
+
+
 def zero_r(results, wgsizes):
     speedups = {}
     for wgsize in wgsizes:
@@ -514,6 +527,10 @@ def main():
     scenarios = group_by_values(alldata, *invars)
     training_scenarios = group_by_values(training_data, *invars)
     test_scenarios = group_by_values(test_data, *invars)
+
+    speedups, oracle_speedups = ml.evaluate_J48(ml.load_arff("results/e14/training.arff"),
+                                                ml.load_arff("results/e14/test.arff"))
+    plot_speedups(oracle_speedups, title="unseen benchmarks")
 
     zero_r(alldata, wgsizes)
     zero_r(training_data, wgsizes)
