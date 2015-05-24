@@ -6798,23 +6798,148 @@ Packages installed on florence: `libclc`, `python-pyopencl`,
 Installing omnitune on wzh5:
 
 ```
-cd ~/src/
-git clone git@github.com:ChrisCummins/labm8.git
-cd labm8
-sudo python2 ./setup.py install
-python2 ./setup.py check
+# Install python pre-reqs
 sudo zypper install \
     python-distribute \
     python-devel \
     python-numpy-devel \
     gtkmm3-devel
+
+# Install OpenCL headers
 sudo cp -Rv ~/src/msc-thesis/skelcl/include/CL /usr/include
+
+# Install libclc
+wget ftp://ftp.pbone.net/mirror/ftp5.gwdg.de/pub/opensuse/repositories/home:/pontostroy:/X11/openSUSE_Factory/x86_64/libclc-devel-0.0.1-42.4.x86_64.rpm
+sudo rpm -i libclc-devel-0.0.1-42.4.x86_64.rpm
+
+# Install labm8
+cd ~/src/
+git clone git@github.com:ChrisCummins/labm8.git
+cd labm8
+sudo python2 ./setup.py install
+sudo python2 ./setup.py test
+
+# Install omnitune
 cd ~/src/msc-thesis/skelcl
 git reset --hard HEAD
+git checkout wip/stencil-refactor
 cd ..
 git reset --hard HEAD
 git pull --rebase
 cd omnitune
 sudo python2 ./setup.py install
-python2 ./setup.py check
+sudo python2 ./setup.py test
+```
+
+Planned prototype for data collection:
+
+```
+AddStencilRunTimeData(device_name, device_count,      \
+                      north, south, east, west,       \
+                      data_width, data_height, source \
+                      wg_r, wg_c, max_wgsize, runtime)
+```
+
+Kcache schema:
+
+```
+kernel_checksum              TEXT
+instruction_count            INTEGER
+ratio_AShr_insts             REAL
+ratio_Add_insts              REAL
+ratio_Alloca_insts           REAL
+ratio_And_insts              REAL
+ratio_Br_insts               REAL
+ratio_Call_insts             REAL
+ratio_FAdd_insts             REAL
+ratio_FCmp_insts             REAL
+ratio_FDiv_insts             REAL
+ratio_FMul_insts             REAL
+ratio_FPExt_insts            REAL
+ratio_FPToSI_insts           REAL
+ratio_FSub_insts             REAL
+ratio_GetElementPtr_insts    REAL
+ratio_ICmp_insts             REAL
+ratio_InsertValue_insts      REAL
+ratio_Load_insts             REAL
+ratio_Mul_insts              REAL
+ratio_Or_insts               REAL
+ratio_PHI_insts              REAL
+ratio_Ret_insts              REAL
+ratio_SDiv_insts             REAL
+ratio_SExt_insts             REAL
+ratio_SIToFP_insts           REAL
+ratio_SRem_insts             REAL
+ratio_Select_insts           REAL
+ratio_Shl_insts              REAL
+ratio_Store_insts            REAL
+ratio_Sub_insts              REAL
+ratio_Trunc_insts            REAL
+ratio_UDiv_insts             REAL
+ratio_Xor_insts              REAL
+ratio_ZExt_insts             REAL
+ratio_basic_blocks           REAL
+ratio_memory_instructions    REAL
+ratio_non-external_function  REAL
+```
+
+Dcache schema:
+
+```
+host                           TEXT
+address_bits                   NUMERIC
+double_fp_config               NUMERIC
+endian_little                  NUMERIC
+execution_capabilities         NUMERIC
+extensions                     TEXT
+global_mem_cache_size          NUMERIC
+global_mem_cache_type          NUMERIC
+global_mem_cacheline_size      NUMERIC
+global_mem_size                NUMERIC
+host_unified_memory            NUMERIC
+image2d_max_height             NUMERIC
+image2d_max_width              NUMERIC
+image3d_max_depth              NUMERIC
+image3d_max_height             NUMERIC
+image3d_max_width              NUMERIC
+image_support                  NUMERIC
+local_mem_size                 NUMERIC
+local_mem_type                 NUMERIC
+max_clock_frequency            NUMERIC
+max_compute_units              NUMERIC
+max_constant_args              NUMERIC
+max_constant_buffer_size       NUMERIC
+max_mem_alloc_size             NUMERIC
+max_parameter_size             NUMERIC
+max_read_image_args            NUMERIC
+max_samplers                   NUMERIC
+max_work_group_size            NUMERIC
+max_work_item_dimensions       NUMERIC
+max_work_item_sizes_0          NUMERIC
+max_work_item_sizes_1          NUMERIC
+max_work_item_sizes_2          NUMERIC
+max_write_image_args           NUMERIC
+mem_base_addr_align            NUMERIC
+min_data_type_align_size       NUMERIC
+name                           TEXT    PRIMARY KEY
+native_vector_width_char       NUMERIC
+native_vector_width_double     NUMERIC
+native_vector_width_float      NUMERIC
+native_vector_width_half       NUMERIC
+native_vector_width_int        NUMERIC
+native_vector_width_long       NUMERIC
+native_vector_width_short      NUMERIC
+preferred_vector_width_char    NUMERIC
+preferred_vector_width_double  NUMERIC
+preferred_vector_width_float   NUMERIC
+preferred_vector_width_half    NUMERIC
+preferred_vector_width_int     NUMERIC
+preferred_vector_width_long    NUMERIC
+preferred_vector_width_short   NUMERIC
+queue_properties               NUMERIC
+single_fp_config               NUMERIC
+type                           NUMERIC
+vendor                         TEXT
+vendor_id                      NUMERIC
+version                        TEXT
 ```
