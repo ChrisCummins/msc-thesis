@@ -7,26 +7,22 @@ from labm8 import io
 import omnitune
 from omnitune import skelcl
 
-def main():
-    DBs = [
-        fs.path("../data/omnitune.skelcl.cec.db"),
-        fs.path("../data/omnitune.skelcl.florence.db"),
-        fs.path("../data/omnitune.skelcl.monza.db"),
-        fs.path("../data/omnitune.skelcl.tim.db"),
-        fs.path("../data/omnitune.skelcl.whz5.db")
-    ]
+import experiment
 
-    oracle_path = "../data/omnitune.oracle.db"
-    fs.rm(oracle_path)
-    oracle = skelcl.SkelCLDatabase(oracle_path)
+def mkoracle(path):
+    fs.rm(path)
+    oracle = skelcl.SkelCLDatabase(path)
 
-    for path in DBs:
+    for path in experiment.DATABASES:
         if fs.isfile(path):
             io.info("EXPORT  ", path)
             db = skelcl.SkelCLDatabase(path)
             oracle.merge(db)
         else:
             io.info("Skipping", path)
+
+def main():
+    mkoracle(fs.path(experiment.DATABASE_ROOT, "omnitune.oracle.db"))
 
 if __name__ == "__main__":
     main()
