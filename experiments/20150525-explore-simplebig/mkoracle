@@ -1,0 +1,32 @@
+#!/usr/bin/env python2
+
+import labm8
+from labm8 import fs
+from labm8 import io
+
+import omnitune
+from omnitune import skelcl
+
+def main():
+    DBs = [
+        fs.path("../data/omnitune.skelcl.cec.db"),
+        fs.path("../data/omnitune.skelcl.florence.db"),
+        fs.path("../data/omnitune.skelcl.monza.db"),
+        fs.path("../data/omnitune.skelcl.tim.db"),
+        fs.path("../data/omnitune.skelcl.whz5.db")
+    ]
+
+    oracle_path = "../data/omnitune.oracle.db"
+    fs.rm(oracle_path)
+    oracle = skelcl.SkelCLDatabase(oracle_path)
+
+    for path in DBs:
+        if fs.isfile(path):
+            io.info("EXPORT  ", path)
+            db = skelcl.SkelCLDatabase(path)
+            oracle.merge(db)
+        else:
+            io.info("Skipping", path)
+
+if __name__ == "__main__":
+    main()
