@@ -31,7 +31,7 @@ def sample_space():
         set_border(*border)
 
         for args in experiment.ARGS:
-            args = labm8.flatten(args)
+            args = labm8.flatten(args) + ["-i", "500"]
             io.debug(args)
             ret, out, err = system.run([experiment.SIMPLEBIG_BUILD_BIN] + args,
                                        stdout=system.STDOUT, stderr=system.STDERR)
