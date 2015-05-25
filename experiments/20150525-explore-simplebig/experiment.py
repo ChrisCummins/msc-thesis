@@ -34,8 +34,7 @@ COMPLEXITIES = ([""], ["-c"])
 DATASIZES = (
     ["-w", "512", "-h", "512"],
     ["-w", "1024", "-h", "1024"],
-    ["-w", "2048", "-h", "2048"],
-    ["-w", "4096", "-h", "4096"]
+    ["-w", "2048", "-h", "2048"]
 )
 
 ARGS = list(itertools.product(COMPLEXITIES, DATASIZES))
