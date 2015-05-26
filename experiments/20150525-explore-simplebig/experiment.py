@@ -19,6 +19,7 @@ DATABASES = [
     fs.path(DATABASE_ROOT, "omnitune.skelcl.tim.db"),
     fs.path(DATABASE_ROOT, "omnitune.skelcl.whz5.db")
 ]
+DATABASE_ORACLE = "omnitune.oracle.db"
 
 BORDERS = (
     ( 1,  1,  1,  1),
