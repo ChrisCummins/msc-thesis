@@ -6831,6 +6831,9 @@ sudo python2 ./setup.py install
 sudo python2 ./setup.py test
 ```
 
+
+## Sunday 24th
+
 Planned prototype for data collection:
 
 ```
@@ -6943,3 +6946,24 @@ vendor                         TEXT
 vendor_id                      NUMERIC
 version                        TEXT
 ```
+
+
+## Monday 25th
+
+I left `SimpleBig` spinning last night on `florence` and `cec`,
+collecting runtimes by systematically enumerating the optimisation
+space. Notes:
+
+* The current method of selecting the next parameter values to use by
+  enumerating the entire optimisation space does not scale. On
+  florence, it's taking over 2s just to select which param values to
+  use next:
+
+```
+[DEBUG ] RequestTrainingStencilParams(Intel(R), 1, [1, 1, 1, 1], 1024, 1024, f9c9cc2a, 4096) -> (48, 4) [2.329s] (79.8%)
+```
+
+* The full dataset for the enumeration of the parameter space of a
+  *single* benchmark on `cec` is ~4.3M, at 34076 rows. That's 255 runs
+  of each different set of parameter values. This could obviously be
+  reduced by using fewer samples.
