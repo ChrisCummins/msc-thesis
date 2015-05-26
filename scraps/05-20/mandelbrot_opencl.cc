@@ -1,30 +1,6 @@
 // Author: Michel Steuwer <michel.steuwer@uni-muenster.de>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/time.h>
-#include <CL/cl.h>
-#include <string.h>
 
-#define COLOR_R(n) ((n & 63) << 2)
-#define COLOR_G(n) ((n << 3) & 255)
-#define COLOR_B(n) ((n >> 8) & 255)
-
-typedef struct {
-  unsigned char r;
-  unsigned char g;
-  unsigned char b;
-} Pixel;
-
-// write image to a PPM file with the given filename
-void WritePPM (Pixel *pixels, const char *filename, int width, int height) {
-  FILE* outputFile = fopen(filename, "w");
-
-  fprintf(outputFile, "P6\n%d %d\n255\n", width, height);
-  fwrite(pixels, sizeof(Pixel), width * height, outputFile);
-
-  fclose(outputFile);
-}
+#include "./common.h"
 
 // ######################################################
 // Start OpenCL section
@@ -80,50 +56,50 @@ void printBuildLog(cl_program program, cl_device_id device) {
 void makeKernel() {
   cl_int err;
   // Kernel Quellcode
-  const char* kernelSource = "\
-#pragma OPENCL EXTENSION cl_khr_byte_addressable_store: enable\n\
-#define COLOR_R(n) ((n & 63) << 2)\n\
-#define COLOR_G(n) ((n << 3) & 255)\n\
-#define COLOR_B(n) ((n >> 8) & 255)\n\
-\n\
-typedef struct {\n\
-  unsigned char r;\n\
-  unsigned char g;\n\
-  unsigned char b;\n\
-} Pixel;\n\
-\n\
-__kernel\n\
-void mandelbrotKernel(__global Pixel* pixel,\n\
-                      float startX,\n\
-                      float startY,\n\
-                      float dx,\n\
-                      float dy,\n\
-                      int iterations,\n\
-                      int width) {\n\
-  float x = startX + get_global_id(0) * dx;\n\
-  float y = startY + get_global_id(1) * dy;\n\
-\n\
-  int n = 0;\n\
-  float rNext = 0.0f;\n\
-  float r = 0.0f, s = 0.0f;\n\
-  while (((r * r) + (s * s) <= 4.0f) &&  (n < iterations)) {\n\
-    rNext = ((r * r) - (s * s)) + x;\n\
-    s = (2 * r * s) + y;\n\
-    r = rNext;\n\
-    n++;\n\
-  }\n\
-\n\
-  __global Pixel* p = &pixel[get_global_id(1) * width + get_global_id(0)];\n\
-  if (n == iterations) {\n\
-    p->r = 0;\n\
-    p->g = 0;\n\
-    p->b = 0;\n\
-  } else {\n\
-    p->r = COLOR_R(n);\n\
-    p->g = COLOR_G(n);\n\
-    p->b = COLOR_B(n);\n\
-  }\n\
-}";
+  const char* kernelSource = R"(
+#pragma OPENCL EXTENSION cl_khr_byte_addressable_store: enable
+#define COLOR_R(n) ((n & 63) << 2)
+#define COLOR_G(n) ((n << 3) & 255)
+#define COLOR_B(n) ((n >> 8) & 255)
+
+typedef struct {
+  unsigned char r;
+  unsigned char g;
+  unsigned char b;
+} Pixel;
+
+__kernel
+void mandelbrotKernel(__global Pixel* pixel,
+                      float startX,
+                      float startY,
+                      float dx,
+                      float dy,
+                      int iterations,
+                      int width) {
+  float x = startX + get_global_id(0) * dx;
+  float y = startY + get_global_id(1) * dy;
+
+  int n = 0;
+  float rNext = 0.0f;
+  float r = 0.0f, s = 0.0f;
+  while (((r * r) + (s * s) <= 4.0f) &&  (n < iterations)) {
+    rNext = ((r * r) - (s * s)) + x;
+    s = (2 * r * s) + y;
+    r = rNext;
+    n++;
+  }
+
+  __global Pixel* p = &pixel[get_global_id(1) * width + get_global_id(0)];
+  if (n == iterations) {
+    p->r = 0;
+    p->g = 0;
+    p->b = 0;
+  } else {
+    p->r = COLOR_R(n);
+    p->g = COLOR_G(n);
+    p->b = COLOR_B(n);
+  }
+})";
   // Laenge des Kernel Quellcodes
   size_t sourceLength = strlen(kernelSource);
   cl_program program;
@@ -165,7 +141,8 @@ void mandelbrotOpenCL(Pixel* img, float startX, float startY, float dx, float dy
 
   size_t globalSize[] = {(size_t)width, (size_t)height};
   // Starte Kernel width * width mal
-  err = clEnqueueNDRangeKernel( commandQueue, kernel, 2, NULL, globalSize, NULL, 0, NULL, NULL);
+  err = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL,
+                               globalSize, NULL, 0, NULL, NULL);
   checkError(err);
   printf("enqueued kernel\n");
 
@@ -184,28 +161,28 @@ int main(void) {
   int width  = 1024*4;
   int height = 768*4;
   int zoom   = 1000;
-  float startX = -(float)width/(zoom * 2);
-  float endX   =  (float)width/(zoom * 2);
-  float startY = -(float)height/(zoom * 2);
-  float endY   =  (float)height/(zoom * 2);
+  float startX = -static_cast<float>(width)  / (zoom * 2.0);
+  float endX   =  static_cast<float>(width)  / (zoom * 2.0);
+  float startY = -static_cast<float>(height) / (zoom * 2.0);
+  float endY   =  static_cast<float>(height) / (zoom * 2.0);
   float dx     =  (endX - startX) / width;
   float dy     =  (endY - startY) / height;
   int iterations = 2000;
 
+  Pixel* img = new Pixel[width * height];
+
   initOpenCL();
   makeKernel();
-
-  Pixel* img = (Pixel*) malloc(width * height * sizeof(Pixel));
 
   gettimeofday(&start, NULL);
   mandelbrotOpenCL(img, startX, startY, dx, dy, iterations, width, height);
   gettimeofday(&end, NULL);
-  printf("Time elapsed OpenCL: %fmsecs\n",
-    (float) (1000.0 * (end.tv_sec - start.tv_sec) + 0.001 * (end.tv_usec - start.tv_usec)) );
+  printf("Time elapsed: %f ms\n",
+         (float) (1000.0 * (end.tv_sec - start.tv_sec)
+                  + 0.001 * (end.tv_usec - start.tv_usec)));
 
-  WritePPM(img, "mandelbrot.ppm", width, height);
-
-  free(img);
+  WritePPM(img, "mandelbrot_opencl.ppm", width, height);
+  delete[] img;
 
   return 0;
 }

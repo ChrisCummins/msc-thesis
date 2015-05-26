@@ -1,77 +1,63 @@
 // Source: http://rosettacode.org/wiki/Mandelbrot_set#C
-#include <stdio.h>
+#include "./common.h"
 
-#include <cstdlib>
-#include <cmath>
+void mandelbrotSeq(Pixel* img, float startX, float startY, float dx, float dy,
+                   int iterations, int width, int height) {
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      float x = startX + i * dx;
+      float y = startY + j * dy;
+
+      int n = 0;
+      float rNext = 0.0f;
+      float r = 0.0f, s = 0.0f;
+
+      while (((r * r) + (s * s) <= 4.0f) && (n < iterations)) {
+        rNext = ((r * r) - (s * s)) + x;
+        s = (2 * r * s) + y;
+        r = rNext;
+        n++;
+      }
+
+      Pixel *p = &img[j * width + i];
+
+      if (n == iterations) {
+        p->r = 0;
+        p->g = 0;
+        p->b = 0;
+      } else {
+        p->r = COLOR_R(n);
+        p->g = COLOR_G(n);
+        p->b = COLOR_B(n);
+      }
+    }
+  }
+}
 
 int main() {
-    /* screen ( integer) coordinate */
-    int iX,iY;
-    const int iXmax = 800;
-    const int iYmax = 800;
-    /* world ( double) coordinate = parameter plane*/
-    double Cx,Cy;
-    const double CxMin=-2.5;
-    const double CxMax=1.5;
-    const double CyMin=-2.0;
-    const double CyMax=2.0;
-    /* */
-    double PixelWidth=(CxMax-CxMin)/iXmax;
-    double PixelHeight=(CyMax-CyMin)/iYmax;
-    /* color component ( R or G or B) is coded from 0 to 255 */
-    /* it is 24 bit color RGB file */
-    const int MaxColorComponentValue=255;
-    FILE * fp;
-    const char *filename="new1.ppm";
-    const char *comment="# ";/* comment should start with # */
-    static unsigned char color[3];
-    /* Z=Zx+Zy*i  ;   Z0 = 0 */
-    double Zx, Zy;
-    double Zx2, Zy2; /* Zx2=Zx*Zx;  Zy2=Zy*Zy  */
-    /*  */
-    int Iteration;
-    const int IterationMax=200;
-    /* bail-out value , radius of circle ;  */
-    const double EscapeRadius=2;
-    double ER2=EscapeRadius*EscapeRadius;
-    /*create new file,give it a name and open it in binary mode  */
-    fp= fopen(filename,"wb"); /* b -  binary mode */
-    /*write ASCII header to the file*/
-    fprintf(fp,"P6\n %s\n %d\n %d\n %d\n",comment,iXmax,iYmax,MaxColorComponentValue);
-    /* compute and write image data bytes to the file*/
-    for(iY=0;iY<iYmax;iY++) {
-        Cy=CyMin + iY*PixelHeight;
-        if (fabs(Cy)< PixelHeight/2) Cy=0.0; /* Main antenna */
-        for(iX=0;iX<iXmax;iX++) {
-            Cx=CxMin + iX*PixelWidth;
-            /* initial value of orbit = critical point Z= 0 */
-            Zx=0.0;
-            Zy=0.0;
-            Zx2=Zx*Zx;
-            Zy2=Zy*Zy;
-            /* */
-            for (Iteration=0;Iteration<IterationMax && ((Zx2+Zy2)<ER2);Iteration++) {
-                Zy=2*Zx*Zy + Cy;
-                Zx=Zx2-Zy2 +Cx;
-                Zx2=Zx*Zx;
-                Zy2=Zy*Zy;
-            };
-            /* compute  pixel color (24 bit = 3 bytes) */
-            if (Iteration==IterationMax) {
-                /*  interior of Mandelbrot set = black */
-                color[0]=0;
-                color[1]=0;
-                color[2]=0;
-            } else {
-                /* exterior of Mandelbrot set = white */
-                color[0]=255; /* Red*/
-                color[1]=255;  /* Green */
-                color[2]=255;/* Blue */
-            };
-            /*write color to the file*/
-            fwrite(color,1,3,fp);
-        }
-    }
-    fclose(fp);
+    struct timeval start, end;
+    int width  = 1024*4;
+    int height = 768*4;
+    int zoom   = 1000;
+    float startX = -static_cast<float>(width)  / (zoom * 2.0);
+    float endX   =  static_cast<float>(width)  / (zoom * 2.0);
+    float startY = -static_cast<float>(height) / (zoom * 2.0);
+    float endY   =  static_cast<float>(height) / (zoom * 2.0);
+    float dx     =  (endX - startX) / width;
+    float dy     =  (endY - startY) / height;
+    int iterations = 2000;
+
+    Pixel* img = new Pixel[width * height];
+
+    gettimeofday(&start, NULL);
+    mandelbrotSeq(img, startX, startY, dx, dy, iterations, width, height);
+    gettimeofday(&end, NULL);
+    printf("Time elapsed: %f ms\n",
+           (float) (1000.0 * (end.tv_sec - start.tv_sec)
+                    + 0.001 * (end.tv_usec - start.tv_usec)));
+
+    WritePPM(img, "mandelbrot_seq.ppm", width, height);
+    delete[] img;
+
     return 0;
 }
