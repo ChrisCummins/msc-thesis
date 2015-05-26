@@ -1,0 +1,99 @@
+#!/usr/bin/env python2
+
+import re
+import random
+import sys
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
+import labm8
+from labm8 import io
+from labm8 import fs
+from labm8 import make
+from labm8 import system
+from labm8 import math as labmath
+
+import omnitune
+from omnitune import cache
+
+import experiment
+
+ELAPSED_RE = re.compile("Time elapsed: ([0-9]+\.[0-9]+) ms")
+
+def get_runtime(program):
+    ret, out, err = system.run(program)
+
+    match = re.search(ELAPSED_RE, out)
+    if match:
+        t = float(match.group(1))
+        io.debug(program, t)
+        return t
+    else:
+        io.error(out)
+        raise Exception("No Runtime found!")
+
+
+def sample(results):
+    """
+    Collect a set of samples.
+    """
+    fs.cd(experiment.ROOT)
+
+    make.make()
+
+    opencl = results.get("opencl", [])
+    skelcl = results.get("skelcl", [])
+    seq = results.get("seq", [])
+
+    opencl.append(get_runtime("./mandelbrot_opencl"))
+    skelcl.append(get_runtime("./mandelbrot_skelcl"))
+    seq.append(get_runtime("./mandelbrot_seq"))
+
+    results.set("opencl", opencl)
+    results.set("skelcl", skelcl)
+    results.set("seq", seq)
+
+
+def get_plot_colours():
+    c = sns.color_palette()[:3]
+
+    return c[0], c[2], c[1]
+
+def plot_runtimes(results):
+    opencl = labmath.mean(results.get("opencl"))
+    skelcl = labmath.mean(results.get("skelcl"))
+    seq = labmath.mean(results.get("seq"))
+
+    plt.bar((1, 2, 3), (seq, opencl, skelcl), align="center",
+            color=get_plot_colours())
+    plt.xticks((1, 2, 3), ("Sequential", "OpenCL", "SkelCL"))
+    plt.title("Runtime")
+    plt.savefig("runtime.png")
+    plt.close()
+
+def plot_sloc(seq=1, opencl=1, skelcl=1):
+    plt.bar((1, 2, 3), (seq, opencl, skelcl), align="center",
+            color=get_plot_colours())
+    plt.xticks((1, 2, 3), ("Sequential", "OpenCL", "SkelCL"))
+    plt.title("Lines of code")
+    plt.savefig("loc.png")
+    plt.close()
+
+def main():
+    results = cache.JsonCache("results.json")
+
+    # Gather results.
+    while len(results.get("seq", [])) < 10:
+        sample(results)
+
+    plot_sloc(opencl=142, skelcl=58, seq=52)
+    plot_runtimes(results)
+
+
+
+
+if __name__ == "__main__":
+    main()
