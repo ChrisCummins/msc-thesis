@@ -9,6 +9,26 @@ from omnitune import skelcl
 
 import experiment
 
+SAMPLES_TABLE = (
+    ("host",           "TEXT"),
+    ("device",         "TEXT"),
+    ("dev_count",      "INTEGER"),
+    ("kernel",         "TEXT"),
+    ("data_width",     "INTEGER"),
+    ("data_height",    "INTEGER"),
+    ("wg_c",           "INTEGER"),
+    ("wg_r",           "INTEGER"),
+    ("sample_count",   "INTEGER"),
+    ("mean_runtime",   "REAL")
+    ("median_runtime", "REAL")
+)
+
+
+def create_samples_table(oracle):
+    oracle.create_table("samples", SAMPLES_TABLE)
+    # TODO: Populate table!
+
+
 def mkoracle(path):
     fs.rm(path)
     oracle = skelcl.SkelCLDatabase(path)
@@ -20,6 +40,9 @@ def mkoracle(path):
             oracle.merge(db)
         else:
             io.info("Skipping", path)
+
+    create_samples_table(oracle)
+
 
 def main():
     mkoracle(fs.path(experiment.DATABASE_ROOT,
