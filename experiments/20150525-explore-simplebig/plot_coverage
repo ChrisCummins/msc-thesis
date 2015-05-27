@@ -1,0 +1,135 @@
+#!/usr/bin/env python2
+
+import csv
+import itertools
+import random
+import sys
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
+import labm8
+from labm8 import io
+from labm8 import fs
+from labm8 import make
+from labm8 import system
+
+import omnitune
+from omnitune import skelcl
+
+import experiment
+
+
+def get_runtimes(db, where, wg_c, wg_r):
+    where += " AND wg_c={c} AND wg_r={r}".format(c=wg_c, r=wg_r)
+    query = db.execute("SELECT runtime FROM runtimes WHERE " + where)
+    return [row[0] for row in query]
+
+
+def plot_runtimes(runtimes):
+    """
+    Plot the distribution of a set of runtimes.
+    """
+    plt.hist(runtimes, 100)
+    plt.title("Distribution of {0} runtimes".format(len(runtimes)))
+    plt.ylabel("Frequencey")
+    plt.xlabel("Runtime (ms)")
+    plt.show()
+
+def get_name(data):
+    c = ["Kernel ",
+         data["kern_checksum"][:8],
+         " on ",
+         data["host"],
+         ", using "]
+
+    if int(data["dev_count"] > 1):
+        c += [data["dev_count"], "x "]
+
+    c += [
+        data["dev_name"].strip(),
+        ".\nData size: ",
+        data["data_width"], "x", data["data_height"],
+        ". Border size: ",
+        ",".join([data["north"],
+                  data["south"],
+                  data["east"],
+                  data["west"]]),
+        "."
+    ]
+
+    return "".join(c)
+
+
+image_count = 0
+
+def plot_heatmaps(samplecounts_data, runtimes_data):
+    global image_count
+
+    sample_counts = np.zeros(shape=(len(skelcl.WG_VALUES),
+                                    len(skelcl.WG_VALUES)))
+    runtimes = np.zeros(shape=(len(skelcl.WG_VALUES),
+                                    len(skelcl.WG_VALUES)))
+
+    for wg in itertools.product(skelcl.WG_VALUES, skelcl.WG_VALUES):
+        j = len(skelcl.WG_VALUES) - 1 - skelcl.WG_VALUES.index(wg[0])
+        i = skelcl.WG_VALUES.index(wg[1])
+        key = str(wg[0]) + "x" + str(wg[1])
+
+        sample_counts[j][i] = int(samplecounts_data[key])
+        runtimes[j][i] = float(runtimes_data[key])
+
+    name = get_name(samplecounts_data)
+
+    f, ax = plt.subplots(figsize=(12, 9))
+    sns.heatmap(sample_counts, linewidths=0, square=True,
+                vmin=0, vmax=500,
+                xticklabels=skelcl.WG_VALUES,
+                yticklabels=list(reversed(skelcl.WG_VALUES)))
+    plt.title(name)
+    plot_path = "img/samplecounts/{0:04d}.png".format(image_count)
+    io.info(plot_path)
+    plt.savefig(plot_path)
+    plt.close()
+
+
+    f, ax = plt.subplots(figsize=(12, 9))
+    sns.heatmap(runtimes, linewidths=0, square=True,
+                vmin=min(runtimes), vmax=max(runtimes),
+                xticklabels=skelcl.WG_VALUES,
+                yticklabels=list(reversed(skelcl.WG_VALUES)))
+    plt.title(name)
+    plot_path = "img/runtimes/{0:04d}.png".format(image_count)
+    io.info(plot_path)
+    plt.savefig(plot_path)
+    plt.close()
+
+    image_count += 1
+
+
+def main():
+    fs.mkdir("img/samplecounts")
+    fs.mkdir("img/runtimes")
+    samplecounts_csv = open('csv/samplecounts.csv', 'rb')
+    runtimes_csv = open('csv/runtimes.csv', 'rb')
+
+    samplecounts_reader = csv.reader(samplecounts_csv)
+    runtimes_reader = csv.reader(runtimes_csv)
+
+    header = samplecounts_reader.next()
+    header = runtimes_reader.next()
+
+    for samplecounts_row in samplecounts_reader:
+        runtimes_row = runtimes_reader.next()
+        samplecounts_data, runtimes_data = {}, {}
+        for i in range(len(header)):
+            samplecounts_data[header[i]] = samplecounts_row[i]
+            runtimes_data[header[i]] = runtimes_row[i]
+
+        plot_heatmaps(samplecounts_data, runtimes_data)
+
+
+if __name__ == "__main__":
+    main()
