@@ -6967,3 +6967,13 @@ space. Notes:
   *single* benchmark on `cec` is ~4.3M, at 34076 rows. That's 255 runs
   of each different set of parameter values. This could obviously be
   reduced by using fewer samples.
+
+
+## Wednesday
+
+Installing omnitune on `dhcp-90-060`:
+
+```
+# System packages
+sudo apt-get install libgtkmm-3.0-dev
+```

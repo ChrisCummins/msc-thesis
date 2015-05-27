@@ -97,7 +97,7 @@ def plot_heatmaps(samplecounts_data, runtimes_data):
 
     f, ax = plt.subplots(figsize=(12, 9))
     sns.heatmap(runtimes, linewidths=0, square=True,
-                vmin=min(runtimes), vmax=max(runtimes),
+                vmin=runtimes.min(), vmax=runtimes.max(),
                 xticklabels=skelcl.WG_VALUES,
                 yticklabels=list(reversed(skelcl.WG_VALUES)))
     plt.title(name)
