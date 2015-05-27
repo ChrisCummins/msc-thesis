@@ -1,0 +1,79 @@
+#!/usr/bin/env python2
+
+import csv
+import itertools
+
+import labm8
+from labm8 import io
+from labm8 import fs
+
+import omnitune
+from omnitune import skelcl
+
+import experiment
+
+
+def get_num_samples(db, values):
+    """
+    For a given set of values, return a list of (wg, sample_count)
+    tuples. If a wg is greater than the max_wg_size, sample_count is
+    -1.
+    """
+    where = []
+
+    for i in range(len(values)):
+        key = skelcl.RUNTIMES_TABLE[i][0]
+        val = db.escape_value("runtimes", i, values[i])
+        where.append('{key} = {val}'.format(key=key, val=val))
+    where = " AND ".join(where)
+
+    sample_counts = []
+    for wg in itertools.product(skelcl.WG_VALUES, skelcl.WG_VALUES):
+        j = skelcl.WG_VALUES.index(wg[0])
+        i = skelcl.WG_VALUES.index(wg[1])
+
+        max_wg_size = values[-1]
+        wg_where = " AND wg_c={c} AND wg_r={r}".format(c=wg[0], r=wg[1])
+
+        if wg[0] * wg[1] > max_wg_size:
+            count = -1
+        else:
+            count = db.execute("SELECT Count(*) FROM runtimes WHERE "
+                               + where + wg_where).fetchone()[0]
+
+        sample_counts.append(count)
+        io.debug(wg, count)
+
+    return sample_counts
+
+
+def main():
+    db = skelcl.SkelCLDatabase(fs.path(experiment.DATABASE_ROOT,
+                                       experiment.DATABASE_ORACLE))
+
+    scenario_keys = [x[0] for x in skelcl.RUNTIMES_TABLE[:-3]]
+
+    io.info("Database contains",
+            db.execute("select count(*) from runtimes").fetchone()[0],
+            "runtimes.")
+
+    scenarios = db.execute("SELECT DISTINCT " + ",".join(scenario_keys) +
+                           " FROM runtimes")
+
+    with open('csv/samplecounts.csv', 'wb') as csvfile:
+        writer = csv.writer(csvfile)
+
+        wgs = itertools.product(skelcl.WG_VALUES, skelcl.WG_VALUES)
+        wg_keys = [str(x[0]) + "x" + str(x[1]) for x in list(wgs)]
+
+        header = scenario_keys + wg_keys
+        writer.writerow(header)
+
+        for row in scenarios:
+            samples = get_num_samples(db, row)
+            csv_row = list(row) + samples
+            writer.writerow(csv_row)
+
+
+if __name__ == "__main__":
+    main()
