@@ -6,6 +6,7 @@ import itertools
 import labm8
 from labm8 import io
 from labm8 import fs
+from labm8 import math as labmath
 
 import omnitune
 from omnitune import skelcl
@@ -13,7 +14,7 @@ from omnitune import skelcl
 import experiment
 
 
-def get_num_samples(db, values):
+def get_info(db, values):
     """
     For a given set of values, return a list of (wg, sample_count)
     tuples. If a wg is greater than the max_wg_size, sample_count is
@@ -27,24 +28,29 @@ def get_num_samples(db, values):
         where.append('{key} = {val}'.format(key=key, val=val))
     where = " AND ".join(where)
 
-    sample_counts = []
+    sample_counts, runtimes = [], []
     for wg in itertools.product(skelcl.WG_VALUES, skelcl.WG_VALUES):
-        j = skelcl.WG_VALUES.index(wg[0])
-        i = skelcl.WG_VALUES.index(wg[1])
 
         max_wg_size = values[-1]
         wg_where = " AND wg_c={c} AND wg_r={r}".format(c=wg[0], r=wg[1])
 
         if wg[0] * wg[1] > max_wg_size:
+            runtime = 0
             count = -1
         else:
-            count = db.execute("SELECT Count(*) FROM runtimes WHERE "
-                               + where + wg_where).fetchone()[0]
+            runtimes = []
+            query = db.execute("SELECT runtime FROM runtimes WHERE " +
+                               where + wg_where)
+            for runtime in query:
+                runtimes.append(runtime[0])
+            runtime = labmath.mean(runtimes)
+            count = len(runtimes)
 
         sample_counts.append(count)
-        io.debug(wg, count)
+        runtimes.append(runtime)
+        io.debug(wg, count, runtime)
 
-    return sample_counts
+    return sample_counts, runtimes
 
 
 def main():
@@ -60,19 +66,25 @@ def main():
     scenarios = db.execute("SELECT DISTINCT " + ",".join(scenario_keys) +
                            " FROM runtimes")
 
-    with open('csv/samplecounts.csv', 'wb') as csvfile:
-        writer = csv.writer(csvfile)
+    wgs = itertools.product(skelcl.WG_VALUES, skelcl.WG_VALUES)
+    wg_keys = [str(x[0]) + "x" + str(x[1]) for x in list(wgs)]
 
-        wgs = itertools.product(skelcl.WG_VALUES, skelcl.WG_VALUES)
-        wg_keys = [str(x[0]) + "x" + str(x[1]) for x in list(wgs)]
+    header = scenario_keys + wg_keys
 
-        header = scenario_keys + wg_keys
-        writer.writerow(header)
+    samplecounts_csv = open('csv/samplecounts.csv', 'wb')
+    runtimes_csv = open('csv/runtimes.csv', 'wb')
 
-        for row in scenarios:
-            samples = get_num_samples(db, row)
-            csv_row = list(row) + samples
-            writer.writerow(csv_row)
+    samplecounts_writer = csv.writer(samplecounts_csv)
+    samplecounts_writer.writerow(header)
+
+    runtimes_writer = csv.writer(runtimes_csv)
+    runtimes_writer.writerow(header)
+
+    for row in scenarios:
+        samples, runtimes = get_info(db, row)
+
+        samplecounts_writer.writerow(list(row) + samples)
+        runtimes_writer.writerow(list(row) + runtimes)
 
 
 if __name__ == "__main__":
