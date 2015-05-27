@@ -17,6 +17,7 @@ SIMPLEBIG_SRC_HOST = fs.path(SIMPLEBIG_SRC, "main.cpp")
 DATABASE_ROOT = fs.path(ROOT, "data")
 DATABASES = [
     fs.path(DATABASE_ROOT, "omnitune.skelcl.cec.db"),
+    fs.path(DATABASE_ROOT, "omnitune.skelcl.dhcp-90-060.db"),
     fs.path(DATABASE_ROOT, "omnitune.skelcl.florence.db"),
     fs.path(DATABASE_ROOT, "omnitune.skelcl.monza.db"),
     fs.path(DATABASE_ROOT, "omnitune.skelcl.tim.db"),
@@ -46,6 +47,8 @@ DATASIZES = [
 
 if system.HOSTNAME == "cec":
     DEVARGS = [["--device-type", "CPU", "--device-count", "1"]]
+elif system.HOSTNAME == "dhcp-90-060":
+    DEVARGS = [["--device-type", "GPU", "--device-count", "1"]]
 elif system.HOSTNAME == "florence":
     DEVARGS = [["--device-type", "CPU", "--device-count", "1"]]
 elif system.HOSTNAME == "monza":
