@@ -38,12 +38,9 @@ def get_info(db, values):
             runtime = 0
             count = -1
         else:
-            runtimes = []
             query = db.execute("SELECT runtime FROM runtimes WHERE " +
                                where + wg_where)
-            for runtime in query:
-                runtimes.append(runtime[0])
-            runtime = labmath.mean(runtimes)
+            runtime = labmath.mean([x[0] for x in query])
             count = len(runtimes)
 
         sample_counts.append(count)
