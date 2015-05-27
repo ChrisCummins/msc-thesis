@@ -9,5 +9,3 @@
 ## Have I made enough progress this week?
 
 ## Have I worked hard enough this week?
-
-## Reading Log
