@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import itertools
 import json
+import math
 import re
 
 import matplotlib.pyplot as plt
@@ -16,10 +17,11 @@ import seaborn as sns
 import plot
 import ml
 
-import labm8
+import labm8 as lab
 from labm8 import io
 from labm8 import fs
 from labm8 import math as labmath
+
 
 WGSIZES= [
     [4, 8, 16, 24, 32, 48, 64],
@@ -465,7 +467,7 @@ def plot_speedups(results, title=""):
     plt.title("Speedups of " + str(title))
     plt.axhline(y=1, color='k')
 
-    plt.show()
+    #plt.show()
     plt.close()
 
 
@@ -489,7 +491,6 @@ def zero_r(results, wgsizes):
 
     data = list(reversed(sorted(data, key=lambda x: x[1])))
 
-    #universal = [x for x in data if x[1] == len(results) - 1]
     universal = data
     universal = list(reversed(sorted(universal, key=lambda x: x[2])))
     print([[x[0], x[1], x[2]] for x in universal])
@@ -498,6 +499,150 @@ def zero_r(results, wgsizes):
 
     print("ZERO_R", best[0], "MIN", min(zero_r), "MAX", max(zero_r),
           "MEAN", labmath.mean(zero_r), "MEDIAN", labmath.median(zero_r))
+
+
+def get_oracle_speedup(result):
+    oracle_wg = result["OracleLocalSize"]
+    oracle_key = "Speedup" + oracle_wg
+    return result[oracle_key][0]
+
+def foobar(results, path, wgs):
+    outdata = []
+    for result in results:
+        d = {}
+        out = []
+        for wg in wgs:
+            runtime_key = "Runtime" + wg
+            out.append(result[runtime_key])
+
+        oracle_key = "Runtime" + result["OracleLocalSize"]
+        predicted_key = "Runtime" + result["PredictedLocalSize"]
+        d["runtimes"] = out
+        d["oracle"] = result[oracle_key]
+        d["predicted"] = result[predicted_key]
+
+        outdata.append(d)
+    json.dump(outdata, open(path, "wb"))
+
+BAD = None
+
+def set_bad(results):
+    global BAD
+    bad = [False] * len(results[0]["speedups"])
+    for result in results:
+        for i,speedup in enumerate(result["speedups"]):
+            if speedup == 0:
+                bad[i] = True
+    BAD = bad
+
+def summarise(tag, speedups):
+    print(tag, " "
+          "{0:.2f}".format(min(speedups)),
+          #"{0:.2f}".format(labmath.median(speedups)),
+          "{0:.2f}".format(labmath.mean(speedups)),
+          "{0:.2f}".format(max(speedups)))
+
+def print_summary(results):
+    global BAD
+
+    num_good = len([x for x in BAD if not x])
+    all_speedups = []
+
+    for i,result in enumerate(results):
+        speedups = []
+        for j,speedup in enumerate(result["speedups"]):
+            if not BAD[j]:
+                speedups.append(speedup)
+        all_speedups.append(speedups)
+
+    for i in range(num_good):
+        summarise("WG", [x[i] for x in all_speedups])
+
+    predicted = [result["predicted"] for result in results]
+    summarise("PREDICTED", predicted)
+    oracle = [result["oracle"] for result in results]
+    summarise("ORACLE", oracle)
+
+    X = np.arange(len(predicted))
+    plt.bar(X, sorted(predicted))
+    plt.axhline(y=1, color='k')
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off')
+    plt.xlabel("Programs")
+    plt.ylabel("Speedup")
+    plt.yticks(range(int(math.ceil(max(predicted))) + 1))
+    plt.title("Speedup of predictions over best static value")
+    plt.show()
+    plt.close()
+
+
+def oracle_speedups(results, path, wgs):
+    outdata = []
+
+    INDEX_OF_DEFAULT = 28
+
+    for result in results:
+        d = {}
+        out = []
+        oracle = result["oracle"]
+        for i,runtime in enumerate(result["runtimes"]):
+            if runtime > 0:
+                speedup = oracle / runtime
+            else:
+                speedup = 0
+            out.append(speedup)
+
+        # print(",".join(sorted(["{0:.2f}".format(x) for x in out if x > 0], reverse=True)))
+
+        d["speedups"] = out
+        if result["predicted"] > 0:
+            d["predicted"] = oracle / result["predicted"]
+        else:
+            d["predicted"] = oracle / result["runtimes"][INDEX_OF_DEFAULT]
+        outdata.append(d)
+
+    json.dump(outdata, open(path, "wb"))
+
+def index_speedups(results, path, wgs, index):
+    outdata = []
+
+    INDEX_OF_DEFAULT = 28
+
+    for result in results:
+        d = {}
+        out = []
+        baseline = result["runtimes"][index]
+        for i,runtime in enumerate(result["runtimes"]):
+            if runtime > 0:
+                speedup = baseline / runtime
+            else:
+                speedup = 0
+            out.append(speedup)
+
+        # print(",".join(sorted(["{0:.2f}".format(x) for x in out if x > 0], reverse=True)))
+
+        d["speedups"] = out
+        if result["predicted"] > 0:
+            d["predicted"] = baseline / result["predicted"]
+        else:
+            d["predicted"] = baseline / result["runtimes"][INDEX_OF_DEFAULT]
+
+        d["oracle"] = d["predicted"] / (baseline / result["oracle"])
+        outdata.append(d)
+
+    json.dump(outdata, open(path, "wb"))
+
+
+def gen_heatmap(results, wgs):
+
+    #for result in results:
+    #print(wgs)
+
+    pass
 
 
 def main():
@@ -514,41 +659,51 @@ def main():
     training_data = [x for x in alldata if x["Benchmark"][0] == "["]
     test_data = [x for x in alldata if x not in training_data]
 
-    keys = [key for key in alldata[0]]
-    invars = [
-        "dev_name",
-        "DeviceCount",
-        "dev_device_type",
-        "Benchmark",
-        "DataHeight",
-        "DataWidth"
-    ]
+    allj = json.load(open("all.json"))
+    training = json.load(open("training.json"))
+    test = json.load(open("test.json"))
 
-    scenarios = group_by_values(alldata, *invars)
-    training_scenarios = group_by_values(training_data, *invars)
-    test_scenarios = group_by_values(test_data, *invars)
+    #oracle_speedups(allj, "o-all.json", wgsize_strs)
+    #oracle_speedups(training, "o-training.json", wgsize_strs)
+    #oracle_speedups(test, "o-test.json", wgsize_strs)
 
-    speedups, oracle_speedups = ml.evaluate_J48(ml.load_arff("results/e14/training.arff"),
-                                                ml.load_arff("results/e14/test.arff"))
-    plot_speedups(oracle_speedups, title="unseen benchmarks")
+    oall = json.load(open("o-all.json"))
+    otraining = json.load(open("o-training.json"))
+    otest = json.load(open("o-test.json"))
 
-    zero_r(alldata, wgsizes)
-    zero_r(training_data, wgsizes)
-    zero_r(test_data, wgsizes)
+    set_bad(oall)
 
-    violinplot(alldata, wgsize_keys)
-    hist_speedups(alldata)
-    plot_val_frequency(alldata, wgsizes)
-    clusters(alldata)
+    # ZERO_R is (32, 4). Performance of oracle:
+    #
+    #           min  mean max
+    # training: 0.17 0.81 1.00
+    # test:     0.60 0.87 1.00
+    # total:    0.17 0.81 1.00
+    print(wgsize_vals.index((4, 32)))
+    print(wgsize_vals.index((32, 4)))
 
-    print("\nAll Data:")
-    print_classifier_performance(alldata)
+    for i,bad in enumerate(BAD):
+        if not bad:
+            print("GOOD", i)
 
-    print("\nTest Data:")
-    print_classifier_performance(test_data)
+    zero_r_index = wgsize_vals.index((4, 32))
+    index_speedups(allj, "i-all.json", wgsize_strs, zero_r_index)
+    index_speedups(training, "i-training.json", wgsize_strs, zero_r_index)
+    index_speedups(test, "i-test.json", wgsize_strs, zero_r_index)
 
-    validate(training_data, test_data)
-    cluster_invalid(alldata, wgsizes)
+    iall = json.load(open("i-all.json"))
+    itraining = json.load(open("i-training.json"))
+    itest = json.load(open("i-test.json"))
+
+    gen_heatmap(oall, wgsizes)
+
+    # print_summary(iall)
+    io.info("TRAINING")
+    # print_summary(itraining)
+    io.info("TEST")
+    print_summary(itest)
+
+    lab.exit(0)
 
 
 if __name__ == "__main__":
