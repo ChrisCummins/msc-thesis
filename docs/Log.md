@@ -6969,7 +6969,7 @@ space. Notes:
   reduced by using fewer samples.
 
 
-## Wednesday
+## Wednesday 27th
 
 Installing omnitune on `dhcp-90-060`:
 
@@ -6977,3 +6977,13 @@ Installing omnitune on `dhcp-90-060`:
 # System packages
 sudo apt-get install libgtkmm-3.0-dev
 ```
+
+
+## Thursday 28th
+
+Three things I'd like to investigate for my thesis:
+
+* Programatically generating stencil codes for training.
+* Using linear regression to predict speedup and runtime for online
+  learning.
+* Applying omnitune to other skeleton libraries.
