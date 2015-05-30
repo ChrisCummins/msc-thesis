@@ -6,8 +6,10 @@ import random
 import sys
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
+
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 import seaborn as sns
 
 import labm8
@@ -85,7 +87,7 @@ def plot_heatmaps(samplecounts_data, runtimes_data):
 
     f, ax = plt.subplots(figsize=(12, 9))
     sns.heatmap(sample_counts, linewidths=0, square=True,
-                vmin=0, vmax=500,
+                vmin=0,
                 xticklabels=skelcl.WG_VALUES,
                 yticklabels=list(reversed(skelcl.WG_VALUES)))
     plt.title(name)
@@ -109,6 +111,90 @@ def plot_heatmaps(samplecounts_data, runtimes_data):
     image_count += 1
 
 
+def plot_best_wg_counts(best_wg_counts):
+    """
+    Visualise the "best workgroup counts" data.
+
+    * A heatmap of the number of times that a workgroup size was
+      optimal.
+    * A sorted frequency plot showing how many times a value was
+      optimal.
+
+    Arguments:
+
+        best_wg_counts (np.matrix of ints): A matrix of every point in
+          the WG_VALUES search space, with the value being the number
+          of times that the wg size was optimal.
+    """
+    sum_best_wg_counts = best_wg_counts.sum()
+
+    f, ax = plt.subplots(figsize=(12, 9))
+
+    freq = np.squeeze(np.asarray(best_wg_counts))
+    pos_freq = sorted([f for f in np.nditer(freq) if f > 0], reverse=True)
+
+    median_pos_freq = np.median(pos_freq)
+    #center=flights_rect.loc["January", 1955]
+
+
+    sns.heatmap(best_wg_counts, linewidths=0, square=True,
+                # TODO: Remove this artificial clamp.
+                vmin=0, vmax=10, cmap="Reds", cbar=False,
+                xticklabels=skelcl.WG_VALUES,
+                yticklabels=list(reversed(skelcl.WG_VALUES)))
+
+    fontsize = 18
+    for tick in ax.xaxis.get_major_ticks():
+        tick.label.set_fontsize(fontsize)
+    for tick in ax.yaxis.get_major_ticks():
+        tick.label.set_fontsize(fontsize)
+
+    plot_path = "img/best_wg_heatmap.png".format(image_count)
+    io.info(plot_path)
+    plt.gcf().set_size_inches(15.6, 15.6, dpi=300)
+    plt.tight_layout()
+    plt.savefig(plot_path)
+    plt.close()
+
+    # Print the number of unique values needed to be optimal 50% of
+    # the time.
+    total = 0
+    for i,y in enumerate(pos_freq):
+        total += y
+        if total > 50:
+            io.info("Number of unique values needed to be optimal 50% of "
+                    "time = ", i)
+            break
+
+    # Scale values to be proportional to total number of unique
+    # values.
+    pos_freq = [(y / sum(pos_freq)) * 100 for y in pos_freq]
+
+    acc = 0
+    acc_pos_freq = []
+    for freq in pos_freq:
+        acc += freq
+        acc_pos_freq.append(acc)
+
+    X = np.arange(len(pos_freq))
+
+    plt.scatter(X, acc_pos_freq)
+    #plt.title("% of oracle")
+    plt.ylabel("% of oracle")
+    plt.xlim(xmin=0, xmax=len(pos_freq) - 1)
+    plt.ylim(ymin=0, ymax=100)
+    plt.xlabel("Number of unique values")
+    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d %%'))
+
+    plot_path = "img/best_wg_distribution.png".format(image_count)
+    io.info(plot_path)
+    plt.gcf().set_size_inches(15.6, 5.25, dpi=300)
+    plt.tight_layout()
+    #plt.show()
+    plt.savefig(plot_path)
+    plt.close()
+
+
 def main():
     fs.mkdir("img/samplecounts")
     fs.mkdir("img/runtimes")
@@ -121,14 +207,45 @@ def main():
     header = samplecounts_reader.next()
     header = runtimes_reader.next()
 
+    best_wg_counts = np.zeros(shape=(len(skelcl.WG_VALUES),
+                                     len(skelcl.WG_VALUES)))
+
     for samplecounts_row in samplecounts_reader:
         runtimes_row = runtimes_reader.next()
-        samplecounts_data, runtimes_data = {}, {}
-        for i in range(len(header)):
-            samplecounts_data[header[i]] = samplecounts_row[i]
-            runtimes_data[header[i]] = runtimes_row[i]
 
-        plot_heatmaps(samplecounts_data, runtimes_data)
+        # Create dicts of values.
+        samplecounts_data, runtimes_data = {}, {}
+        for i,key in enumerate(header):
+            samplecounts_data[key] = samplecounts_row[i]
+            runtimes_data[key] = runtimes_row[i]
+
+        # Get the workgroup size which gave the lowest runtime.
+        pairs = []
+        for j in range(11, len(header)):
+            runtime = float(runtimes_row[j])
+            if runtime > 0:
+                pairs.append((header[j], runtime))
+
+        min_pair = min(pairs, key=lambda x: x[1])
+        best_wg = tuple([int(x) for x in min_pair[0].split("x")])
+        j = len(skelcl.WG_VALUES) - 1 - skelcl.WG_VALUES.index(best_wg[0])
+        i = skelcl.WG_VALUES.index(best_wg[1])
+        best_wg_counts[j][i] += 1
+
+        # plot_heatmaps(samplecounts_data, runtimes_data)
+
+    # Add negative offset to illegal values
+    for j,_ in enumerate(skelcl.WG_VALUES):
+        for i,_ in enumerate(skelcl.WG_VALUES):
+            c = skelcl.WG_VALUES[i]
+            r = skelcl.WG_VALUES[j]
+
+            j = len(skelcl.WG_VALUES) - 1 - j
+            if c * r > 4096:
+                pass
+                #best_wg_counts[j][i] = -1
+
+    plot_best_wg_counts(best_wg_counts)
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@
 #
 from __future__ import print_function
 
+import csv
 import itertools
 import json
 import math
@@ -467,7 +468,8 @@ def plot_speedups(results, title=""):
     plt.title("Speedups of " + str(title))
     plt.axhline(y=1, color='k')
 
-    #plt.show()
+    plt.show()
+    plt.savefig("results/e14/test_speedups.png")
     plt.close()
 
 
@@ -563,6 +565,10 @@ def print_summary(results):
     oracle = [result["oracle"] for result in results]
     summarise("ORACLE", oracle)
 
+    with open("test_speedups.txt", "wb") as file:
+        for speedup in sorted(predicted):
+            file.write("{0}\n".format(speedup))
+
     X = np.arange(len(predicted))
     plt.bar(X, sorted(predicted))
     plt.axhline(y=1, color='k')
@@ -576,7 +582,7 @@ def print_summary(results):
     plt.ylabel("Speedup")
     plt.yticks(range(int(math.ceil(max(predicted))) + 1))
     plt.title("Speedup of predictions over best static value")
-    plt.show()
+    plt.savefig("./results/e14/test_speedups.png")
     plt.close()
 
 
