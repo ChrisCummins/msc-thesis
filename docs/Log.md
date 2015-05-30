@@ -6987,3 +6987,189 @@ Three things I'd like to investigate for my thesis:
 * Using linear regression to predict speedup and runtime for online
   learning.
 * Applying omnitune to other skeleton libraries.
+
+
+## Friday 29th
+
+LLVM instruction counts features:
+
+* AShr - Arithmetic shift right
+* Add - integer add
+* Alloca - Allocate memory on stack
+* And - bitwise AND
+* Br - control flow to diff basic block in current function
+* Call - function call
+* FAdd - floating point add
+* FCmp - fp comparison
+* FDiv - fp division
+* FMul - fp mult
+* FPExt -
+* FPToSI -
+* FSub
+* GetElementPtr
+* ICmp
+* InsertValue
+* Load
+* Mul
+* Or
+* PHI
+* Ret
+* SDiv
+* SExt
+* SIToFP
+* SRem
+* Select
+* Shl
+* Store
+* Sub
+* Trunc
+* UDiv
+* Xor
+* ZExt
+* basic_blocks
+* memory
+* non_external_function
+
+Proposed schema for SQL backend:
+
+```
+kernels:
+        id                              text primary key
+        north                           int
+        south                           int
+        east                            int
+        west                            int
+        max_wg_size                     int
+        source                          text
+
+devices:
+        id                              text primary key
+        name                            text
+        count                           int
+        address_bits                    integer
+        double_fp_config                integer
+        endian_little                   integer
+        execution_capabilities          integer
+        extensions                      text
+        global_mem_cache_size           integer
+        global_mem_cache_type           integer
+        global_mem_cacheline_size       integer
+        global_mem_size                 integer
+        host_unified_memory             integer
+        image2d_max_height              integer
+        image2d_max_width               integer
+        image3d_max_depth               integer
+        image3d_max_height              integer
+        image3d_max_width               integer
+        image_support                   integer
+        local_mem_size                  integer
+        local_mem_type                  integer
+        max_clock_frequency             integer
+        max_compute_units               integer
+        max_constant_args               integer
+        max_constant_buffer_size        integer
+        max_mem_alloc_size              integer
+        max_parameter_size              integer
+        max_read_image_args             integer
+        max_samplers                    integer
+        max_work_group_size             integer
+        max_work_item_dimensions        integer
+        max_work_item_sizes_0           integer
+        max_work_item_sizes_1           integer
+        max_work_item_sizes_2           integer
+        max_write_image_args            integer
+        mem_base_addr_align             integer
+        min_data_type_align_size        integer
+        native_vector_width_char        integer
+        native_vector_width_double      integer
+        native_vector_width_float       integer
+        native_vector_width_half        integer
+        native_vector_width_int         integer
+        native_vector_width_long        integer
+        native_vector_width_short       integer
+        preferred_vector_width_char     integer
+        preferred_vector_width_double   integer
+        preferred_vector_width_float    integer
+        preferred_vector_width_half     integer
+        preferred_vector_width_int      integer
+        preferred_vector_width_long     integer
+        preferred_vector_width_short    integer
+        queue_properties                integer
+        single_fp_config                integer
+        type                            integer
+        vendor                          text
+        vendor_id                       text
+        version                         text
+
+data:
+        id                              text primary key
+        width                           int
+        height                          int
+        tin                             text
+        tout                            text
+
+params:
+        id                              text primary key
+        wg_c                            int
+        wg_r                            int
+
+scenarios:
+        id                              text primary key
+        host                            text
+        device                          text
+        kernel                          text
+        data                            text
+
+runtimes:
+        scenario                        text
+        params                          text
+        runtime                         real
+
+mean_runtimes:
+        scenario                        text
+        params                          text
+        runtime                         text
+```
+
+Pseudo-code for the proxy is then:
+
+```
+RequestTrainingStencilParams():
+        kernel_id = checksum(kernel)
+        device_id = checksum(device_name, device_count)
+        data_id   = checksum(data_width, data_height, tin, tout)
+
+        if kernel_id not in kernels:
+           insert_new_row(kernels, extract_features(kernel))
+        if device_id not in devices:
+           insert_new_row(devices, extract_features(device))
+        if data_id not in data:
+           insert_new_row(data, extract_features(data))
+
+        return next param value
+
+AddTrainingData():
+        kernel_id = checksum(kernel)
+        device_id = checksum(device_name, device_count)
+        data_id   = checksum(data_width, data_height, tin, tout)
+        params_id = checksum(wg_c, wg_r)
+
+        scenario_id = checksum(host, device, kernel, data)
+        if scenario_id not in scenarios:
+           insert_new_row(scenarios, (scenario_id, host, device, kernel, data))
+
+        insert_new_row(runtimes, (scenario_id, runtime))
+```
+
+Pseudo-code to evaluate the results is then:
+
+```
+
+get_best_params(scenario):
+        for each scenario in mean_runtimes:
+            select params where runtime=min(runtime)
+
+get_zero_r():
+        for each scenario:
+            params = get_best_params()
+```
