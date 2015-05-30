@@ -1,37 +1,31 @@
 // Source: http://rosettacode.org/wiki/Mandelbrot_set#C
 #include "./common.h"
 
-void mandelbrotSeq(Pixel* img, float startX, float startY, float dx, float dy,
-                   int iterations, int width, int height) {
-  for (int j = 0; j < height; j++) {
-    for (int i = 0; i < width; i++) {
-      float x = startX + i * dx;
-      float y = startY + j * dy;
+void computePoint(Pixel *pixel, int j, int i, float startX, float startY,
+                  float dx, float dy, int iterations) {
+    float x = startX + i * dx;
+    float y = startY + j * dy;
 
-      int n = 0;
-      float rNext = 0.0f;
-      float r = 0.0f, s = 0.0f;
+    int n = 0;
+    float rNext = 0.0f;
+    float r = 0.0f, s = 0.0f;
 
-      while (((r * r) + (s * s) <= 4.0f) && (n < iterations)) {
+    while (((r * r) + (s * s) <= 4.0f) && (n < iterations)) {
         rNext = ((r * r) - (s * s)) + x;
         s = (2 * r * s) + y;
         r = rNext;
         n++;
-      }
-
-      Pixel *p = &img[j * width + i];
-
-      if (n == iterations) {
-        p->r = 0;
-        p->g = 0;
-        p->b = 0;
-      } else {
-        p->r = COLOR_R(n);
-        p->g = COLOR_G(n);
-        p->b = COLOR_B(n);
-      }
     }
-  }
+
+    if (n == iterations) {
+        pixel->r = 0;
+        pixel->g = 0;
+        pixel->b = 0;
+    } else {
+        pixel->r = COLOR_R(n);
+        pixel->g = COLOR_G(n);
+        pixel->b = COLOR_B(n);
+    }
 }
 
 int main() {
@@ -50,7 +44,12 @@ int main() {
     Pixel* img = new Pixel[width * height];
 
     gettimeofday(&start, NULL);
-    mandelbrotSeq(img, startX, startY, dx, dy, iterations, width, height);
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+            computePoint(&img[j * width + i], j, i, startX, startY,
+                         dx, dy, iterations);
+        }
+    }
     gettimeofday(&end, NULL);
     printf("Time elapsed: %f ms\n",
            (float) (1000.0 * (end.tv_sec - start.tv_sec)

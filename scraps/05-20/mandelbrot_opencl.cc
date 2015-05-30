@@ -161,8 +161,9 @@ int main(void) {
   int width  = 1024*4;
   int height = 768*4;
   int zoom   = 1000;
-  float startX = -static_cast<float>(width)  / (zoom * 2.0);
-  float endX   =  static_cast<float>(width)  / (zoom * 2.0);
+  float offsetX = -1000;//static_cast<float>(width) / 2;
+  float startX = (offsetX - static_cast<float>(width)) / (zoom * 2.0);
+  float endX   = (offsetX + static_cast<float>(width)) / (zoom * 2.0);
   float startY = -static_cast<float>(height) / (zoom * 2.0);
   float endY   =  static_cast<float>(height) / (zoom * 2.0);
   float dx     =  (endX - startX) / width;
