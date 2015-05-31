@@ -178,8 +178,11 @@ def plot_best_wg_counts(best_wg_counts):
 
     X = np.arange(len(pos_freq))
 
+    with open("pos_freq.txt", "wb") as file:
+        for f in acc_pos_freq:
+            file.write("{0}\n".format(f))
+
     plt.scatter(X, acc_pos_freq)
-    #plt.title("% of oracle")
     plt.ylabel("% of oracle")
     plt.xlim(xmin=0, xmax=len(pos_freq) - 1)
     plt.ylim(ymin=0, ymax=100)
