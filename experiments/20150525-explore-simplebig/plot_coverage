@@ -6,6 +6,11 @@ import random
 import sys
 import os
 
+from operator import mul
+
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.cm as cm
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -127,6 +132,27 @@ def plot_best_wg_counts(best_wg_counts):
           of times that the wg size was optimal.
     """
     sum_best_wg_counts = best_wg_counts.sum()
+
+    num_vals = reduce(mul, best_wg_counts.shape, 1)
+
+    # 3D PLOT
+    X = [0] * num_vals
+    Y = [0] * num_vals
+    Z = [0] * num_vals
+
+    for j in range(best_wg_counts.shape[0]):
+        for i in range(best_wg_counts.shape[1]):
+            index = j * best_wg_counts.shape[1] + i
+            X[index] = i
+            Y[index] = j
+            Z[index] = best_wg_counts[j][i]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_trisurf(X, Y, Z, cmap=cm.jet)
+
+    plt.show()
+    plt.close()
 
     f, ax = plt.subplots(figsize=(12, 9))
 
