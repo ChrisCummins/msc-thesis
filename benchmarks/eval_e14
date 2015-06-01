@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+import scipy
+from scipy import stats
+
 # benchlib
 import plot
 import ml
@@ -540,8 +543,9 @@ def set_bad(results):
 def summarise(tag, speedups):
     print(tag, " "
           "{0:.2f}".format(min(speedups)),
-          #"{0:.2f}".format(labmath.median(speedups)),
+          "{0:.2f}".format(labmath.median(speedups)),
           "{0:.2f}".format(labmath.mean(speedups)),
+          "{0:.2f}".format(stats.mstats.gmean(speedups)),
           "{0:.2f}".format(max(speedups)))
 
 def print_summary(results):
