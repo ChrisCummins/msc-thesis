@@ -7166,10 +7166,25 @@ Pseudo-code to evaluate the results is then:
 ```
 
 get_best_params(scenario):
-        for each scenario in mean_runtimes:
-            select params where runtime=min(runtime)
+    "select wg_c,wg_r from params where id=( \
+        SELECT params FROM runtimes WHERE scenario="<scenario>" AND \
+        runtime=(
+            SELECT MIN(runtime) FROM runtimes WHERE scenario="<scenario>"
+        )
+     );
 
 get_zero_r():
         for each scenario:
             params = get_best_params()
 ```
+
+
+# June 2015
+
+## Monday 1st
+
+Read a great blog post complaining about the lack of "mainstream"
+autotuning:
+[Where are the self-tuning systems?](https://00f.net/2015/06/01/self-tuning-systems/). The
+[HN comments](https://news.ycombinator.com/item?id=9633352) are worth
+a read too.
