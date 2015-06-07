@@ -7188,3 +7188,21 @@ autotuning:
 [Where are the self-tuning systems?](https://00f.net/2015/06/01/self-tuning-systems/). The
 [HN comments](https://news.ycombinator.com/item?id=9633352) are worth
 a read too.
+
+
+## Sunday 7th
+
+To select all unique (`scenario`, `params`) pairs from `runtimes`
+table:
+
+```
+SELECT scenario,params FROM runtimes GROUP BY scenario,params
+```
+
+Generate (`scenario`, `params`, `num_runtimes`, `min`, `mean`, `max`)
+tuples from `runtimes` tables:
+
+```
+SELECT scenario,params,COUNT(runtime),MIN(runtime),AVG(runtime), \
+   MAX(runtime) FROM runtimes WHERE scenario=? AND params=?
+```
