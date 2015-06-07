@@ -28,6 +28,7 @@ def main():
     target_path = gather.get_db_path("target")
     target = Database(target_path)
 
+    # Create runtimes_stats table.
     target.drop_table("runtimes_stats")
     target.create_table("runtimes_stats",
                         (("scenario",    "text"),
@@ -37,21 +38,28 @@ def main():
                          ("mean",        "real"),
                          ("max",         "real")))
 
-    total = target.num_runtimes()
-    i = 0
+    # Fetch all unique (scenario, params) pairs.
     query = target.execute("SELECT scenario,params FROM runtimes "
                            "GROUP BY scenario,params")
     rows = query.fetchall()
+    total = len(rows)
 
     start_time = time()
+    i = 0
+
+    # Iterate over each row.
     for row in rows:
         scenario=row[0]
         params=row[1]
 
+        # Gather statistics about runtimes for a (scenario, params)
+        # pair.
         target.execute("INSERT INTO runtimes_stats SELECT scenario,params,"
                        "COUNT(runtime),MIN(runtime),AVG(runtime),MAX(runtime) "
                        "FROM runtimes WHERE scenario=? AND params=?",
                        (scenario,params))
+
+        # Intermediate progress reports.
         i += 1
         if not i % 10:
             # Commit progress.
@@ -59,7 +67,7 @@ def main():
 
             # Estimate job completion time.
             elapsed = time() - start_time
-            remaining_rows = len(rows) - i
+            remaining_rows = total - i
             rate = i / elapsed
 
             dt1 = datetime.fromtimestamp(0)
