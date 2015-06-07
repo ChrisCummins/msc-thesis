@@ -6,6 +6,10 @@ import random
 import sys
 import os
 
+from time import time
+from datetime import datetime
+from dateutil import relativedelta
+
 import labm8
 from labm8 import io
 from labm8 import fs
@@ -36,7 +40,10 @@ def main():
     i = 0
     query = target.execute("SELECT scenario,params FROM runtimes "
                            "GROUP BY scenario,params")
-    for row in query:
+    rows = query.fetchall()
+
+    start_time = time()
+    for row in rows:
         scenario=row[0]
         params=row[1]
 
@@ -46,9 +53,24 @@ def main():
                        (scenario,params))
         i += 1
         if not i % 10:
-            io.info(("Processed {i} rows ({p:.2f}%)"
-                     .format(i=i, p=(i / total) * 100)))
+            # Commit progress.
             target.commit()
+
+            # Estimate job completion time.
+            elapsed = time() - start_time
+            remaining_rows = len(rows) - i
+            rate = i / elapsed
+
+            dt1 = datetime.fromtimestamp(0)
+            dt2 = datetime.fromtimestamp(rate * remaining_rows)
+            rd = relativedelta.relativedelta(dt2, dt1)
+
+            io.info("Progress: {0:.3f}%. Estimated completion in "
+                    "{1:02d}:{2:02d}:{3:02d}."
+                     .format((i / total) * 100,
+                             rd.hours, rd.minutes, rd.seconds))
+
+    # Done.
     target.commit()
 
 if __name__ == "__main__":
