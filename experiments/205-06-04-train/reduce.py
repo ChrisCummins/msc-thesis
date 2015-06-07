@@ -30,11 +30,12 @@ def main():
 
     target.drop_table("runtimes_stats")
     target.create_table("runtimes_stats",
-                        (("scenario",  "text"),
-                         ("params",    "text"),
-                         ("min",       "real"),
-                         ("mean",      "real"),
-                         ("max",       "real")))
+                        (("scenario",    "text"),
+                         ("params",      "text"),
+                         ("num_samples", "integer"),
+                         ("min",         "real"),
+                         ("mean",        "real"),
+                         ("max",         "real")))
 
     total = target.num_runtimes()
     i = 0
@@ -47,8 +48,8 @@ def main():
         scenario=row[0]
         params=row[1]
 
-        target.execute("INSERT INTO runtimes_stats SELECT "
-                       "scenario,params,MIN(runtime),AVG(runtime),MAX(runtime) "
+        target.execute("INSERT INTO runtimes_stats SELECT scenario,params,"
+                       "COUNT(runtime),MIN(runtime),AVG(runtime),MAX(runtime) "
                        "FROM runtimes WHERE scenario=? AND params=?",
                        (scenario,params))
         i += 1
