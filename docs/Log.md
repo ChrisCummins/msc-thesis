@@ -7375,3 +7375,37 @@ from (
     ) left join kernel_features on kernel=kernel_features.id
 ) left join device_features on device=device_features.id;
 ```
+
+
+## Tuesday 9th
+
+* Internships: Codeplay are a really interesting and local company,
+  looking for interns. A Google scholarship/internship looks great on
+  your CV. Perhaps pursue one in later years of PhD. There's no reason
+  not to take multiple internships. We can start thinking about this
+  as soon as the MSc is over.
+* Test performance of classifier on:
+  * Just synthetic benchmarks.
+  * Synthetic + real world benchmarks.
+  * Only real world benchmarks.
+* When it comes to writing papers, novelty and insight is more
+  important than rigour.
+* I should be focused solely on getting published papers out the
+  door. When deciding whether something is worth doing, I should frame
+  the question in terms of whether it can be published. If not, skip
+  it.
+* When collaborating on papers, only one of the collaborators can
+  submit the paper as examinable material. This means that the paper
+  only "counts" for one the collaborators.
+* I should writing up a short results & evaluation document on the
+  work I've done so far, and get my supervisors to review. If it's
+  "thesis ready", then start looking at novel future work.
+
+TODO:
+* Visualise and summarise experimental data to ensure that it's
+  statistically sound and covers the feature and parameter space
+  sufficiently.
+* Complete implementation of ML classifier in order to predict optimal
+  workgroup sizes. Evaluate performance using training data from:
+  synthetics, synthetics + real, and real.
+* Write up the previous two points and get Hugh and Pavlos to review.
