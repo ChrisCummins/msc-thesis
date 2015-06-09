@@ -69,11 +69,21 @@ def create_kernels_table(db, output=open("gen/tables/kernels.tex", "wb")):
                            headers=("Name", "North", "South", "East",
                                     "West", "Instruction Count"))
 
+def create_datasets_table(db, output=open("gen/tables/datasets.tex", "wb")):
+    headers = "Width", "Height", "Type in", "Type out"
+    infos = set(row for row in
+                db.execute("SELECT width,height,tin,tout "
+                           "FROM dataset_features"))
+
+    data = list(sorted(infos, key=lambda x: x[0]))
+    latex.write_table_body(data, output=output, headers=headers)
+
 
 def main():
     db = _db.MLDatabase("~/data/msc-thesis/oracle.db")
     create_devices_table(db)
     create_kernels_table(db)
+    create_datasets_table(db)
 
 
 if __name__ == "__main__":
