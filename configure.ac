@@ -412,6 +412,7 @@ AC_CONFIG_FILES([
         docs/maths/Makefile
         docs/proposal/Makefile
         docs/r1/Makefile
+        docs/r2/Makefile
         docs/summary/Makefile
         docs/thesis/Makefile
         exercises/Makefile
