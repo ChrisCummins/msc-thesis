@@ -9,6 +9,7 @@ SUBDIRS += 		\
 	maths		\
 	proposal	\
 	r1		\
+	r2		\
 	summary		\
 	thesis		\
 	$(NULL)

@@ -17,8 +17,6 @@ from omnitune.skelcl import ml
 from omnitune.skelcl import db as _db
 
 
-
-
 def skelcl_eval(classifier, testing, db):
     def eval_prediction(instance, label):
         # Create a set of (key,val) pairs.

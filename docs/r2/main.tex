@@ -1,0 +1,83 @@
+%%%%%%%%%%%%%%%%%%%%%%
+%% Document details %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Paper title
+\title{Progress Report}
+
+% Author
+\author{Chris Cummins}
+
+\input{preamble}
+
+%%%%%%%%%%
+%% Body %%
+%%%%%%%%%%
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  \noindent
+  GPUs enable massive performance through heterogeneous
+  parallelism. However, developing software for these devices is
+  challenging, as the programming models provided by OpenCL and CUDA
+  require a low level knowledge of the underlying architecture to
+  properly exploit the potential performance. SkelCL addresses this
+  programmability challenge by providing high level skeleton patterns
+  for common data parallel operations. This project demonstrates that
+  the parameters which are necessarily abstracted by such skeletons
+  can have a huge impact on performance. To demonstrate this, I
+  present an autotuner for selecting the \emph{workgroup size} of
+  Stencil pattern kernels. Using offline training and runtime feature
+  extraction, I demonstrate that a machine-learning enabled autotuner
+  can achieve \todo{XXX}\% of the oracle performance, providing an
+  average speedup of \todo{XXX}$\times$ (max \todo{XXX}$\times$) over
+  the best statically chosen workgroup size.
+\end{abstract}
+
+\section{Introduction}
+
+\section{Methodology}
+
+
+\subsection{Experimental Setup}
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l | l | l | l |}
+\hline
+\input{gen/tables/kernels}
+\hline
+\end{tabular}
+\caption{%
+  Benchmark applications, border sizes, and static instruction counts.
+  The ``simple'' and ``complex'' kernels are synthetic training
+  programs. \todo{I also have a FDTD benchmark.}%
+}
+\label{tab:hw}
+\end{table}
+
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| L{1.2cm} | L{6.2cm} | L{1.5cm} | L{1.5cm} | L{1.5cm} | L{1.5cm} | L{1.5cm} |}
+\hline
+\input{gen/tables/devices}
+\hline
+\end{tabular}
+\caption{%
+  Testing hardware. \todo{I also have access to a machine with 4x GTX 590.}%
+}
+\label{tab:hw}
+\end{table}
+
+\section{Results}
+
+
+\clearpage
+\begin{appendices}
+\end{appendices}
+
+\end{document}
