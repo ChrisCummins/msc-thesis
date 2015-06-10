@@ -94,7 +94,12 @@ def create_oracle_wgsizes_heatmap(db):
     space.heatmap("gen/img/oracle_param_space.png")
 
 
-def create_num_params_oracle_graph(db, path=None):
+def create_max_wgsizes_heatmap(db):
+    space = db.max_wgsize_space()
+    space.heatmap("gen/img/max_wgsizes.png")
+
+
+def create_num_params_oracle_graph(db):
     freqs = db.oracle_param_frequencies(normalise=True)
 
     # Calculate accumulated % of oracle.
@@ -108,7 +113,7 @@ def create_num_params_oracle_graph(db, path=None):
     plt.ylabel("% of oracle accuracy")
     plt.xlim(xmin=0, xmax=len(X) - 1)
     plt.ylim(ymin=0, ymax=100)
-    plt.xlabel("Number of unique values")
+    plt.xlabel("Number of unique workgroup sizes")
     plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
     plt.gcf().set_size_inches(6, 2.5, dpi=300)
     plt.tight_layout()
@@ -119,6 +124,7 @@ def main():
     db = _db.MLDatabase("~/data/msc-thesis/oracle.db")
 
     create_oracle_wgsizes_heatmap(db)
+    create_max_wgsizes_heatmap(db)
     create_num_params_oracle_graph(db)
 
     create_devices_table(db)
