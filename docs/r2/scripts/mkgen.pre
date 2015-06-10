@@ -1,10 +1,14 @@
 #!/usr/bin/env python2
-
 from __future__ import division
 from __future__ import print_function
 
-
 import re
+
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from matplotlib.ticker import FormatStrFormatter
 
 import labm8 as lab
 from labm8 import fs
@@ -17,6 +21,9 @@ from omnitune import skelcl
 from omnitune.skelcl import db as _db
 
 
+#################
+# Export tables #
+#################
 def create_devices_table(db, output=open("gen/tables/devices.tex", "wb")):
     infos = set()
     for row in db.execute("SELECT name,count,max_compute_units,"
@@ -79,8 +86,41 @@ def create_datasets_table(db, output=open("gen/tables/datasets.tex", "wb")):
     latex.write_table_body(data, output=output, headers=headers)
 
 
+################
+# Export plots #
+################
+def create_oracle_wgsizes_heatmap(db):
+    space = db.oracle_param_space()
+    space.heatmap("gen/img/oracle_param_space.png")
+
+
+def create_num_params_oracle_graph(db, path=None):
+    freqs = db.oracle_param_frequencies(normalise=True)
+
+    # Calculate accumulated % of oracle.
+    acc, _acc = [], 0
+    for _,freq in reversed(freqs):
+        _acc += freq * 100
+        acc.append(_acc)
+
+    X = np.arange(len(acc))
+    plt.scatter(X, acc)
+    plt.ylabel("% of oracle accuracy")
+    plt.xlim(xmin=0, xmax=len(X) - 1)
+    plt.ylim(ymin=0, ymax=100)
+    plt.xlabel("Number of unique values")
+    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
+    plt.gcf().set_size_inches(6, 2.5, dpi=300)
+    plt.tight_layout()
+    plt.savefig("gen/img/num_param_oracle.png")
+
+
 def main():
     db = _db.MLDatabase("~/data/msc-thesis/oracle.db")
+
+    create_oracle_wgsizes_heatmap(db)
+    create_num_params_oracle_graph(db)
+
     create_devices_table(db)
     create_kernels_table(db)
     create_datasets_table(db)
