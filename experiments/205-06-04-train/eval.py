@@ -16,6 +16,7 @@ from omnitune import skelcl
 from omnitune.skelcl import ml
 from omnitune.skelcl import db as _db
 
+import experiment
 
 # TODO: Unfinished code:
 def eval_classifier(classifier, testing, db):
