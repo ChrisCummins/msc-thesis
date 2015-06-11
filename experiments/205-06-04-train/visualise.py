@@ -13,6 +13,7 @@ from matplotlib.ticker import FormatStrFormatter
 import labm8 as lab
 from labm8 import io
 from labm8 import fs
+from labm8 import math as labmath
 
 import omnitune
 from omnitune import skelcl
@@ -172,6 +173,44 @@ def create_params_plot(db):
     plt.savefig("img/params.png")
 
 
+def create_violin_plots(db):
+    # Performance of all params across kernels.
+    io.info("Plotting kernels performance ...")
+    names = db.kernel_names
+    Y = [db.performance_of_kernels_with_name(name) for name in names]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    sns.boxplot(Y)
+    ax.set_xticklabels(names, rotation=90)
+    plt.ylim(ymin=0,ymax=1.2)
+    plt.title("Workgroup size performance across kernels")
+    plt.savefig("img/kernel_performance.png")
+
+    # Performance of all params across devices.
+    io.info("Plotting devices performance ...")
+    devices = db.cpus + db.gpus
+    Y = [db.performance_of_device(device) for device in devices]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    sns.boxplot(Y)
+    ax.set_xticklabels(devices, rotation=90)
+    plt.ylim(ymin=0,ymax=1.2)
+    plt.title("Workgroup size performance across devices")
+    plt.savefig("img/device_performance.png")
+
+    # Performance of all params across dataset.
+    io.info("Plotting datasets performance ...")
+    datasets = db.datasets
+    Y = [db.performance_of_dataset(dataset) for dataset in datasets]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    sns.boxplot(Y)
+    ax.set_xticklabels(datasets, rotation=90)
+    plt.ylim(ymin=0,ymax=1.2)
+    plt.title("Workgroup size performance across datasets")
+    plt.savefig("img/dataset_performance.png")
+
+
 def main():
     db = _db.MLDatabase(experiment.ORACLE_PATH)
 
@@ -179,6 +218,7 @@ def main():
     fs.rm("img")
     fs.mkdir("img")
 
+    create_violin_plots(db)
     create_params_plot(db)
     create_coverage_reports(db)
     create_oracle_wgsizes_heatmaps(db)
