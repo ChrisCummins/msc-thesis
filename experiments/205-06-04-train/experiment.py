@@ -8,7 +8,8 @@ from labm8 import io
 from labm8 import fs
 from labm8 import system
 
-DATA_ROOT = fs.path("~/data/msc-thesis/2015-06-11")
+# TODO: Change back!
+DATA_ROOT = fs.path("~/data/msc-thesis/tmp")
 DB_DEST = fs.path(DATA_ROOT, "db")
 ORACLE_PATH = fs.path(DATA_ROOT, "oracle.db")
 

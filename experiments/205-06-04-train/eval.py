@@ -17,7 +17,8 @@ from omnitune.skelcl import ml
 from omnitune.skelcl import db as _db
 
 
-def skelcl_eval(classifier, testing, db):
+# TODO: Unfinished code:
+def eval_classifier(classifier, testing, db):
     def eval_prediction(instance, label):
         # Create a set of (key,val) pairs.
         keys = [attr.name for attr in testing.attributes()]
@@ -45,16 +46,10 @@ def skelcl_eval(classifier, testing, db):
 
 def main():
     """
-    Generate a test dataset.
+    Evaluate dataset and omnitune performance.
     """
-    training = ml.load_arff("oracle.arff")
     db = _db.MLDatabase(experiment.ORACLE_PATH)
 
-    j48 = ml.create_classifier(training, "weka.classifiers.trees.J48",
-                               "-C", "0.3")
-
-    performance = skelcl_eval(j48, training, db)
-    io.debug(performance)
 
 if __name__ == "__main__":
     main()
