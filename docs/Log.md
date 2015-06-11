@@ -7425,8 +7425,8 @@ Automation scripts for omnitune evaluation:
 Looking through the coverage plots, I need to collect more training
 data from:
 
-* whz5, GPU, synthetic
-* monza, 2x GPU, real
-* monza, CPU, synthetic
-* cec, CPU, real
+* whz5, GPU, synthetic - RUNNING
+* monza, CPU, synthetic - RUNNING
+* cec, CPU, synthetic - RUNNING
 * florence, CPU, synthetic
+* monza, 2x GPU, real
