@@ -50,7 +50,7 @@ def create_kernel_names_table(db):
             db.commit()
 
 def main():
-    db = _db.MLDatabase("~/data/msc-thesis/oracle.db")
+    db = _db.MLDatabase(experiment.DB_PATH)
 
     create_kernel_names_table(db)
 

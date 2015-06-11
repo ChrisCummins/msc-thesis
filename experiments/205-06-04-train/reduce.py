@@ -65,13 +65,12 @@ def main():
     Reduce all databases to oracle.
     """
     combined_path = fs.path(experiment.DATA_ROOT, "combined.db")
-    oracle_path = fs.path(experiment.DATA_ROOT, "oracle.db")
 
     dbs = [_db.Database(path) for path in fs.ls(experiment.DB_DEST)]
     combined = merge(dbs, combined_path)
 
     io.info("Creating oracle ...")
-    oracle = _db.MLDatabase.init_from_db(oracle_path, combined)
+    oracle = _db.MLDatabase.init_from_db(experiment.ORACLE_PATH, combined)
 
 
 if __name__ == "__main__":

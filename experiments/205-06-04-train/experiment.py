@@ -10,6 +10,7 @@ from labm8 import system
 
 DATA_ROOT = fs.path("~/data/msc-thesis/2015-06-11")
 DB_DEST = fs.path(DATA_ROOT, "db")
+ORACLE_PATH = fs.path(DATA_ROOT, "oracle.db")
 
 SRC_ROOT = fs.path("~/src/msc-thesis")
 

@@ -48,7 +48,7 @@ def main():
     Generate a test dataset.
     """
     training = ml.load_arff("oracle.arff")
-    db = _db.MLDatabase("oracle.db")
+    db = _db.MLDatabase(experiment.ORACLE_PATH)
 
     j48 = ml.create_classifier(training, "weka.classifiers.trees.J48",
                                "-C", "0.3")

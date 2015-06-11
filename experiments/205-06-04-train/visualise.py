@@ -126,7 +126,7 @@ def create_params_plot(db):
 
 
 def main():
-    db = _db.MLDatabase("~/data/msc-thesis/oracle.db")
+    db = _db.MLDatabase(experiment.ORACLE_PATH)
 
     create_params_plot(db)
     lab.exit(0)
