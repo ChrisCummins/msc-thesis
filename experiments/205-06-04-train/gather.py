@@ -12,69 +12,54 @@ from labm8 import system
 
 import omnitune
 from omnitune import skelcl
-from omnitune.skelcl.db import Database
+from omnitune.skelcl import db as _db
 
 import experiment
 
 
-def get_db_path(name):
-    """
-    Get the path to the named database.
-    """
-    date = "2015-06-07"
-    return fs.path(("~/Dropbox/omnitune/{date}/{name}.db"
-                    .format(date=date, name=name)))
+def scp(host, src, dst):
+    scp_src = "{host}:{path}".format(host=host, path=src)
+    scp_dst = fs.path(dst)
 
+    io.info("Copying", scp_src, "->", fs.basename(scp_dst), "...")
 
-def merge(path, dbs):
-    """
-    Merge databases into one.
-
-    Arguments:
-
-        path (str): Path to destination database.
-        dbs (list of Database): Databases to merge.
-
-    Returns:
-
-        Database: merged database instance.
-    """
-    fs.rm(path)
-    assert not fs.isfile(path)
-
-    target = Database(path=path)
-
-    num_runtimes = [db.num_runtimes() for db in dbs]
-
-    for db,n in zip(dbs, num_runtimes):
-        io.info(("Merging {n} runtimes from {db}"
-                 .format(n=n, db=fs.basename(db.path))))
-        target.merge(db)
-
-    total = target.num_runtimes()
-
-    assert total == sum(num_runtimes)
-
-    io.info(("Merged {num_db} databases, {n} rows"
-             .format(num_db=len(dbs), n=total)))
-
-    return target
-
+    ret,_,_ = system.run(["scp", scp_src, scp_dst],
+                         stdout=system.STDOUT,
+                         stderr=system.STDERR)
+    if ret:
+        io.error("Transfer failed!")
 
 def main():
-    hosts = [
-        "cec",
-        "dhcp-90-060",
-        "florence",
-        "tim",
-        "whz5"
-    ]
+    """
+    Gather databases from experimental setups.
+    """
+    fs.mkdir(experiment.DATA_ROOT)
+    fs.mkdir(experiment.DB_DEST)
 
-    paths = [get_db_path(host) for host in ["previous"] + hosts]
-    dbs = sorted([Database(path) for path in paths if fs.isfile(path)])
+    # previous oracle
+    oracle_src = fs.path("~/data/msc-thesis/2015-06-07/oracle.db")
+    oracle_dst = fs.path(experiment.DB_DEST, "oracle.db")
+    io.info("Copying", oracle_src, "->", fs.basename(oracle_dst), "...")
+    fs.cp(oracle_src, oracle_dst)
 
-    target = get_db_path("target")
-    merge(target, dbs)
+    # cec
+    cec_src = fs.path("~/.omnitune/skelcl.db")
+    cec_dst = fs.path(experiment.DB_DEST, "cec.db")
+    io.info("Copying", cec_src, "->", fs.basename(cec_dst), "...")
+    fs.cp(cec_src, cec_dst)
+
+    # dhcp-90-060
+    scp("dhcp-90-060", "~/.omnitune/skelcl.db",
+        fs.path(experiment.DB_DEST, "dhcp-90-060.db"))
+    # florence (from brendel staging arear)
+    scp("brendel.inf.ed.ac.uk", "~/florence.db",
+        fs.path(experiment.DB_DEST, "florence.db"))
+    # monza
+    scp("monza", "~/.omnitune/skelcl.db",
+        fs.path(experiment.DB_DEST, "monza.db"))
+    # whz5
+    scp("whz5", "~/.omnitune/skelcl.db",
+        fs.path(experiment.DB_DEST, "whz5.db"))
 
 
 if __name__ == "__main__":

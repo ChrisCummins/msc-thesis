@@ -18,69 +18,61 @@ from labm8 import system
 
 import omnitune
 from omnitune import skelcl
-from omnitune.skelcl.db import Database
+from omnitune.skelcl import db as _db
 
 import experiment
 import gather
 
 
+def merge(dbs, path):
+    """
+    Merge databases into one.
+
+    Arguments:
+
+        dbs (list of Database): Databases to merge.
+        path (str): Path to merged database.
+
+    Returns:
+
+        Database: merged database instance.
+    """
+    # Make sure that the merged database does not exist.
+    fs.rm(path)
+    assert not fs.isfile(path)
+
+    target = _db.Database(path=path)
+
+    num_runtimes = [db.num_rows("runtimes") for db in dbs]
+
+    for db,n in zip(dbs, num_runtimes):
+        io.info(("Merging {n} runtimes from {db}"
+                 .format(n=n, db=fs.basename(db.path))))
+        target.merge(db)
+
+    total = target.num_rows("runtimes")
+
+    assert total == sum(num_runtimes)
+
+    io.info(("Merged {num_db} databases, {n} rows"
+             .format(num_db=len(dbs), n=total)))
+
+    return target
+
+
 def main():
-    target_path = gather.get_db_path("target")
-    target = Database(target_path)
+    """
+    Reduce all databases to oracle.
+    """
+    combined_path = fs.path(experiment.DATA_ROOT, "combined.db")
+    oracle_path = fs.path(experiment.DATA_ROOT, "oracle.db")
 
-    # Create runtimes_stats table.
-    target.drop_table("runtimes_stats")
-    target.create_table("runtimes_stats",
-                        (("scenario",    "text"),
-                         ("params",      "text"),
-                         ("num_samples", "integer"),
-                         ("min",         "real"),
-                         ("mean",        "real"),
-                         ("max",         "real")))
+    dbs = [_db.Database(path) for path in fs.ls(experiment.DB_DEST)]
+    combined = merge(dbs, combined_path)
 
-    # Fetch all unique (scenario, params) pairs.
-    query = target.execute("SELECT scenario,params FROM runtimes "
-                           "GROUP BY scenario,params")
-    rows = query.fetchall()
-    total = len(rows)
+    io.info("Creating oracle ...")
+    oracle = _db.MLDatabase.init_from_db(oracle_path, combined)
 
-    start_time = time()
-    i = 0
-
-    # Iterate over each row.
-    for row in rows:
-        scenario=row[0]
-        params=row[1]
-
-        # Gather statistics about runtimes for a (scenario, params)
-        # pair.
-        target.execute("INSERT INTO runtimes_stats SELECT scenario,params,"
-                       "COUNT(runtime),MIN(runtime),AVG(runtime),MAX(runtime) "
-                       "FROM runtimes WHERE scenario=? AND params=?",
-                       (scenario,params))
-
-        # Intermediate progress reports.
-        i += 1
-        if not i % 10:
-            # Commit progress.
-            target.commit()
-
-            # Estimate job completion time.
-            elapsed = time() - start_time
-            remaining_rows = total - i
-            rate = i / elapsed
-
-            dt1 = datetime.fromtimestamp(0)
-            dt2 = datetime.fromtimestamp(rate * remaining_rows)
-            rd = relativedelta.relativedelta(dt2, dt1)
-
-            io.info("Progress: {0:.3f}%. Estimated completion in "
-                    "{1:02d}:{2:02d}:{3:02d}."
-                     .format((i / total) * 100,
-                             rd.hours, rd.minutes, rd.seconds))
-
-    # Done.
-    target.commit()
 
 if __name__ == "__main__":
     main()

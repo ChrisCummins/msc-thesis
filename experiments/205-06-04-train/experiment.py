@@ -1,3 +1,6 @@
+"""
+Configuration.
+"""
 import itertools
 
 import labm8
@@ -5,11 +8,13 @@ from labm8 import io
 from labm8 import fs
 from labm8 import system
 
+DATA_ROOT = fs.path("~/data/msc-thesis/2015-06-11")
+DB_DEST = fs.path(DATA_ROOT, "db")
 
-ROOT = fs.path("~/src/msc-thesis")
+SRC_ROOT = fs.path("~/src/msc-thesis")
 
-EXAMPLES_BUILD = fs.path(ROOT, "skelcl/build/examples/")
-EXAMPLES_SRC = fs.path(ROOT, "skelcl/examples/")
+EXAMPLES_BUILD = fs.path(SRC_ROOT, "skelcl/build/examples/")
+EXAMPLES_SRC = fs.path(SRC_ROOT, "skelcl/examples/")
 
 ## Arguments
 
