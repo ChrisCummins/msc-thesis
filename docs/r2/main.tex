@@ -19,31 +19,131 @@
 
 \begin{abstract}
   \noindent
-  GPUs enable massive performance through heterogeneous
-  parallelism. However, developing software for these devices is
-  challenging, as the programming models provided by OpenCL and CUDA
-  require a low level knowledge of the underlying architecture to
-  properly exploit the potential performance. SkelCL addresses this
-  programmability challenge by providing high level skeleton patterns
-  for common data parallel operations. This project demonstrates that
-  the parameters which are necessarily abstracted by such skeletons
-  can have a huge impact on performance. To demonstrate this, I
-  present an autotuner for selecting the \emph{workgroup size} of
-  Stencil pattern kernels. Using offline training and runtime feature
-  extraction, I demonstrate that a machine-learning enabled autotuner
-  can achieve \todo{XXX}\% of the oracle performance, providing an
-  average speedup of \todo{XXX}$\times$ (max \todo{XXX}$\times$) over
-  the best statically chosen workgroup size.
+  By their nature, Algorithmic Skeletons abstract implement details
+  from the user which can be critical to performance. This project
+  explores the effect of one such implementation detail --- setting
+  the workgroup size of OpenCL kernels --- for SkelCL Stencil
+  patterns. Through an exhaustive enumeration of a large optimisation
+  space, we find that there is no one sensible default value which
+  provides portable performance across the range of architectures,
+  kernels, and datasets which SkelCL targets. As a result, we present
+  a machine-learning enabled autotuner which performs runtime
+  prediction of optimal workgroup sizes, achieving \todo{XXX}\%
+  performance of the oracle, providing an average speedup of
+  \todo{XXX}$\times$ (max \todo{XXX}$\times$) over the best statically
+  chosen value.
 \end{abstract}
 
 \section{Introduction}
+GPUs enable massive performance through heterogeneous
+parallelism. However, developing software for these devices is
+challenging, as the programming models provided by OpenCL and CUDA
+require a low level knowledge of the underlying architecture to
+properly exploit the potential performance. SkelCL addresses this
+programmability challenge by providing high level skeleton patterns
+for common data parallel operations. This project demonstrates that
+the parameters which are necessarily abstracted by such skeletons can
+have a huge impact on performance. To demonstrate this, I present an
+autotuner for selecting the \emph{workgroup size} of Stencil pattern
+kernels.
+
+\section{Background}
+
+In OpenCL, kernels are mapped to work-items for execution on the
+processing units of GPUs and CPUs. These work-items are then grouped
+into one or more workgroups. The choice of workgroup size is left to
+the developer, but with two sets of constraints. The first set of
+constraints is the maximum workgroup size which an execution device
+supports. This value cannot be exceeded, irrespective of the kernel
+being executed. The second constraint is the maximum workgroup size a
+kernel supports, and can only be queried at runtime once a kernel has
+been compiled. The selection of workgroup size for stencil skeletons
+is particularly relevant to the performance of the stencil as it
+affects utilisation of fast local memory. In a stencil code, each
+work-item reads the values of multiple neighbouring elements. To
+facilitate this, the value of all elements within a workgroup are
+stored in fast local memory, which greatly reduces the read latency
+for GPUs. Changing the workgroup size affects the amount of local
+memory required for each workgroup, which in turn affects the number
+of workgroups which may be simultaneously active.
 
 \section{Methodology}
 
+Tables~\ref{tab:hw},~\ref{tab:kernels}, and~\ref{tab:datasets} list
+the range of execution devices, kernels, and datasets used. For each
+unique combination of architecture, kernel, and dataset (hereby
+referred to as a \emph{scenario}), training data was collected by
+randomly sampling the space of legal workgroup sizes, until multiple
+samples have been collected for each combination of scenario and
+workgroup size.
 
-\subsection{Experimental Setup}
+\subsection{Oracle performance}
+The arithmetic mean of the measured runtimes for a given scenario $s$
+and workgroup size $w$ is represented by $t(s,w)$. The oracle
+workgroup size for a given scenario is then the $w$ value from the set
+of legal workgroup sizes $W$ which minimises the output of $t(s,w)$.
 
-Tables~\ref{tab:hw},\ref{tab:kernels},\ref{tab:datasets}
+\[w_{oracle} = \argmin_{w \in W} t(s,w)\]
+
+This allows relative comparisons of performance between different
+
+For a given scenario $s$, the performance of workgroup size $w$ can be
+compared relative to this oracle value.
+
+\[p(s,w) = \frac{t(s,w_{oracle})}{t(s,w)}\]
+
+These normalised comparisons of performance relative to the oracle can
+be used by to provide an average performance for a given parameter $w$
+across the set of all scenarios $S$.
+
+\[\bar{p}(w) = \left(\prod_{s \in S} t(s,w_{oracle}) \cdot t(s,w)^{-1} \right)^{1/|S|}\]
+
+\subsection{Autotuning}
+The simplest autotuner is one which selects the workgroup size which
+provided the best average case performance.
+
+\[ \text{ZeroR} = \argmax_{w \in W} \bar{p}(w) \]
+
+This provides a baseline for comparing against a more sophisticated
+approach using machine learning. For each scenario, a feature vector
+is extracted to capture properties of the architecture, device, and
+dataset:
+
+\begin{itemize}
+\item \emph{Architectural features} --- size of local memory, maximum
+  work group size, number of compute units, etc. Accessed using the
+  OpenCL \texttt{clGetDeviceInfo()} API.
+\item \emph{Kernel features} --- total static instruction count, ratio
+  of instructions per type, ratio of basic blocks per instruction,
+  etc. Accessed by compiling the OpenCL kernel to LLVM IR bitcode, and
+  using the \texttt{opt} \texttt{InstCount} statistics pass.
+\item \emph{Dataset features} --- size and type of the
+  dataset. Accessed from the SkelCL Matrix container type.
+\end{itemize}
+
+See Appendix~\ref{app:features} for a full list of features and
+types. For training, feature vectors are labelled with the oracle
+workgroup size, and a machine learning classifier is trained on a
+subset of this labelled training data. The performance of the
+classifier can then be evaluated by comparing the performance of the
+workgroup size predicted for an unseen feature vector against the
+oracle workgroup size for that feature.
+
+\subsubsection{Satisfying the maximum workgroup size constraint}
+
+Since the space of legal workgroup sizes has hard constraints, it is
+possible that a classifier will predict a workgroup size which
+invalidates this constraint. To handle this situation, the workgroup
+sizes predicted by the classifier are first checked to ensure that
+they are less than or equal to the maximum workgroup size for that
+scenario. If greater than, two strategies are evaluated:
+
+\begin{enumerate}
+\item Resorting to the ZeroR, i.e. the workgroup size which is known
+  to be safe and provides the highest average case performance.
+\item Incrementally reducing the workgroup size in each dimension
+  until it falls within the space of legal workgroup sizes.
+\end{enumerate}
 
 \begin{table}
 \footnotesize
@@ -54,7 +154,8 @@ Tables~\ref{tab:hw},\ref{tab:kernels},\ref{tab:datasets}
 \hline
 \end{tabular}
 \caption{%
-  Execution devices. \todo{I also have access to a machine with 4x GTX 590.}%
+  Execution devices. \TODO{I also have access to a machine with 4x GTX
+    590 which I have yet to collect results for.}%
 }
 \label{tab:hw}
 \end{table}
@@ -70,7 +171,8 @@ Tables~\ref{tab:hw},\ref{tab:kernels},\ref{tab:datasets}
 \caption{%
   Benchmark applications, border sizes, and static instruction counts.
   The ``simple'' and ``complex'' kernels are synthetic training
-  programs. \todo{I also have a FDTD benchmark.}%
+  programs. \TODO{I also have a FDTD benchmark which I have yet to
+    collect results for.}%
 }
 \label{tab:kernels}
 \end{table}
@@ -91,20 +193,46 @@ Tables~\ref{tab:hw},\ref{tab:kernels},\ref{tab:datasets}
 
 \section{Results}
 
-\begin{figure}
-\centering
-\includegraphics{gen/img/max_wgsizes.png}
-\caption{%
-  Distribution of maximum legal workgroup sizes.%
-}
-\end{figure}
+A total of \input{gen/num_scenarios} scenarios were tested. For each
+scenario, an average of \input{gen/num_avg_params} unique workgroup
+sizes were tested (max \input{gen/num_max_params}), for a total of
+\input{gen/num_runtime_stats} combinations of scenario and workgroup
+size. For each of those, an average of \input{gen/num_avg_samples}
+runtimes were collected (total
+\input{gen/num_runtimes}). Figure~\ref{fig:max-wgsizes} shows the
+distribution of maximum workgroup sizes across all
+scenarios.
+
+Figure~\ref{fig:oracle-wgsizes} shows the distribution of oracle
+workgroup sizes. Clearly, the workgroup size $64 \times 4$.
+
+Figure~\ref{fig:oracle-accuracy}
+
 
 \begin{figure}
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+\includegraphics{gen/img/max_wgsizes.png}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{Maximum workgroup sizes}
+\label{fig:max-wgsizes}
+\end{subfigure}
+~
+\begin{subfigure}[t]{0.45\textwidth}
 \centering
 \includegraphics{gen/img/oracle_param_space.png}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{Oracle workgroup sizes}
+\label{fig:oracle-wgsizes}
+\end{subfigure}
 \caption{%
-  Distribution of optimal workgroup sizes.%
+  On the left, the distribution of maximum legal workgroup
+  sizes. Cells with a value of 1 indicate that the workgroup size is
+  legal for all scenarios. A value of 0 shows a workgroup size which
+  is illegal for all scenarios. On the right, the distribution of
+  oracle workgroup sizes.%
 }
+\label{fig:heatmaps}
 \end{figure}
 
 \begin{figure}
@@ -115,6 +243,7 @@ Tables~\ref{tab:hw},\ref{tab:kernels},\ref{tab:datasets}
   workgroup sizes used. The best accuracy that is achievable using a
   single statically chosen value is 10\%.%
 }
+\label{fig:oracle-accuracy}
 \end{figure}
 
 \begin{figure}
@@ -123,8 +252,8 @@ Tables~\ref{tab:hw},\ref{tab:kernels},\ref{tab:datasets}
 \caption{%
   The blue line shows the performance of different workgroup sizes
   relative to the oracle. The green line shows the ``legality'' of the
-  parameter value, i.e.\ for what ratio of scenarios is the workgroup
-  size valid.%
+  parameter value, i.e.\ the ratio of scenarios for which that
+  workgroup size is legal.%
 }
 \end{figure}
 
@@ -136,6 +265,119 @@ Tables~\ref{tab:hw},\ref{tab:kernels},\ref{tab:datasets}
 
 \clearpage
 \begin{appendices}
+
+\section{Features}\label{app:features}
+
+A full list of the feature names and types used to train machine
+learning models. For training data, each feature vector was labelled
+with the oracle workgroup size.
+
+\begin{multicols}{2}
+\begin{Verbatim}[fontsize=\footnotesize]
+data_width                         numeric
+data_height                        numeric
+data_tin                           nominal
+data_tout                          nominal
+kern_north                         numeric
+kern_south                         numeric
+kern_east                          numeric
+kern_west                          numeric
+kern_max_wg_size                   numeric
+kern_instruction_count             numeric
+kern_ratio_AShr_insts              numeric
+kern_ratio_Add_insts               numeric
+kern_ratio_Alloca_insts            numeric
+kern_ratio_And_insts               numeric
+kern_ratio_Br_insts                numeric
+kern_ratio_Call_insts              numeric
+kern_ratio_FAdd_insts              numeric
+kern_ratio_FCmp_insts              numeric
+kern_ratio_FDiv_insts              numeric
+kern_ratio_FMul_insts              numeric
+kern_ratio_FPExt_insts             numeric
+kern_ratio_FPToSI_insts            numeric
+kern_ratio_FSub_insts              numeric
+kern_ratio_GetElementPtr_insts     numeric
+kern_ratio_ICmp_insts              numeric
+kern_ratio_InsertValue_insts       numeric
+kern_ratio_Load_insts              numeric
+kern_ratio_Mul_insts               numeric
+kern_ratio_Or_insts                numeric
+kern_ratio_PHI_insts               numeric
+kern_ratio_Ret_insts               numeric
+kern_ratio_SDiv_insts              numeric
+kern_ratio_SExt_insts              numeric
+kern_ratio_SIToFP_insts            numeric
+kern_ratio_SRem_insts              numeric
+kern_ratio_Select_insts            numeric
+kern_ratio_Shl_insts               numeric
+kern_ratio_Store_insts             numeric
+kern_ratio_Sub_insts               numeric
+kern_ratio_Trunc_insts             numeric
+kern_ratio_UDiv_insts              numeric
+kern_ratio_Xor_insts               numeric
+kern_ratio_ZExt_insts              numeric
+kern_ratio_basic_blocks            numeric
+kern_ratio_memory_instructions     numeric
+kern_ratio_non_external_functions  numeric
+dev_count                          numeric
+dev_address_bits                   numeric
+dev_double_fp_config               numeric
+dev_endian_little                  numeric
+dev_execution_capabilities         numeric
+dev_extensions                     nominal
+dev_global_mem_cache_size          numeric
+dev_global_mem_cache_type          numeric
+dev_global_mem_cacheline_size      numeric
+dev_global_mem_size                numeric
+dev_host_unified_memory            numeric
+dev_image2d_max_height             numeric
+dev_image2d_max_width              numeric
+dev_image3d_max_depth              numeric
+dev_image3d_max_height             numeric
+dev_image3d_max_width              numeric
+dev_image_support                  numeric
+dev_local_mem_size                 numeric
+dev_local_mem_type                 numeric
+dev_max_clock_frequency            numeric
+dev_max_compute_units              numeric
+dev_max_constant_args              numeric
+dev_max_constant_buffer_size       numeric
+dev_max_mem_alloc_size             numeric
+dev_max_parameter_size             numeric
+dev_max_read_image_args            numeric
+dev_max_samplers                   numeric
+dev_max_work_group_size            numeric
+dev_max_work_item_dimensions       numeric
+dev_max_work_item_sizes_0          numeric
+dev_max_work_item_sizes_1          numeric
+dev_max_work_item_sizes_2          numeric
+dev_max_write_image_args           numeric
+dev_mem_base_addr_align            numeric
+dev_min_data_type_align_size       numeric
+dev_native_vector_width_char       numeric
+dev_native_vector_width_double     numeric
+dev_native_vector_width_float      numeric
+dev_native_vector_width_half       numeric
+dev_native_vector_width_int        numeric
+dev_native_vector_width_long       numeric
+dev_native_vector_width_short      numeric
+dev_preferred_vector_width_char    numeric
+dev_preferred_vector_width_double  numeric
+dev_preferred_vector_width_float   numeric
+dev_preferred_vector_width_half    numeric
+dev_preferred_vector_width_int     numeric
+dev_preferred_vector_width_long    numeric
+dev_preferred_vector_width_short   numeric
+dev_queue_properties               numeric
+dev_single_fp_config               numeric
+dev_type                           numeric
+dev_vendor                         nominal
+dev_vendor_id                      nominal
+dev_version                        nominal
+\end{Verbatim}
+\end{multicols}
+
 \end{appendices}
 
 \end{document}

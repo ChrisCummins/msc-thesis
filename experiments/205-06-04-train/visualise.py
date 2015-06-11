@@ -18,6 +18,7 @@ import omnitune
 from omnitune import skelcl
 from omnitune.skelcl import db as _db
 
+import experiment
 
 def create_oracle_wgsizes_heatmaps(db):
     fs.mkdir("img/oracle/devices")
@@ -63,10 +64,15 @@ def create_max_wgsizes_heatmaps(db):
 
 
 def create_coverage_reports(db):
+    fs.mkdir("img/coverage/devices")
+    fs.mkdir("img/coverage/kernels")
+    fs.mkdir("img/coverage/datasets")
+
     fs.mkdir("img/safety/devices")
     fs.mkdir("img/safety/kernels")
     fs.mkdir("img/safety/datasets")
 
+    # Per-device
     for i,device in enumerate(db.devices):
         io.info("Device coverage", i, "...")
         where = ("scenario IN "
@@ -80,6 +86,39 @@ def create_coverage_reports(db):
         space.heatmap("img/safety/devices/{0}.png"
                       .format(i), title=device)
 
+        # Real benchmarks
+        io.info("Device coverage, real", i, "...")
+        where = ("scenario IN "
+                 "(SELECT id FROM scenarios WHERE device='{0}')"
+                 "AND scenario IN "
+                 "(SELECT id FROM scenarios WHERE kernel IN "
+                 "(SELECT id FROM kernel_names WHERE synthetic=0))"
+                 .format(device))
+        space = db.param_coverage_space(where=where)
+        space.heatmap("img/coverage/devices/{0}_real.png"
+                      .format(i), title=device + ", real")
+        io.info("Device safety, real", i, "...")
+        space = db.param_safe_space(where=where)
+        space.heatmap("img/safety/devices/{0}_real.png"
+                      .format(i), title=device + ", real")
+
+        # Synthetic benchmarks
+        io.info("Device coverage, synthetic", i, "...")
+        where = ("scenario IN "
+                 "(SELECT id FROM scenarios WHERE device='{0}')"
+                 "AND scenario IN "
+                 "(SELECT id FROM scenarios WHERE kernel IN "
+                 "(SELECT id FROM kernel_names WHERE synthetic=1))"
+                 .format(device))
+        space = db.param_coverage_space(where=where)
+        space.heatmap("img/coverage/devices/{0}_synthetic.png"
+                      .format(i), title=device + ", synthetic")
+        io.info("Device safety, synthetic", i, "...")
+        space = db.param_safe_space(where=where)
+        space.heatmap("img/safety/devices/{0}_synthetic.png"
+                      .format(i), title=device + ", synthetic")
+
+    # Per-dataset
     for i,dataset in enumerate(db.datasets):
         io.info("Dataset coverage", i, "...")
         where = ("scenario IN "
@@ -93,16 +132,17 @@ def create_coverage_reports(db):
         space.heatmap("img/safety/datasets/{0}.png"
                       .format(i), title=dataset)
 
+    # Per-kerenl
     for kernel,ids in db.lookup_named_kernels().iteritems():
-        io.info("Kernel coverage", i, "...")
+        io.info("Kernel coverage", kernel, "...")
         id_wrapped = ['"' + id + '"' for id in ids]
         where = ("scenario IN "
                  "(SELECT id from scenarios WHERE kernel IN ({0}))"
                  .format(",".join(id_wrapped)))
         space = db.param_coverage_space(where=where)
         space.heatmap("img/coverage/kernels/{0}.png"
-                      .format(i), title=kernel)
-        io.info("Kernel safety", i, "...")
+                      .format(kernel), title=kernel)
+        io.info("Kernel safety", kernel, "...")
         space = db.param_safe_space(where=where)
         space.heatmap("img/safety/kernels/{0}.png"
                       .format(kernel), title=kernel)
