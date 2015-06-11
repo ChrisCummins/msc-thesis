@@ -7421,3 +7421,12 @@ Automation scripts for omnitune evaluation:
    a few hours!!!)
 1. `eval.py` - Crunch the numbers, annotate data with labels.
 1. `visualise.py` - Produce pretty plots.
+
+Looking through the coverage plots, I need to collect more training
+data from:
+
+* whz5, GPU, synthetic
+* monza, 2x GPU, real
+* monza, CPU, synthetic
+* cec, CPU, real
+* florence, CPU, synthetic
