@@ -7409,3 +7409,15 @@ TODO:
   workgroup sizes. Evaluate performance using training data from:
   synthetics, synthetics + real, and real.
 * Write up the previous two points and get Hugh and Pavlos to review.
+
+
+## Thursday 11th
+
+Automation scripts for omnitune evaluation:
+
+1. `train.py` - Training script. Run on each server to collect data.
+1. `gather.py` - Gather sql databases from all servers.
+1. `reduce.py` - Merge databases and create oracle tables (this takes
+   a few hours!!!)
+1. `eval.py` - Crunch the numbers, annotate data with labels.
+1. `visualise.py` - Produce pretty plots.
