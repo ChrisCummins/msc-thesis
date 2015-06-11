@@ -17,17 +17,34 @@ from omnitune.skelcl import db as _db
 import experiment
 
 
-def scp(host, src, dst):
-    scp_src = "{host}:{path}".format(host=host, path=src)
-    scp_dst = fs.path(dst)
+def dst_path(name):
+    """
+    Get destination path for named database.
+    """
+    return fs.path(experiment.DB_DEST, name + ".db")
 
-    io.info("Copying", scp_src, "->", fs.basename(scp_dst), "...")
 
-    ret,_,_ = system.run(["scp", scp_src, scp_dst],
-                         stdout=system.STDOUT,
-                         stderr=system.STDERR)
-    if ret:
-        io.error("Transfer failed!")
+def cp_loc(path, name):
+    """
+    Copy database from local filesystem.
+    """
+    path = fs.path(path)
+    dst = dst_path(name)
+
+    io.info("Copying", path, "->", name)
+    fs.cp(path, dst)
+
+
+def cp_rmt(host, path="~/.omnitune/skelcl.db", name=None):
+    """
+    Copy database from remote filesystem.
+    """
+    name = name or host
+    dst = dst_path(name)
+
+    io.info("Copying {host}:{path}".format(host=host, path=path), "->", name)
+    system.scp(host, path, dst)
+
 
 def main():
     """
@@ -36,31 +53,12 @@ def main():
     fs.mkdir(experiment.DATA_ROOT)
     fs.mkdir(experiment.DB_DEST)
 
-    # previous oracle
-    oracle_src = fs.path("~/data/msc-thesis/2015-06-07/oracle.db")
-    oracle_dst = fs.path(experiment.DB_DEST, "oracle.db")
-    io.info("Copying", oracle_src, "->", fs.basename(oracle_dst), "...")
-    fs.cp(oracle_src, oracle_dst)
-
-    # cec
-    cec_src = fs.path("~/.omnitune/skelcl.db")
-    cec_dst = fs.path(experiment.DB_DEST, "cec.db")
-    io.info("Copying", cec_src, "->", fs.basename(cec_dst), "...")
-    fs.cp(cec_src, cec_dst)
-
-    # dhcp-90-060
-    scp("dhcp-90-060", "~/.omnitune/skelcl.db",
-        fs.path(experiment.DB_DEST, "dhcp-90-060.db"))
-    # florence (from brendel staging arear)
-    scp("brendel.inf.ed.ac.uk", "~/florence.db",
-        fs.path(experiment.DB_DEST, "florence.db"))
-    # monza
-    scp("monza", "~/.omnitune/skelcl.db",
-        fs.path(experiment.DB_DEST, "monza.db"))
-    # whz5
-    scp("whz5", "~/.omnitune/skelcl.db",
-        fs.path(experiment.DB_DEST, "whz5.db"))
-
+    cp_loc("~/data/msc-thesis/2015-06-07/oracle.db", "previous")
+    cp_loc("~/.omnitune/skelcl.db", "cec")
+    cp_rmt("dhcp-90-060")
+    cp_rmt("brendel.inf.ed.ac.uk", path="~/florence.db", name="florence")
+    cp_rmt("monza")
+    cp_rmt("whz5")
 
 if __name__ == "__main__":
     main()
