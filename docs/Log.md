@@ -7443,3 +7443,38 @@ classifier.
 This may mean having to drop the incomplete data from 2xTahiti device,
 at least until multi-GPU stencils are stable enough to complete data
 acquisition.
+
+
+## Saturday 13th
+
+Analysing new dataset `2015-06-12`:
+
+* Number of params: 166
+* Number of scenarios: 523
+* Number of runtimes: 102570900
+
+This should provide plenty of coverage for all scenarios, with an
+expected lower bound of 1181 samples per (params,scenarios)
+pair. Despite this, plotting coverage and safety heatmaps shows *no*
+safe parmas for the three CPUs using synthetic benchmarks.
+
+Given this, I conclude that the problem is not that I do not have
+enough runtimes, but rather a problem with the `kernel` IDs. Any
+modification to the source code creates a new `kernel` ID, which in
+turn changes the `scenario` ID. I should compact the kernels table by
+merging the kernels by name and shape, then use that reduced kernel
+table to update the values in the `scenarios` fields of the
+`runtime_stats` and `runtimes` table. The latter will talk a long
+time, so I'll start with the `runtime_stats` and see if that fixes the
+no OneR problem.
+
+Some thoughts on omnitune terminology:
+
+If **ZeroR** simply selects the majority class, we can expect the
+geometric mean of performance using this classifier to 0, if that
+class is invalid for any *one* or more scenarios. As a result, I
+propose developing a **OneR** classifier, which selects the majority
+class from the subset of classes which are legal for all
+scenarios. This **OneR** classifier can then be used to provide a
+baseline to compare all other classifiers against, in order to
+calculate speedup over best statically chosen workgroup size.
