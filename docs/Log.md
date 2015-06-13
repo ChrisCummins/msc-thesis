@@ -7428,5 +7428,18 @@ data from:
 * whz5, GPU, synthetic - RUNNING
 * monza, CPU, synthetic - RUNNING
 * cec, CPU, synthetic - RUNNING
-* florence, CPU, synthetic
+* florence, CPU, synthetic - RUNNING
 * monza, 2x GPU, real
+
+
+## Friday 12th
+
+Collected data from: whz5, monza, florence, cec.
+
+After running reduce, I should check coverage plots to make sure that
+I have safe values for all devices, in order to create OneR
+classifier.
+
+This may mean having to drop the incomplete data from 2xTahiti device,
+at least until multi-GPU stencils are stable enough to complete data
+acquisition.
