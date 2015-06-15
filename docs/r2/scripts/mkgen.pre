@@ -31,7 +31,7 @@ def create_devices_table(db, output=None):
     for row in db.execute("SELECT name,count,max_compute_units,"
                           "max_clock_frequency,local_mem_size,"
                           "global_mem_size,max_work_group_size "
-                          "FROM device_features"):
+                          "FROM devices"):
         name,count,cunits,freq,lmem,gmem,max_wg = row
         infos.add((count, name.strip(), cunits, freq,
                    labmath.ceil(lmem / 1024), labmath.ceil(gmem / 1024 / 1024),
@@ -57,7 +57,7 @@ def create_kernels_table(db, output=None):
                                                "FROM kernels WHERE id=?",
                                                (kernel,)).fetchone()
             instcount = db.execute("SELECT instruction_count FROM "
-                                   "kernel_features where id=?",
+                                   "kernels where id=?",
                                    (kernel,)).fetchone()[0]
             return name, north, south, east, west, instcount
 
@@ -84,7 +84,7 @@ def create_datasets_table(db, output=None):
     headers = "Width", "Height", "Type in", "Type out"
     infos = set(row for row in
                 db.execute("SELECT width,height,tin,tout "
-                           "FROM dataset_features"))
+                           "FROM datasets"))
 
     data = list(sorted(infos, key=lambda x: x[0]))
     latex.write_table_body(data, output=output, headers=headers)
