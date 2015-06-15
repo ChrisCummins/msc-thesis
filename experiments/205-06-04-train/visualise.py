@@ -219,6 +219,53 @@ def create_performance_plots(db):
     plt.close()
 
 
+def create_maxspeedups_plots(db):
+    io.info("Plotting max speedups ...")
+    Speedups = sorted(db.max_speedups().values())
+    X = np.arange(len(Speedups))
+    plt.plot(X, Speedups, 'b')
+    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
+    plt.xlim(xmin=0, xmax=len(X) - 1)
+    plt.ylim(ymin=0, ymax=100)
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off') # labels along the bottom edge are off
+    plt.tight_layout()
+    plt.savefig("img/max_speedups.png")
+    plt.close()
+
+
+def create_min_max_plots(db):
+    io.info("Plotting min max runtimes ...")
+    data = db.min_max_runtimes()
+    minmax = lab.flatten([param.values() for param in data.values()])
+    min_t, max_t = zip(*minmax)
+
+    iqr = (0.25, 0.75) # IQR to plot.
+    nbins = 25 # Number of bins.
+
+    lower = labmath.filter_iqr(min_t, *iqr)
+    upper = labmath.filter_iqr(max_t, *iqr)
+
+    min_data = np.r_[lower, upper].min()
+    max_data = np.r_[lower, upper].max()
+    bins = np.linspace(min_data, max_data, nbins)
+
+    plt.hist(lower, bins, label="Min")
+    plt.hist(upper, bins, label="Max");
+    plt.title("Normalised distribution of min and max runtimes")
+    plt.ylabel("Frequency")
+    plt.xlabel("Runtime (normalised to mean)")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+    plt.savefig("img/min_max_runtimes.png")
+    plt.close()
+
+
 def main():
     db = _db.Database(experiment.ORACLE_PATH)
 
@@ -226,6 +273,8 @@ def main():
     fs.rm("img")
     fs.mkdir("img")
 
+    create_min_max_plots(db)
+    create_maxspeedups_plots(db)
     create_performance_plots(db)
     create_params_plot(db)
     create_coverage_reports(db)
