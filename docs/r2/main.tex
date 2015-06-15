@@ -69,82 +69,6 @@ of workgroups which may be simultaneously active.
 
 \section{Methodology}
 
-Tables~\ref{tab:hw},~\ref{tab:kernels}, and~\ref{tab:datasets} list
-the range of execution devices, kernels, and datasets used. For each
-unique combination of architecture, kernel, and dataset (hereby
-referred to as a \emph{scenario}), training data was collected by
-randomly sampling the space of legal workgroup sizes, until multiple
-samples have been collected for each combination of scenario and
-workgroup size.
-
-\subsection{Oracle performance}
-The arithmetic mean of the measured runtimes for a given scenario $s$
-and workgroup size $w$ is represented by $t(s,w)$. The oracle
-workgroup size for a given scenario is then the $w$ value from the set
-of legal workgroup sizes $W$ which minimises the output of $t(s,w)$.
-
-\[w_{oracle} = \argmin_{w \in W} t(s,w)\]
-
-This allows relative comparisons of performance between different
-
-For a given scenario $s$, the performance of workgroup size $w$ can be
-compared relative to this oracle value.
-
-\[p(s,w) = \frac{t(s,w_{oracle})}{t(s,w)}\]
-
-These normalised comparisons of performance relative to the oracle can
-be used by to provide an average performance for a given parameter $w$
-across the set of all scenarios $S$.
-
-\[\bar{p}(w) = \left(\prod_{s \in S} t(s,w_{oracle}) \cdot t(s,w)^{-1} \right)^{1/|S|}\]
-
-\subsection{Autotuning}
-The simplest autotuner is one which selects the workgroup size which
-provided the best average case performance.
-
-\[ \text{ZeroR} = \argmax_{w \in W} \bar{p}(w) \]
-
-This provides a baseline for comparing against a more sophisticated
-approach using machine learning. For each scenario, a feature vector
-is extracted to capture properties of the architecture, device, and
-dataset:
-
-\begin{itemize}
-\item \emph{Architectural features} --- size of local memory, maximum
-  work group size, number of compute units, etc. Accessed using the
-  OpenCL \texttt{clGetDeviceInfo()} API.
-\item \emph{Kernel features} --- total static instruction count, ratio
-  of instructions per type, ratio of basic blocks per instruction,
-  etc. Accessed by compiling the OpenCL kernel to LLVM IR bitcode, and
-  using the \texttt{opt} \texttt{InstCount} statistics pass.
-\item \emph{Dataset features} --- size and type of the
-  dataset. Accessed from the SkelCL Matrix container type.
-\end{itemize}
-
-See Appendix~\ref{app:features} for a full list of features and
-types. For training, feature vectors are labelled with the oracle
-workgroup size, and a machine learning classifier is trained on a
-subset of this labelled training data. The performance of the
-classifier can then be evaluated by comparing the performance of the
-workgroup size predicted for an unseen feature vector against the
-oracle workgroup size for that feature.
-
-\subsubsection{Satisfying the maximum workgroup size constraint}
-
-Since the space of legal workgroup sizes has hard constraints, it is
-possible that a classifier will predict a workgroup size which
-invalidates this constraint. To handle this situation, the workgroup
-sizes predicted by the classifier are first checked to ensure that
-they are less than or equal to the maximum workgroup size for that
-scenario. If greater than, two strategies are evaluated:
-
-\begin{enumerate}
-\item Resorting to the ZeroR, i.e. the workgroup size which is known
-  to be safe and provides the highest average case performance.
-\item Incrementally reducing the workgroup size in each dimension
-  until it falls within the space of legal workgroup sizes.
-\end{enumerate}
-
 \begin{table}
 \footnotesize
 \centering
@@ -190,6 +114,109 @@ scenario. If greater than, two strategies are evaluated:
 }
 \label{tab:datasets}
 \end{table}
+
+Tables~\ref{tab:hw},~\ref{tab:kernels}, and~\ref{tab:datasets} list
+the range of execution devices, kernels, and datasets used. For each
+unique combination of architecture, kernel, and dataset (hereby
+referred to as a \emph{scenario}), training data was collected by
+randomly sampling the space of legal workgroup sizes, until multiple
+samples have been collected for each combination of scenario and
+workgroup size.
+
+\subsection{Oracle performance}
+For a given scenario $s$ and workgroup size $w$, the arithmetic mean
+of measured runtimes if $t(s,w)$. From the set of all scenarios $S$
+and workgroup sizes $W$, the subset of workgroup scenarios
+$W_{legal}(S) \subset W$ which are legal for a given scenario can be
+found using:
+
+\[ W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} \]
+
+The arithmetic mean of the measured runtimes for a given scenario $s$
+and workgroup size $w$ is represented by $t(s,w)$. The oracle
+workgroup size $\Omega(s) \in W_{legal}(s)$ is the $w$ value which
+minimises the value of $t(s,w)$:
+
+\[\Omega(s) = \argmin_{w \in W} t(s,w) \]
+
+This allows relative comparisons of performance of $w$ values against
+the oracle:
+
+\[ p(s,w) = \frac{t(s,\Omega(s))}{t(s,w)} \]
+
+Where the performance is within the range $0 \le p(s,w) \le 1$. For a
+given workgroup size, the average performance $\bar{p}(w)$ can be
+found using the geometric mean of performance relative to the oracle
+across all scenarios:
+
+\[ \bar{p}(w) = \left(\prod_{s \in S} t(s,\Omega(s)) \cdot t(s,w)^{-1} \right)^{1/|S|} \]
+
+\subsection{Autotuning using classification}
+The simplest autotuner is one which selects the workgroup size which
+is most commonly optimal (i.e. the mode of all optimal workgroup sizes
+$\left\{ \Omega(s) | s \in S \right\}$):
+
+\[ \text{ZeroR} = \text{mode}( \left\{ \Omega(s) | s \in S \right\} ) \]
+
+However, this is not satisfactory for the purpose of selecting a
+workgroup size to use, due to the constraint $W_{max}(s)$ enforced for
+each scenario. As a result, we propose a so called ``OneR''
+classifier, which first defines $W_{safe} \in W$ as the intersection
+of legal workgroup sizes across all scenarios, then selects the
+workgroup size $w$ which maximises the average performance
+$\bar{p}(w)$ across this reduced parameter space.
+
+\[W_{safe} = \cap \left\{ f(s) | s \in S \right\} \]
+\[ \text{OneR} = \argmax_{w \in W_{safe}} \bar{p}(w) \]
+
+This provides a baseline for comparing against a more sophisticated
+autotuning approaches using machine learning.
+
+\subsection{Feature Extraction}
+
+For each scenario, a feature vector is extracted to capture properties
+of the architecture, device, and dataset:
+
+\begin{itemize}
+\item \emph{Architectural features} --- size of local memory, maximum
+  work group size, number of compute units, etc. Accessed using the
+  OpenCL \texttt{clGetDeviceInfo()} API.
+\item \emph{Kernel features} --- total static instruction count, ratio
+  of instructions per type, ratio of basic blocks per instruction,
+  etc. Accessed by compiling the OpenCL kernel to LLVM IR bitcode, and
+  using the \texttt{opt} \texttt{InstCount} statistics pass.
+\item \emph{Dataset features} --- size and type of the
+  dataset. Accessed from the SkelCL Matrix container type.
+\end{itemize}
+
+See Appendix~\ref{app:features} for a full list of features and
+types. For training, feature vectors are labelled with the oracle
+workgroup size, and a classifier is trained on a subset of this
+labelled training data. The performance of the classifier is evaluated
+by comparing the performance of the workgroup size predicted for an
+unseen feature vector against the oracle workgroup size for that
+feature.
+
+\subsubsection{Satisfying the maximum workgroup size constraint}
+
+Since classifiers are probabilistic systems, it is possible that a
+classifier will predict a workgroup size that is invalid for the given
+scenario, $w \not\in W_{legal}(s)$. In these cases, one of three
+fallback strategies is used to select a safe workgroup size:
+
+\begin{enumerate}
+\item \emph{OneR} --- select the workgroup size which is known to be
+  safe and provides the highest average case performance.
+\item \emph{Random} --- select a random workgroup size uniformly from
+  the set of legal values $w \in W_{legal}$.
+\item \emph{Reshape} --- attempt to scale predicted the predicted
+  workgroup size proportionally so that it fits within the space of
+  legal workgroup sizes.
+\end{enumerate}
+
+The evaluation compares the average performance achieved using each
+fallback strategy, along with the percentage of cases for which these
+fallback strategies were required.
 
 \section{Results}
 
