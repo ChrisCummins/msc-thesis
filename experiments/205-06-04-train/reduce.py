@@ -42,6 +42,7 @@ def merge(dbs, path):
     assert not fs.isfile(path)
 
     target = _db.Database(path=path)
+    target.create_tables()
 
     num_runtimes = [db.num_rows("runtimes") for db in dbs]
 
@@ -64,13 +65,12 @@ def main():
     """
     Reduce all databases to oracle.
     """
-    combined_path = fs.path(experiment.DATA_ROOT, "combined.db")
+    dbs = [_db.Database(path) for path in
+           fs.ls(experiment.DB_DEST, abspaths=True)]
+    oracle = merge(dbs, experiment.ORACLE_PATH)
 
-    dbs = [_db.Database(path) for path in fs.ls(experiment.DB_DEST)]
-    combined = merge(dbs, combined_path)
-
-    io.info("Creating oracle ...")
-    oracle = _db.MLDatabase.init_from_db(experiment.ORACLE_PATH, combined)
+    io.info("Populating oracle tables ...")
+    oracle.populate_oracle_tables()
 
 
 if __name__ == "__main__":

@@ -216,7 +216,7 @@ def create_performance_plots(db):
 
 
 def main():
-    db = _db.MLDatabase(experiment.ORACLE_PATH)
+    db = _db.Database(experiment.ORACLE_PATH)
 
     # Delete any old stuff.
     fs.rm("img")

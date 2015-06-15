@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 from __future__ import division
+from __future__ import print_function
 
 import sys
 
@@ -16,25 +17,22 @@ import experiment
 
 def oracle_params_arff(db):
     nominals = [
-        49, # dev_double_fp_config
-        50, # dev_endian_little
-        51, # dev_execution_capabilities
-        52, # dev_extensions
-        54, # dev_global_mem_cache_type
-        57, # dev_host_unified_memory
-        63, # dev_image_support
-        65, # dev_local_mem_type
-        96, # dev_queue_properties
-        97, # dev_single_fp_config
-        98, # dev_type
+        49,  # dev_double_fp_config
+        50,  # dev_endian_little
+        51,  # dev_execution_capabilities
+        52,  # dev_extensions
+        54,  # dev_global_mem_cache_type
+        57,  # dev_host_unified_memory
+        63,  # dev_image_support
+        65,  # dev_local_mem_type
+        96,  # dev_queue_properties
+        97,  # dev_single_fp_config
+        98,  # dev_type
         100, # dev_vendor_id
     ]
     force_nominal_args = ["-N", ",".join([str(index) for index in nominals])]
-
-    db = _db.MLDatabase(experiment.ORACLE_PATH)
-    db.export_csv("features_oracle_params", "/tmp/oracle_params.csv")
-
-    data = ml.load_csv("/tmp/oracle_params.csv", options=force_nominal_args)
+    data = ml.load_csv("/tmp/omnitune/csv/oracle_params.csv",
+                       options=force_nominal_args)
     data.class_is_last()
 
     return data
@@ -46,9 +44,9 @@ def eval_classifier(classifier, testing, db):
         values = [value for value in instance]
         oracle = values[-1]
         if oracle == label:
-            print("OK", oracle, label)
+            print("Expected: {: >5}.  Actual {: >5}.  OK".format(oracle, label))
         else:
-            print("BAD", oracle, label)
+            print("Expected: {: >5}.  Actual {: >5}.  BAD".format(oracle, label))
 
         # # Create a set of (key,val) pairs.
         # keys = [attr.name for attr in testing.attributes()]
@@ -80,7 +78,9 @@ def main():
     """
     ml.start()
 
-    db = _db.MLDatabase(experiment.ORACLE_PATH)
+    db = _db.Database(experiment.ORACLE_PATH)
+
+    db.dump_csvs("/tmp/omnitune/csv")
 
     dataset = oracle_params_arff(db);
 
