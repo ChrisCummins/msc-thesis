@@ -7478,3 +7478,23 @@ class from the subset of classes which are legal for all
 scenarios. This **OneR** classifier can then be used to provide a
 baseline to compare all other classifiers against, in order to
 calculate speedup over best statically chosen workgroup size.
+
+
+## Monday 15th
+
+After performing kernel translation, we *still* don't get a OneR
+classifier. I.e. there still isn't a set of parameters which are valid
+across *all* scenarios. Notes on analysing this:
+
+```
+> select count(*) from scenarios;
+489
+> select count(*) from (select distinct scenario from runtime_stats);
+523
+```
+
+Hmm... there appears to be more scenarios in the `runtime_stats` table
+than in the `scenarios` table, whereas it should be equal.
+
+I'm going to have to seriously re-work the checksum logic so that
+we're hashing on *features* rather than kernel *source code*.
