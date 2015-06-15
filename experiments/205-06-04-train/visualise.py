@@ -81,11 +81,11 @@ def create_coverage_reports(db):
                  .format(device))
         space = db.param_coverage_space(where=where)
         space.heatmap("img/coverage/devices/{0}.png"
-                      .format(i), title=device)
+                      .format(i), title=device, vmin=0, vmax=1)
         io.info("Device safety", i, "...")
         space = db.param_safe_space(where=where)
         space.heatmap("img/safety/devices/{0}.png"
-                      .format(i), title=device)
+                      .format(i), title=device, vmin=0, vmax=1)
 
         # Real benchmarks
         io.info("Device coverage, real", i, "...")
@@ -97,11 +97,13 @@ def create_coverage_reports(db):
                  .format(device))
         space = db.param_coverage_space(where=where)
         space.heatmap("img/coverage/devices/{0}_real.png"
-                      .format(i), title=device + ", real")
+                      .format(i), title=device + ", real",
+                      vmin=0, vmax=1)
         io.info("Device safety, real", i, "...")
         space = db.param_safe_space(where=where)
         space.heatmap("img/safety/devices/{0}_real.png"
-                      .format(i), title=device + ", real")
+                      .format(i), title=device + ", real",
+                      vmin=0, vmax=1)
 
         # Synthetic benchmarks
         io.info("Device coverage, synthetic", i, "...")
@@ -113,11 +115,13 @@ def create_coverage_reports(db):
                  .format(device))
         space = db.param_coverage_space(where=where)
         space.heatmap("img/coverage/devices/{0}_synthetic.png"
-                      .format(i), title=device + ", synthetic")
+                      .format(i), title=device + ", synthetic",
+                      vmin=0, vmax=1)
         io.info("Device safety, synthetic", i, "...")
         space = db.param_safe_space(where=where)
         space.heatmap("img/safety/devices/{0}_synthetic.png"
-                      .format(i), title=device + ", synthetic")
+                      .format(i), title=device + ", synthetic",
+                      vmin=0, vmax=1)
 
     # Per-dataset
     for i,dataset in enumerate(db.datasets):
@@ -127,11 +131,11 @@ def create_coverage_reports(db):
                  .format(dataset))
         space = db.param_coverage_space(where=where)
         space.heatmap("img/coverage/datasets/{0}.png"
-                      .format(i), title=dataset)
+                      .format(i), title=dataset, vmin=0, vmax=1)
         io.info("Device safety", i, "...")
         space = db.param_safe_space(where=where)
         space.heatmap("img/safety/datasets/{0}.png"
-                      .format(i), title=dataset)
+                      .format(i), title=dataset, vmin=0, vmax=1)
 
     # Per-kerenl
     for kernel,ids in db.lookup_named_kernels().iteritems():
@@ -142,11 +146,11 @@ def create_coverage_reports(db):
                  .format(",".join(id_wrapped)))
         space = db.param_coverage_space(where=where)
         space.heatmap("img/coverage/kernels/{0}.png"
-                      .format(kernel), title=kernel)
+                      .format(kernel), title=kernel, vmin=0, vmax=1)
         io.info("Kernel safety", kernel, "...")
         space = db.param_safe_space(where=where)
         space.heatmap("img/safety/kernels/{0}.png"
-                      .format(kernel), title=kernel)
+                      .format(kernel), title=kernel, vmin=0, vmax=1)
 
 
 def create_params_plot(db):
@@ -173,7 +177,7 @@ def create_params_plot(db):
     plt.savefig("img/params.png")
 
 
-def create_violin_plots(db):
+def create_performance_plots(db):
     # Performance of all params across kernels.
     io.info("Plotting kernels performance ...")
     names = db.kernel_names
@@ -182,7 +186,7 @@ def create_violin_plots(db):
     ax = fig.add_subplot(111)
     sns.boxplot(Y)
     ax.set_xticklabels(names, rotation=90)
-    plt.ylim(ymin=0,ymax=1.2)
+    plt.ylim(ymin=0,ymax=1)
     plt.title("Workgroup size performance across kernels")
     plt.savefig("img/kernel_performance.png")
 
@@ -194,7 +198,7 @@ def create_violin_plots(db):
     ax = fig.add_subplot(111)
     sns.boxplot(Y)
     ax.set_xticklabels(devices, rotation=90)
-    plt.ylim(ymin=0,ymax=1.2)
+    plt.ylim(ymin=0,ymax=1)
     plt.title("Workgroup size performance across devices")
     plt.savefig("img/device_performance.png")
 
@@ -206,7 +210,7 @@ def create_violin_plots(db):
     ax = fig.add_subplot(111)
     sns.boxplot(Y)
     ax.set_xticklabels(datasets, rotation=90)
-    plt.ylim(ymin=0,ymax=1.2)
+    plt.ylim(ymin=0,ymax=1)
     plt.title("Workgroup size performance across datasets")
     plt.savefig("img/dataset_performance.png")
 
@@ -218,7 +222,7 @@ def main():
     fs.rm("img")
     fs.mkdir("img")
 
-    create_violin_plots(db)
+    create_performance_plots(db)
     create_params_plot(db)
     create_coverage_reports(db)
     create_oracle_wgsizes_heatmaps(db)
