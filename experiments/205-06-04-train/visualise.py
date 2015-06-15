@@ -175,6 +175,7 @@ def create_params_plot(db):
     plt.tight_layout()
     plt.legend()
     plt.savefig("img/params.png")
+    plt.close()
 
 
 def create_performance_plots(db):
@@ -189,6 +190,7 @@ def create_performance_plots(db):
     plt.ylim(ymin=0,ymax=1)
     plt.title("Workgroup size performance across kernels")
     plt.savefig("img/kernel_performance.png")
+    plt.close()
 
     # Performance of all params across devices.
     io.info("Plotting devices performance ...")
@@ -201,6 +203,7 @@ def create_performance_plots(db):
     plt.ylim(ymin=0,ymax=1)
     plt.title("Workgroup size performance across devices")
     plt.savefig("img/device_performance.png")
+    plt.close()
 
     # Performance of all params across dataset.
     io.info("Plotting datasets performance ...")
@@ -213,6 +216,7 @@ def create_performance_plots(db):
     plt.ylim(ymin=0,ymax=1)
     plt.title("Workgroup size performance across datasets")
     plt.savefig("img/dataset_performance.png")
+    plt.close()
 
 
 def main():
