@@ -221,18 +221,15 @@ def create_performance_plots(db):
 
 def create_maxspeedups_plots(db):
     io.info("Plotting max speedups ...")
-    Speedups = sorted(db.max_speedups().values())
+    Speedups = sorted(db.max_speedups().values(), reverse=True)
     X = np.arange(len(Speedups))
     plt.plot(X, Speedups, 'b')
-    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
     plt.xlim(xmin=0, xmax=len(X) - 1)
-    plt.ylim(ymin=0, ymax=100)
-    plt.tick_params(
-        axis='x',          # changes apply to the x-axis
-        which='both',      # both major and minor ticks are affected
-        bottom='off',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        labelbottom='off') # labels along the bottom edge are off
+    plt.ylim(ymin=0, ymax=10)
+    plt.axhline(y=1, color="k")
+    plt.title("Max attainable speedups")
+    plt.ylabel("Max speedup")
+    plt.xlabel("Scenarios")
     plt.tight_layout()
     plt.savefig("img/max_speedups.png")
     plt.close()

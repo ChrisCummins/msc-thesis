@@ -7,6 +7,7 @@ import sys
 import labm8 as lab
 from labm8 import io
 from labm8 import fs
+from labm8 import math as labmath
 from labm8 import ml
 
 import omnitune
@@ -43,10 +44,7 @@ def eval_classifier(classifier, testing, db):
     def eval_prediction(instance, label):
         values = [value for value in instance]
         oracle = values[-1]
-        if oracle == label:
-            print("Expected: {: >5}.  Actual {: >5}.  OK".format(oracle, label))
-        else:
-            print("Expected: {: >5}.  Actual {: >5}.  BAD".format(oracle, label))
+        return 1 if label == oracle else 0
 
         # # Create a set of (key,val) pairs.
         # keys = [attr.name for attr in testing.attributes()]
@@ -68,9 +66,10 @@ def eval_classifier(classifier, testing, db):
         #    io.debug("naughty")
 
     predictions = [classifier.classify(instance) for instance in testing]
-    return [eval_prediction(instance, label) for instance,label in
-            zip(testing, predictions)]
-
+    performance = [eval_prediction(instance, label) for instance,label in
+                   zip(testing, predictions)]
+    io.info("Performance on", len(predictions), "instances:",
+            labmath.mean(performance))
 
 def main():
     """
@@ -79,6 +78,9 @@ def main():
     ml.start()
 
     db = _db.Database(experiment.ORACLE_PATH)
+
+    io.debug("ZERO_R", db.zero_r())
+    io.debug("ONE_R", db.one_r())
 
     db.dump_csvs("/tmp/omnitune/csv")
 
