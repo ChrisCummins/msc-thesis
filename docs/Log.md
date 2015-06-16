@@ -7498,3 +7498,75 @@ than in the `scenarios` table, whereas it should be equal.
 
 I'm going to have to seriously re-work the checksum logic so that
 we're hashing on *features* rather than kernel *source code*.
+
+
+## Tuesday 16th
+
+TODO:
+* Enumerate the list of safe params for each max wgsize.
+* For each scenario, list safe params with no results.
+* Run a couple of examples from "missing" datapoints.
+* Eval performance of *most* safe params.
+* Use as baseline for comparing speedups.
+
+Create list of all *legal* scenario,params combinations for which I
+don't have data:
+
+```
+SELECT
+    kernel_names.name AS kernel,
+    kernels.north,
+    kernels.south,
+    kernels.east,
+    kernels.west,
+    scenarios.dataset,
+    scenarios.device,
+    params.id AS params
+FROM scenarios
+LEFT JOIN params
+LEFT JOIN runtime_stats
+    ON scenarios.id=runtime_stats.scenario AND params.id=runtime_stats.params
+LEFT JOIN kernels
+    ON scenarios.kernel=kernels.id
+LEFT JOIN kernel_names
+    ON kernels.id=kernel_names.id
+WHERE
+    (params.wg_c * params.wg_r) < kernels.max_wg_size
+    AND runtime_stats.num_samples IS NULL
+```
+
+I've decided to drop the incomplete data I've collected from monza's
+dual GPU experiments, at least until I can make multi-GPU support for
+SkelCL stencils stable. I'll drop the data into a temporary
+`2xTahiti.db` file. Pre drop counts:
+
+```
+sqlite> select count(*) from runtimes;
+10257090
+sqlite> select count(*) from scenarios;
+360
+sqlite> select count(*) from devices;
+7
+```
+
+And post drop, `oracle.db`:
+
+```
+sqlite> select count(*) from runtimes;
+10087257
+sqlite> select count(*) from scenarios;
+315
+sqlite> select count(*) from devices;
+6
+```
+
+`2xTahiti.db`:
+
+```
+sqlite> select count(*) from runtimes;
+169833
+sqlite> select count(*) from scenarios;
+45
+sqlite> select count(*) from devices;
+1
+```
