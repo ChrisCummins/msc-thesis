@@ -58,7 +58,7 @@ def run_job(db, kernel, north, south, east, west,
     ] + device2devargs(device)
 
     if kernel == "complex":
-        args += ["-c"]
+        cmd += ["-c"]
 
     fs.cd(fs.path(experiment.EXAMPLES_BUILD, "SimpleBig"))
 
