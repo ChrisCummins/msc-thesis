@@ -238,11 +238,10 @@ def create_maxspeedups_plots(db):
     plt.close()
 
 
-def create_min_max_plots(db):
+def create_min_max_plot(db):
     io.info("Plotting min max runtimes ...")
-    data = db.min_max_runtimes()
-    minmax = lab.flatten([param.values() for param in data.values()])
-    min_t, max_t = zip(*minmax)
+    data = [t[2:] for t in db.min_max_runtimes()]
+    min_t, max_t = zip(*data)
 
     iqr = (0.25, 0.75) # IQR to plot.
     nbins = 25 # Number of bins.
@@ -261,8 +260,23 @@ def create_min_max_plots(db):
     plt.xlabel("Runtime (normalised to mean)")
     plt.legend()
     plt.tight_layout()
-    plt.show()
     plt.savefig("img/min_max_runtimes.png")
+    plt.close()
+
+
+def create_num_samples_plot(db):
+    io.info("Plotting num samples ...")
+    data = sorted([t[2] for t in db.num_samples()])
+
+    nbins = 25 # Number of bins.
+
+    bins = np.linspace(min(data), max(data), nbins)
+    plt.hist(data, bins)
+    plt.title("Sample counts for unique scenarios and params")
+    plt.ylabel("Frequency")
+    plt.xlabel("Number of samples")
+    plt.tight_layout()
+    plt.savefig("img/num_samples.png")
     plt.close()
 
 
@@ -273,7 +287,8 @@ def main():
     fs.rm("img")
     fs.mkdir("img")
 
-    create_min_max_plots(db)
+    create_num_samples_plot(db)
+    create_min_max_plot(db)
     create_maxspeedups_plots(db)
     create_performance_plots(db)
     create_params_plot(db)
