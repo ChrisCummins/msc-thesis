@@ -3,6 +3,7 @@
 from __future__ import division
 
 import random
+import re
 import sys
 import os
 
@@ -24,7 +25,7 @@ import experiment
 import gather
 
 
-def merge(dbs, path):
+def merge(old_oracle, dbs, path):
     """
     Merge databases into one.
 
@@ -37,23 +38,22 @@ def merge(dbs, path):
 
         Database: merged database instance.
     """
-    # Make sure that the merged database does not exist.
-    fs.rm(path)
-    assert not fs.isfile(path)
+    # Make a copy of the old oracle database to work from.
+    io.info("Coping", old_oracle, "->", fs.basename(path))
+    fs.cp(old_oracle, path)
 
     target = _db.Database(path=path)
-    target.create_tables()
 
     num_runtimes = [db.num_rows("runtimes") for db in dbs]
+    expected_total = target.num_rows("runtimes") + sum(num_runtimes)
 
-    for db,n in zip(dbs, num_runtimes):
-        io.info(("Merging {n} runtimes from {db}"
-                 .format(n=n, db=fs.basename(db.path))))
-        target.merge(db)
+    target.merge(dbs)
 
     total = target.num_rows("runtimes")
 
-    assert total == sum(num_runtimes)
+    if total != expected_total:
+        io.fatal("Expected total", expected_total,
+                 "!= actual total", total)
 
     io.info(("Merged {num_db} databases, {n} rows"
              .format(num_db=len(dbs), n=total)))
@@ -66,11 +66,10 @@ def main():
     Reduce all databases to oracle.
     """
     dbs = [_db.Database(path) for path in
-           fs.ls(experiment.DB_DEST, abspaths=True)]
-    oracle = merge(dbs, experiment.ORACLE_PATH)
-
-    io.info("Populating oracle tables ...")
-    oracle.populate_oracle_tables()
+           fs.ls(experiment.DB_DEST, abspaths=True)
+           if not re.search("oracle.db$", path)]
+    merge(fs.abspath(experiment.DB_DEST, "oracle.db"),
+          dbs, experiment.ORACLE_PATH)
 
 
 if __name__ == "__main__":
