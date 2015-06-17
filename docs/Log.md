@@ -7584,3 +7584,17 @@ FROM runtime_stats AS lhs
 INNER JOIN rhs.runtime_stats AS rhs
     ON lhs.scenario=rhs.scenario AND lhs.params=rhs.params;
 ```
+
+
+## Wednesday 17th
+
+Ok so I created and ran the joblist. After reducing these results,
+re-running the joblist again shows an *increase* in the size of the
+resulting joblist. Something is seriously wrong. Let's fix this.
+
+* I've noticed that the plot of param safety for whz5 is empty, and
+  yet both the real and synthetic plots for whz5 show plenty of safe
+  parameters.
+
+* There is safe params for all *real* programs, so I'll create a
+  dataset of just those in order to test on.
