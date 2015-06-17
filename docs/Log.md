@@ -7570,3 +7570,17 @@ sqlite> select count(*) from scenarios;
 sqlite> select count(*) from devices;
 1
 ```
+
+Starting work on how to implement an in-place merge:
+
+```
+SELECT
+    lhs.scenario,
+    lhs.params,
+    (lhs.num_samples + rhs.num_samples) AS num_samples,
+    CASE WHEN lhs.min < rhs.min THEN lhs.min ELSE rhs.min END AS min,
+    CASE WHEN lhs.max > rhs.max THEN lhs.max ELSE rhs.max END AS max
+FROM runtime_stats AS lhs
+INNER JOIN rhs.runtime_stats AS rhs
+    ON lhs.scenario=rhs.scenario AND lhs.params=rhs.params;
+```
