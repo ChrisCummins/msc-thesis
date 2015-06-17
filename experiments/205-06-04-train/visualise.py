@@ -28,7 +28,7 @@ def create_oracle_wgsizes_heatmaps(db):
 
     space = db.oracle_param_space()
     space.heatmap("img/oracle/heatmap.png",
-                  title="All")
+                  title="All data")
 
     for i,device in enumerate(db.devices):
         io.info("Device heatmap", i, "...")
@@ -72,6 +72,16 @@ def create_coverage_reports(db):
     fs.mkdir("img/safety/devices")
     fs.mkdir("img/safety/kernels")
     fs.mkdir("img/safety/datasets")
+
+    io.info("Coverage ...")
+    space = db.param_coverage_space()
+    space.heatmap("img/coverage/coverage.png",
+                  title="All data", vmin=0, vmax=1)
+
+    io.info("Safety ...")
+    space = db.param_safe_space()
+    space.heatmap("img/safety/safety.png",
+                  title="All data", vmin=0, vmax=1)
 
     # Per-device
     for i,device in enumerate(db.devices):
@@ -153,28 +163,61 @@ def create_coverage_reports(db):
                       .format(kernel), title=kernel, vmin=0, vmax=1)
 
 
-def create_params_plot(db):
-    io.info("Plotting params performance ...")
-    summary = db.params_summary()
-    X = np.arange(len(summary))
-    Labels = [t[0] for t in summary]
-    Performance = [t[1] * 100 for t in summary]
-    Coverage = [t[2] * 100 for t in summary]
+def create_perf_coverage_plot(db):
+    io.info("Plotting average params performance as function of legality ...")
+    data = sorted([
+        (
+            db.perf_param_avg(param) * 100,
+            db.perf_param_avg_legal(param) * 100,
+            db.param_coverage(param) * 100
+        )
+        for param in db.params
+    ], reverse=True, key=lambda x: (x[0], x[2], x[1]))
+    X = np.arange(len(data))
+
+    GeoPerformance, Performance, Coverage = zip(*data)
+
     ax = plt.subplot(111)
-    ax.plot(X, Performance, 'b', label="Performance")
-    ax.plot(X, Coverage, 'g', label="Legality")
+    ax.plot(X, Coverage, 'r', label="Legality")
+    ax.plot(X, Performance, 'g', label="Performance (when legal)")
+    ax.plot(X, GeoPerformance, 'b', label="Performance")
     plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
     plt.xlim(xmin=0, xmax=len(X) - 1)
     plt.ylim(ymin=0, ymax=100)
-    plt.tick_params(
-        axis='x',          # changes apply to the x-axis
-        which='both',      # both major and minor ticks are affected
-        bottom='off',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        labelbottom='off') # labels along the bottom edge are off
+    plt.title("Workgroup size performance vs. legality")
+    plt.ylabel("Performance / Legality")
+    plt.xlabel("Parameters")
     plt.tight_layout()
-    plt.legend()
-    plt.savefig("img/params.png")
+    plt.legend(frameon=True)
+    plt.savefig("img/perf_coverage.png")
+    plt.close()
+
+
+def create_perf_max_wgsize(db):
+    io.info("Plotting params performance as function of max wgsize ...")
+    data = sorted([
+        (
+            db.perf(scenario, param) * 100,
+            db.ratio_max_wgsize(scenario, param) * 100
+        )
+        for scenario, param in db.scenario_params
+    ], reverse=True)
+    X = np.arange(len(data))
+
+    Performance, Ratios = zip(*data)
+
+    ax = plt.subplot(111)
+    ax.plot(X, Ratios, 'g', label="Ratio max wgsize")
+    ax.plot(X, Performance, 'b', label="Performance")
+    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
+    plt.xlim(xmin=0, xmax=len(X) - 1)
+    plt.ylim(ymin=0, ymax=100)
+    plt.title("Workgroup size performance vs. maximum workgroup size")
+    plt.ylabel("Performance / Ratio max wgsize")
+    plt.xlabel("Scenarios, Parameters")
+    plt.tight_layout()
+    plt.legend(frameon=True)
+    plt.savefig("img/perf_max_wgisze.png")
     plt.close()
 
 
@@ -255,7 +298,7 @@ def create_min_max_plot(db):
     plt.title("Normalised distribution of min and max runtimes")
     plt.ylabel("Frequency")
     plt.xlabel("Runtime (normalised to mean)")
-    plt.legend()
+    plt.legend(frameon=True)
     plt.tight_layout()
     plt.savefig("img/min_max_runtimes.png")
     plt.close()
@@ -288,7 +331,8 @@ def main():
     create_min_max_plot(db)
     create_maxspeedups_plots(db)
     create_performance_plots(db)
-    create_params_plot(db)
+    create_perf_coverage_plot(db)
+    create_perf_max_wgsize(db)
     create_coverage_reports(db)
     create_oracle_wgsizes_heatmaps(db)
     create_max_wgsizes_heatmaps(db)

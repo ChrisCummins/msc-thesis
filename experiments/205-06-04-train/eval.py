@@ -4,8 +4,13 @@ from __future__ import print_function
 
 import sys
 
+import numpy as np
+import scipy
+from scipy import stats
+
 import labm8 as lab
 from labm8 import io
+from labm8 import fmt
 from labm8 import fs
 from labm8 import math as labmath
 from labm8 import ml
@@ -71,6 +76,19 @@ def eval_classifier(classifier, testing, db):
     io.info("Performance on", len(predictions), "instances:",
             labmath.mean(performance))
 
+
+def summarise_perfs(perfs):
+    def _fmt(n):
+        return "{:.3f}".format(n)
+
+    print("        n: ", len(perfs))
+    print("     mean: ", _fmt(labmath.mean(perfs)))
+    print("  geomean: ", _fmt(labmath.geomean(perfs)))
+    print("      min: ", _fmt(min(perfs)))
+    print("      max: ", _fmt(max(perfs)))
+    print()
+
+
 def main():
     """
     Evaluate dataset and omnitune performance.
@@ -79,8 +97,17 @@ def main():
 
     db = _db.Database(experiment.ORACLE_PATH)
 
-    io.debug("ZERO_R", db.zero_r())
-    io.debug("ONE_R", db.one_r())
+    zero_r = db.zero_r()
+    io.info("ZERO R:", zero_r[0])
+    summarise_perfs(db.perf_param(zero_r[0]).values())
+
+    one_r = db.one_r()
+    io.info("ONE R:", one_r[0])
+    summarise_perfs(db.perf_param(one_r[0]).values())
+
+    # for param in db.params:
+    #     print(param + ":")
+    #     summarise_perfs(db.perf_param(param).values())
 
     db.dump_csvs("/tmp/omnitune/csv")
 
