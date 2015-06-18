@@ -2,6 +2,8 @@
 from __future__ import division
 from __future__ import print_function
 
+import re
+
 from functools import partial
 from itertools import product
 
@@ -9,7 +11,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 import seaborn as sns
-
 from scipy import stats
 
 import weka
@@ -61,6 +62,10 @@ class ReshapeError(ErrFnError):
 
 def classifier2str(classifier):
     return " ".join([classifier.classname] + classifier.options)
+
+
+def sanitise_classifier_str(classifier):
+    return re.sub(r"[ -\.]+", "-", classifier)
 
 
 def summarise_perfs(perfs):
@@ -291,6 +296,12 @@ def xvalidate_classifiers(classifiers, err_fns, dataset,
     """
     Cross validate a set of classifiers and err_fns.
     """
+    def _plt_title(classifier, n=60):
+        if len(classifier) > n:
+            return classifier[0:n - 4] + " ..."
+        else:
+            return classifier
+
     # All permutations of classifiers and err_fns.
     combinations = list(product(classifiers, err_fns))
 
@@ -301,17 +312,43 @@ def xvalidate_classifiers(classifiers, err_fns, dataset,
         for classifier,err_fn in combinations
     ]
 
-    # Summarise results.
-    data = [
+    # Plot all speedups.
+    for i in range(0, len(xval_results), 3):
+        for j in range(3):
+            row = xval_results[i + j]
+            _,Speedups = zip(*sorted(row[2][2], key=lambda x: x[1],
+                                     reverse=True))
+            err_fn = row[1]
+            plt.plot(Speedups, "o-", label=err_fn)
+
+
+        classifier = row[0]
+        plot_name = sanitise_classifier_str(classifier)
+
+        io.info("Plotting", plot_name, "...")
+
+        plt.title(_plt_title(classifier))
+        plt.ylabel("Speedup over baseline")
+        plt.xlabel("Test instances")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig("img/eval/speedups/{}.png".format(plot_name))
+        plt.close()
+
+
+    # Summarise results and print a table.
+    table = [
         (t[0], t[1]) + summarise_classifier_results(*t[2])
         for t in xval_results
     ]
 
-    str_args = {"float_format": lambda f: "{:.2f}".format(f)}
+    str_args = {
+        "float_format": lambda f: "{:.2f}".format(f)
+    }
 
     print("Results of {} fold cross-validation:".format(nfolds))
     print()
-    print(fmt.table(data, str_args, columns=(
+    print(fmt.table(table, str_args, columns=(
         "CLASSIFIER",
         "ERR_FN",
         "ACC %",
@@ -330,6 +367,9 @@ def main():
     Evaluate dataset and omnitune performance.
     """
     ml.start()
+
+    fs.rm("img/eval")
+    fs.mkdir("img/eval/speedups")
 
     nfolds = 10
 
