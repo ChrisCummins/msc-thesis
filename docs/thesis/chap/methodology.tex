@@ -110,26 +110,32 @@ Intel i5-4570 & 8GiB & -\\
 \TODO{Table of derived dependent variables (e.g. FLOPS, GPU utilisation)}
 
 \newpage
-\begin{algorithm}[H]
- \KwData{$k,h,d$ = kernel, hardware, data feature vectors}
- \KwResult{$c$ = parameter values vector}
- $C = \{c_1,c_2,\ldots,c_n\}$ = all legal permutations of $c$\;
- \eIf{no control flow in kernel}{
-   return $\underset{c}{\argmin} f(k,h,d,c) = r$\;
- }{
-   converged = false\;
-   $c_b$ = baseline values\;
-   evaluate $c_b$, measuring runtime $r_b$\;
-   \While{not converged}{
-     return $\underset{c}{\argmax} g(k,h,d,c) = s$\;
-     evaluate $c$, measuring runtime $r$\;
-     \If{measured speedup $\frac{r_b}{r} \approx$ predicted speedup $s$}{
-       converged = true\;
-     }{
-       $C = C - \{c\}$\;
-     }
-   }
-   return $c$\;
- }
- \caption{Classification using regressors}
+
+\begin{algorithm}
+\caption{Request workgroup size}\label{bar}
+\begin{algorithmic}[1]
+\Require kernel features $k$, hardware features $h$, dataset features $d$.
+\Ensure workgroup size $c$
+
+\State $C \leftarrow \{ c_1, c_2,\ldots, c_n \}$
+\Comment Set of all possible workgroup sizes
+
+\If{no control flow in kernel}
+    \State \textbf{return} $\underset{c}{\argmin} f(k,h,d,c) = r$
+\Else
+   \State converged $\leftarrow$ false
+   \State $c_b \leftarrow$ baseline values
+   \State $r_b \leftarrow$ measure runtime of runtime of program with $c_b$
+   \While{not converged}
+     \State return $\underset{c}{\argmax} g(k,h,d,c) = s$
+     \State evaluate $c$, measuring runtime $r$\;
+     \If{measured speedup $\frac{r_b}{r} \approx$ predicted speedup $s$}
+       \State converged = true
+     \Else
+       \State $C = C - \{c\}$
+     \EndIf
+   \EndWhile
+   \State \textbf{return} $c$
+\EndIf
+\end{algorithmic}
 \end{algorithm}
