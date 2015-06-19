@@ -28,19 +28,18 @@ from omnitune.skelcl import db as _db
 def create_devices_table(db, output=None):
     output = output or open("gen/tables/devices.tex", "wb")
     infos = set()
-    for row in db.execute("SELECT name,count,max_compute_units,"
+    for row in db.execute("SELECT name,max_compute_units,"
                           "max_clock_frequency,local_mem_size,"
                           "global_mem_size,max_work_group_size "
-                          "FROM devices"):
-        name,count,cunits,freq,lmem,gmem,max_wg = row
-        infos.add((count, name.strip(), cunits, freq,
+                          "FROM devices WHERE id LIKE '1x%'"):
+        name,cunits,freq,lmem,gmem,max_wg = row
+        infos.add((name.strip(), cunits, freq,
                    labmath.ceil(lmem / 1024), labmath.ceil(gmem / 1024 / 1024),
                    max_wg))
 
     infos = list(sorted(infos, key=lambda x: x[1]))
     latex.write_table_body(infos, output=output,
                            headers=(
-                               "Device count",
                                "Name",
                                "Compute units",
                                "Frequency (Hz)",
@@ -129,26 +128,29 @@ def create_num_params_oracle_graph(db):
 
 
 def create_params_summary_plot(db):
-    summary = db.params_summary()
-    X = np.arange(len(summary))
-    Performance = [t[1] * 100 for t in summary]
-    Coverage = [t[2] * 100 for t in summary]
+    data = sorted([
+        (
+            db.perf_param_avg(param) * 100,
+            db.perf_param_avg_legal(param) * 100,
+            db.param_coverage(param) * 100
+        )
+        for param in db.params
+    ], reverse=True, key=lambda x: (x[0], x[2], x[1]))
+    X = np.arange(len(data))
+
+    GeoPerformance, Performance, Coverage = zip(*data)
+
     ax = plt.subplot(111)
-    ax.plot(X, Performance, 'b', label="Performance")
-    ax.plot(X, Coverage, 'g', label="Legality")
+    ax.plot(X, Coverage, 'r', label="Legality")
+    ax.plot(X, Performance, 'g', label="Performance (when legal)")
+    ax.plot(X, GeoPerformance, 'b', label="Performance")
     plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
-    plt.ylabel("Performance / Legality")
     plt.xlim(xmin=0, xmax=len(X) - 1)
     plt.ylim(ymin=0, ymax=100)
-    plt.tick_params(
-        axis='x',          # changes apply to the x-axis
-        which='both',      # both major and minor ticks are affected
-        bottom='off',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        labelbottom='off') # labels along the bottom edge are off
-    plt.tight_layout()
-    plt.legend(loc=4) # legend in bottom right
+    plt.ylabel("Performance / Legality")
+    plt.xlabel("Parameters")
     plt.gcf().set_size_inches(6, 2.5, dpi=300)
+    plt.tight_layout()
     plt.savefig("gen/img/params_summary.png")
     plt.close()
 
