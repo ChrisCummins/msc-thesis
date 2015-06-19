@@ -10,6 +10,12 @@
 
 \section{Heterogeneous Parallelism}
 
+% D. Grewe, Z. Wang, and M. F. P. M. O’Boyle, “Portable mapping of
+% data parallel programs to OpenCL for heterogeneous systems,” in Code
+% Generation and Optimization (CGO), 2013 IEEE/ACM International
+% Symposium on, 2013, pp. 1–10.
+\TODO{Automatic translation from OpenMP to OpenCL~\cite{Grewe2013}.}
+
 \note{OPTIMISING PROGRAMS FOR GPUs}
 
 Prior research has shown that performance of GPGPU programs are
@@ -87,6 +93,16 @@ enumerating instruction set search space: \cite{Massalin1987}}
 
 \note{APPLYING ML TO OPTIMISATION PROBLEMS}
 
+% M. Stephenson, M. Martin, and U. O. Reilly, “Meta Optimization:
+% Improving Compiler Heuristics with Machine Learning,” ACM SIGPLAN
+% Not., vol. 38, no. 5, pp. 77–90, 2003.
+\TODO{Using ML to improve compiler heuristics~\cite{Stephenson2003}}
+
+% E. K. Burke, M. Gendreau, M. Hyde, G. Kendall, G. Ochoa, E. Özcan,
+% and R. Qu, “Hyper-heuristics: a survey of the state of the art,”
+% J. Oper. Res. Soc., vol. 64, pp. 1695–1724, 2013.
+\TODO{Hyper-heuristics survey paper: \cite{Burke2013}}
+
 % R. Bitirgen, E. Ipek, and J. F. Martinez, “Coordinated Management of
 % Multiple Interacting Resources in Chip Multiprocessors: A Machine
 % Learning Approach,” in 2008 41st IEEE/ACM International Symposium on
@@ -94,6 +110,12 @@ enumerating instruction set search space: \cite{Massalin1987}}
 \TODO{Artificial Neural Networks for resource allocation of CMPS:
 \cite{Bitirgen2008}}
 
+\section{OpenCL}
+
+% J. Fang, A. L. Varbanescu, and H. Sips, “A Comprehensive Performance
+% Comparison of CUDA and OpenCL,” in Parallel Processing (ICPP), 2011
+% International Conference on, 2011, pp. 216–225.
+\TODO{Comparing OpenCL and CUDA performance: \cite{Karimi2010}}
 
 \section{Algorithmic Skeletons}
 
@@ -233,6 +255,23 @@ hardware and a memory-placement-agnostic compiler. Shows impressive
 speedups (2.08x max, 1.59x avg) from just optimising data
 placement. \cite{Chen2014}}
 
+\subsection{Autotuning for GPUs}
+
+% K. Komatsu, K. Sato, Y. Arai, K. Koyama, H. Takizawa, and
+% H. Kobayashi, “Evaluating performance and portability of OpenCL
+% programs,” in The fifth international workshop on automatic
+% performance tuning, 2010, p. 7.
+\citeauthor{Komatsu2010} provide quantitative comparisons between the
+performance of CUDA and OpenCL kernels
+in~\cite{Komatsu2010}. \TODO{This paper is deserving of close
+  scrutiny, as they perform an in-depth evaluation of the effect of
+  workgroup size on the performance of kernels across devices and
+  programs.}
+
+% A. Magni, C. Dubach, and M. O’Boyle, “Automatic optimization of
+% thread-coarsening for graphics processors,” in International
+% Conference on Parallel Architectures and Compilation, 2014,
+% pp. 455–466.
 \citeauthor{Magni2014} explored the effect of thread coarsening
 in~\cite{Magni2014}, achieving average speedups between 1.11$\times$
 and 1.33$\times$ using a machine-learning model based on the static
