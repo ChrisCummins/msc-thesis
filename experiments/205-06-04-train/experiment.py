@@ -62,4 +62,4 @@ elif system.HOSTNAME == "tim":
 elif system.HOSTNAME == "whz5":
     DEVARGS = [["--device-type", "GPU", "--device-count", "1"]]
 else:
-    io.fatal("Unrecognised hostname!")
+    io.warn("Unrecognised hostname, no devargs.")
