@@ -194,12 +194,6 @@ all-local: $(Plists) $(Cpplints)
 if HAVE_CLANGXX
 	$(AM_V_CXX)$(CXXCOMPILE) -emit-llvm -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c $< -o $*$(BitCodeExtension)
 	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-if HAVE_LOCAL_CXX
-if ENABLE_MEMORY_COUNTER
-	$(AM_V_at)$(OPT) -load $(LLVM_BUILD_PATH)/lib/LLVMMemoryCounter.so -memorycounter < $*$(BitCodeExtension) > $*$(BitCodeExtension).out
-	$(AM_V_at)mv $*$(BitCodeExtension).out $*$(BitCodeExtension)
-endif
-endif
 	$(AM_V_at)$(LLVM_DIS) $*$(BitCodeExtension) -o $*$(ByteCodeExtension)
 	$(AM_V_at)$(CXX) -c $*$(BitCodeExtension) -o $@
 	$(AM_V_at)$(CXX) -emit-llvm -S $*$(BitCodeExtension) -o $*$(ByteCodeExtension)
