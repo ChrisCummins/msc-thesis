@@ -85,45 +85,6 @@ AC_DEFINE_UNQUOTED([NUM_PROC],[$NUM_PROC],
 AC_MSG_NOTICE([Number of processor available: $NUM_PROC])
 
 
-dnl ================================================================
-dnl LLVM and Clang compiler configuration
-dnl ================================================================
-LLVM_TARGET="Release+Asserts"
-AC_SUBST([LLVM_TARGET],[$LLVM_TARGET])
-
-LLVM_BUILD_PATH="$(pwd)/llvm/$LLVM_TARGET"
-AC_SUBST([LLVM_BUILD_PATH],[$LLVM_BUILD_PATH])
-
-dnl Add an argument to enable or disable building and using a local
-dnl compiler toolchain.
-AC_ARG_ENABLE([local-cc],
-              [AS_HELP_STRING([--enable-local-cc],
-                              [Build local compiler toolchain (default: yes)])],,
-              [enable_local_cc=yes])
-AM_CONDITIONAL(ENABLE_LOCAL_CC,[test "x$enable_local_cc" = xyes])
-
-dnl Export paths to local compilers if required.
-AS_IF([test "x$enable_local_cc" = xyes],
-      [CC="$LLVM_BUILD_PATH/bin/clang"
-       CXX="$LLVM_BUILD_PATH/bin/clang++"])
-
-dnl Export whether we're using the local compiler, and if required,
-dnl build it.
-AS_IF([test "x$CXX" = "x$LLVM_BUILD_PATH/bin/clang++"],
-      [HAVE_LOCAL_CXX=yes
-       AS_IF([test -f "$CXX"],[],
-             [echo "Running one-time build of llvm...";
-              cd llvm;
-              ./configure --enable-optimized;
-              make -j$NUM_PROC;
-              cd ..;
-              AS_IF([test -f "$CXX"],[],
-                    [AC_MSG_ERROR([Failed to build llvm.
-Build llvm manually using --enable-optimised, and then re-run this script.])])])],
-      [HAVE_LOCAL_CXX=no])
-AC_SUBST([HAVE_LOCAL_CXX],[$HAVE_LOCAL_CXX])
-AM_CONDITIONAL([HAVE_LOCAL_CXX],[test "x$HAVE_LOCAL_CXX" = xyes])
-
 dnl Export whether we have clang or not.
 AS_IF([test "xclang" = "x$(basename $CC 2>/dev/null)"],
       [HAVE_CLANG=yes],
@@ -417,7 +378,6 @@ AC_CONFIG_FILES([
         docs/thesis/Makefile
         exercises/Makefile
         exercises/algos/Makefile
-        exercises/llvm/Makefile
         exercises/mpi/Makefile
         exercises/opencl/Makefile
         exercises/skelcl/Makefile
