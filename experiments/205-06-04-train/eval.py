@@ -96,11 +96,12 @@ def oracle_params_arff(db):
         100, # dev_vendor_id
     ]
     force_nominal_args = ["-N", ",".join([str(index) for index in nominals])]
-    data = ml.load_csv("/tmp/omnitune/csv/oracle_params.csv",
-                       options=force_nominal_args)
-    data.class_is_last()
 
-    return data
+    dataset = ml.Dataset.load_csv("/tmp/omnitune/csv/oracle_params.csv",
+                                  options=force_nominal_args)
+    dataset.class_index = -1
+
+    return dataset
 
 
 def perf_fn(db, baseline, scenario, predicted, oracle):
@@ -234,36 +235,8 @@ def eval_classifier(training, testing, classifier, *args, **kwargs):
 
 
 def xvalidate_classifier(dataset, nfolds, *args, **kwargs):
-    num_instances = dataset.num_instances
-    fold_size = labmath.ceil(num_instances / nfolds)
-
-    data = []
-
-    rnd = WekaRandom(SEED)
-
-    # Shuffle the dataset.
-    dataset.randomize(rnd)
-
-    for i in range(nfolds):
-        offset = i * fold_size
-        testing_end = min(offset + fold_size, num_instances - 1)
-
-        # Calculate dataset indices for testing and training data.
-        testing_range = (offset, testing_end - offset)
-        left_range = (0, offset)
-        right_range = (testing_end, num_instances - testing_end)
-
-        # If there's nothing to test, move on.
-        if testing_range[1] < 1: continue
-
-        # Create testing and training folds.
-        testing = Instances.copy_instances(dataset, *testing_range)
-        left = Instances.copy_instances(dataset, *left_range)
-        right = Instances.copy_instances(dataset, *right_range)
-        training = Instances.append_instances(left, right)
-
-        # Test on folds.
-        data.append(eval_classifier(training, testing, *args, **kwargs))
+    data = [eval_classifier(training, testing, *args, **kwargs)
+            for training,testing in dataset.folds(nfolds)]
 
     transpose = map(list, zip(*data))
 
@@ -383,12 +356,12 @@ def main():
     summarise_perfs(db.perf_param(one_r[0]).values())
 
     classifiers = (
-        WekaClassifier("weka.classifiers.rules.ZeroR"),
-        WekaClassifier("weka.classifiers.functions.SMO"),
-        WekaClassifier("weka.classifiers.functions.SimpleLogistic"),
-        WekaClassifier("weka.classifiers.trees.RandomForest"),
-        WekaClassifier("weka.classifiers.bayes.NaiveBayes"),
-        WekaClassifier("weka.classifiers.trees.J48"),
+        ml.ZeroR(),
+        ml.SMO(),
+        ml.SimpleLogistic(),
+        ml.RandomForest(),
+        ml.NaiveBayes(),
+        ml.J48(),
     )
 
     err_fns = (
