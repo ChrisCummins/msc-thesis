@@ -18,8 +18,10 @@ from labm8 import math as labmath
 import omnitune
 from omnitune import skelcl
 from omnitune.skelcl import db as _db
+from omnitune.skelcl import visualise
 
 import experiment
+
 
 def create_oracle_wgsizes_heatmaps(db):
     fs.mkdir("img/oracle/devices")
@@ -327,15 +329,87 @@ def main():
     fs.rm("img")
     fs.mkdir("img")
 
-    create_num_samples_plot(db)
-    create_min_max_plot(db)
-    create_maxspeedups_plots(db)
-    create_performance_plots(db)
-    create_perf_coverage_plot(db)
-    create_perf_max_wgsize(db)
-    create_coverage_reports(db)
-    create_oracle_wgsizes_heatmaps(db)
-    create_max_wgsizes_heatmaps(db)
+    visualise.num_samples(db, "img/num_samples.png")
+    visualise.min_max_runtimes(db, "img/min_max_runtimes.png")
+    visualise.max_speedups(db, "img/max_speedups.png")
+    visualise.kernel_performance(db, "img/kernel_performance.png")
+    visualise.device_performance(db, "img/device_performance.png")
+    visualise.dataset_performance(db, "img/dataset_performance.png")
+
+    visualise.performance_vs_coverage(db, "img/performance_vs_coverage.png")
+    visualise.performance_vs_max_wgsize(db, "img/performance_vs_max_wgsize.png")
+    visualise.max_wgsizes_heatmap(db, "img/max_wgsizes.png")
+    # create_oracle_wgsizes_heatmaps(db)
+    # create_max_wgsizes_heatmaps(db)
+
+    fs.mkdir("img/coverage/devices")
+    fs.mkdir("img/coverage/kernels")
+    fs.mkdir("img/coverage/datasets")
+
+    fs.mkdir("img/safety/devices")
+    fs.mkdir("img/safety/kernels")
+    fs.mkdir("img/safety/datasets")
+
+    visualise.coverage(db, "img/coverage/coverage.png")
+    visualise.safety(db, "img/safety/safety.png")
+
+    # Per-device
+    for i,device in enumerate(db.devices):
+        where = ("scenario IN "
+                 "(SELECT id from scenarios WHERE device='{0}')"
+                 .format(device))
+        output = "img/coverage/devices/{0}.png".format(i)
+        visualise.coverage(db, output=output, where=where, title=device)
+        output = "img/safety/devices/{0}.png".format(i)
+        visualise.safety(db, output, where=where, title=device)
+
+        where = ("scenario IN (\n"
+                 "    SELECT id from scenarios WHERE device='{0}'\n"
+                 ") AND scenario IN (\n"
+                 "    SELECT id FROM scenarios WHERE kernel IN (\n"
+                 "        SELECT id FROM kernel_names WHERE synthetic=0\n"
+                 "    )\n"
+                 ")"
+                 .format(device))
+        output = "img/coverage/devices/{0}_real.png".format(i)
+        visualise.coverage(db, output=output, where=where, title=device)
+        output = "img/safety/devices/{0}_real.png".format(i)
+        visualise.safety(db, output, where=where, title=device)
+
+        where = ("scenario IN (\n"
+                 "    SELECT id from scenarios WHERE device='{0}'\n"
+                 ") AND scenario IN (\n"
+                 "    SELECT id FROM scenarios WHERE kernel IN (\n"
+                 "        SELECT id FROM kernel_names WHERE synthetic=1\n"
+                 "    )\n"
+                 ")"
+                 .format(device))
+        output = "img/coverage/devices/{0}_synthetic.png".format(i)
+        visualise.coverage(db, output=output, where=where, title=device)
+        output = "img/safety/devices/{0}_synthetic.png".format(i)
+        visualise.safety(db, output, where=where, title=device)
+
+    # Per-kernel
+    for kernel,ids in db.lookup_named_kernels().iteritems():
+        id_wrapped = ['"' + id + '"' for id in ids]
+        where = ("scenario IN "
+                 "(SELECT id from scenarios WHERE kernel IN ({0}))"
+                 .format(",".join(id_wrapped)))
+        output = "img/coverage/kernels/{0}.png".format(kernel)
+        visualise.coverage(db, output=output, where=where, title=kernel)
+        output = "img/safety/kernels/{0}.png".format(kernel)
+        visualise.safety(db, output=output, where=where, title=kernel)
+
+    # Per-dataset
+    for i,dataset in enumerate(db.datasets):
+        io.info("Dataset coverage", i, "...")
+        where = ("scenario IN "
+                 "(SELECT id from scenarios WHERE dataset='{0}')"
+                 .format(dataset))
+        output = "img/coverage/datasets/{0}.png".format(i)
+        visualise.coverage(db, output, where=where, title=dataset)
+        output = "img/safety/datasets/{0}.png".format(i)
+        visualise.safety(db, output, where=where, title=dataset)
 
 
 if __name__ == "__main__":
