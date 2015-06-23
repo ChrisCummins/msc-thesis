@@ -80,28 +80,39 @@ def summarise_perfs(perfs):
     print()
 
 
-def oracle_params_arff(db):
-    nominals = [
-        49,  # dev_double_fp_config
-        50,  # dev_endian_little
-        51,  # dev_execution_capabilities
-        52,  # dev_extensions
-        54,  # dev_global_mem_cache_type
-        57,  # dev_host_unified_memory
-        63,  # dev_image_support
-        65,  # dev_local_mem_type
-        96,  # dev_queue_properties
-        97,  # dev_single_fp_config
-        98,  # dev_type
-        100, # dev_vendor_id
-    ]
-    force_nominal_args = ["-N", ",".join([str(index) for index in nominals])]
+class Dataset(ml.Dataset):
 
-    dataset = ml.Dataset.load_csv("/tmp/omnitune/csv/oracle_params.csv",
-                                  options=force_nominal_args)
-    dataset.class_index = -1
+    def __init__(self, db, *args, **kwargs):
+        super(Dataset, self).__init__(*args, **kwargs)
+        self.db = db
 
-    return dataset
+    def one_r(self):
+        pass
+
+    @staticmethod
+    def load(path, db):
+        nominals = [
+            49,  # dev_double_fp_config
+            50,  # dev_endian_little
+            51,  # dev_execution_capabilities
+            52,  # dev_extensions
+            54,  # dev_global_mem_cache_type
+            57,  # dev_host_unified_memory
+            63,  # dev_image_support
+            65,  # dev_local_mem_type
+            96,  # dev_queue_properties
+            97,  # dev_single_fp_config
+            98,  # dev_type
+            100, # dev_vendor_id
+        ]
+        nominal_indices = ",".join([str(index) for index in nominals])
+        force_nominal = ["-N", nominal_indices]
+
+        dataset = ml.Dataset.load_csv(path, options=force_nominal)
+        dataset.class_index = -1
+        dataset.db = db
+
+        return dataset
 
 
 def perf_fn(db, baseline, scenario, predicted, oracle):
@@ -349,7 +360,7 @@ def main():
     # Get the latest dataset from the oracle.
     db = _db.Database(experiment.ORACLE_PATH)
     db.dump_csvs("/tmp/omnitune/csv")
-    dataset = oracle_params_arff(db);
+    dataset = Dataset.load("/tmp/omnitune/csv/oracle_params.csv", db)
 
     one_r = db.one_r()
     print("ONE R:", one_r[0])
