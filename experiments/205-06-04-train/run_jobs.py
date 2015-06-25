@@ -108,8 +108,9 @@ def run_jobs(table_name, db, devices):
                              .format(n=i, total=total, perc=(i / total) * 100)))
         run_job(db, *job)
 
+
 def main():
-    db = _db.Database(fs.path(experiment.DATA_ROOT, "joblist.db"))
+    db = _db.Database(fs.path("joblist.db"))
 
     # Create jobs tables.
     if "jobs_done" not in db.tables:
@@ -139,6 +140,7 @@ def main():
         run_jobs("jobs_failed", db, devices)
 
     lab.exit()
+
 
 if __name__ == "__main__":
     main()
