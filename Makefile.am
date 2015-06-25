@@ -6,7 +6,6 @@ SUBDIRS = \
 
 if ENABLE_EXERCISES
 SUBDIRS += \
-	benchmarks \
 	exercises \
 	scraps \
 	skepu \
