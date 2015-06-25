@@ -14,11 +14,13 @@ import labm8 as lab
 from labm8 import io
 from labm8 import fs
 from labm8 import math as labmath
+from labm8 import text
 
 import omnitune
 from omnitune import skelcl
 from omnitune.skelcl import db as _db
 from omnitune.skelcl import visualise
+from omnitune.skelcl import space as _space
 
 import experiment
 
@@ -30,6 +32,8 @@ def main():
     fs.rm("img")
 
     # Make directories
+    fs.mkdir("img/scenarios/")
+
     fs.mkdir("img/coverage/devices")
     fs.mkdir("img/coverage/kernels")
     fs.mkdir("img/coverage/datasets")
@@ -58,6 +62,18 @@ def main():
     visualise.safety(db, "img/safety/safety.png")
     visualise.oracle_wgsizes(db, "img/oracle/all.png")
 
+    # Per-scenario plots
+    for row in db.scenario_properties:
+        scenario,device,kernel,north,south,east,west,width,height,tout = row
+        output = "img/scenarios/{id}.png".format(id=scenario)
+        title = ("{device}: {kernel}[{n},{s},{e},{w}]\n"
+                 "{width} x {height} {type}s"
+                 .format(device=text.truncate(device, 18), kernel=kernel,
+                         n=north, s=south, e=east, w=west,
+                         width=width, height=height, type=tout))
+
+        visualise.scenario_performance(db, scenario, output, title=title)
+
     # Per-device plots
     for i,device in enumerate(db.devices):
         where = ("scenario IN "
@@ -79,11 +95,14 @@ def main():
                  ")"
                  .format(device))
         output = "img/coverage/devices/{0}_real.png".format(i)
-        visualise.coverage(db, output=output, where=where, title=device)
+        visualise.coverage(db, output=output, where=where,
+                           title=device + ", real")
         output = "img/safety/devices/{0}_real.png".format(i)
-        visualise.safety(db, output, where=where, title=device)
+        visualise.safety(db, output, where=where,
+                         title=device + ", real")
         output = "img/oracle/devices/{0}_real.png".format(i)
-        visualise.oracle_wgsizes(db, output, where=where, title=device)
+        visualise.oracle_wgsizes(db, output, where=where,
+                                 title=device + ", real")
 
 
         where = ("scenario IN (\n"
@@ -95,11 +114,14 @@ def main():
                  ")"
                  .format(device))
         output = "img/coverage/devices/{0}_synthetic.png".format(i)
-        visualise.coverage(db, output=output, where=where, title=device)
+        visualise.coverage(db, output=output, where=where,
+                           title=device + ", synthetic")
         output = "img/safety/devices/{0}_synthetic.png".format(i)
-        visualise.safety(db, output, where=where, title=device)
+        visualise.safety(db, output, where=where,
+                         title=device + ", synthetic")
         output = "img/oracle/devices/{0}_synthetic.png".format(i)
-        visualise.oracle_wgsizes(db, output, where=where, title=device)
+        visualise.oracle_wgsizes(db, output, where=where,
+                                 title=device + ", synthetic")
 
     # Per-kernel plots
     for kernel,ids in db.lookup_named_kernels().iteritems():
