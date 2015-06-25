@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 from __future__ import division
+from __future__ import print_function
 
 import random
 import re
@@ -38,6 +39,12 @@ def merge(old_oracle, dbs, path):
 
         Database: merged database instance.
     """
+    print("Merging {n} databases:".format(n=len(dbs) + 1))
+    print("   ", old_oracle)
+    for db in dbs:
+        print("   ", db)
+    print()
+
     # Make a copy of the old oracle database to work from.
     io.info("Coping", old_oracle, "->", fs.basename(path))
     fs.cp(old_oracle, path)
