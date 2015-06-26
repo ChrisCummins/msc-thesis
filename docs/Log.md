@@ -7598,3 +7598,25 @@ resulting joblist. Something is seriously wrong. Let's fix this.
 
 * There is safe params for all *real* programs, so I'll create a
   dataset of just those in order to test on.
+
+
+## Friday 26th
+
+Debugging joblists:
+
+```
+Jobs for cec: 2253
+Jobs ran: 592
+
+Expected jobs remaining for cec: 1661
+Actual jobs remaining for cec: 1661
+
+OK
+
+Re-crunch the numbers ...
+
+Expected jobs for cec: 1661
+Actual jobs for cec: 2552
+
+HMMM !?
+```
