@@ -6,6 +6,7 @@
 ATTACH "joblist.db" as rhs;
 
 CREATE TABLE rhs.jobs (
+    scenario                        TEXT,
     kernel                          TEXT,
     north                           INTEGER,
     south                           INTEGER,
@@ -14,11 +15,13 @@ CREATE TABLE rhs.jobs (
     width                           INTEGER,
     height                          INTEGER,
     device                          TEXT,
-    params                          TEXT
+    params                          TEXT,
+    PRIMARY KEY (scenario,params)
 );
 
 INSERT INTO rhs.jobs
 SELECT
+    scenarios.id,
     kernel_names.name,
     kernels.north,
     kernels.south,

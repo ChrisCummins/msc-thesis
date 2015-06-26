@@ -37,7 +37,7 @@ def device2devargs(device):
     return ["--device-type", devtype, "--device-count", devcount]
 
 
-def run_job(db, kernel, north, south, east, west,
+def run_job(db, scenario, kernel, north, south, east, west,
             width, height, device, wgsize):
     wg_c, wg_r = unhash_params(wgsize)
 
@@ -66,10 +66,17 @@ def run_job(db, kernel, north, south, east, west,
     io.info("COMMAND:", io.colourise(io.Colours.RED, cmd_str))
     ret, _, _ = system.run(cmd, stdout=system.STDOUT, stderr=system.STDERR)
 
-    values = (kernel, north, south, east, west, width,
+    values = (scenario, kernel, north, south, east, west, width,
               height, device, wgsize)
 
+    db.execute("DELETE FROM jobs_failed WHERE " +
+               where("scenario", "kernel", "north", "south", "east",
+                     "west", "width", "height", "device",
+                     "params"),
+               values)
+
     if ret:
+        io.warn(io.colourise(io.Colours.RED, "Job failed!"))
         db.execute("INSERT INTO jobs_failed VALUES " +
                    placeholders(*values), values)
     else:
@@ -78,12 +85,7 @@ def run_job(db, kernel, north, south, east, west,
 
     # Remove values from old tables.
     db.execute("DELETE FROM jobs WHERE " +
-               where("kernel", "north", "south", "east",
-                     "west", "width", "height", "device",
-                     "params"),
-               values)
-    db.execute("DELETE FROM jobs_failed WHERE " +
-               where("kernel", "north", "south", "east",
+               where("scenario", "kernel", "north", "south", "east",
                      "west", "width", "height", "device",
                      "params"),
                values)
