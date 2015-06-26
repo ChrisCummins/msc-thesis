@@ -53,6 +53,7 @@ def main():
     visualise.kernel_performance(db, "img/kernel_performance.png")
     visualise.device_performance(db, "img/device_performance.png")
     visualise.dataset_performance(db, "img/dataset_performance.png")
+    visualise.num_params_vs_accuracy(db, "img/num_params_vs_accuracy.png")
     visualise.performance_vs_coverage(db, "img/performance_vs_coverage.png")
     visualise.performance_vs_max_wgsize(db, "img/performance_vs_max_wgsize.png")
     visualise.max_wgsizes(db, "img/max_wgsizes.png")
