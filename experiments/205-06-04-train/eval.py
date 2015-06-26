@@ -161,7 +161,15 @@ def random_fn(db, instance, max_wgsize, wg_c, wg_r):
     Pick a random workgroup size from the parameters table which is
     smaller than or equal to the max workgroup size.
     """
-    return db.rand_wgsize(max_wgsize)
+    wgsize = db.rand_wgsize(max_wgsize - 1)
+    scenario = instance.get_string_value(0)
+
+    try:
+        db.runtime(scenario, hash_params(*wgsize))
+        return wgsize
+    except lab.db.Error:
+        io.warn("Random lookup failed for", wg_c, wg_r)
+        return random_fn(db, instance, max_wgsize, wg_c, wg_r)
 
 
 def reshape_fn(db, instance, max_wgsize, wg_c, wg_r):
@@ -185,7 +193,7 @@ def reshape_fn(db, instance, max_wgsize, wg_c, wg_r):
 
     # Iteratively reduce the workgroup size by walking backwards
     # through the list of all possible values.
-    while all_wg_c[c] * all_wg_r[r] > max_wgsize:
+    while all_wg_c[c] * all_wg_r[r] >= max_wgsize:
         if c + r == 0:
             raise ReshapeError("Failed to shrink wgsize {0}x{1} <= {2}"
                                .format(all_wg_c[c], all_wg_r[r], max_wgsize))
@@ -223,7 +231,14 @@ def eval_instance(classifier, instance, perf_fn, err_fn):
             return 0, 0, perf_fn(scenario, predicted, oracle)
         else:
             new_wg_c, new_wg_r = err_fn(instance, max_wgsize, wg_c, wg_r)
-            return 0, 1, perf_fn(scenario, hash_params(new_wg_c, new_wg_r), oracle)
+            try:
+                return 0, 1, perf_fn(scenario, hash_params(new_wg_c, new_wg_r),
+                                     oracle)
+            except lab.db.Error:
+                io.error("Woops!", scenario, max_wgsize, new_wg_c,
+                         new_wg_r, err_fn.func.__name__)
+                return 0, 1, (0, 0)
+
 
 
 def eval_classifier(training, testing, classifier, *args, **kwargs):
@@ -316,7 +331,7 @@ def xvalidate_classifiers(classifiers, err_fns, dataset,
         plt.xlabel("Test instances")
         plt.legend()
         plt.tight_layout()
-        plt.savefig("img/eval/speedups/{}.png".format(plot_name))
+        plt.savefig("img/eval/classifiers/{}.png".format(plot_name))
         plt.close()
 
 
@@ -353,7 +368,7 @@ def main():
     ml.start()
 
     fs.rm("img/eval")
-    fs.mkdir("img/eval/speedups")
+    fs.mkdir("img/eval/classifiers")
 
     nfolds = 10
 
