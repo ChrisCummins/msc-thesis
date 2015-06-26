@@ -5,6 +5,8 @@
 
 ATTACH "joblist.db" as rhs;
 
+DROP TABLE IF EXISTS rhs.jobs;
+
 CREATE TABLE rhs.jobs (
     scenario                        TEXT,
     kernel                          TEXT,
