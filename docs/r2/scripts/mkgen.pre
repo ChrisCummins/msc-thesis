@@ -20,6 +20,7 @@ from labm8 import math as labmath
 import omnitune
 from omnitune import skelcl
 from omnitune.skelcl import db as _db
+from omnitune.skelcl import visualise
 
 
 #################
@@ -30,12 +31,13 @@ def create_devices_table(db, output=None):
     infos = set()
     for row in db.execute("SELECT name,max_compute_units,"
                           "max_clock_frequency,local_mem_size,"
-                          "global_mem_size,max_work_group_size "
+                          "global_mem_cache_size,global_mem_size "
                           "FROM devices WHERE id LIKE '1x%'"):
-        name,cunits,freq,lmem,gmem,max_wg = row
+        name,cunits,freq,lmem,gcache,gmem = row
         infos.add((name.strip(), cunits, freq,
-                   labmath.ceil(lmem / 1024), labmath.ceil(gmem / 1024 / 1024),
-                   max_wg))
+                   labmath.ceil(lmem / 1024),
+                   labmath.ceil(gcache / 1024),
+                   labmath.ceil(gmem / 1024 / 1024)))
 
     infos = list(sorted(infos, key=lambda x: x[1]))
     latex.write_table_body(infos, output=output,
@@ -43,9 +45,9 @@ def create_devices_table(db, output=None):
                                "Name",
                                "Compute units",
                                "Frequency (Hz)",
-                               "Local Memory Size (KB)",
-                               "Global Memory Size (MB)",
-                               "Max workgroup size"
+                               "Local Memory (KB)",
+                               "Global Cache (KB)",
+                               "Global Memory (MB)"
                            ))
 
 
@@ -84,82 +86,23 @@ def create_datasets_table(db, output=None):
     infos = set(row for row in
                 db.execute("SELECT width,height,tin,tout "
                            "FROM datasets"))
-
     data = list(sorted(infos, key=lambda x: x[0]))
     latex.write_table_body(data, output=output, headers=headers)
 
 
-################
-# Export plots #
-################
-heatmap_size=(3.28, 2.7)
-def create_oracle_wgsizes_heatmap(db):
-    space = db.oracle_param_space()
-    space.heatmap("gen/img/oracle_param_space.png", figsize=heatmap_size,
-                  cmap="Reds")
+def main():
+    db = _db.Database("~/data/msc-thesis/2015-06-23/oracle.db")
 
+    fs.rm("gen")
+    fs.mkdir("gen/img")
+    fs.mkdir("gen/tables")
 
-def create_max_wgsizes_heatmap(db):
-    space = db.max_wgsize_space()
-    space.heatmap("gen/img/max_wgsizes.png", figsize=heatmap_size,
-                  cmap="Blues")
+    # Set plot style.
+    sns.set_context("notebook", font_scale=.8, rc={"lines.linewidth": 2})
 
-
-def create_num_params_oracle_graph(db):
-    freqs = db.oracle_param_frequencies(normalise=True)
-
-    # Calculate accumulated % of oracle.
-    acc, _acc = [], 0
-    for _,freq in reversed(freqs):
-        _acc += freq * 100
-        acc.append(_acc)
-
-    X = np.arange(len(acc))
-    plt.plot(X, acc)
-    plt.xlim(xmin=0, xmax=len(X) - 1)
-    plt.ylim(ymin=0, ymax=100)
-    plt.xlabel("Number of unique workgroup sizes")
-    plt.ylabel("% of oracle accuracy")
-    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
-    plt.gcf().set_size_inches(6, 2.5, dpi=300)
-    plt.tight_layout()
-    plt.savefig("gen/img/num_param_oracle.png")
-    plt.close()
-
-
-def create_params_summary_plot(db):
-    data = sorted([
-        (
-            db.perf_param_avg(param) * 100,
-            db.perf_param_avg_legal(param) * 100,
-            db.param_coverage(param) * 100
-        )
-        for param in db.params
-    ], reverse=True, key=lambda x: (x[0], x[2], x[1]))
-    X = np.arange(len(data))
-
-    GeoPerformance, Performance, Coverage = zip(*data)
-
-    ax = plt.subplot(111)
-    ax.plot(X, Coverage, 'r', label="Legality")
-    ax.plot(X, Performance, 'g', label="Performance (when legal)")
-    ax.plot(X, GeoPerformance, 'b', label="Performance")
-    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
-    plt.xlim(xmin=0, xmax=len(X) - 1)
-    plt.ylim(ymin=0, ymax=100)
-    plt.ylabel("Performance / Legality")
-    plt.xlabel("Parameters")
-    plt.gcf().set_size_inches(6, 2.5, dpi=300)
-    plt.tight_layout()
-    plt.savefig("gen/img/params_summary.png")
-    plt.close()
-
-
-##################
-# Dynamic values #
-##################
-def create_dynamic_values(db):
-    # Parameter counts.
+    ##################
+    # Dynamic values #
+    ##################
     param_counts = db.num_params_for_scenarios().values()
     system.echo(int(round(labmath.mean(param_counts))), "gen/num_avg_params.tex")
     system.echo(max(param_counts), "gen/num_max_params.tex")
@@ -169,33 +112,26 @@ def create_dynamic_values(db):
     system.echo(db.num_rows("scenarios"), "gen/num_scenarios.tex")
     system.echo(int(round(db.mean_samples)), "gen/num_avg_samples.tex")
 
-
-########
-# Main #
-########
-def main():
-    db = _db.Database("~/data/msc-thesis/2015-06-17/real_only.db")
-
-    fs.rm("gen")
-    fs.mkdir("gen/img")
-    fs.mkdir("gen/tables")
-
-    # Set plot style.
-    sns.set_context("notebook", font_scale=.8, rc={"lines.linewidth": 2})
-
-    # Dynamic values.
-    create_dynamic_values(db)
-
     # Tables.
     create_devices_table(db)
     create_kernels_table(db)
     create_datasets_table(db)
 
-    # Figures.
-    create_oracle_wgsizes_heatmap(db)
-    create_max_wgsizes_heatmap(db)
-    create_num_params_oracle_graph(db)
-    create_params_summary_plot(db)
+    ################
+    # Export plots #
+    ################
+    heatmap_size=(3.28, 2.7)
+
+    visualise.oracle_wgsizes(db, "gen/img/oracle_param_space.png",
+                             figsize=heatmap_size, cmap="Reds", title=None,
+                             vmax=0.15 # clamp range
+    )
+    visualise.max_wgsizes(db, "gen/img/max_wgsizes.png",
+                          figsize=heatmap_size, cmap="Blues", title=None)
+    visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.png",
+                                     figsize=(6, 2.5))
+    visualise.performance_vs_coverage(db, "gen/img/params_summary.png",
+                                      figsize=(6, 2.5))
 
 
 if __name__ == "__main__":
