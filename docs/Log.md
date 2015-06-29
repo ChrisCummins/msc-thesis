@@ -7620,3 +7620,22 @@ Actual jobs for cec: 2552
 
 HMMM !?
 ```
+
+
+## Monday 28th
+
+TIL to use `protect` to input files in LaTeX captions, e.g.:
+
+```
+\caption{%
+  Data from: \protect\input{gen/max_oracle_param_frequency}.%
+}
+```
+
+Generating one_r from a subset of scenarios:
+
+```
+SELECT DISTINCT params
+FROM runtime_stats
+WHERE scenario IN (<scenarios>);
+```
