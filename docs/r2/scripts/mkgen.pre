@@ -108,9 +108,34 @@ def main():
     system.echo(max(param_counts), "gen/num_max_params.tex")
 
     system.echo(db.num_rows("runtime_stats"), "gen/num_runtime_stats.tex")
-    system.echo(db.num_rows("runtimes"), "gen/num_runtimes.tex")
+    system.echo(db.num_rows("runtimes"), "gen/num_samples.tex")
     system.echo(db.num_rows("scenarios"), "gen/num_scenarios.tex")
-    system.echo(int(round(db.mean_samples)), "gen/num_avg_samples.tex")
+    system.echo(int(round(db.mean_samples)), "gen/avg_sample_count.tex")
+    system.echo(db.execute("SELECT Min(num_samples) FROM runtime_stats").fetchone()[0],
+                "gen/min_sample_count.tex")
+    system.echo(db.execute("SELECT Max(num_samples) FROM runtime_stats").fetchone()[0],
+                "gen/max_sample_count.tex")
+
+    # Oracle param frequencies
+    freqs = sorted(db.oracle_param_frequencies(normalise=True).values(),
+                   reverse=True)
+    acc = 0
+    acc_freqs = []
+    for i,freq in enumerate(freqs):
+        acc += freq
+        acc_freqs.append(acc)
+        if acc > .5:
+            system.echo(i + 1, "gen/num_wgsizes_50_accuracy.tex")
+            break
+    system.echo(int(round(freqs[0] * 100)),
+                "gen/max_oracle_param_frequency.tex")
+
+    # Max speedups
+    speedups = sorted(db.max_speedups().values(), reverse=True)
+    system.echo(round(speedups[0], 1), "gen/max_possible_speedup.tex")
+    system.echo(round(speedups[-1], 1), "gen/min_possible_speedup.tex")
+    system.echo(round(labmath.mean(speedups), 1),
+                "gen/avg_possible_speedup.tex")
 
     # Tables.
     create_devices_table(db)
@@ -120,19 +145,36 @@ def main():
     ################
     # Export plots #
     ################
-    heatmap_size=(3.28, 2.7)
 
+    # Heatmaps
+    heatmap_size=(3.28, 2.7)
     visualise.oracle_wgsizes(db, "gen/img/oracle_param_space.png",
                              figsize=heatmap_size, cmap="Reds", title=None,
-                             vmax=0.15 # clamp range
+                             vmax=0.10 # clamp range
     )
     visualise.max_wgsizes(db, "gen/img/max_wgsizes.png",
                           figsize=heatmap_size, cmap="Blues", title=None)
-    visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.png",
-                                     figsize=(6, 2.5))
-    visualise.performance_vs_coverage(db, "gen/img/params_summary.png",
-                                      figsize=(6, 2.5))
 
+    visualise.runtimes_range(db, "gen/img/min_max_runtimes.png",
+                             title="", figsize=(4, 2.5))
+
+    # Trend plots
+    trend_size=(6,2.2)
+    visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.png",
+                                     title="", figsize=trend_size)
+    visualise.performance_vs_coverage(db, "gen/img/params_summary.png",
+                                      title="", figsize=trend_size)
+    visualise.performance_vs_max_wgsize(db, "gen/img/performance_max_wgsize.png",
+                                        title="", figsize=trend_size)
+
+    # Performance plots
+    boxplot_size=(2.2,3)
+    visualise.kernel_performance(db, "gen/img/performance_kernels.png",
+                                 title="", figsize=boxplot_size)
+    visualise.device_performance(db, "gen/img/performance_devices.png",
+                                 title="", figsize=boxplot_size)
+    visualise.dataset_performance(db, "gen/img/performance_datasets.png",
+                                  title="", figsize=boxplot_size)
 
 if __name__ == "__main__":
     main()
