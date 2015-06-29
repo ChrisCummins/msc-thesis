@@ -141,20 +141,61 @@ def perf_fn(db, baseline, scenario, predicted, oracle):
         return db.perf(scenario, predicted), speedup
 
 
+
+def get_one_r(db, instances):
+    """
+    Get the OneR result for a set of instances.
+
+    Arguments:
+
+        db (skelcl.Database): Database for performing lookups.
+        instances (weka.Instances): Instances to get OneR of.
+
+    Returns:
+
+        (int, int): wg_c and wg_r values of the OneR for the given
+          instances.
+    """
+    # Get the list of scenarios in instances.
+    scenarios = [instance.get_string_value(0) for instance in instances]
+    escaped_scenarios = ",".join(['"' + scenario + '"'
+                                  for scenario in scenarios])
+
+    # Get the list of params for instances.
+    params = [row[0] for row in db.execute(
+        "SELECT DISTINCT params\n"
+        "FROM runtime_stats\n"
+        "WHERE scenario IN ({scenarios})".format(scenarios=escaped_scenarios)
+    )]
+
+    # Calculate mean performance of each param.
+    avgs = [(param, db.perf_param_avg(param)) for param in params]
+
+    # Select the param with the best performance.
+    best_wgsize = max(avgs, key=lambda x: x[1])[0]
+
+    return unhash_params(best_wgsize)
+
+
 ####################
 # err_fn callbacks #
 ####################
-
-def default_fn(default, *args, **kwargs):
+def default_fn(db, instance, max_wgsize, wg_c, wg_r, training):
     """
     Default value parameter callback.
 
     Simple returns the supplied default argument.
     """
-    return default
+    dataset = instance.dataset
+    try:
+        return training.default
+    except AttributeError:
+        # Get default value.
+        training.default = get_one_r(db, training)
+        return training.default
 
 
-def random_fn(db, instance, max_wgsize, wg_c, wg_r):
+def random_fn(db, instance, max_wgsize, wg_c, wg_r, *args):
     """
     Random workgroup size callback.
 
@@ -172,7 +213,7 @@ def random_fn(db, instance, max_wgsize, wg_c, wg_r):
         return random_fn(db, instance, max_wgsize, wg_c, wg_r)
 
 
-def reshape_fn(db, instance, max_wgsize, wg_c, wg_r):
+def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, *args):
     """
     Reshape callback.
 
@@ -204,7 +245,7 @@ def reshape_fn(db, instance, max_wgsize, wg_c, wg_r):
     return all_wg_c[c], all_wg_r[r]
 
 
-def eval_instance(classifier, instance, perf_fn, err_fn):
+def eval_instance(classifier, instance, perf_fn, err_fn, training):
     # Get relevant values from instance.
     oracle = instance.get_string_value(instance.class_index)
     scenario = instance.get_string_value(0)
@@ -230,7 +271,8 @@ def eval_instance(classifier, instance, perf_fn, err_fn):
         if is_valid:
             return 0, 0, perf_fn(scenario, predicted, oracle)
         else:
-            new_wg_c, new_wg_r = err_fn(instance, max_wgsize, wg_c, wg_r)
+            new_wg_c, new_wg_r = err_fn(instance, max_wgsize, wg_c, wg_r,
+                                        training)
             try:
                 return 0, 1, perf_fn(scenario, hash_params(new_wg_c, new_wg_r),
                                      oracle)
@@ -240,19 +282,26 @@ def eval_instance(classifier, instance, perf_fn, err_fn):
                 return 0, 1, (0, 0)
 
 
-
-def eval_classifier(training, testing, classifier, *args, **kwargs):
+def mkclassifier(classifier, training):
+    """
+    Strip the first attribute (scenario ID) from a classifier.
+    """
     # Create attribute filer.
     rm = WekaFilter(classname="weka.filters.unsupervised.attribute.Remove")
-    # Create meta-classifier.
+
     meta = WekaFilteredClassifier()
     meta.set_property("filter", rm)
     meta.set_property("classifier", classifier)
 
-    # Train classifier.
+    return meta
+
+
+def eval_classifier(training, testing, classifier, perf_fn, err_fn):
+    # Build and train classifier.
+    meta = mkclassifier(classifier)
     meta.build_classifier(training)
 
-    results = [eval_instance(classifier, instance, *args, **kwargs)
+    results = [eval_instance(meta, instance, perf_fn, err_fn, training)
                for instance in testing]
 
     correct, invalid, performance = zip(*results)
@@ -260,9 +309,9 @@ def eval_classifier(training, testing, classifier, *args, **kwargs):
     return correct, invalid, performance
 
 
-def xvalidate_classifier(dataset, nfolds, *args, **kwargs):
+def xvalidate_classifier(folds, *args, **kwargs):
     data = [eval_classifier(training, testing, *args, **kwargs)
-            for training,testing in dataset.folds(nfolds)]
+            for training,testing in folds]
 
     transpose = map(list, zip(*data))
 
@@ -304,10 +353,15 @@ def xvalidate_classifiers(classifiers, err_fns, dataset,
     # All permutations of classifiers and err_fns.
     combinations = list(product(classifiers, err_fns))
 
+    # Generate training and testing datasets.
+    folds = dataset.folds(nfolds)
+    io.info("Size of training set:", folds[0][0].num_instances)
+    io.info("Size of testing set: ", folds[0][1].num_instances)
+
     # Get all results.
     xval_results = [
         (classifier2str(classifier), err_fn.func.__name__,
-         xvalidate_classifier(dataset, nfolds, classifier, perf_cb, err_fn))
+         xvalidate_classifier(folds, classifier, perf_cb, err_fn))
         for classifier,err_fn in combinations
     ]
 
@@ -391,7 +445,7 @@ def main():
     )
 
     err_fns = (
-        partial(default_fn, unhash_params(one_r[0])),
+        partial(default_fn, db),
         partial(random_fn, db),
         partial(reshape_fn, db)
     )
