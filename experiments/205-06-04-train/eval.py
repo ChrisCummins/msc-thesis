@@ -2,6 +2,7 @@
 from __future__ import division
 from __future__ import print_function
 
+import json
 import re
 
 from functools import partial
@@ -11,6 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 import seaborn as sns
+
+from matplotlib.ticker import FormatStrFormatter
 from scipy import stats
 
 import weka
@@ -26,6 +29,7 @@ from labm8 import fs
 from labm8 import io
 from labm8 import math as labmath
 from labm8 import ml
+from labm8 import text
 from labm8.db import where
 
 import omnitune
@@ -59,9 +63,11 @@ class ReshapeError(ErrFnError):
     """
     pass
 
+CLASSIFIER_NAME_LEN = 25
 
 def classifier2str(classifier):
-    return " ".join([classifier.classname] + classifier.options)
+    name = classifier.classname.split(".")[-1]
+    return " ".join([name] + classifier.options)
 
 
 def sanitise_classifier_str(classifier):
@@ -282,12 +288,13 @@ def eval_instance(classifier, instance, perf_fn, err_fn, training):
                 return 0, 1, (0, 0)
 
 
-def mkclassifier(classifier, training):
+def mkclassifier(classifier):
     """
     Strip the first attribute (scenario ID) from a classifier.
     """
     # Create attribute filer.
-    rm = WekaFilter(classname="weka.filters.unsupervised.attribute.Remove")
+    rm = WekaFilter(classname="weka.filters.unsupervised.attribute.Remove",
+                    options=["-R", "1"])
 
     meta = WekaFilteredClassifier()
     meta.set_property("filter", rm)
@@ -350,29 +357,74 @@ def xvalidate_classifiers(classifiers, err_fns, dataset,
         else:
             return classifier
 
-    # All permutations of classifiers and err_fns.
-    combinations = list(product(classifiers, err_fns))
+    # TODO: Properly store and load cached results.
 
-    # Generate training and testing datasets.
-    folds = dataset.folds(nfolds)
-    io.info("Size of training set:", folds[0][0].num_instances)
-    io.info("Size of testing set: ", folds[0][1].num_instances)
+    # # All permutations of classifiers and err_fns.
+    # combinations = list(product(classifiers, err_fns))
 
-    # Get all results.
-    xval_results = [
-        (classifier2str(classifier), err_fn.func.__name__,
-         xvalidate_classifier(folds, classifier, perf_cb, err_fn))
-        for classifier,err_fn in combinations
-    ]
+    # # Generate training and testing datasets.
+    # folds = dataset.folds(nfolds)
+    # io.info("Size of training set:", folds[0][0].num_instances)
+    # io.info("Size of testing set: ", folds[0][1].num_instances)
+
+    # # Get all results.
+    # xval_results = [
+    #     (classifier2str(classifier), err_fn.func.__name__,
+    #      xvalidate_classifier(folds, classifier, perf_cb, err_fn))
+    #     for classifier,err_fn in combinations
+    # ]
+
+    # json.dump(xval_results, open("results.json", "wb"))
+
+    xval_results = json.load(open("results.json"))
+
+    # Plot classification accuracy.
+    io.info("Plotting classification accuracy ...")
+    correct = []
+    for i in range(0, len(xval_results), 3):
+        row = xval_results[i]
+        classifier = text.truncate(row[0], CLASSIFIER_NAME_LEN)
+        correct_results = row[2][0]
+        x = (sum(correct_results) / len(correct_results)) * 100
+        correct.append((classifier, x))
+
+    Classifiers,Correct = zip(*correct)
+    X = np.arange(len(Correct))
+    plt.bar(X, Correct, color="g")
+    plt.xticks(X + .5, Classifiers, rotation='vertical')
+    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
+    plt.title("Classification accuracy")
+    plt.tight_layout()
+    plt.savefig("img/eval/classification_accuracy.png")
+    plt.close()
+
+    # Plot number of illegal classification errors.
+    io.info("Plotting classification errors ...")
+    invalid = []
+    for i in range(0, len(xval_results), 3):
+        row = xval_results[i]
+        classifier = text.truncate(row[0], CLASSIFIER_NAME_LEN)
+        invalid_results = row[2][1]
+        x = (sum(invalid_results) / len(invalid_results)) * 100
+        invalid.append((classifier, x))
+
+    Classifiers,Invalid = zip(*invalid)
+    X = np.arange(len(Invalid))
+    plt.bar(X, Invalid, color="r")
+    plt.xticks(X + .5, Classifiers, rotation='vertical')
+    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
+    plt.title("Ratio of invalid classifications")
+    plt.tight_layout()
+    plt.savefig("img/eval/classification_errors.png")
+    plt.close()
 
     # Plot all speedups.
     for i in range(0, len(xval_results), 3):
         for j in range(3):
             row = xval_results[i + j]
-            _,Speedups = zip(*sorted(row[2][2], key=lambda x: x[1],
-                                     reverse=True))
+            _,Speedups = zip(*row[2][2])
             err_fn = row[1]
-            plt.plot(Speedups, "o-", label=err_fn)
+            plt.plot(Speedups, "-", label=err_fn)
 
 
         classifier = row[0]
@@ -383,11 +435,35 @@ def xvalidate_classifiers(classifiers, err_fns, dataset,
         plt.title(_plt_title(classifier))
         plt.ylabel("Speedup over baseline")
         plt.xlabel("Test instances")
+        plt.axhline(y=1, color="k")
+        plt.xlim(xmin=0, xmax=len(xval_results[0][2][2]))
         plt.legend()
         plt.tight_layout()
         plt.savefig("img/eval/classifiers/{}.png".format(plot_name))
         plt.close()
 
+    # Plot relative performance of classifiers.
+    err_fns = set([t[1] for t in xval_results])
+    io.debug(err_fns)
+    for err_fn in err_fns:
+        # Filter results.
+        results = [t for t in xval_results if t[1] == err_fn]
+
+        for row in results:
+            classifier_name = text.truncate(row[0], CLASSIFIER_NAME_LEN)
+            _,Speedups = zip(*row[2][2])
+            plt.plot(Speedups, "-", label=classifier_name)
+
+        io.info("Plotting", err_fn, "...")
+        plt.title("Speedup of all classifiers with err_fn: " + err_fn)
+        plt.ylabel("Speedup over baseline")
+        plt.xlabel("Test instances")
+        plt.axhline(y=1, color="k")
+        plt.xlim(xmin=0, xmax=len(xval_results[0][2][2]))
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig("img/eval/err_fn/{}.png".format(err_fn))
+        plt.close()
 
     # Summarise results and print a table.
     table = [
@@ -423,6 +499,7 @@ def main():
 
     fs.rm("img/eval")
     fs.mkdir("img/eval/classifiers")
+    fs.mkdir("img/eval/err_fn")
 
     nfolds = 10
 
