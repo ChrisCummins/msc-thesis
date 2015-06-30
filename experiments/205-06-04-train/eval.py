@@ -335,8 +335,8 @@ def xvalidate_classifiers(job, db, classifiers, err_fns, perf_fn, dataset,
                         err_fn.func.__name__,
                         text.truncate(str(classifier), 40))
 
-                for i,instance in enumerate(testing):
-                    io.debug(i)
+                for j,instance in enumerate(testing):
+                    io.debug(j)
                     eval_instance(job, db, meta, instance,
                                   perf_fn, err_fn, training)
                 db.commit()
@@ -392,8 +392,8 @@ def xvalidate_runtimes(job, db, classifiers, dataset, nfolds):
             io.info("Evaluating fold", i + 1, "with",
                     text.truncate(str(classifier), 40))
 
-            for i,instance in enumerate(testing):
-                io.debug(i)
+            for j,instance in enumerate(testing):
+                io.debug(j)
                 eval_runtime(job, db, meta, instance, training)
             db.commit()
 
