@@ -12,6 +12,7 @@ from matplotlib.ticker import FormatStrFormatter
 
 import labm8 as lab
 from labm8 import io
+from labm8 import fmt
 from labm8 import fs
 from labm8 import math as labmath
 from labm8 import text
@@ -34,6 +35,9 @@ def main():
     # Make directories
     fs.mkdir("img/scenarios/")
 
+    fs.mkdir("img/eval/classifiers")
+    fs.mkdir("img/eval/err_fn")
+
     fs.mkdir("img/coverage/devices")
     fs.mkdir("img/coverage/kernels")
     fs.mkdir("img/coverage/datasets")
@@ -46,6 +50,67 @@ def main():
     fs.mkdir("img/oracle/kernels")
     fs.mkdir("img/oracle/datasets")
 
+    # ML visualisations
+    for i,classifier in enumerate(db.classifiers):
+        visualise.xval_classifier_speedups(db, classifier,
+                                           "img/eval/classifiers/{}.png"
+                                           .format(i))
+    for err_fn in db.err_fns:
+        visualise.xval_err_fn_speedups(db, err_fn,
+                                       "img/eval/err_fn/{}.png"
+                                       .format(err_fn))
+
+    visualise.xval_classifiers_accuracy(db, "img/eval/accuracy.png")
+    visualise.xval_classifiers_invalid(db, "img/eval/invalid.png")
+
+    # ML results table
+    job = "xval_classifiers"
+    query = db.execute(
+        "SELECT classifier,err_fn,Count(*) AS count\n"
+        "FROM classification_results\n"
+        "WHERE job=? GROUP BY classifier,err_fn",
+        (job,)
+    )
+    results = []
+    for classifier,err_fn,count in query:
+        correct, invalid, performance, speedup = zip(*[
+            row for row in db.execute(
+                "SELECT correct,invalid,performance,speedup\n"
+                "FROM classification_results\n"
+                "WHERE job=? AND classifier=? AND err_fn=?",
+                (job, classifier, err_fn)
+            )
+        ])
+        results.append([
+            classifier,
+            err_fn,
+            (sum(correct) / count) * 100,
+            (sum(invalid) / count) * 100,
+            min(performance) * 100,
+            labmath.geomean(performance) * 100,
+            max(performance) * 100,
+            min(speedup),
+            labmath.geomean(speedup),
+            max(speedup)
+        ])
+
+    str_args = {
+        "float_format": lambda f: "{:.2f}".format(f)
+    }
+
+    print(fmt.table(results, str_args, columns=(
+        "CLASSIFIER",
+        "ERR_FN",
+        "ACC %",
+        "INV %",
+        "Omin %",
+        "Oavg %",
+        "Omax %",
+        "Smin",
+        "Savg",
+        "Smax",
+    )))
+
     # Whole-dataset plots
     visualise.sample_counts(db, "img/sample_counts.png")
     visualise.runtimes_range(db, "img/runtimes_range.png")
@@ -57,7 +122,6 @@ def main():
     visualise.performance_vs_coverage(db, "img/performance_vs_coverage.png")
     visualise.performance_vs_max_wgsize(db, "img/performance_vs_max_wgsize.png")
     visualise.max_wgsizes(db, "img/max_wgsizes.png")
-
 
     visualise.coverage(db, "img/coverage/coverage.png")
     visualise.safety(db, "img/safety/safety.png")

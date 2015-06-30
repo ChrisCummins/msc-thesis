@@ -66,15 +66,6 @@ class ReshapeError(ErrFnError):
 
 CLASSIFIER_NAME_LEN = 25
 
-def classifier2str(classifier):
-    name = classifier.classname.split(".")[-1]
-    return " ".join([name] + classifier.options)
-
-
-def sanitise_classifier_str(classifier):
-    return re.sub(r"[ -\.]+", "-", classifier)
-
-
 def summarise_perfs(perfs):
     def _fmt(n):
         return "{:.3f}".format(n)
@@ -122,33 +113,6 @@ class Dataset(ml.Dataset):
         return dataset
 
 
-def perf_fn(db, baseline, scenario, predicted, oracle):
-    """
-    Performance callback.
-
-    Arguments:
-
-        db (skelcl.Database): Database object.
-        baseline (str): Baseline params string to compare performance
-          against.
-        scenario (str): Scenario ID.
-        predicted (str): Predicted parameters ID.
-        oracle (str): Oracle parameters ID.
-
-    Returns:
-
-        (float, float): Ratio of performance to the oracle, and
-          speedup over baseline params.
-    """
-    speedup = db.speedup(scenario, baseline, predicted)
-
-    if predicted == oracle:
-        return 1, speedup
-    else:
-        return db.perf(scenario, predicted), speedup
-
-
-
 def get_one_r(db, instances):
     """
     Get the OneR result for a set of instances.
@@ -179,30 +143,46 @@ def get_one_r(db, instances):
     avgs = [(param, db.perf_param_avg(param)) for param in params]
 
     # Select the param with the best performance.
-    best_wgsize = max(avgs, key=lambda x: x[1])[0]
+    return max(avgs, key=lambda x: x[1])[0]
 
-    return unhash_params(best_wgsize)
+
+def perf_fn(db, scenario, predicted, oracle, baseline):
+    """
+    Performance callback.
+
+    Arguments:
+
+        db (skelcl.Database): Database object.
+        scenario (str): Scenario ID.
+        predicted (str): Predicted parameters ID.
+        oracle (str): Oracle parameters ID.
+
+    Returns:
+
+        (float, float, str): Ratio of performance to the oracle,
+          speedup over baseline params, and baseline params ID.
+    """
+    speedup = db.speedup(scenario, baseline, predicted)
+
+    if predicted == oracle:
+        return 1, speedup
+    else:
+        return db.perf(scenario, predicted), speedup
 
 
 ####################
 # err_fn callbacks #
 ####################
-def default_fn(db, instance, max_wgsize, wg_c, wg_r, training):
+def default_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
     """
     Default value parameter callback.
 
-    Simple returns the supplied default argument.
+    Simply returns the supplied default argument.
     """
-    dataset = instance.dataset
-    try:
-        return training.default
-    except AttributeError:
-        # Get default value.
-        training.default = get_one_r(db, training)
-        return training.default
+    return baseline
 
 
-def random_fn(db, instance, max_wgsize, wg_c, wg_r, *args):
+def random_fn(db, instance, max_wgsize, wg_c, wg_r, basline):
     """
     Random workgroup size callback.
 
@@ -214,13 +194,13 @@ def random_fn(db, instance, max_wgsize, wg_c, wg_r, *args):
 
     try:
         db.runtime(scenario, hash_params(*wgsize))
-        return wgsize
+        return hash_params(*wgsize)
     except lab.db.Error:
         io.warn("Random lookup failed for", wg_c, wg_r)
         return random_fn(db, instance, max_wgsize, wg_c, wg_r)
 
 
-def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, *args):
+def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
     """
     Reshape callback.
 
@@ -249,22 +229,37 @@ def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, *args):
         if c > 1: c -= 1
         if r > 1: r -= 1
 
-    return all_wg_c[c], all_wg_r[r]
+    return hash_params(all_wg_c[c], all_wg_r[r])
 
 
-def eval_instance(classifier, instance, perf_fn, err_fn, training):
+def eval_instance(job, db, classifier, instance, perf_fn, err_fn, training):
+    """
+    Returns:
+
+       (int, int, float, float): From first to last: Correct, Invalid,
+         Performance relative to oracle, Speedup over one_r.
+    """
     # Get relevant values from instance.
     oracle = instance.get_string_value(instance.class_index)
     scenario = instance.get_string_value(0)
+
+    # Get default value.
+    try:
+        baseline = training.default
+    except AttributeError:
+        training.default = get_one_r(db, training)
+        baseline = training.default
 
     # Classify instance, and convert to params ID.
     value = classifier.classify_instance(instance)
     attr = instance.dataset.attribute(instance.class_index)
     predicted = attr.value(value)
 
-
     if predicted == oracle:
-        return 1, 0, perf_fn(scenario, predicted, oracle)
+        correct = 1
+        invalid = 0
+        performance, speedup = perf_fn(db, scenario, predicted,
+                                       oracle, baseline)
     else:
         # Determine if predicted workgroup size is valid or not. A
         # valid predicted is one which is within the max_wgsize for
@@ -276,242 +271,78 @@ def eval_instance(classifier, instance, perf_fn, err_fn, training):
         is_valid = wg_c * wg_r < max_wgsize
 
         if is_valid:
-            return 0, 0, perf_fn(scenario, predicted, oracle)
+            correct = 0
+            invalid = 0
+            performance, speedup = perf_fn(db, scenario, predicted,
+                                           oracle, baseline)
         else:
-            new_wg_c, new_wg_r = err_fn(instance, max_wgsize, wg_c, wg_r,
-                                        training)
+            correct = 0
+            invalid = 1
+            predicted = err_fn(instance, max_wgsize, wg_c, wg_r, baseline)
             try:
-                return 0, 1, perf_fn(scenario, hash_params(new_wg_c, new_wg_r),
-                                     oracle)
+                performance, speedup = perf_fn(db, scenario, predicted,
+                                               oracle, baseline)
             except lab.db.Error:
-                io.error("Woops!", scenario, max_wgsize, new_wg_c,
-                         new_wg_r, err_fn.func.__name__)
-                return 0, 1, (0, 0)
+                performance, speedup, baseline = 0, 0, "Null"
+                io.error("Woops!", scenario, max_wgsize, predicted,
+                         err_fn.func.__name__)
+
+    db.add_classification_result(job, classifier,
+                                 err_fn, training, scenario,
+                                 oracle, predicted, baseline, correct, invalid,
+                                 performance, speedup)
 
 
-def mkclassifier(classifier):
-    """
-    Strip the first attribute (scenario ID) from a classifier.
-    """
-    # Create attribute filer.
-    rm = WekaFilter(classname="weka.filters.unsupervised.attribute.Remove",
-                    options=["-R", "1"])
+class Classifier(WekaFilteredClassifier):
 
-    meta = WekaFilteredClassifier()
-    meta.set_property("filter", rm)
-    meta.set_property("classifier", classifier)
+    def __init__(self, classifier):
+        super(Classifier, self).__init__()
 
-    return meta
+        # Create attribute filer.
+        rm = WekaFilter(classname="weka.filters.unsupervised.attribute.Remove",
+                        options=["-R", "1"])
 
+        self.classifier = classifier
 
-def eval_classifier(training, testing, classifier, perf_fn, err_fn):
-    # Build and train classifier.
-    meta = mkclassifier(classifier)
-    meta.build_classifier(training)
+        self.set_property("filter", rm)
+        self.set_property("classifier", classifier)
 
-    results = [eval_instance(meta, instance, perf_fn, err_fn, training)
-               for instance in testing]
+    def __repr__(self):
+        return " ".join([self.classifier.classname,] + self.classifier.options)
 
-    correct, invalid, performance = zip(*results)
-
-    return correct, invalid, performance
+    def __str__(self):
+        return self.__repr__()
 
 
-def xvalidate_classifier(folds, *args, **kwargs):
-    data = [eval_classifier(training, testing, *args, **kwargs)
-            for training,testing in folds]
-
-    transpose = map(list, zip(*data))
-
-    return [lab.flatten(column) for column in transpose]
-
-
-def summarise_classifier_results(correct, invalid, perfs):
-    perfs, speedups = zip(*perfs)
-
-    num_tests = len(correct)
-
-    accuracy = (sum(correct) / num_tests) * 100
-    ratio_invalid = (sum(invalid) / num_tests) * 100
-
-    min_perf = min(perfs) * 100
-    mean_perf = labmath.geomean(perfs) * 100
-    max_perf = max(perfs) * 100
-
-    min_speedup = min(speedups)
-    mean_speedup = labmath.geomean(speedups)
-    max_speedup = max(speedups)
-
-    return (accuracy, ratio_invalid,
-            min_perf, mean_perf, max_perf,
-            min_speedup, mean_speedup, max_speedup)
-
-
-def xvalidate_classifiers(classifiers, err_fns, dataset,
-                          nfolds=10, perf_cb=lambda *args: 0):
+def xvalidate_classifiers(job, db, classifiers, err_fns, perf_fn, dataset,
+                          nfolds=10):
     """
     Cross validate a set of classifiers and err_fns.
     """
-    def _plt_title(classifier, n=60):
-        if len(classifier) > n:
-            return classifier[0:n - 4] + " ..."
-        else:
-            return classifier
-
-    # TODO: Properly store and load cached results.
-
-    # All permutations of classifiers and err_fns.
-    combinations = list(product(classifiers, err_fns))
-
     # Generate training and testing datasets.
     folds = dataset.folds(nfolds)
     io.info("Size of training set:", folds[0][0].num_instances)
     io.info("Size of testing set: ", folds[0][1].num_instances)
 
-    # Get all results.
-    xval_results = [
-        (classifier2str(classifier), err_fn.func.__name__,
-         xvalidate_classifier(folds, classifier, perf_cb, err_fn))
-        for classifier,err_fn in combinations
-    ]
+    for i,fold in enumerate(folds):
+        training, testing = fold
+        for classifier in classifiers:
+            meta = Classifier(classifier)
+            meta.build_classifier(training)
 
-    json.dump(xval_results, open(experiment.CLASS_XVAL_PATH, "wb"))
+            for err_fn in err_fns:
+                io.info("Evaluating fold", i + 1, "with",
+                        err_fn.func.__name__,
+                        text.truncate(str(classifier), 40))
 
-    xval_results = json.load(open(experiment.CLASS_XVAL_PATH))
+                for i,instance in enumerate(testing):
+                    io.debug(i)
+                    eval_instance(job, db, meta, instance,
+                                  perf_fn, err_fn, training)
+                db.commit()
 
-    # Plot classification accuracy.
-    io.info("Plotting classification accuracy ...")
-    correct = []
-    for i in range(0, len(xval_results), 3):
-        row = xval_results[i]
-        classifier = text.truncate(row[0], CLASSIFIER_NAME_LEN)
-        correct_results = row[2][0]
-        x = (sum(correct_results) / len(correct_results)) * 100
-        correct.append((classifier, x))
-
-    Classifiers,Correct = zip(*correct)
-    X = np.arange(len(Correct))
-    plt.bar(X, Correct, color="g")
-    plt.xticks(X + .5, Classifiers, rotation='vertical')
-    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
-    plt.title("Classification accuracy")
-    plt.tight_layout()
-    plt.savefig("img/eval/classification_accuracy.png")
-    plt.close()
-
-    # Plot number of illegal classification errors.
-    io.info("Plotting classification errors ...")
-    invalid = []
-    for i in range(0, len(xval_results), 3):
-        row = xval_results[i]
-        classifier = text.truncate(row[0], CLASSIFIER_NAME_LEN)
-        invalid_results = row[2][1]
-        x = (sum(invalid_results) / len(invalid_results)) * 100
-        invalid.append((classifier, x))
-
-    Classifiers,Invalid = zip(*invalid)
-    X = np.arange(len(Invalid))
-    plt.bar(X, Invalid, color="r")
-    plt.xticks(X + .5, Classifiers, rotation='vertical')
-    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%d%%'))
-    plt.title("Ratio of invalid classifications")
-    plt.tight_layout()
-    plt.savefig("img/eval/classification_errors.png")
-    plt.close()
-
-    # Plot all speedups.
-    for i in range(0, len(xval_results), 3):
-        for j in range(3):
-            row = xval_results[i + j]
-            _,Speedups = zip(*row[2][2])
-            err_fn = row[1]
-            plt.plot(Speedups, "-", label=err_fn)
-
-
-        classifier = row[0]
-        plot_name = sanitise_classifier_str(classifier)
-
-        io.info("Plotting", plot_name, "...")
-
-        plt.title(_plt_title(classifier))
-        plt.ylabel("Speedup over baseline")
-        plt.xlabel("Test instances")
-        plt.axhline(y=1, color="k")
-        plt.xlim(xmin=0, xmax=len(xval_results[0][2][2]))
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig("img/eval/classifiers/{}.png".format(plot_name))
-        plt.close()
-
-    # Plot relative performance of classifiers.
-    err_fns = set([t[1] for t in xval_results])
-    io.debug(err_fns)
-    for err_fn in err_fns:
-        # Filter results.
-        results = [t for t in xval_results if t[1] == err_fn]
-
-        for row in results:
-            classifier_name = text.truncate(row[0], CLASSIFIER_NAME_LEN)
-            _,Speedups = zip(*row[2][2])
-            plt.plot(Speedups, "-", label=classifier_name)
-
-        io.info("Plotting", err_fn, "...")
-        plt.title("Speedup of all classifiers with err_fn: " + err_fn)
-        plt.ylabel("Speedup over baseline")
-        plt.xlabel("Test instances")
-        plt.axhline(y=1, color="k")
-        plt.xlim(xmin=0, xmax=len(xval_results[0][2][2]))
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig("img/eval/err_fn/{}.png".format(err_fn))
-        plt.close()
-
-    # Summarise results and print a table.
-    table = [
-        (t[0], t[1]) + summarise_classifier_results(*t[2])
-        for t in xval_results
-    ]
-
-    str_args = {
-        "float_format": lambda f: "{:.2f}".format(f)
-    }
-
-    print("Results of {} fold cross-validation:".format(nfolds))
-    print()
-    print(fmt.table(table, str_args, columns=(
-        "CLASSIFIER",
-        "ERR_FN",
-        "ACC %",
-        "INV %",
-        "Omin %",
-        "Oavg %",
-        "Omax %",
-        "Smin",
-        "Savg",
-        "Smax",
-    )))
-
-
-def main():
-    """
-    Evaluate dataset and omnitune performance.
-    """
-    ml.start()
-
-    fs.rm("img/eval")
-    fs.mkdir("img/eval/classifiers")
-    fs.mkdir("img/eval/err_fn")
-
-    nfolds = 10
-
-    # Get the latest dataset from the oracle.
-    db = migrate(_db.Database(experiment.ORACLE_PATH))
-    db.dump_csvs("/tmp/omnitune/csv")
+def classification(db, nfolds=10):
     dataset = Dataset.load("/tmp/omnitune/csv/oracle_params.csv", db)
-
-    one_r = db.one_r()
-    print("ONE R:", one_r[0])
-    summarise_perfs(db.perf_param(one_r[0]).values())
 
     classifiers = (
         ml.ZeroR(),
@@ -525,14 +356,84 @@ def main():
     err_fns = (
         partial(default_fn, db),
         partial(random_fn, db),
-        partial(reshape_fn, db)
+        partial(reshape_fn, db),
     )
 
-    # Performance function.
-    perf_cb = partial(perf_fn, db, one_r[0])
+    xvalidate_classifiers("xval_classifiers", db, classifiers, err_fns,
+                          perf_fn, dataset, nfolds=nfolds)
 
-    xvalidate_classifiers(classifiers, err_fns, dataset,
-                          nfolds=nfolds, perf_cb=perf_cb)
+
+def eval_runtime(job, db, classifier, instance, dataset):
+    actual = instance.get_value(instance.class_index)
+    scenario = instance.get_string_value(0)
+    params = instance.get_string_value(102)
+
+    predicted = classifier.classify_instance(instance)
+    norm_predicted = predicted / actual
+    norm_error = abs(norm_predicted - 1)
+
+    db.add_runtime_regression_result(job, classifier, dataset, scenario,
+                                     actual, predicted, norm_predicted,
+                                     norm_error)
+
+
+def xvalidate_runtimes(job, db, classifiers, dataset, nfolds):
+    # Generate training and testing datasets.
+    folds = dataset.folds(nfolds)
+    io.info("Size of training set:", folds[0][0].num_instances)
+    io.info("Size of testing set: ", folds[0][1].num_instances)
+
+    for i,fold in enumerate(folds):
+        training, testing = fold
+        for classifier in classifiers:
+            meta = Classifier(classifier)
+            meta.build_classifier(training)
+
+            io.info("Evaluating fold", i + 1, "with",
+                    text.truncate(str(classifier), 40))
+
+            for i,instance in enumerate(testing):
+                io.debug(i)
+                eval_runtime(job, db, meta, instance, training)
+            db.commit()
+
+
+def runtime_regression(db, nfolds=10):
+    dataset = Dataset.load("/tmp/omnitune/csv/runtime_stats.csv", db)
+
+    classifiers = (
+        ml.ZeroR(),
+    )
+
+    xvalidate_runtimes("xval_runtimes", db, classifiers, dataset, nfolds=nfolds)
+
+
+
+def main():
+    """
+    Evaluate dataset and omnitune performance.
+    """
+    ml.start()
+
+    # Get the latest dataset from the oracle.
+    db = migrate(_db.Database(experiment.ORACLE_PATH))
+    db.dump_csvs("/tmp/omnitune/csv")
+
+    # Empty old data.
+    tables = [
+        "classifiers",
+        "err_fns",
+        "ml_datasets",
+        "ml_jobs",
+        "classification_results",
+        "runtime_regression_results"
+    ]
+    for table in tables:
+        db.empty_table(table)
+
+
+    classification(db)
+    runtime_regression(db)
 
     ml.stop()
 
