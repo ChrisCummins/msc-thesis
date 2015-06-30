@@ -182,7 +182,7 @@ def default_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
     return baseline
 
 
-def random_fn(db, instance, max_wgsize, wg_c, wg_r, basline):
+def random_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
     """
     Random workgroup size callback.
 
@@ -197,7 +197,7 @@ def random_fn(db, instance, max_wgsize, wg_c, wg_r, basline):
         return hash_params(*wgsize)
     except lab.db.Error:
         io.warn("Random lookup failed for", wg_c, wg_r)
-        return random_fn(db, instance, max_wgsize, wg_c, wg_r)
+        return random_fn(db, instance, max_wgsize, wg_c, wg_r, baseline)
 
 
 def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
