@@ -36,6 +36,7 @@ import omnitune
 from omnitune.skelcl import db as _db
 from omnitune.skelcl import hash_params
 from omnitune.skelcl import unhash_params
+from omnitune.skelcl.migrate import migrate
 
 import experiment
 
@@ -504,7 +505,7 @@ def main():
     nfolds = 10
 
     # Get the latest dataset from the oracle.
-    db = _db.Database(experiment.ORACLE_PATH)
+    db = migrate(_db.Database(experiment.ORACLE_PATH))
     db.dump_csvs("/tmp/omnitune/csv")
     dataset = Dataset.load("/tmp/omnitune/csv/oracle_params.csv", db)
 
