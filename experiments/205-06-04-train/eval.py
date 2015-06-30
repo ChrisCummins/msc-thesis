@@ -359,24 +359,24 @@ def xvalidate_classifiers(classifiers, err_fns, dataset,
 
     # TODO: Properly store and load cached results.
 
-    # # All permutations of classifiers and err_fns.
-    # combinations = list(product(classifiers, err_fns))
+    # All permutations of classifiers and err_fns.
+    combinations = list(product(classifiers, err_fns))
 
-    # # Generate training and testing datasets.
-    # folds = dataset.folds(nfolds)
-    # io.info("Size of training set:", folds[0][0].num_instances)
-    # io.info("Size of testing set: ", folds[0][1].num_instances)
+    # Generate training and testing datasets.
+    folds = dataset.folds(nfolds)
+    io.info("Size of training set:", folds[0][0].num_instances)
+    io.info("Size of testing set: ", folds[0][1].num_instances)
 
-    # # Get all results.
-    # xval_results = [
-    #     (classifier2str(classifier), err_fn.func.__name__,
-    #      xvalidate_classifier(folds, classifier, perf_cb, err_fn))
-    #     for classifier,err_fn in combinations
-    # ]
+    # Get all results.
+    xval_results = [
+        (classifier2str(classifier), err_fn.func.__name__,
+         xvalidate_classifier(folds, classifier, perf_cb, err_fn))
+        for classifier,err_fn in combinations
+    ]
 
-    # json.dump(xval_results, open("results.json", "wb"))
+    json.dump(xval_results, open(experiment.CLASS_XVAL_PATH, "wb"))
 
-    xval_results = json.load(open("results.json"))
+    xval_results = json.load(open(experiment.CLASS_XVAL_PATH))
 
     # Plot classification accuracy.
     io.info("Plotting classification accuracy ...")

@@ -12,6 +12,11 @@ DATA_ROOT = fs.path("~/data/msc-thesis/2015-06-23")
 DB_DEST = fs.path(DATA_ROOT, "db")
 ORACLE_PATH = fs.path(DATA_ROOT, "oracle.db")
 
+# Path to classifier results using cross-validation.
+CLASS_XVAL_PATH = fs.path(DATA_ROOT, "class_xval.json")
+# Path to classifier results using synthetic training, real validation.
+CLASS_SYN_PATH = fs.path(DATA_ROOT, "class_syn.json")
+
 SRC_ROOT = fs.path("~/src/msc-thesis")
 
 EXAMPLES_BUILD = fs.path(SRC_ROOT, "skelcl/build/examples/")
