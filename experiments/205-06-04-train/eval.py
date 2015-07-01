@@ -84,9 +84,6 @@ class Dataset(ml.Dataset):
         super(Dataset, self).__init__(*args, **kwargs)
         self.db = db
 
-    def one_r(self):
-        pass
-
     @staticmethod
     def load(path, db):
         nominals = [
@@ -106,9 +103,23 @@ class Dataset(ml.Dataset):
         nominal_indices = ",".join([str(index) for index in nominals])
         force_nominal = ["-N", nominal_indices]
 
+        # Load data from CSV.
         dataset = ml.Dataset.load_csv(path, options=force_nominal)
+
+        # Set class index and database connection.
         dataset.class_index = -1
         dataset.db = db
+
+        # Create string->nominal type attribute filter, ignoring the first
+        # attribute (scenario ID), since we're not classifying with it.
+        string_to_nominal = WekaFilter(classname=("weka.filters.unsupervised."
+                                                  "attribute.StringToNominal"),
+                                       options=["-R", "2-last"])
+        string_to_nominal.inputformat(dataset.instances)
+
+        # Create filtered dataset, and swap data around.
+        filtered = string_to_nominal.filter(dataset.instances)
+        dataset.instances = filtered
 
         return dataset
 
@@ -403,6 +414,9 @@ def runtime_regression(db, nfolds=10):
 
     classifiers = (
         ml.ZeroR(),
+        ml.LinearRegression(),
+        ml.SMOreg(),
+        ml.RandomForest(),
     )
 
     xvalidate_runtimes("xval_runtimes", db, classifiers, dataset, nfolds=nfolds)
