@@ -415,7 +415,7 @@ def runtime_regression(db, nfolds=10):
     classifiers = (
         ml.ZeroR(),
         ml.LinearRegression(),
-        ml.SMOreg(),
+        #ml.SMOreg(),
         ml.RandomForest(),
     )
 
@@ -435,18 +435,13 @@ def main():
 
     # Empty old data.
     tables = [
-        "classifiers",
-        "err_fns",
-        "ml_datasets",
-        "ml_jobs",
-        "classification_results",
         "runtime_regression_results"
     ]
     for table in tables:
         db.empty_table(table)
 
 
-    classification(db)
+    #classification(db)
     runtime_regression(db)
 
     ml.stop()
