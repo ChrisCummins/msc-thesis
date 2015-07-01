@@ -7639,3 +7639,14 @@ SELECT DISTINCT params
 FROM runtime_stats
 WHERE scenario IN (<scenarios>);
 ```
+
+
+## Wednesday 30th
+
+Converting runtimes dataset for regression:
+
+* Remove scenario attribute: `filters.unsupervised.attribute.Remove -R 1`
+* String to nominal: `filters.unsupervised.attribute.StringToNominal
+  -R first-last`
+* Classify with: `weka.classifiers.functions.LinearRegression`
+* Classify with: `weka.classifiers.functions.SMOreg`
