@@ -356,12 +356,12 @@ def classification(db, nfolds=10):
     dataset = Dataset.load("/tmp/omnitune/csv/oracle_params.csv", db)
 
     classifiers = (
-        ml.ZeroR(),
-        ml.SMO(),
-        ml.SimpleLogistic(),
-        ml.RandomForest(),
-        ml.NaiveBayes(),
         ml.J48(),
+        ml.NaiveBayes(),
+        ml.RandomForest(),
+        ml.SimpleLogistic(),
+        ml.SMO(),
+        ml.ZeroR(),
     )
 
     err_fns = (
@@ -413,10 +413,10 @@ def runtime_regression(db, nfolds=10):
     dataset = Dataset.load("/tmp/omnitune/csv/runtime_stats.csv", db)
 
     classifiers = (
-        ml.ZeroR(),
         ml.LinearRegression(),
-        #ml.SMOreg(),
         ml.RandomForest(),
+        #ml.SMOreg(),
+        ml.ZeroR(),
     )
 
     xvalidate_runtimes("xval_runtimes", db, classifiers, dataset, nfolds=nfolds)
