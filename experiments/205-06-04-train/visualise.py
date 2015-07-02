@@ -50,15 +50,13 @@ def main():
     fs.mkdir("img/oracle/kernels")
     fs.mkdir("img/oracle/datasets")
 
+    visualise.xval_classification(db, "img/eval/xval_classification.png")
+
     # ML visualisations
     for i,classifier in enumerate(db.classifiers):
         visualise.xval_classifier_speedups(db, classifier,
                                            "img/eval/classifiers/{}.png"
                                            .format(i))
-    for err_fn in db.err_fns:
-        visualise.xval_err_fn_speedups(db, err_fn,
-                                       "img/eval/err_fn/{}.png"
-                                       .format(err_fn))
 
     visualise.xval_classifiers_accuracy(db, "img/eval/accuracy.png")
     visualise.xval_classifiers_invalid(db, "img/eval/invalid.png")
