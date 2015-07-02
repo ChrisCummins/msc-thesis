@@ -374,7 +374,7 @@ def classification(db, nfolds=10):
                           perf_fn, dataset, nfolds=nfolds)
 
 
-def eval_runtime(job, db, classifier, instance, dataset):
+def eval_regression(job, db, classifier, instance, dataset, add_cb):
     actual = instance.get_value(instance.class_index)
     scenario = instance.get_string_value(0)
     params = instance.get_string_value(102)
@@ -383,12 +383,11 @@ def eval_runtime(job, db, classifier, instance, dataset):
     norm_predicted = predicted / actual
     norm_error = abs(norm_predicted - 1)
 
-    db.add_runtime_regression_result(job, classifier, dataset, scenario,
-                                     actual, predicted, norm_predicted,
-                                     norm_error)
+    add_cb(job, classifier, dataset, scenario, actual, predicted,
+           norm_predicted, norm_error)
 
 
-def xvalidate_runtimes(job, db, classifiers, dataset, nfolds):
+def xvalidate_regression(job, db, classifiers, dataset, nfolds, add_cb):
     # Generate training and testing datasets.
     folds = dataset.folds(nfolds)
     io.info("Size of training set:", folds[0][0].num_instances)
@@ -405,12 +404,11 @@ def xvalidate_runtimes(job, db, classifiers, dataset, nfolds):
 
             for j,instance in enumerate(testing):
                 io.debug(j)
-                eval_runtime(job, db, meta, instance, training)
+                eval_regression(job, db, meta, instance, training, add_cb)
             db.commit()
 
-
-def runtime_regression(db, nfolds=10):
-    dataset = Dataset.load("/tmp/omnitune/csv/runtime_stats.csv", db)
+def regression(db, path, nfolds, add_cb):
+    dataset = Dataset.load(path, db)
 
     classifiers = (
         ml.LinearRegression(),
@@ -419,8 +417,17 @@ def runtime_regression(db, nfolds=10):
         ml.ZeroR(),
     )
 
-    xvalidate_runtimes("xval_runtimes", db, classifiers, dataset, nfolds=nfolds)
+    xvalidate_regression("xval_runtimes", db, classifiers, dataset,
+                         nfolds, add_cb)
 
+def runtime_regression(db, nfolds=10):
+    regression(db, "/tmp/omnitune/csv/runtime_stats.csv", nfolds,
+               db.add_runtime_regression_result)
+
+
+def speedup_regression(db, nfolds=10):
+    regression(db, "/tmp/omnitune/csv/speedup_stats.csv", nfolds,
+               db.add_speedup_regression_result)
 
 
 def main():
@@ -435,14 +442,21 @@ def main():
 
     # Empty old data.
     tables = [
-        "runtime_regression_results"
+        "classifiers",
+        "err_fns",
+        "ml_datasets",
+        "ml_jobs",
+        "classification_results",
+        "runtime_regression_results",
+        "speedup_regression_results",
     ]
     for table in tables:
         db.empty_table(table)
 
 
-    #classification(db)
+    classification(db)
     runtime_regression(db)
+    speedup_regression(db)
 
     ml.stop()
 
