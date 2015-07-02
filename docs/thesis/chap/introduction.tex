@@ -45,55 +45,61 @@ kernels.
   platforms, enabled by a shared autotuning logic and distributed
   training data.}
 
+\section{Terminology and Notation}
+
+\TODO{Define mathematical notation used, and shorthand symbols for
+  ``oracle'', etc\ldots}
+
 \section{SkelCL}
 
 SkelCL\footnote{\url{http://skelcl.uni-muenster.de}} is an object
 oriented C++ library that provides OpenCL implementations of data
-parallel algorithmic skeletons for heterogeneous parallelism: Map,
-Reduce, Scan, Zip, Stencil, and AllPairs. Skeletons are parameterised
-with muscle functions by the user, which are compiled into OpenCL
-kernels for execution on device hardware. The Vector and Matrix
-container types transparently handle communication between the host
-and device memory, and support partitioning for multi-GPU execution.
+parallel algorithmic skeletons for heterogeneous
+parallelism. Skeletons are parameterised with muscle functions by the
+user, which are compiled into OpenCL kernels for execution on device
+hardware. The Vector and Matrix container types transparently handle
+communication between the host and device memory, and support
+partitioning for multi-GPU execution.
 
-Each skeleton is represented by a template class, declared in a header
-file detailing the public API. A private header file contains the
-template definition. E.g. \texttt{SkelCL/Map.h} contains the Map
-class, and \texttt{SkelCL/detail/MapDef.h} contains the
-implementation. Non-trivial kernels are stored in separate source
-files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
+% Steuwer, M., Kegel, P., & Gorlatch, S. (2011). SkelCL - A Portable
+% Skeleton Library for High-Level GPU Programming. In Parallel and
+% Distributed Processing Workshops and Phd Forum (IPDPSW), 2011 IEEE
+% International Symposium on
+% (pp. 1176–1182). IEEE. doi:10.1109/IPDPS.2011.269
+\TODO{The introductory SkelCL paper. Most highly cited:
+\cite{Steuwer2011}}
 
-\lstset{language=C++}
-\begin{lstlisting}[
-  basicstyle=\scriptsize,
-  caption={Example program to calculate dot product using SkelCL.}
-]
-#include <SkelCL/SkelCL.h>
-#include <SkelCL/Vector.h>
-#include <SkelCL/Zip.h>
-#include <SkelCL/Reduce.h>
+% Steuwer, M., & Gorlatch, S. (2013). SkelCL: Enhancing OpenCL for
+% High-Level Programming of Multi-GPU Systems. Parallel Computing
+% Technologies, 7979, 258–272. doi:10.1007/978-3-642-39958-9_24
+\TODO{Support for multi-GPU systems: \cite{Steuwer2013a}}
 
-int main(int argc, char* argv[]) {
-  // Initialise SkelCL to use any device.
-  skelcl::init(skelcl::nDevices(1).deviceType(skelcl::device_type::ANY));
+% S. Breuer, M. Steuwer, and S. Gorlatch, “Extending the SkelCL
+% Skeleton Library for Stencil Computations on Multi-GPU Systems,”
+% HiStencils 2014, pp. 23–30, 2014.
+\TODO{Stencil computations: \cite{Breuer2014}}
 
-  // Define the skeleton objects.
-  skelcl::Zip<int(int, int)> mult("int func(int x, int y) { return x * y; }");
-  skelcl::Reduce<int(int)> sum("int func(int x, int y) { return x + y; }", "0");
+% M. Steuwer, M. Friese, S. Albers, and S. Gorlatch, “Introducing and
+% implementing the allpairs skeleton for programming multi-GPU
+% Systems,” Int. J. Parallel Program., vol. 42, pp. 601–618, 2014.
+\TODO{Allpairs skeleton: \cite{Steuwer2014}}
 
-  // Create two vectors A and B of length "n".
-  const int n = 1024; skelcl::Vector<int> A(n), B(n);
-  skelcl::Vector<int>::iterator a = A.begin(), b = B.begin();
-  while (a != A.end()) { *a = rand() % n; ++a; *b = rand() % n; ++b; }
 
-  // Invoke skeleton: x = A . B
-  int x = sum(mult(A, B)).first();
+% Steuwer, M., & Gorlatch, S. (2013). High-level Programming for
+% Medical Imaging on Multi-GPU Systems Using the SkelCL
+% Library. Procedia Computer Science, 18,
+% 749–758. doi:10.1016/j.procs.2013.05.239
+\TODO{An example of reduced programmer effort for real world
+application using SkelCL: \cite{Steuwer2013}}
 
-  return 0;
-}
-\end{lstlisting}
+% Steuwer, M., Kegel, P., & Gorlatch, S. (2012). Towards High-Level
+% Programming of Multi-GPU Systems Using the SkelCL Library. In
+% Parallel and Distributed Processing Symposium Workshops & PhD Forum
+% (IPDPSW), 2012 IEEE 26th International
+% (pp. 1858–1865). Ieee. doi:10.1109/IPDPSW.2012.229
+\TODO{\cite{Steuwer2012}}
 
-\subsection{Patterns}
+\subsection{Pattern definitions}
 
 \subsubsection{Map}
 
@@ -255,6 +261,78 @@ g(f, S, M, t) =
   M_{init}, & \text{otherwise}
 \end{cases}
 \end{equation}
+
+
+\subsection{Implementation details}
+
+Each skeleton is represented by a template class, declared in a header
+file detailing the public API. A private header file contains the
+template definition. E.g. \texttt{SkelCL/Map.h} contains the Map
+class, and \texttt{SkelCL/detail/MapDef.h} contains the
+implementation. Non-trivial kernels are stored in separate source
+files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
+
+\subsubsection{Container Types}
+
+\TODO{Description of vector and matrices, supported data types, lazy
+  data transfer \ldots}
+
+\subsubsection{Skeleton implementations}
+
+\TODO{Description of OpenCL skeleton templates, and the compilation
+  process - i.e. substitution of user functions, handling additional
+  arguments  \ldots}
+
+\subsection{Example applications}
+
+\TODO{%
+  Provide definition of three simple example programs, then code
+  listings for SkelCL implementations and a comparison of runtimes
+  using a decent GPU vs. sequential CPU. Preferably also hand coded
+  OpenCL?%
+}
+
+\subsubsection{Example application 1 - Mandelbrot Set}
+
+\TODO{Definition, listing, and performance results.}
+
+\subsubsection{Example application 1 -- Dot Product}
+
+\TODO{Definition, and performance results.}
+
+\lstset{language=C++}
+\begin{lstlisting}[
+  basicstyle=\scriptsize,
+  caption={Example program to calculate dot product using SkelCL.}
+]
+#include <SkelCL/SkelCL.h>
+#include <SkelCL/Vector.h>
+#include <SkelCL/Zip.h>
+#include <SkelCL/Reduce.h>
+
+int main(int argc, char* argv[]) {
+  // Initialise SkelCL to use any device.
+  skelcl::init(skelcl::nDevices(1).deviceType(skelcl::device_type::ANY));
+
+  // Define the skeleton objects.
+  skelcl::Zip<int(int, int)> mult("int func(int x, int y) { return x * y; }");
+  skelcl::Reduce<int(int)> sum("int func(int x, int y) { return x + y; }", "0");
+
+  // Create two vectors A and B of length "n".
+  const int n = 1024; skelcl::Vector<int> A(n), B(n);
+  skelcl::Vector<int>::iterator a = A.begin(), b = B.begin();
+  while (a != A.end()) { *a = rand() % n; ++a; *b = rand() % n; ++b; }
+
+  // Invoke skeleton: x = A . B
+  int x = sum(mult(A, B)).first();
+
+  return 0;
+}
+\end{lstlisting}
+
+\subsubsection{Example application 2 --- Gaussian Blur}
+
+\TODO{Definition, listing, and performance results.}
 
 \section{Structure}
 

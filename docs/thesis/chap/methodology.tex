@@ -7,6 +7,10 @@
 % suggested solutions should be mentioned. Alternative solutions and
 % their evaluation should also be included.
 
+\section{Optimisation of SkelCL programs}
+
+\subsection{Experimental setup}
+
 \begin{table}
 \footnotesize
 \centering
@@ -197,7 +201,15 @@ Intel i5-4570 & 8GiB & -\\
 \end{algorithm}
 
 
-\subsection{Oracle performance}
+\subsection{Runtime sampling and statistical soundness}
+
+\TODO{%
+  OpenCL API for getting runtimes, how many samples are needed? Is
+  the number of samples required dependent on anything (e.g. runtime,
+  device, etc.)? \ldots%
+}
+
+\subsection{Assessing oracle performance}
 For a given scenario $s$ and workgroup size $w$, the arithmetic mean
 of measured runtimes if $t(s,w)$. From the set of all scenarios $S$
 and workgroup sizes $W$, the subset of workgroup scenarios
@@ -225,28 +237,12 @@ across all scenarios:
 
 \[ \bar{p}(w) = \left(\prod_{s \in S} t(s,\Omega(s)) \cdot t(s,w)^{-1} \right)^{1/|S|} \]
 
-\subsection{Autotuning using classification}
-The simplest autotuner is one which selects the workgroup size which
-is most commonly optimal (i.e. the mode of all optimal workgroup sizes
-$\left\{ \Omega(s) | s \in S \right\}$):
 
-\[ \text{ZeroR} = \text{mode}( \left\{ \Omega(s) | s \in S \right\} ) \]
+\section{Design of an autotuning service}
 
-However, this is not satisfactory for the purpose of selecting a
-workgroup size to use, due to the constraint $W_{max}(s)$ enforced for
-each scenario. As a result, we propose a so called ``OneR''
-classifier, which first defines $W_{safe} \in W$ as the intersection
-of legal workgroup sizes across all scenarios, then selects the
-workgroup size $w$ which maximises the average performance
-$\bar{p}(w)$ across this reduced parameter space.
+\subsection{Applying machine learning methods}
 
-\[W_{safe} = \cap \left\{ f(s) | s \in S \right\} \]
-\[ \text{OneR} = \argmax_{w \in W_{safe}} \bar{p}(w) \]
-
-This provides a baseline for comparing against a more sophisticated
-autotuning approaches using machine learning.
-
-\subsection{Feature Extraction}
+\subsubsection{Feature Extraction}
 
 For each scenario, a feature vector is extracted to capture properties
 of the architecture, device, and dataset:
@@ -271,6 +267,33 @@ by comparing the performance of the workgroup size predicted for an
 unseen feature vector against the oracle workgroup size for that
 feature.
 
+\subsection{Synthetic benchmarks for low cost training}
+
+\subsection{Collective tuning and the client-server model}
+
+
+\section{Autotuning using classification}
+
+The simplest autotuner is one which selects the workgroup size which
+is most commonly optimal (i.e. the mode of all optimal workgroup sizes
+$\left\{ \Omega(s) | s \in S \right\}$):
+
+\[ \text{ZeroR} = \text{mode}( \left\{ \Omega(s) | s \in S \right\} ) \]
+
+However, this is not satisfactory for the purpose of selecting a
+workgroup size to use, due to the constraint $W_{max}(s)$ enforced for
+each scenario. As a result, we propose a so called ``OneR''
+classifier, which first defines $W_{safe} \in W$ as the intersection
+of legal workgroup sizes across all scenarios, then selects the
+workgroup size $w$ which maximises the average performance
+$\bar{p}(w)$ across this reduced parameter space.
+
+\[W_{safe} = \cap \left\{ f(s) | s \in S \right\} \]
+\[ \text{OneR} = \argmax_{w \in W_{safe}} \bar{p}(w) \]
+
+This provides a baseline for comparing against a more sophisticated
+autotuning approaches using machine learning.
+
 \subsubsection{Satisfying the maximum workgroup size constraint}
 
 Since classifiers are probabilistic systems, it is possible that a
@@ -291,3 +314,5 @@ fallback strategies is used to select a safe workgroup size:
 The evaluation compares the average performance achieved using each
 fallback strategy, along with the percentage of cases for which these
 fallback strategies were required.
+
+\section{Autotuning using regression}
