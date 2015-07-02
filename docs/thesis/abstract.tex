@@ -1,14 +1,19 @@
-\TODO{The rapid transition towards multicore hardware has left
-application programmers requiring higher-level abstractions for coping
-with the complexity of parallel programming. Algorithmic Skeletons
-provide such abstractions but, without extensive tuning, typically
-cannot compete with the performance of hand optimised code. This paper
-proposes developing a dynamic, ``always-on'' autotuner for SkelCL, an
-Algorithmic Skeleton library which enables high-level programming of
-multi-GPU systems. An online machine learning system will be used to
-create a feedback loop of constant testing and evaluation of skeleton
-parameters across the lifespan of programs. It will use dynamic
-features extracted from muscle functions and input data to maximise
-runtime performance. Such a system will extend the state of the art by
-enabling empirical optimisation without the huge offline training
-phases associated with iterative compilation.}
+By their nature, Algorithmic Skeletons abstract implement details from
+the user which can be critical to performance. This project explores
+the effect of one such implementation detail --- setting the workgroup
+size of OpenCL kernels --- for SkelCL Stencil patterns. Through an
+exhaustive enumeration of a large optimisation space, we find that
+there is no one sensible default value which provides portable
+performance across the range of architectures, kernels, and datasets
+which SkelCL targets. As a result, we present a machine-learning
+enabled autotuner which performs runtime prediction of optimal
+workgroup sizes, achieving \fixme{XXX}\% performance of the oracle,
+providing an average speedup of \fixme{XXX}$\times$ (max
+\fixme{XXX}$\times$) over the best statically chosen value.
+
+\ifdraft{
+  \textcolor{red}{\section*{Notes about draft version \version{}}}
+
+  \FIXME{Add draft notes.}
+
+}

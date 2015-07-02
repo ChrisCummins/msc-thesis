@@ -5,6 +5,17 @@
 % objective of the project, motivation for the work and the results
 % achieved. The structure of the remainder of the document should also
 % be outlined.
+GPUs enable massive performance through heterogeneous
+parallelism. However, developing software for these devices is
+challenging, as the programming models provided by OpenCL and CUDA
+require a low level knowledge of the underlying architecture to
+properly exploit the potential performance. SkelCL addresses this
+programmability challenge by providing high level skeleton patterns
+for common data parallel operations. This project demonstrates that
+the parameters which are necessarily abstracted by such skeletons can
+have a huge impact on performance. To demonstrate this, I present an
+autotuner for selecting the \emph{workgroup size} of Stencil pattern
+kernels.
 
 \note{IMPORTANCE OF PARALLELISM}
 
@@ -81,3 +92,8 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 \end{lstlisting}
+
+\section{Structure}
+
+The remainder of the document is structured as follows:
+\TODO{\ldots}

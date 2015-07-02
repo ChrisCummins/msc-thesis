@@ -59,14 +59,27 @@
 %%%%%%%%%%%%%%%%%%%%%%
 %% Document details %%
 %%%%%%%%%%%%%%%%%%%%%%
+\input{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Draft Version Specification %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Comment out the following line to disable all draft features:
+\def\draft{}
+\def\version{2015-07-02}
+
+\input{draft}
 
 % Paper title
-\title{Dynamic Autotuning\\of Algorithmic Skeletons}
+\title{Dynamic Autotuning\\of Algorithmic Skeletons%
+\ifdraft{\\\textcolor{red}{DRAFT VERSION \version{}}}}
 
 % Author
 \author{Chris Cummins}
 
 \input{preamble}
+
+\abstract{\input{abstract}}
 
 %%%%%%%%%%
 %% Body %%
@@ -92,6 +105,14 @@
 
 \chapter{Conclusions}\label{chap:conclusions}
 \input{chap/conclusions}
+
+\clearpage
+\begin{appendices}
+
+\section{Features}\label{app:features}
+\input{app/features}
+
+\end{appendices}
 
 \label{bibliography}
 \printbibliography

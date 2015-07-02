@@ -5,6 +5,23 @@
 % literature, setting of the work in the proper context. This should
 % contain sufficient information to allow the reader to appreciate the
 % contribution you have made.
+In OpenCL, kernels are mapped to work-items for execution on the
+processing units of GPUs and CPUs. These work-items are then grouped
+into one or more workgroups. The choice of workgroup size is left to
+the developer, but with two sets of constraints. The first set of
+constraints is the maximum workgroup size which an execution device
+supports. This value cannot be exceeded, irrespective of the kernel
+being executed. The second constraint is the maximum workgroup size a
+kernel supports, and can only be queried at runtime once a kernel has
+been compiled. The selection of workgroup size for stencil skeletons
+is particularly relevant to the performance of the stencil as it
+affects utilisation of fast local memory. In a stencil code, each
+work-item reads the values of multiple neighbouring elements. To
+facilitate this, the value of all elements within a workgroup are
+stored in fast local memory, which greatly reduces the read latency
+for GPUs. Changing the workgroup size affects the amount of local
+memory required for each workgroup, which in turn affects the number
+of workgroups which may be simultaneously active.
 
 % Lit Review:
 

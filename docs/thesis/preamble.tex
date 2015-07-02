@@ -2,33 +2,6 @@
 %% Document and Layout %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%
-%% Load the class. Put any options that you want here (see the documentation
-%% for the list of options). The following are samples for each type of
-%% thesis:
-%%
-%% Note: you can also specify any of the following options:
-%%  logo: put a University of Edinburgh logo onto the title page
-%%  frontabs: put the abstract onto the title page
-%%  deptreport: produce a title page that fits into a Computer Science
-%%      departmental cover [not sure if this actually works]
-%%  singlespacing, fullspacing, doublespacing: choose line spacing
-%%  oneside, twoside: specify a one-sided or two-sided thesis
-%%  10pt, 11pt, 12pt: choose a font size
-%%  centrechapter, leftchapter, rightchapter: alignment of chapter headings
-%%  sansheadings, normalheadings: headings and captions in sans-serif
-%%      (default) or in the same font as the rest of the thesis
-%%  [no]listsintoc: put list of figures/tables in table of contents (default:
-%%      not)
-%%  romanprepages, plainprepages: number the preliminary pages with Roman
-%%      numerals (default) or consecutively with the rest of the thesis
-%%  parskip: don't indent paragraphs, put a blank line between instead
-%%  abbrevs: define a list of useful abbreviations (see documentation)
-%%  draft: produce a single-spaced, double-sided thesis with narrow margins
-%%
-%% MSc by Research, which also needs an institute
-\documentclass[mscres,icsa,twopage]{infthesis}
-
 % Fix for multiple "No room for a new \dimen" errors.
 %
 % See: http://tex.stackexchange.com/questions/38607/no-room-for-a-new-dimen
@@ -42,7 +15,7 @@
 \makeatletter
 
 % Multi-column support.
-%\usepackage{multicol}
+\usepackage{multicol}
 
 % A useful package which includes macros like \ifdef{}{}{}:
 %
@@ -111,7 +84,7 @@
 %            headers.  The name is given by the value
 %            of \appendixname. Note that this is the default behaviour
 %            for classes that have chapters.
-%\usepackage[titletoc]{appendix}
+\usepackage[title, titletoc]{appendix}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,6 +133,7 @@
         captionpos=b,                % Place caption below listing
         numbers=left,                % Add left-side line numbers
         basicstyle=\footnotesize,    % Use a small font size
+        showstringspaces=false,      % Don't show visible whitespace
         numberstyle=\footnotesize\bfseries,
         upquote=true,                % Use upright quotes, not curly
         commentstyle=\bfseries}      % Embolden comments
@@ -761,6 +735,7 @@
 \usepackage{bm}
 
 \usepackage{subcaption}
+\expandafter\def\csname ver@subfig.sty\endcsname{}
 
 % Define an 'myalignat' command which behave as 'alignat' without the
 % vertical top and bottom padding. See:
@@ -858,6 +833,13 @@
 %
 \usepackage[underline=false]{pgf-umlsd}
 
+% Support for SVG graphics.
+%
+% NOTE that you must pass the "--shell-escape" argument to pdflatex to
+% compile. NOTE also that images *MUST* be placed within the graphics
+% path.
+\usepackage{svg}
+\graphicspath{{img/}}
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Tables and lists %%
@@ -882,6 +864,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Typesetting and symbols %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Adjustable font sizes in \Verbatim{}
+\usepackage{fancyvrb}
 
 %\usepackage{titlesec}
 % Set section and paragraph heading fonts:
@@ -943,39 +928,6 @@
 % and \ohm which work both in text and maths mode.
 \usepackage{gensymb}
 
-%%%%%%%%%%%%%%%%%%%%%
-%% Draft versions  %%
-%%%%%%%%%%%%%%%%%%%%%
-
-% A set of macros for adding "todo" and rough notes to
-% documents. Usage: \todo{Todo note}. The macros are conditional on
-% the "draft" command. For production builds, comment this line out:
-\def\draft{}
-
-% Packages needed for \todo{} and \roughnotes{}.
-\usepackage{color}
-
-% \todo{} command.
-\newcommand{\todo}[1]{
-  \ifdef{\draft}
-  {\noindent\textcolor{red}{\em\footnotesize#1}}
-  {}
-}
-
-% \TODO{} command.
-\newcommand{\TODO}[1]{
-  \ifdef{\draft}
-  {\todo{\textbf{TODO:} #1}}
-  {}
-}
-
-% \note{} command.
-\newcommand{\note}[1]{
-  \ifdef{\draft}
-  {\noindent\textcolor{blue}{\em\footnotesize#1}}
-  {}
-}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Placeholder text generation %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -985,6 +937,3 @@
 \usepackage[english]{babel}
 \usepackage{blindtext}
 \usepackage{lipsum}
-
-
-\abstract{\input{abstract}}

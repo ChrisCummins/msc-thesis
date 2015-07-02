@@ -3,17 +3,21 @@
 
 \maketitle
 
-\begin{acknowledgements}%
-\input{acknowledgements}
-\end{acknowledgements}
+\ifndraft{%
+  \begin{acknowledgements}%
+  \input{acknowledgements}%
+  \end{acknowledgements}%
 
-\standarddeclaration
+  \standarddeclaration
 
-% \dedication{}
+  \dedication{}
+}
 
 %% Contents, figures, tables, etc:
 \tableofcontents
-% \listoffigures
-% \listoftables
+\ifndraft{%
+  \listoffigures
+  \listoftables
+}
 
 \end{preliminary}
