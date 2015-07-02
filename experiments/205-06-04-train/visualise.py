@@ -36,6 +36,7 @@ def main():
     fs.mkdir("img/scenarios/")
 
     fs.mkdir("img/eval/classifiers")
+    fs.mkdir("img/eval/runtime_regression")
     fs.mkdir("img/eval/err_fns")
 
     fs.mkdir("img/coverage/devices")
@@ -50,19 +51,32 @@ def main():
     fs.mkdir("img/oracle/kernels")
     fs.mkdir("img/oracle/datasets")
 
-    # ML visualisations
+    #########################
+    # ML Runtime Regression #
+    #########################
+
+    # Runtime regression accuracy.
+    visualise.xval_runtime_regression(db, "img/eval/runtime_regression.png")
+
+    #####################
+    # ML Classification #
+    #####################
+
+    # Bar plot of all results.
     visualise.xval_classification(db, "img/eval/xval_classification.png")
 
-    for i,classifier in enumerate(db.classifiers):
+    # Per-classifier plots.
+    for i,classifier in enumerate(db.classification_classifiers):
         visualise.xval_classifier_speedups(db, classifier,
                                            "img/eval/classifiers/{}.png"
                                            .format(i))
+    # Per-err_fn plots.
     for err_fn in db.err_fns:
         visualise.xval_err_fn_speedups(db, err_fn,
                                        "img/eval/err_fns/{}.png"
                                        .format(err_fn), sort=True)
 
-    # ML results table
+    # Results table.
     job = "xval_classifiers"
     query = db.execute(
         "SELECT classifier,err_fn,Count(*) AS count\n"

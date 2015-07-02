@@ -407,7 +407,7 @@ def xvalidate_regression(job, db, classifiers, dataset, nfolds, add_cb):
                 eval_regression(job, db, meta, instance, training, add_cb)
             db.commit()
 
-def regression(db, path, nfolds, add_cb):
+def regression(db, path, nfolds, job, add_cb):
     dataset = Dataset.load(path, db)
 
     classifiers = (
@@ -417,17 +417,17 @@ def regression(db, path, nfolds, add_cb):
         ml.ZeroR(),
     )
 
-    xvalidate_regression("xval_runtimes", db, classifiers, dataset,
+    xvalidate_regression(job, db, classifiers, dataset,
                          nfolds, add_cb)
 
 def runtime_regression(db, nfolds=10):
     regression(db, "/tmp/omnitune/csv/runtime_stats.csv", nfolds,
-               db.add_runtime_regression_result)
+               "xval_runtimes", db.add_runtime_regression_result)
 
 
 def speedup_regression(db, nfolds=10):
     regression(db, "/tmp/omnitune/csv/speedup_stats.csv", nfolds,
-               db.add_speedup_regression_result)
+               "xval_speedups", db.add_speedup_regression_result)
 
 
 def main():
