@@ -125,7 +125,8 @@ def main():
     )))
 
     # Whole-dataset plots
-    visualise.sample_counts(db, "img/sample_counts.png")
+    visualise.runtimes_variance(db, "img/runtime_variance.png", min_samples=30)
+    visualise.num_samples(db, "img/num_samples.png")
     visualise.runtimes_range(db, "img/runtimes_range.png")
     visualise.max_speedups(db, "img/max_speedups.png")
     visualise.kernel_performance(db, "img/kernel_performance.png")
