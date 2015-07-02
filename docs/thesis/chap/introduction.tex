@@ -93,7 +93,170 @@ int main(int argc, char* argv[]) {
 }
 \end{lstlisting}
 
+\subsection{Patterns}
+
+\subsubsection{Map}
+
+\begin{equation}
+\map\left(f, [x_1,x_2,\ldots,x_n]\right) \to [f(x_1),f(x_2),\ldots,f(x_n)]
+\end{equation}
+
+When applied to an $n \times m$ matrix:
+
+\begin{equation}
+\map\left(f,
+\begin{bmatrix}
+  x_{11} & \cdots & x_{1m} \\
+  \vdots & \ddots & \vdots \\
+  x_{n1} & \cdots & x_{nm}
+\end{bmatrix}\right)
+\to
+\begin{bmatrix}
+  f(x_{11}) & \cdots & f(x_{1m}) \\
+  \vdots & \ddots & \vdots \\
+  f(x_{n1}) & \cdots & f(x_{nm})
+\end{bmatrix}
+\end{equation}
+
+\subsubsection{Zip}
+
+\begin{equation}
+\zip\left( \oplus, [x_1,x_2,\ldots,x_n], [y_1,y_2,\ldots,y_n] \right)
+\to
+\left[ x_1 \oplus y_1, x_2 \oplus y_2, \ldots, x_n \oplus y_n \right]
+\end{equation}
+
+\begin{equation}
+\zip \left( \oplus,
+\begin{bmatrix}
+  x_{11} & \cdots & x_{1m} \\
+  \vdots & \ddots & \vdots \\
+  x_{n1} & \cdots & x_{nm}
+\end{bmatrix},
+\begin{bmatrix}
+  y_{11} & \cdots & y_{1m} \\
+  \vdots & \ddots & \vdots \\
+  y_{n1} & \cdots & y_{nm}
+\end{bmatrix}\right)
+\to
+\begin{bmatrix}
+  x_{11} \oplus y_{11} & \cdots & x_{1m} \oplus y_{1m} \\
+  \vdots & \ddots & \vdots \\
+  x_{n1} \oplus y_{n1} & \cdots & x_{nm} \oplus y_{nm}
+\end{bmatrix}
+\end{equation}
+
+\subsubsection{Reduce}
+
+\begin{equation}
+\reduce \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
+\to
+x_1 \oplus x_2 \oplus \ldots \oplus x_n
+\end{equation}
+
+\begin{equation}
+\reduce \left( \oplus, i,
+\begin{bmatrix}
+  x_{11} & \cdots & x_{1m} \\
+  \vdots & \ddots & \vdots \\
+  x_{n1} & \cdots & x_{nm}
+\end{bmatrix} \right)
+\to
+x_{11} \oplus x_{12} \oplus \ldots \oplus x_{nm}
+\end{equation}
+
+\subsubsection{Scan}
+
+\begin{equation}
+\scan \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
+\to
+\left[ i, x_1, x_1 \oplus x_2, \ldots, x_1 \oplus x_2 \oplus \ldots \oplus x_n \right]
+\end{equation}
+
+\subsubsection{AllPairs}
+
+\begin{equation}
+\allpairs \left( \oplus,
+\begin{bmatrix}
+  x_{11} & \cdots & x_{1d} \\
+  \vdots & \ddots & \vdots \\
+  x_{n1} & \cdots & x_{nd}
+\end{bmatrix},
+\begin{bmatrix}
+  y_{11} & \cdots & y_{1m} \\
+  \vdots & \ddots & \vdots \\
+  y_{n1} & \cdots & y_{nm}
+\end{bmatrix} \right)
+\to
+\begin{bmatrix}
+  z_{11} & \cdots & z_{1m} \\
+  \vdots & \ddots & \vdots \\
+  z_{n1} & \cdots & z_{nm}
+\end{bmatrix}
+\end{equation}
+
+where:
+
+\begin{equation}
+z_{ij} =
+\left[ x_{i1}, x_{i2}, \ldots, x_{id} \right] \oplus
+\left[ y_{j1}, y_{j2}, \ldots, y_{jd} \right]
+\end{equation}
+
+an additional implementation is provided for when the $\oplus$
+operator is known to match that of a zip pattern:
+
+\begin{equation}
+z_{ij} =
+\left[
+  x_{i1}, \oplus y_{j1}, x_{i2} \oplus y_{j2}, \ldots, x_{id} \oplus y_{jd}
+\right]
+\end{equation}
+
+
+\subsubsection{Stencil}
+
+Given a customising function $f$, a \emph{stencil shape} $S$
+
+\begin{equation}
+\stencil \left( f, S,
+\begin{bmatrix}
+  x_{11} & \cdots & x_{1m} \\
+  \vdots & \ddots & \vdots \\
+  x_{n1} & \cdots & x_{nm}
+\end{bmatrix} \right)
+\to
+\begin{bmatrix}
+  z_{11} & \cdots & z_{1m} \\
+  \vdots & \ddots & \vdots \\
+  z_{n1} & \cdots & z_{nm}
+\end{bmatrix}
+\end{equation}
+
+where:
+
+\begin{equation}
+z_{ij} = f \left(
+\begin{bmatrix}
+  z_{i-S_n,j-S_w} & \cdots & z_{i-S_n,j+S_e} \\
+  \vdots & \ddots & \vdots \\
+  z_{i+S_s,j-S_w} & \cdots & z_{i+S_s,j+S_e}
+\end{bmatrix} \right)
+\end{equation}
+
+A popular application of Stencil codes is for iterative problems, in
+which \todo{\ldots} discrete time steps $0 <= t <= t_{max}$, and
+$t \in \mathbb{Z}$
+
+\begin{equation}
+g(f, S, M, t) =
+\begin{cases}
+  \stencil \left( f, S, g(f, S, M, t-1) \right),& \text{if } t \geq 1\\
+  M_{init}, & \text{otherwise}
+\end{cases}
+\end{equation}
+
 \section{Structure}
 
 The remainder of the document is structured as follows:
-\TODO{\ldots}
+\fixme{\ldots}
