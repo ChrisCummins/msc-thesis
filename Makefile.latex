@@ -250,6 +250,11 @@ define cleanbib
 	 $(CLEANBIB) $1 &>>$(DocumentBuildLog) || $(CLEANBIB) $1)
 endef
 
+define hook
+	(echo -e "\nCOMMAND: $1\n" >>$(DocumentBuildLog); \
+	 $1 &>>$(DocumentBuildLog) || $1)
+endef
+
 # The LaTeX build target. This gnarly bit of shell hackery uses nested
 # conditionals and sub-shells to invoke pdflatex, bibtex, bibtool, and
 # cleanbib the correct number of times depending on the document
@@ -267,8 +272,8 @@ endef
 # 8.  post-execution hooks
 %.pdf: %.tex
 	$(AM_V_at)for pre in $(PreExecutionHooks); do                   \
-		if ! $(AM_V_P); then echo "  PRE      $$pre"; fi;       \
-		./$$pre;                                                \
+		if ! $(AM_V_P); then echo "  EXEC     $$pre"; fi;       \
+		$(call hook,./$$pre);                                   \
 	done
 	$(AM_V_at)echo -e "Build log for `date`\n" >$(DocumentBuildLog)
 	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
@@ -287,6 +292,6 @@ endef
 	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
 	$(AM_V_at)$(call pdflatex, $<)
 	$(AM_V_at)for post in $(PostExecutionHooks); do                 \
-		if ! $(AM_V_P); then echo "  POST     $$post"; fi;      \
-		./$$post;                                               \
+		if ! $(AM_V_P); then echo "  EXEC     $$post"; fi;      \
+		$(call hook,./$$post);                                  \
 	done
