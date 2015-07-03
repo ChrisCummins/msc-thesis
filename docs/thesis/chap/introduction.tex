@@ -1,10 +1,3 @@
-% INTRODUCTION
-% ============
-%
-% An introduction to the document, clearing stating the hypothesis or
-% objective of the project, motivation for the work and the results
-% achieved. The structure of the remainder of the document should also
-% be outlined.
 GPUs enable massive performance through heterogeneous
 parallelism. However, developing software for these devices is
 challenging, as the programming models provided by OpenCL and CUDA
@@ -16,8 +9,6 @@ the parameters which are necessarily abstracted by such skeletons can
 have a huge impact on performance. To demonstrate this, I present an
 autotuner for selecting the \emph{workgroup size} of Stencil pattern
 kernels.
-
-\note{IMPORTANCE OF PARALLELISM}
 
 % B. Catanzaro and K. Keutzer, “Parallel computing with patterns and
 % frameworks,” XRDS Crossroads, ACM Mag. Students, vol. 17, no. 5,
@@ -46,306 +37,41 @@ kernels.
   training data.}
 
 
-\subsubsection{Notation and Terminology}
+\section{Algorithmic Skeletons}
 
-\TODO{Define mathematical notation used, and uncommon terms such as
-  ``oracle''.}
+% Cole, M. I. (1989). Algorithmic Skeletons: Structured Management of
+% Parallel Computation. Pitman London. Retrieved from
+% http://homepages.inf.ed.ac.uk/mic/Pubs/skeletonbook.pdf
+\TODO{Murray's thesis~\cite{Cole1989}.}
 
-\section{SkelCL}
+% Cole, M. I. (2004). Bringing skeletons out of the closet: a
+% pragmatic manifesto for skeletal parallel programming. Parallel
+% Computing, 30(3), 389–406. doi:10.1016/j.parco.2003.12.002
+\TODO{Algorithmic Skeletons in academia~\cite{Cole2004}.}
 
-SkelCL\footnote{\url{http://skelcl.uni-muenster.de}} is an object
-oriented C++ library that provides OpenCL implementations of data
-parallel algorithmic skeletons for heterogeneous
-parallelism. Skeletons are parameterised with muscle functions by the
-user, which are compiled into OpenCL kernels for execution on device
-hardware. The Vector and Matrix container types transparently handle
-communication between the host and device memory, and support
-partitioning for multi-GPU execution.
-
-% Steuwer, M., Kegel, P., & Gorlatch, S. (2011). SkelCL - A Portable
-% Skeleton Library for High-Level GPU Programming. In Parallel and
-% Distributed Processing Workshops and Phd Forum (IPDPSW), 2011 IEEE
-% International Symposium on
-% (pp. 1176–1182). IEEE. doi:10.1109/IPDPS.2011.269
-\TODO{The introductory SkelCL paper. Most highly cited:
-\cite{Steuwer2011}}
-
-% Steuwer, M., & Gorlatch, S. (2013). SkelCL: Enhancing OpenCL for
-% High-Level Programming of Multi-GPU Systems. Parallel Computing
-% Technologies, 7979, 258–272. doi:10.1007/978-3-642-39958-9_24
-\TODO{Support for multi-GPU systems: \cite{Steuwer2013a}}
-
-% S. Breuer, M. Steuwer, and S. Gorlatch, “Extending the SkelCL
-% Skeleton Library for Stencil Computations on Multi-GPU Systems,”
-% HiStencils 2014, pp. 23–30, 2014.
-\TODO{Stencil computations: \cite{Breuer2014}}
-
-% M. Steuwer, M. Friese, S. Albers, and S. Gorlatch, “Introducing and
-% implementing the allpairs skeleton for programming multi-GPU
-% Systems,” Int. J. Parallel Program., vol. 42, pp. 601–618, 2014.
-\TODO{Allpairs skeleton: \cite{Steuwer2014}}
+% Striegnitz, J. (2000). Making C ++ Ready for Algorithmic Skeletons
+% (Vol. 2000). Retrieved from http://www.fz-juelich.de/zam/FACT
+\TODO{Early work towards C++ Alg. Skeletons\cite{Striegnitz2000}}
 
 
-% Steuwer, M., & Gorlatch, S. (2013). High-level Programming for
-% Medical Imaging on Multi-GPU Systems Using the SkelCL
-% Library. Procedia Computer Science, 18,
-% 749–758. doi:10.1016/j.procs.2013.05.239
-\TODO{An example of reduced programmer effort for real world
-application using SkelCL: \cite{Steuwer2013}}
-
-% Steuwer, M., Kegel, P., & Gorlatch, S. (2012). Towards High-Level
-% Programming of Multi-GPU Systems Using the SkelCL Library. In
-% Parallel and Distributed Processing Symposium Workshops & PhD Forum
-% (IPDPSW), 2012 IEEE 26th International
-% (pp. 1858–1865). Ieee. doi:10.1109/IPDPSW.2012.229
-\TODO{\cite{Steuwer2012}}
-
-\subsection{Pattern definitions}
-
-\paragraph{Map}
-
-\begin{equation}
-\map\left(f, [x_1,x_2,\ldots,x_n]\right) \to [f(x_1),f(x_2),\ldots,f(x_n)]
-\end{equation}
-
-When applied to an $n \times m$ matrix:
-
-\begin{equation}
-\map\left(f,
-\begin{bmatrix}
-  x_{11} & \cdots & x_{1m} \\
-  \vdots & \ddots & \vdots \\
-  x_{n1} & \cdots & x_{nm}
-\end{bmatrix}\right)
-\to
-\begin{bmatrix}
-  f(x_{11}) & \cdots & f(x_{1m}) \\
-  \vdots & \ddots & \vdots \\
-  f(x_{n1}) & \cdots & f(x_{nm})
-\end{bmatrix}
-\end{equation}
-
-\paragraph{Zip}
-
-\begin{equation}
-\zip\left( \oplus, [x_1,x_2,\ldots,x_n], [y_1,y_2,\ldots,y_n] \right)
-\to
-\left[ x_1 \oplus y_1, x_2 \oplus y_2, \ldots, x_n \oplus y_n \right]
-\end{equation}
-
-\begin{equation}
-\begin{split}
-\zip \left( \oplus,
-\begin{bmatrix}
-  x_{11} & \cdots & x_{1m} \\
-  \vdots & \ddots & \vdots \\
-  x_{n1} & \cdots & x_{nm}
-\end{bmatrix},
-\begin{bmatrix}
-  y_{11} & \cdots & y_{1m} \\
-  \vdots & \ddots & \vdots \\
-  y_{n1} & \cdots & y_{nm}
-\end{bmatrix} \right) \\
-\to
-\begin{bmatrix}
-  x_{11} \oplus y_{11} & \cdots & x_{1m} \oplus y_{1m} \\
-  \vdots & \ddots & \vdots \\
-  x_{n1} \oplus y_{n1} & \cdots & x_{nm} \oplus y_{nm}
-\end{bmatrix}
-\end{split}
-\end{equation}
-
-\paragraph{Reduce}
-
-\begin{equation}
-\reduce \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
-\to
-x_1 \oplus x_2 \oplus \ldots \oplus x_n
-\end{equation}
-
-\begin{equation}
-\reduce \left( \oplus, i,
-\begin{bmatrix}
-  x_{11} & \cdots & x_{1m} \\
-  \vdots & \ddots & \vdots \\
-  x_{n1} & \cdots & x_{nm}
-\end{bmatrix} \right)
-\to
-x_{11} \oplus x_{12} \oplus \ldots \oplus x_{nm}
-\end{equation}
-
-\paragraph{Scan}
-
-\begin{equation}
-\scan \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
-\to
-\left[ i, x_1, x_1 \oplus x_2, \ldots, x_1 \oplus x_2 \oplus \ldots \oplus x_n \right]
-\end{equation}
-
-\paragraph{AllPairs}
-
-\begin{equation}
-\allpairs \left( \oplus,
-\begin{bmatrix}
-  x_{11} & \cdots & x_{1d} \\
-  \vdots & \ddots & \vdots \\
-  x_{n1} & \cdots & x_{nd}
-\end{bmatrix},
-\begin{bmatrix}
-  y_{11} & \cdots & y_{1m} \\
-  \vdots & \ddots & \vdots \\
-  y_{n1} & \cdots & y_{nm}
-\end{bmatrix} \right)
-\to
-\begin{bmatrix}
-  z_{11} & \cdots & z_{1m} \\
-  \vdots & \ddots & \vdots \\
-  z_{n1} & \cdots & z_{nm}
-\end{bmatrix}
-\end{equation}
-
-where:
-
-\begin{equation}
-z_{ij} =
-\left[ x_{i1}, x_{i2}, \ldots, x_{id} \right] \oplus
-\left[ y_{j1}, y_{j2}, \ldots, y_{jd} \right]
-\end{equation}
-
-an additional implementation is provided for when the $\oplus$
-operator is known to match that of a zip pattern:
-
-\begin{equation}
-z_{ij} =
-\left[
-  x_{i1}, \oplus y_{j1}, x_{i2} \oplus y_{j2}, \ldots, x_{id} \oplus y_{jd}
-\right]
-\end{equation}
-
-
-\paragraph{Stencil}
-
-Given a customising function $f$, a \emph{stencil shape} $S$
-
-\begin{equation}
-\stencil \left( f, S,
-\begin{bmatrix}
-  x_{11} & \cdots & x_{1m} \\
-  \vdots & \ddots & \vdots \\
-  x_{n1} & \cdots & x_{nm}
-\end{bmatrix} \right)
-\to
-\begin{bmatrix}
-  z_{11} & \cdots & z_{1m} \\
-  \vdots & \ddots & \vdots \\
-  z_{n1} & \cdots & z_{nm}
-\end{bmatrix}
-\end{equation}
-
-where:
-
-\begin{equation}
-z_{ij} = f \left(
-\begin{bmatrix}
-  z_{i-S_n,j-S_w} & \cdots & z_{i-S_n,j+S_e} \\
-  \vdots & \ddots & \vdots \\
-  z_{i+S_s,j-S_w} & \cdots & z_{i+S_s,j+S_e}
-\end{bmatrix} \right)
-\end{equation}
-
-A popular application of Stencil codes is for iterative problems, in
-which \todo{\ldots} discrete time steps $0 <= t <= t_{max}$, and
-$t \in \mathbb{Z}$
-
-\begin{equation}
-g(f, S, M, t) =
-\begin{cases}
-  \stencil \left( f, S, g(f, S, M, t-1) \right),& \text{if } t \geq 1\\
-  M_{init}, & \text{otherwise}
-\end{cases}
-\end{equation}
-
-
-\subsection{Implementation details}
-
-Each skeleton is represented by a template class, declared in a header
-file detailing the public API. A private header file contains the
-template definition. E.g. \texttt{SkelCL/Map.h} contains the Map
-class, and \texttt{SkelCL/detail/MapDef.h} contains the
-implementation. Non-trivial kernels are stored in separate source
-files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
-
-\subsubsection{Container Types}
-
-\TODO{Description of vector and matrices, supported data types, lazy
-  data transfer \ldots}
-
-\subsubsection{Skeleton implementations}
-
-\TODO{Description of OpenCL skeleton templates, and the compilation
-  process - i.e. substitution of user functions, handling additional
-  arguments  \ldots}
-
-\subsection{Example applications}
-
-\TODO{%
-  Provide definition of three simple example programs, then code
-  listings for SkelCL implementations and a comparison of runtimes
-  using a decent GPU vs. sequential CPU. Preferably also hand coded
-  OpenCL?%
-}
-
-\subsubsection{Application 1: Dot Product}
-
-\TODO{Definition, and performance results.}
-
-\lstset{language=C++}
-\begin{lstlisting}[
-  basicstyle=\scriptsize,
-  caption={Example program to calculate dot product using SkelCL.}
-]
-#include <SkelCL/SkelCL.h>
-#include <SkelCL/Vector.h>
-#include <SkelCL/Zip.h>
-#include <SkelCL/Reduce.h>
-
-int main(int argc, char* argv[]) {
-  // Initialise SkelCL to use any device.
-  skelcl::init(skelcl::nDevices(1).deviceType(skelcl::device_type::ANY));
-
-  // Define the skeleton objects.
-  skelcl::Zip<int(int, int)> mult("int func(int x, int y) { return x * y; }");
-  skelcl::Reduce<int(int)> sum("int func(int x, int y) { return x + y; }", "0");
-
-  // Create two vectors A and B of length "n".
-  const int n = 1024; skelcl::Vector<int> A(n), B(n);
-  skelcl::Vector<int>::iterator a = A.begin(), b = B.begin();
-  while (a != A.end()) { *a = rand() % n; ++a; *b = rand() % n; ++b; }
-
-  // Invoke skeleton: x = A . B
-  int x = sum(mult(A, B)).first();
-
-  return 0;
-}
-\end{lstlisting}
-
-\subsubsection{Application 2: Mandelbrot Set}
-
-\TODO{Definition, listing, and performance results.}
-
-\subsubsection{Application 3: Gaussian Blur}
-
-\TODO{Definition, listing, and performance results.}
-
-
-\section{Motivation}
+\section{The Problem}
 
 \TODO{Why do we need autotuning? Describe necessary abstraction of low
   level tuning parameters, and demonstrate their effect on application
   performance.}
 
 
+\section{Contributions}
+
+\TODO{Itemised list of key technical and research contributions. Go
+  all-out on the ``big sell''!}
+
 \section{Structure}
 
 The remainder of the document is structured as follows:
 \fixme{\ldots}
+
+\subsubsection{Notation and Terminology}
+
+\TODO{Define mathematical notation used, and uncommon terms such as
+  ``oracle''.}

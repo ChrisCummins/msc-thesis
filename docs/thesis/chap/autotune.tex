@@ -1,3 +1,32 @@
+\section{Introduction}
+
+
+\section{Applying machine learning methods}
+
+\subsection{Feature Extraction}
+
+For each scenario, a feature vector is extracted to capture properties
+of the architecture, device, and dataset:
+
+\begin{itemize}
+\item \emph{Architectural features} --- size of local memory, maximum
+  work group size, number of compute units, etc. Accessed using the
+  OpenCL \texttt{clGetDeviceInfo()} API.
+\item \emph{Kernel features} --- total static instruction count, ratio
+  of instructions per type, ratio of basic blocks per instruction,
+  etc. Accessed by compiling the OpenCL kernel to LLVM IR bitcode, and
+  using the \texttt{opt} \texttt{InstCount} statistics pass.
+\item \emph{Dataset features} --- size and type of the
+  dataset. Accessed from the SkelCL Matrix container type.
+\end{itemize}
+
+See \FIXME{No appendix!} for a full list of features and types. For
+training, feature vectors are labelled with the oracle workgroup size,
+and a classifier is trained on a subset of this labelled training
+data. The performance of the classifier is evaluated by comparing the
+performance of the workgroup size predicted for an unseen feature
+vector against the oracle workgroup size for that feature.
+
 A full list of the feature names and types used to train machine
 learning models. For training data, each feature vector was labelled
 with the oracle workgroup size.
@@ -107,3 +136,65 @@ dev_vendor_id                      nominal
 dev_version                        nominal
 \end{Verbatim}
 \end{multicols}
+
+
+\section{Collective tuning and the client-server model}
+
+
+\section{Autotuning using classification}
+
+The simplest autotuner is one which selects the workgroup size which
+is most commonly optimal (i.e. the mode of all optimal workgroup sizes
+$\left\{ \Omega(s) | s \in S \right\}$):
+
+\begin{equation}
+\text{ZeroR} = \text{mode}( \left\{ \Omega(s) | s \in S \right\} )
+\end{equation}
+
+However, this is not satisfactory for the purpose of selecting a
+workgroup size to use, due to the constraint $W_{max}(s)$ enforced for
+each scenario. As a result, we propose a so called ``OneR''
+classifier, which first defines $W_{safe} \in W$ as the intersection
+of legal workgroup sizes across all scenarios, then selects the
+workgroup size $w$ which maximises the average performance
+$\bar{p}(w)$ across this reduced parameter space.
+
+\begin{align}
+W_{safe} &= \cap \left\{ f(s) | s \in S \right\} \\
+\text{OneR} &= \argmax_{w \in W_{safe}} \bar{p}(w)
+\end{align}
+
+This provides a baseline for comparing against a more sophisticated
+autotuning approaches using machine learning.
+
+\subsection{Satisfying constraints}
+
+Since classifiers are probabilistic systems, it is possible that a
+classifier will predict a workgroup size that is invalid for the given
+scenario, $w \not\in W_{legal}(s)$. In these cases, one of three
+fallback strategies is used to select a safe workgroup size:
+
+\begin{enumerate}
+\item \emph{OneR} --- select the workgroup size which is known to be
+  safe and provides the highest average case performance.
+\item \emph{Random} --- select a random workgroup size uniformly from
+  the set of legal values $w \in W_{legal}$.
+\item \emph{Reshape} --- attempt to scale predicted the predicted
+  workgroup size proportionally so that it fits within the space of
+  legal workgroup sizes.
+\end{enumerate}
+
+The evaluation compares the average performance achieved using each
+fallback strategy, along with the percentage of cases for which these
+fallback strategies were required.
+
+
+\section{Autotuning using regression}
+
+\subsection{Classification using regression}
+
+
+\section{Meta-tuning: a hybrid approach}
+
+
+\section{Summary}

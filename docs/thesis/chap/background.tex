@@ -1,10 +1,3 @@
-% BACKGROUND
-% ==========
-%
-% Background to the project, previous work, exposition of relevant
-% literature, setting of the work in the proper context. This should
-% contain sufficient information to allow the reader to appreciate the
-% contribution you have made.
 \TODO{Challenges of parallel programming.}
 
 \section{Automatic Parallelisation}
@@ -13,23 +6,9 @@
   shortcomings which lay the scene for Alg Skel to succeed where
   compilers haven't.}
 
-\section{High level parallel programming with Algorithmic Skeletons}
+\section{High-Level Parallel Programming with Algorithmic Skeletons}
 
-% Cole, M. I. (1989). Algorithmic Skeletons: Structured Management of
-% Parallel Computation. Pitman London. Retrieved from
-% http://homepages.inf.ed.ac.uk/mic/Pubs/skeletonbook.pdf
-\TODO{Murray's thesis~\cite{Cole1989}.}
-
-% Cole, M. I. (2004). Bringing skeletons out of the closet: a
-% pragmatic manifesto for skeletal parallel programming. Parallel
-% Computing, 30(3), 389–406. doi:10.1016/j.parco.2003.12.002
-\TODO{Algorithmic Skeletons in academia~\cite{Cole2004}.}
-
-% Striegnitz, J. (2000). Making C ++ Ready for Algorithmic Skeletons
-% (Vol. 2000). Retrieved from http://www.fz-juelich.de/zam/FACT
-\TODO{Early work towards C++ Alg. Skeletons\cite{Striegnitz2000}}
-
-\subsection{Task vs.\ data parallelism}
+\subsection{Abstracting Task and Data Parallelism}
 
 \TODO{Short examples of task parallel skeletons. Describe the
   shortcomings of GPUs for task parallel operations. Don't repeat
@@ -172,7 +151,7 @@ memory required for each workgroup, which in turn affects the number
 of workgroups which may be simultaneously active.
 
 
-\section{Iterative compilation and Autotuning}
+\section{Iterative Compilation and Autotuning}
 
 % O. Jeffrey and M. David, “The Vision of Autonomic Computing,”
 %Computer (Long. Beach. Calif)., vol. 36, no. 1, pp. 41–50, 2003.
@@ -218,7 +197,7 @@ a search engine to optimise parameters: \cite{Bilmes1997}}
 % Choice. Massachusetts Institute of Technology.
 \TODO{\cite{Ansel2014}}
 
-\subsection{Machine learning in compilers}
+\subsection{Machine Learning in Compilers}
 
 % M. Stephenson, M. Martin, and U. O. Reilly, “Meta Optimization:
 % Improving Compiler Heuristics with Machine Learning,” ACM SIGPLAN
@@ -366,8 +345,18 @@ autotuner only supports vector operations.
 
 \subsection{Autotuning Stencil Codes}
 
+% Y. Zhang and F. Mueller, “Auto-generation and Auto-tuning of 3D
+% Stencil Codes on GPU clusters,” in Proceedings of the Tenth
+% International Symposium on Code Generation and Optimization, 2012,
+% pp. 155–164.
 In~\cite{Zhang2013a}, \citeauthor{Zhang2013a} present a code generator
-and autotuner for 3D Jacobi stencil codes.
+and autotuner for 3D Jacobi stencil codes on GPUs. Using a DSL for
+expressing kernel functions, the code generator performs substitution
+from one of two CUDA templates to creates programs. These programs are
+parameterised by block size, block dimensions, and whether input data
+is stored in read only texture memory. This provides a search space of
+up to 200 configurations, which is exhaustively enumerated so as to
+find the global maximum.
 
 In~\cite{Ganapathi2009}, \citeauthor{Ganapathi2009} argues for
 applying statistical machine learning (SML) techniques to develop
@@ -389,7 +378,7 @@ revolution in the first place. They explain the motivation and results
 well. I like that they compare their results with human expert and
 hardware upper bound. It is a solid paper which makes a compelling
 argument, but their choice of only 2 benchmarks and 2 platforms makes
-the evaluation of their autotuner a little limited. Cited by 52.
+the evaluation of their autotuner a little limited.
 
 \citeauthor{Kamil2010} presents an auto-tuning framework which accepts as input a
 Fortran 95 stencil expression, and generates tuned parallel
