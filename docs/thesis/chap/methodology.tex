@@ -216,26 +216,37 @@ and workgroup sizes $W$, the subset of workgroup scenarios
 $W_{legal}(S) \subset W$ which are legal for a given scenario can be
 found using:
 
-\[ W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} \]
+\begin{equation}
+W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\}
+\end{equation}
 
 The arithmetic mean of the measured runtimes for a given scenario $s$
 and workgroup size $w$ is represented by $t(s,w)$. The oracle
 workgroup size $\Omega(s) \in W_{legal}(s)$ is the $w$ value which
 minimises the value of $t(s,w)$:
 
-\[\Omega(s) = \argmin_{w \in W} t(s,w) \]
+\begin{equation}
+\Omega(s) = \argmin_{w \in W} t(s,w)
+\end{equation}
 
 This allows relative comparisons of performance of $w$ values against
 the oracle:
 
-\[ p(s,w) = \frac{t(s,\Omega(s))}{t(s,w)} \]
+\begin{equation}
+p(s,w) = \frac{t(s,\Omega(s))}{t(s,w)}
+\end{equation}
 
 Where the performance is within the range $0 \le p(s,w) \le 1$. For a
 given workgroup size, the average performance $\bar{p}(w)$ can be
 found using the geometric mean of performance relative to the oracle
 across all scenarios:
 
-\[ \bar{p}(w) = \left(\prod_{s \in S} t(s,\Omega(s)) \cdot t(s,w)^{-1} \right)^{1/|S|} \]
+\begin{equation}
+\bar{p}(w) =
+\left(
+  \prod_{s \in S} t(s,\Omega(s)) \cdot t(s,w)^{-1}
+\right)^{1/|S|}
+\end{equation}
 
 
 \section{Design of an autotuning service}
@@ -278,7 +289,9 @@ The simplest autotuner is one which selects the workgroup size which
 is most commonly optimal (i.e. the mode of all optimal workgroup sizes
 $\left\{ \Omega(s) | s \in S \right\}$):
 
-\[ \text{ZeroR} = \text{mode}( \left\{ \Omega(s) | s \in S \right\} ) \]
+\begin{equation}
+\text{ZeroR} = \text{mode}( \left\{ \Omega(s) | s \in S \right\} )
+\end{equation}
 
 However, this is not satisfactory for the purpose of selecting a
 workgroup size to use, due to the constraint $W_{max}(s)$ enforced for
@@ -288,8 +301,10 @@ of legal workgroup sizes across all scenarios, then selects the
 workgroup size $w$ which maximises the average performance
 $\bar{p}(w)$ across this reduced parameter space.
 
-\[W_{safe} = \cap \left\{ f(s) | s \in S \right\} \]
-\[ \text{OneR} = \argmax_{w \in W_{safe}} \bar{p}(w) \]
+\begin{align}
+W_{safe} &= \cap \left\{ f(s) | s \in S \right\} \\
+\text{OneR} &= \argmax_{w \in W_{safe}} \bar{p}(w)
+\end{align}
 
 This provides a baseline for comparing against a more sophisticated
 autotuning approaches using machine learning.

@@ -5,75 +5,51 @@
 % literature, setting of the work in the proper context. This should
 % contain sufficient information to allow the reader to appreciate the
 % contribution you have made.
-In OpenCL, kernels are mapped to work-items for execution on the
-processing units of GPUs and CPUs. These work-items are then grouped
-into one or more workgroups. The choice of workgroup size is left to
-the developer, but with two sets of constraints. The first set of
-constraints is the maximum workgroup size which an execution device
-supports. This value cannot be exceeded, irrespective of the kernel
-being executed. The second constraint is the maximum workgroup size a
-kernel supports, and can only be queried at runtime once a kernel has
-been compiled. The selection of workgroup size for stencil skeletons
-is particularly relevant to the performance of the stencil as it
-affects utilisation of fast local memory. In a stencil code, each
-work-item reads the values of multiple neighbouring elements. To
-facilitate this, the value of all elements within a workgroup are
-stored in fast local memory, which greatly reduces the read latency
-for GPUs. Changing the workgroup size affects the amount of local
-memory required for each workgroup, which in turn affects the number
-of workgroups which may be simultaneously active.
+\TODO{Challenges of parallel programming.}
 
-% Lit Review:
+\section{Automatic Parallelisation}
+
+\TODO{Brief summary of auto-parallelising compilers. Highlight the
+  shortcomings which lay the scene for Alg Skel to succeed where
+  compilers haven't.}
 
 \section{High level parallel programming with Algorithmic Skeletons}
 
 % Cole, M. I. (1989). Algorithmic Skeletons: Structured Management of
 % Parallel Computation. Pitman London. Retrieved from
 % http://homepages.inf.ed.ac.uk/mic/Pubs/skeletonbook.pdf
-\TODO{\cite{Cole1989}}
+\TODO{Murray's thesis~\cite{Cole1989}.}
 
 % Cole, M. I. (2004). Bringing skeletons out of the closet: a
 % pragmatic manifesto for skeletal parallel programming. Parallel
 % Computing, 30(3), 389–406. doi:10.1016/j.parco.2003.12.002
-\TODO{\cite{Cole2004}}
+\TODO{Algorithmic Skeletons in academia~\cite{Cole2004}.}
 
 % Striegnitz, J. (2000). Making C ++ Ready for Algorithmic Skeletons
 % (Vol. 2000). Retrieved from http://www.fz-juelich.de/zam/FACT
-\TODO{\cite{Striegnitz2000}}
-
-\TODO{Types of skeletons:}
+\TODO{Early work towards C++ Alg. Skeletons\cite{Striegnitz2000}}
 
 \subsection{Task vs.\ data parallelism}
 
+\TODO{Short examples of task parallel skeletons. Describe the
+  shortcomings of GPUs for task parallel operations. Don't repeat
+  myself from the data parallel operations defined in the SkelCL
+  intro.}
+
 \subsection{Popular Algorithmic Skeleton Frameworks}
 
-\TODO{Intel Thread Building Blocks}
-
-\TODO{Map Reduce}
-
-\subsubsection{SkePU}
-
-% Enmyren, J., & Kessler, C. (2010). SkePU: a multi-backend skeleton
-% programming library for multi-GPU systems. In Proceedings of the
-% fourth international workshop on High-level parallel programming and
-% applications (pp. 5–14). ACM. Retrieved from
-% http://dl.acm.org/citation.cfm?id=1863487
-\TODO{\cite{Enmyren2010}}
+\TODO{Case studies of skeleton-esque products in industry: Intel
+  Thread Building Blocks, and Google's MapReduce and the various
+  implementations. Comment on their lack of ``Skeleton'' branding.}
 
 
 \section{Heterogeneous parallelism with GPUs}
 
-% D. Grewe, Z. Wang, and M. F. P. M. O’Boyle, “Portable mapping of
-% data parallel programs to OpenCL for heterogeneous systems,” in Code
-% Generation and Optimization (CGO), 2013 IEEE/ACM International
-% Symposium on, 2013, pp. 1–10.
-\TODO{Automatic translation from OpenMP to OpenCL~\cite{Grewe2013}.}
-
-\note{OPTIMISING PROGRAMS FOR GPUs}
-
-Prior research has shown that performance of GPGPU programs are
-heavily influenced by proper exploitation of local shared memory and
-synchronisation costs~\cite{Ryoo2008a, Lee2010}
+\TODO{Start with a description of GPU hardware, i.e. SIMD EUs, many
+  simple cores, lockstep execution. Describe the historical reasoning
+  for this and how it influences the types of programs which are well
+  suited for GPUs. GPUs offer huge throughput, but are even more
+  challenging to program and debug. Give concrete examples.}
 
 % S. Ryoo, C. I. Rodrigues, S. S. Baghsorkhi, S. S. Stone, D. B. Kirk,
 % and W. W. Hwu, “Optimization principles and application performance
@@ -89,11 +65,28 @@ flow, and intra-block thread communication. The paper gives an example
 of optimising matrix multiplication by utilising shared memory through
 tiling, and loop unrolling. \cite{Ryoo2008a}}
 
-% W. F. Ogilvie, P. Petoumenos, Z. Wang, and H. Leather, “Intelligent
-% Heuristic Construction with Active Learning,” in 18th International
-% Workshop on Compilers for Parallel Computing, 2015.
-\TODO{Using Active Learning to speed up the learning of compiler
-  heuristics~\cite{Ogilvie2015}}
+Prior research has shown that the performance of a GPGPU program is
+heavily influenced by proper exploitation of local shared memory and
+synchronisation costs~\cite{Ryoo2008a, Lee2010} \TODO{``Where's the
+  data?'' paper}
+
+% S. Ryoo, C. I. Rodrigues, S. S. Stone, S. S. Baghsorkhi, S.-Z. Ueng,
+% J. a. Stratton, and W. W. Hwu, “Program optimization space pruning
+% for a multithreaded GPU,” in Proceedings of the 6th annual IEEE/ACM
+% international symposium on Code generation and optimization, 2008,
+% pp. 195–204.
+\TODO{Background info about optimizing for GPUs, including a checklist
+of optimization metrics: \cite{Ryoo2008}}
+
+% D. Grewe, Z. Wang, and M. F. P. M. O’Boyle, “Portable mapping of
+% data parallel programs to OpenCL for heterogeneous systems,” in Code
+% Generation and Optimization (CGO), 2013 IEEE/ACM International
+% Symposium on, 2013, pp. 1–10.
+\TODO{Vaguely ``autopar''-esque: automatic translation from OpenMP to
+  OpenCL~\cite{Grewe2013}.}
+
+
+\subsubsection{GPU vs CPU performance analysis}
 
 % V. W. Lee, P. Hammarlund, R. Singhal, P. Dubey, C. Kim, J. Chhugani,
 % M. Deisher, D. Kim, A. D. Nguyen, N. Satish, M. Smelyanskiy, and
@@ -116,117 +109,11 @@ were optimised and hand-tuned by programmers with expert knowledge of
 the target architectures. It is unclear whether their performance
 results still hold for subsequent generations of devices.
 
-% S. Ryoo, C. I. Rodrigues, S. S. Stone, S. S. Baghsorkhi, S.-Z. Ueng,
-% J. a. Stratton, and W. W. Hwu, “Program optimization space pruning
-% for a multithreaded GPU,” in Proceedings of the 6th annual IEEE/ACM
-% international symposium on Code generation and optimization, 2008,
-% pp. 195–204.
-\TODO{Background info about optimizing for GPUs, including a checklist
-of optimization metrics: \cite{Ryoo2008}}
 
-\note{SUPEROPTIMIZERS}
+\subsection{GPGPU Programming}
 
-% H. Massalin, “Superoptimizer -- A Look at the Smallest Program,” ACM
-% SIGPLAN Not., vol. 22, no. 10, pp. 122–126, 1987.
-\TODO{Searching for *actual* optimal programs by exhaustively
-enumerating instruction set search space: \cite{Massalin1987}}
-
-% Steuwer, M., Fensch, C., & Dubach, C. (2015). Patterns and Rewrite
-% Rules for Systematic Code Generation From High-Level Functional
-% Patterns to High-Performance OpenCL Code. arXiv Preprint
-% arXiv:1502.02389.
-\TODO{Using re-write rules to translate high-level programs to OpenCL:
-\cite{Steuwer2015}}
-
-% R. Joshi, G. Nelson, and K. Randall, “Denali: a goal-directed
-% superoptimizer,” ACM SIGPLAN Not., vol. 37, no. 5, p. 304, 2002.
-\TODO{Creating *actual* optimal programs through logical proofs:
-\cite{Joshi2002}}
-
-
-\note{APPLYING ML TO OPTIMISATION PROBLEMS}
-
-% M. Stephenson, M. Martin, and U. O. Reilly, “Meta Optimization:
-% Improving Compiler Heuristics with Machine Learning,” ACM SIGPLAN
-% Not., vol. 38, no. 5, pp. 77–90, 2003.
-\TODO{Using ML to improve compiler heuristics~\cite{Stephenson2003}}
-
-% E. K. Burke, M. Gendreau, M. Hyde, G. Kendall, G. Ochoa, E. Özcan,
-% and R. Qu, “Hyper-heuristics: a survey of the state of the art,”
-% J. Oper. Res. Soc., vol. 64, pp. 1695–1724, 2013.
-\TODO{Hyper-heuristics survey paper: \cite{Burke2013}}
-
-% R. Bitirgen, E. Ipek, and J. F. Martinez, “Coordinated Management of
-% Multiple Interacting Resources in Chip Multiprocessors: A Machine
-% Learning Approach,” in 2008 41st IEEE/ACM International Symposium on
-% Microarchitecture, 2008, pp. 318–329.
-\TODO{Artificial Neural Networks for resource allocation of CMPS:
-\cite{Bitirgen2008}}
-
-\subsection{OpenCL and CUDA}
-
-% J. Fang, A. L. Varbanescu, and H. Sips, “A Comprehensive Performance
-% Comparison of CUDA and OpenCL,” in Parallel Processing (ICPP), 2011
-% International Conference on, 2011, pp. 216–225.
-\TODO{Comparing OpenCL and CUDA performance: \cite{Karimi2010}}
-
-
-\section{Iterative compilation and Autotuning}
-
-% G. Fursin, Y. Kashnikov, A. W. Memon, Z. Chamski, O. Temam,
-% M. Namolaru, E. Yom-Tov, B. Mendelson, A. Zaks, E. Courtois,
-% F. Bodin, P. Barnard, E. Ashton, E. Bonilla, J. Thomson,
-% C. K. I. Williams, and M. O’Boyle, “Milepost GCC: Machine Learning
-% Enabled Self-tuning Compiler,” Int. J. Parallel Program., vol. 39,
-% no. 3, pp. 296–327, Jan. 2011.
-\TODO{Milepost GCC is a machine learning enabled self-tuning
-  compiler~\cite{Fursin2011}.}
-
-% O. Jeffrey and M. David, “The Vision of Autonomic Computing,”
-%Computer (Long. Beach. Calif)., vol. 36, no. 1, pp. 41–50, 2003.
-\TODO{The ideal vision of self-governing agents in complex
-environments. We can draw a parallel to the use of self-optimizing
-agents: \cite{Jeffrey2003}}
-
-% Ryoo, S., Rodrigues, C. I., Stone, S. S., Baghsorkhi, S. S., Ueng,
-% S.-Z., Stratton, J. a., & Hwu, W. W. (2008). Program optimization
-% space pruning for a multithreaded GPU. In Proceedings of the 6th
-% annual IEEE/ACM international symposium on Code generation and
-% optimization (pp. 195–204). New York, New York, USA: ACM
-% Press. doi:10.1145/1356058.1356084
-\TODO{\cite{Ryoo2008}}
-
-% Z. Wang and M. F. P. O. Boyle, “Partitioning Streaming Parallelism
-% for Multi-cores: A Machine Learning Based Approach,” in Proceedings
-% of the 19th international conference on Parallel architectures and
-% compilation techniques, 2010, pp. 307–318.
-\TODO{Offline ML for partitioning streaming applications:
-\cite{Wang2010}}
-
-% J. Bilmes, K. Asanovic, C.-W. Chin, and J. Demmel, “Optimizing
-% Matrix Multiply Using PHiPAC: A Portable, High-performance, ANSI C
-% Coding Methodology,” in Proceedings of the 11th International
-% Conference on Supercomputing, 1997, pp. 340–347.
-\TODO{Guidelines for optimising, using an automatic code generator and
-a search engine to optimise parameters: \cite{Bilmes1997}}
-
-% Rul, S., Vandierendonck, H., Haene, J. D., & Bosschere,
-% K. De. (2010). An Experimental Study on Performance Portability of
-% OpenCL Kernels. In 2010 Symposium on Application Accelerators in
-% High Performance Computing (SAAHPC’10) (pp. 4–6).
-\TODO{\cite{Rul2010}}
-
-% G. Chen and B. Wu, “PORPLE: An Extensible Optimizer for Portable
-% Data Placement on GPU,” in Microarchitecture (MICRO), 2014 47th
-% Annual IEEE/ACM International Symposium on, 2014, pp. 88–100.
-\TODO{Optimising data placement on GPUs using a description of the
-hardware and a memory-placement-agnostic compiler. Shows impressive
-speedups (2.08x max, 1.59x avg) from just optimising data
-placement. \cite{Chen2014}}
-
-\subsection{Machine learning in compilers}
-
-\subsection{Autotuning for GPUs}
+\TODO{Introduction to popular GPU programming models: OpenCL and
+  CUDA.}
 
 % K. Komatsu, K. Sato, Y. Arai, K. Koyama, H. Takizawa, and
 % H. Kobayashi, “Evaluating performance and portability of OpenCL
@@ -239,45 +126,79 @@ in~\cite{Komatsu2010}. \TODO{This paper is deserving of close
   workgroup size on the performance of kernels across devices and
   programs.}
 
-% A. Magni, C. Dubach, and M. O’Boyle, “Automatic optimization of
-% thread-coarsening for graphics processors,” in International
-% Conference on Parallel Architectures and Compilation, 2014,
-% pp. 455–466.
-\citeauthor{Magni2014} explored the effect of thread coarsening
-in~\cite{Magni2014}, achieving average speedups between 1.11$\times$
-and 1.33$\times$ using a machine-learning model based on the static
-features of kernels.
+% J. Fang, A. L. Varbanescu, and H. Sips, “A Comprehensive Performance
+% Comparison of CUDA and OpenCL,” in Parallel Processing (ICPP), 2011
+% International Conference on, 2011, pp. 216–225.
+\TODO{Comparing OpenCL and CUDA performance: \cite{Karimi2010}}
 
-\note{ONLINE RL}
+% Enmyren, J., & Kessler, C. (2010). SkePU: a multi-backend skeleton
+% programming library for multi-GPU systems. In Proceedings of the
+% fourth international workshop on High-level parallel programming and
+% applications (pp. 5–14). ACM. Retrieved from
+% http://dl.acm.org/citation.cfm?id=1863487
+\paragraph{SkePU} \TODO{Similar to SkelCL in scope and ambition,
+  alternative implementation with C++ macros and
+  CUDA~\cite{Enmyren2010}.}
 
-% Eastep, J., Wingate, D., & Agarwal, A. (2011). Smart Data
-% Structures: An Online Machine Learning Approach to Multicore Data
-% Structures. In Proceedings of the 8th ACM International Conference
-% on Autonomic Computing (pp. 11–20). New York, NY, USA:
-% ACM. doi:10.1145/1998582.1998587
-\TODO{\cite{Eastep2011}}
+\subsection{The OpenCL Programming Model}
 
-% Tesauro, G. (2005). Online Resource Allocation Using Decompositional
-% Reinforcement Learning. In AAAI (pp. 886–891).
-\TODO{\cite{Tesauro2005}}
+\TODO{Technical details of OpenCL model. Describe the memory model.}
 
 
-% Lee, H., Brown, K. J., Sujeeth, A. K., Rompf, T., & Olukotun,
-% K. (2014). Locality-Aware Mapping of Nested Parallel Patterns on
-% GPUs. In Microarchitecture (MICRO), 2014 47th Annual IEEE/ACM
-% International Symposium on
-% (pp. 63–74). IEEE. doi:10.1109/MICRO.2014.23
-\TODO{GPU benchmarking: \cite{Lee}}
+% Rul, S., Vandierendonck, H., Haene, J. D., & Bosschere,
+% K. De. (2010). An Experimental Study on Performance Portability of
+% OpenCL Kernels. In 2010 Symposium on Application Accelerators in
+% High Performance Computing (SAAHPC’10) (pp. 4–6).
+\TODO{Portability of OpenCL kernels: \cite{Rul2010}}
 
-\note{ONLINE AUTOTUNING}
+\subsubsection{Problem decomposition and workgroups}
 
-% Ansel, J., & Reilly, U. O. (2012). SiblingRivalry: Online Autotuning
-% Through Local Competitions. In Proceedings of the 2012 International
-% Conference on Compilers, Architectures and Synthesis for Embedded
-% Systems (pp. 91–100). ACM. doi:10.1145/2380403.2380425
-\TODO{\cite{Ansel2012}}
+In OpenCL, kernels are mapped to work-items for execution on the
+processing units of GPUs and CPUs. These work-items are then grouped
+into one or more workgroups. The choice of workgroup size is left to
+the developer, but with two sets of constraints. The first set of
+constraints is the maximum workgroup size which an execution device
+supports. This value cannot be exceeded, irrespective of the kernel
+being executed. The second constraint is the maximum workgroup size a
+kernel supports, and can only be queried at runtime once a kernel has
+been compiled. The selection of workgroup size for stencil skeletons
+is particularly relevant to the performance of the stencil as it
+affects utilisation of fast local memory. In a stencil code, each
+work-item reads the values of multiple neighbouring elements. To
+facilitate this, the value of all elements within a workgroup are
+stored in fast local memory, which greatly reduces the read latency
+for GPUs. Changing the workgroup size affects the amount of local
+memory required for each workgroup, which in turn affects the number
+of workgroups which may be simultaneously active.
 
-\subsubsection{PETABRICKS}
+
+\section{Iterative compilation and Autotuning}
+
+% O. Jeffrey and M. David, “The Vision of Autonomic Computing,”
+%Computer (Long. Beach. Calif)., vol. 36, no. 1, pp. 41–50, 2003.
+\TODO{The ideal vision of self-governing agents in complex
+environments. We can draw a parallel to the use of self-optimizing
+agents: \cite{Jeffrey2003}}
+
+% J. Bilmes, K. Asanovic, C.-W. Chin, and J. Demmel, “Optimizing
+% Matrix Multiply Using PHiPAC: A Portable, High-performance, ANSI C
+% Coding Methodology,” in Proceedings of the 11th International
+% Conference on Supercomputing, 1997, pp. 340–347.
+\TODO{Guidelines for optimising, using an automatic code generator and
+a search engine to optimise parameters: \cite{Bilmes1997}}
+
+% SUPEROPTIMISERS:
+%
+% H. Massalin, “Superoptimizer -- A Look at the Smallest Program,” ACM
+% SIGPLAN Not., vol. 22, no. 10, pp. 122–126, 1987.
+%
+% R. Joshi, G. Nelson, and K. Randall, “Denali: a goal-directed
+% superoptimizer,” ACM SIGPLAN Not., vol. 37, no. 5, p. 304, 2002.
+\TODO{Super-optimisers: provably~\cite{Joshi2002} or
+  demonstrably~\cite{Massalin1987} optimal, but unbelievably
+  costly. Can ML help?}
+
+\paragraph{PETABRICKS}
 
 % Ansel, J. (2009). PetaBricks: a language and compiler for
 % algorithmic choice. MIT.
@@ -297,6 +218,115 @@ features of kernels.
 % Choice. Massachusetts Institute of Technology.
 \TODO{\cite{Ansel2014}}
 
+\subsection{Machine learning in compilers}
+
+% M. Stephenson, M. Martin, and U. O. Reilly, “Meta Optimization:
+% Improving Compiler Heuristics with Machine Learning,” ACM SIGPLAN
+% Not., vol. 38, no. 5, pp. 77–90, 2003.
+\TODO{Using ML to improve compiler heuristics~\cite{Stephenson2003}}
+
+% E. K. Burke, M. Gendreau, M. Hyde, G. Kendall, G. Ochoa, E. Özcan,
+% and R. Qu, “Hyper-heuristics: a survey of the state of the art,”
+% J. Oper. Res. Soc., vol. 64, pp. 1695–1724, 2013.
+\TODO{Hyper-heuristics survey paper: \cite{Burke2013}}
+
+%
+% SOME EXAMPLES OF ML IN THE WILD:
+%
+
+% R. Bitirgen, E. Ipek, and J. F. Martinez, “Coordinated Management of
+% Multiple Interacting Resources in Chip Multiprocessors: A Machine
+% Learning Approach,” in 2008 41st IEEE/ACM International Symposium on
+% Microarchitecture, 2008, pp. 318–329.
+\TODO{Artificial Neural Networks for resource allocation of CMPS:
+\cite{Bitirgen2008}}
+
+% G. Fursin, Y. Kashnikov, A. W. Memon, Z. Chamski, O. Temam,
+% M. Namolaru, E. Yom-Tov, B. Mendelson, A. Zaks, E. Courtois,
+% F. Bodin, P. Barnard, E. Ashton, E. Bonilla, J. Thomson,
+% C. K. I. Williams, and M. O’Boyle, “Milepost GCC: Machine Learning
+% Enabled Self-tuning Compiler,” Int. J. Parallel Program., vol. 39,
+% no. 3, pp. 296–327, Jan. 2011.
+\TODO{Milepost GCC is a machine learning enabled self-tuning
+  compiler~\cite{Fursin2011}.}
+
+% Z. Wang and M. F. P. O. Boyle, “Partitioning Streaming Parallelism
+% for Multi-cores: A Machine Learning Based Approach,” in Proceedings
+% of the 19th international conference on Parallel architectures and
+% compilation techniques, 2010, pp. 307–318.
+\TODO{Offline ML for partitioning streaming applications:
+\cite{Wang2010}}
+
+%
+% TOWARDS ONLINE TUNING:
+%
+
+% Ansel, J., & Reilly, U. O. (2012). SiblingRivalry: Online Autotuning
+% Through Local Competitions. In Proceedings of the 2012 International
+% Conference on Compilers, Architectures and Synthesis for Embedded
+% Systems (pp. 91–100). ACM. doi:10.1145/2380403.2380425
+\TODO{\cite{Ansel2012}}
+
+% Eastep, J., Wingate, D., & Agarwal, A. (2011). Smart Data
+% Structures: An Online Machine Learning Approach to Multicore Data
+% Structures. In Proceedings of the 8th ACM International Conference
+% on Autonomic Computing (pp. 11–20). New York, NY, USA:
+% ACM. doi:10.1145/1998582.1998587
+%
+% Tesauro, G. (2005). Online Resource Allocation Using Decompositional
+% Reinforcement Learning. In AAAI (pp. 886–891).
+\paragraph{Reinforcement learning} \TODO{\cite{Eastep2011},
+  \cite{Tesauro2005}}
+
+% W. F. Ogilvie, P. Petoumenos, Z. Wang, and H. Leather, “Intelligent
+% Heuristic Construction with Active Learning,” in 18th International
+% Workshop on Compilers for Parallel Computing, 2015.
+\paragraph{Active Learning} \TODO{Using Active Learning to speed up
+  the learning of compiler heuristics~\cite{Ogilvie2015}. Towards
+  online auto-tuning, albeit only with binary optimisation parameter.}
+
+\subsection{Autotuning for GPUs}
+
+% Ryoo, S., Rodrigues, C. I., Stone, S. S., Baghsorkhi, S. S., Ueng,
+% S.-Z., Stratton, J. a., & Hwu, W. W. (2008). Program optimization
+% space pruning for a multithreaded GPU. In Proceedings of the 6th
+% annual IEEE/ACM international symposium on Code generation and
+% optimization (pp. 195–204). New York, New York, USA: ACM
+% Press. doi:10.1145/1356058.1356084
+\TODO{\cite{Ryoo2008}}
+
+% G. Chen and B. Wu, “PORPLE: An Extensible Optimizer for Portable
+% Data Placement on GPU,” in Microarchitecture (MICRO), 2014 47th
+% Annual IEEE/ACM International Symposium on, 2014, pp. 88–100.
+\TODO{Optimising data placement on GPUs using a description of the
+hardware and a memory-placement-agnostic compiler. Shows impressive
+speedups (2.08x max, 1.59x avg) from just optimising data
+placement. \cite{Chen2014}}
+
+% Lee, H., Brown, K. J., Sujeeth, A. K., Rompf, T., & Olukotun,
+% K. (2014). Locality-Aware Mapping of Nested Parallel Patterns on
+% GPUs. In Microarchitecture (MICRO), 2014 47th Annual IEEE/ACM
+% International Symposium on
+% (pp. 63–74). IEEE. doi:10.1109/MICRO.2014.23
+\TODO{GPU benchmarking: \cite{Lee}}
+
+% A. Magni, C. Dubach, and M. O’Boyle, “Automatic optimization of
+% thread-coarsening for graphics processors,” in International
+% Conference on Parallel Architectures and Compilation, 2014,
+% pp. 455–466.
+\citeauthor{Magni2014} explored the effect of thread coarsening
+in~\cite{Magni2014}, achieving average speedups between 1.11$\times$
+and 1.33$\times$ using a machine-learning model based on the static
+features of kernels.
+
+% Steuwer, M., Fensch, C., & Dubach, C. (2015). Patterns and Rewrite
+% Rules for Systematic Code Generation From High-Level Functional
+% Patterns to High-Performance OpenCL Code. arXiv Preprint
+% arXiv:1502.02389.
+\TODO{Using re-write rules to translate high-level programs to OpenCL:
+\cite{Steuwer2015}}
+
+
 \subsection{Autotuning Algorithmic Skeletons}
 
 % Contreras, G., & Martonosi, M. (2008). Characterizing and improving
@@ -305,20 +335,16 @@ features of kernels.
 % (pp. 57–66). IEEE. doi:10.1109/IISWC.2008.4636091
 \TODO{INTEL TBB \cite{Contreras2008}}
 
-\subsubsection{MaSiF}
-
 % Collins, A., Fensch, C., & Leather, H. (2012). Auto-Tuning Parallel
 % Skeletons. Parallel Processing Letters, 22(02),
 % 1240005. doi:10.1142/S0129626412400051
-\TODO{\cite{Collins2012}}
-
+%
 % Collins, A., Fensch, C., Leather, H., & Cole, M. (2013). MaSiF:
 % Machine Learning Guided Auto-tuning of Parallel Skeletons. 20th
 % Annual International Conference on High Performance Computing -
 % HiPC, 186–195. doi:10.1109/HiPC.2013.6799098
-\TODO{\cite{Collins2013}}
+\paragraph{MaSiF} \TODO{\cite{Collins2012}, \cite{Collins2013}}
 
-\subsubsection{SkePU}
 
 % Dastgeer, U., Enmyren, J., & Kessler, C. W. (2011). Auto-tuning
 % SkePU: a multi-backend skeleton programming framework for multi-GPU
@@ -337,81 +363,81 @@ autotuner only supports vector operations.
 % Programming, 1–25. doi:10.1007/s10766-015-0357-6
 \TODO{Smart containers for SkePU:~\cite{Dastgeer2015a}}
 
+
 \subsection{Autotuning Stencil Codes}
 
-\TODO{In~\cite{Ganapathi2009}, \citeauthor{Ganapathi2009} argues for
-  applying statistical machine learning (SML) techniques to develop
-  autotuners for multicore software. They present an autotuner for
-  Stencil codes which can achieve performance within 1\% or up to 18\%
-  better than that of a human expert after 2 hours of running. They
-  evaluate the performance of a randomly selected 1500 configurations
-  (from a posible 10 million configs), and use Kernel Canonical
-  Correlation Analysis (KCCA) to build correlations between tunable
-  parameter values and measured performance values. Performance is
-  measured using hardware counters (L1 cache misses, TLB misses,
-  cycles per thread) and power consumtion in Watts/sec. KCCA seems
-  like a strange choice: it scales exponentially with the feature
-  vector sizes, and it takes 2 hours (!!!) to build the ML model for
-  400 sec worth of benchmark data. They present an interesting
-  argument that enegy efficiency should be used as an autotuning
-  target as well as just run time, since it was the power wall that
-  lead to the multicore revolution in the first place. They explain
-  the motivation and results well. I like that they compare their
-  results with human expert and hardware upper bound. It is a solid
-  paper which makes a compelling argument, but their choice of only 2
-  benchmarks and 2 platforms makes the evaluation of their autotuner a
-  little limited. Cited by 52.}
+In~\cite{Zhang2013a}, \citeauthor{Zhang2013a} present a code generator
+and autotuner for 3D Jacobi stencil codes.
 
-\TODO{Kamil presents an auto-tuning framework which accepts as input a
-  Fortran 95 stencil expression, and generates tuned parallel
-  implementations in Fortan, C, or CUDA. The system uses an IR to
-  explore auto-tuning transformations, and has an SMP backend code
-  generator. They demonstrate their system on 4 architectures using 3
-  benchmarks, with speedups of up to x22 over serial. The CUDA code
-  generator only uses global memory (!!). Also, there's no real search
-  engine. They randomly enumerate a subset of the optimisation space,
-  and then record only a single execution time (!!!), reporting the
-  fastest. Cited by 127.~\cite{Kamil2010}}
+In~\cite{Ganapathi2009}, \citeauthor{Ganapathi2009} argues for
+applying statistical machine learning (SML) techniques to develop
+autotuners for multicore software. They present an autotuner for
+Stencil codes which can achieve performance within 1\% or up to 18\%
+better than that of a human expert after 2 hours of running. They
+evaluate the performance of a randomly selected 1500 configurations
+(from a posible 10 million configs), and use Kernel Canonical
+Correlation Analysis (KCCA) to build correlations between tunable
+parameter values and measured performance values. Performance is
+measured using hardware counters (L1 cache misses, TLB misses, cycles
+per thread) and power consumtion in Watts/sec. KCCA seems like a
+strange choice: it scales exponentially with the feature vector sizes,
+and it takes 2 hours (!!!) to build the ML model for 400 sec worth of
+benchmark data. They present an interesting argument that enegy
+efficiency should be used as an autotuning target as well as just run
+time, since it was the power wall that lead to the multicore
+revolution in the first place. They explain the motivation and results
+well. I like that they compare their results with human expert and
+hardware upper bound. It is a solid paper which makes a compelling
+argument, but their choice of only 2 benchmarks and 2 platforms makes
+the evaluation of their autotuner a little limited. Cited by 52.
 
-\subsubsection{PATUS}
+\citeauthor{Kamil2010} presents an auto-tuning framework which accepts as input a
+Fortran 95 stencil expression, and generates tuned parallel
+implementations in Fortan, C, or CUDA. The system uses an IR to
+explore auto-tuning transformations, and has an SMP backend code
+generator. They demonstrate their system on 4 architectures using 3
+benchmarks, with speedups of up to x22 over serial. The CUDA code
+generator only uses global memory (!!). Also, there's no real search
+engine. They randomly enumerate a subset of the optimisation space,
+and then record only a single execution time (!!!), reporting the
+fastest. Cited by 127.~\cite{Kamil2010}
 
-\TODO{PATUS consists of a DSL for expressing stencil codes, a C code
-  generator, and an autotuner for exploring the optimisation space,
-  using blocking and vectorisation strategies. Pro: Supports
-  arbitrarily high dimensional grids. They introduce *2* new DSLs
-  without comment on why they were needed. This is a huge price of
-  entry for anyone who actually wants to *use* PATUS to solve
-  problems, and a decision that I think they could have justified
-  better. They provide nice and concise explanations of stencil codes
-  and the types of optimisation methods used by other autotuners
-  (ATLAS, FLAME, FFTW, SPIRAL). However, they *barely* explain their
-  own, saying only that they perform *either* an exhaustive, multi-run
-  Powell, Nelder Mead, or evolutionary algorithms.  Their evaluation
-  uses 6 benchmarks, and 3 architectures. Only 1 of those is a GPU. It
-  would have been nice to shown performance across GPU
-  architectures. From the perspective of autotuning, the paper comes
-  as across quite weak: They do not present an "oracle" performance,
-  so we can't compare the quality of their autotuner compared to
-  it. They don't show how the optimal tunable parameter values vary
-  across results, so they don't demonstrate how autotuning is
-  *necessary* (maybe there's one single value which works well for all
-  results?). They do not give any indication of convergence time of
-  their autotuner. They do not report the number of different
-  combinations that their autotuner tries.~\cite{Christen2011}}
-
-\subsubsection{PARTANS}
+\paragraph{PATUS} In~\cite{Christen2011}, \citeauthor{Christen2011}
+presents a DSL for expressing stencil codes, a C code generator, and
+an autotuner for exploring the optimisation space, using blocking and
+vectorisation strategies. Pro: Supports arbitrarily high dimensional
+grids. They introduce *2* new DSLs without comment on why they were
+needed. This is a huge price of entry for anyone who actually wants to
+*use* PATUS to solve problems, and a decision that I think they could
+have justified better. They provide nice and concise explanations of
+stencil codes and the types of optimisation methods used by other
+autotuners (ATLAS, FLAME, FFTW, SPIRAL). However, they *barely*
+explain their own, saying only that they perform *either* an
+exhaustive, multi-run Powell, Nelder Mead, or evolutionary algorithms.
+Their evaluation uses 6 benchmarks, and 3 architectures. Only 1 of
+those is a GPU. It would have been nice to shown performance across
+GPU architectures. From the perspective of autotuning, the paper comes
+as across quite weak: They do not present an "oracle" performance, so
+we can't compare the quality of their autotuner compared to it. They
+don't show how the optimal tunable parameter values vary across
+results, so they don't demonstrate how autotuning is *necessary*
+(maybe there's one single value which works well for all
+results?). They do not give any indication of convergence time of
+their autotuner. They do not report the number of different
+combinations that their autotuner tries.
 
 % T. Lutz, C. Fensch, and M. Cole, “PARTANS: An Autotuning Framework
 % for Stencil Computation on Multi-GPU Systems,” ACM
 % Trans. Archit. Code Optim., vol. 9, no. 4, pp. 1–24, 2013.
-\citeauthor{Lutz2013} explored the effect of varying the size of the
-halo regions for multi-GPU stencil computations in~\cite{Lutz2013}. A
-large halo increases redundant computation across GPUs but decreases
-communication costs. They found that the optimal halo size depends on
-the problem size, number of partitions, and the connection mechanism
-(i.e.\ PCI express). They developed an autotuner which determines
-problem decomposition and swapping strategy offline, and performs an
-online search for the optimal halo size. The study is limited to only
-three optimisation parameters of a single class of program, and the
-results of tuning are not shared across programs or across multiple
-runs of the same program.
+\paragraph{PARTANS} \citeauthor{Lutz2013} explored the effect of
+varying the size of the halo regions for multi-GPU stencil
+computations in~\cite{Lutz2013}. A large halo increases redundant
+computation across GPUs but decreases communication costs. They found
+that the optimal halo size depends on the problem size, number of
+partitions, and the connection mechanism (i.e.\ PCI express). They
+developed an autotuner which determines problem decomposition and
+swapping strategy offline, and performs an online search for the
+optimal halo size. The study is limited to only three optimisation
+parameters of a single class of program, and the results of tuning are
+not shared across programs or across multiple runs of the same
+program.

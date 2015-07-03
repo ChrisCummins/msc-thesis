@@ -45,10 +45,11 @@ kernels.
   platforms, enabled by a shared autotuning logic and distributed
   training data.}
 
-\section{Terminology and Notation}
 
-\TODO{Define mathematical notation used, and shorthand symbols for
-  ``oracle'', etc\ldots}
+\subsubsection{Notation and Terminology}
+
+\TODO{Define mathematical notation used, and uncommon terms such as
+  ``oracle''.}
 
 \section{SkelCL}
 
@@ -101,7 +102,7 @@ application using SkelCL: \cite{Steuwer2013}}
 
 \subsection{Pattern definitions}
 
-\subsubsection{Map}
+\paragraph{Map}
 
 \begin{equation}
 \map\left(f, [x_1,x_2,\ldots,x_n]\right) \to [f(x_1),f(x_2),\ldots,f(x_n)]
@@ -124,7 +125,7 @@ When applied to an $n \times m$ matrix:
 \end{bmatrix}
 \end{equation}
 
-\subsubsection{Zip}
+\paragraph{Zip}
 
 \begin{equation}
 \zip\left( \oplus, [x_1,x_2,\ldots,x_n], [y_1,y_2,\ldots,y_n] \right)
@@ -133,6 +134,7 @@ When applied to an $n \times m$ matrix:
 \end{equation}
 
 \begin{equation}
+\begin{split}
 \zip \left( \oplus,
 \begin{bmatrix}
   x_{11} & \cdots & x_{1m} \\
@@ -143,16 +145,17 @@ When applied to an $n \times m$ matrix:
   y_{11} & \cdots & y_{1m} \\
   \vdots & \ddots & \vdots \\
   y_{n1} & \cdots & y_{nm}
-\end{bmatrix}\right)
+\end{bmatrix} \right) \\
 \to
 \begin{bmatrix}
   x_{11} \oplus y_{11} & \cdots & x_{1m} \oplus y_{1m} \\
   \vdots & \ddots & \vdots \\
   x_{n1} \oplus y_{n1} & \cdots & x_{nm} \oplus y_{nm}
 \end{bmatrix}
+\end{split}
 \end{equation}
 
-\subsubsection{Reduce}
+\paragraph{Reduce}
 
 \begin{equation}
 \reduce \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
@@ -171,7 +174,7 @@ x_1 \oplus x_2 \oplus \ldots \oplus x_n
 x_{11} \oplus x_{12} \oplus \ldots \oplus x_{nm}
 \end{equation}
 
-\subsubsection{Scan}
+\paragraph{Scan}
 
 \begin{equation}
 \scan \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
@@ -179,7 +182,7 @@ x_{11} \oplus x_{12} \oplus \ldots \oplus x_{nm}
 \left[ i, x_1, x_1 \oplus x_2, \ldots, x_1 \oplus x_2 \oplus \ldots \oplus x_n \right]
 \end{equation}
 
-\subsubsection{AllPairs}
+\paragraph{AllPairs}
 
 \begin{equation}
 \allpairs \left( \oplus,
@@ -220,7 +223,7 @@ z_{ij} =
 \end{equation}
 
 
-\subsubsection{Stencil}
+\paragraph{Stencil}
 
 Given a customising function $f$, a \emph{stencil shape} $S$
 
@@ -292,11 +295,7 @@ files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
   OpenCL?%
 }
 
-\subsubsection{Example application 1 - Mandelbrot Set}
-
-\TODO{Definition, listing, and performance results.}
-
-\subsubsection{Example application 1 -- Dot Product}
+\subsubsection{Application 1: Dot Product}
 
 \TODO{Definition, and performance results.}
 
@@ -330,9 +329,21 @@ int main(int argc, char* argv[]) {
 }
 \end{lstlisting}
 
-\subsubsection{Example application 2 --- Gaussian Blur}
+\subsubsection{Application 2: Mandelbrot Set}
 
 \TODO{Definition, listing, and performance results.}
+
+\subsubsection{Application 3: Gaussian Blur}
+
+\TODO{Definition, listing, and performance results.}
+
+
+\section{Motivation}
+
+\TODO{Why do we need autotuning? Describe necessary abstraction of low
+  level tuning parameters, and demonstrate their effect on application
+  performance.}
+
 
 \section{Structure}
 
