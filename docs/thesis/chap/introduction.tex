@@ -63,8 +63,37 @@ kernels.
 
 \section{Contributions}
 
-\TODO{Itemised list of key technical and research contributions. Go
-  all-out on the ``big sell''!}
+The key contributions of this thesis are:
+
+\begin{itemize}
+\item A broad review of the current state of the art in approaches to
+  the challenge of parallel programmability, namely automatic
+  parallelisation and high-level parallel programming. A focused
+  literature review on iterative and machine-learning enabled
+  compilation and autotuning for compute intensive parallel
+  applications.
+\item An empirical evaluation of the performance impact of values used
+  to parameterise high-level parallel patterns. We enumerate the
+  optimisation space of workgroup size for SkelCL stencil kernels
+  using \fixme{XXX} test instances, showing how choice of workgroup
+  size has an average \fixme{XXX}$\times$ influence on runtime (max
+  \fixme{XXX}$\times$).
+\item The development of \emph{omnitune} --- an extensible,
+  distributed autotuner. When tasked with selecting workgroup sizes of
+  stencil codes in SkelCL, the presented autotuner achieves an average
+  \fixme{XXX}$\times$ speedup over the best possible statically chosen
+  value, achieving \fixme{XXX}\% of the oracle performance.
+\item The novel application of synthetic \TODO{(programatically
+    generated?)} benchmarks for training machine learning-enabled
+  autotuning. This has the advantages of reducing the cost of training
+  while increasing the size of the space which can be explored. The
+  effectiveness of this approach is demonstrated by training an
+  autotuner for 4 real world Stencil codes using synthetic benchmarks,
+  showing that \FIXME{sexy result goes here}.
+\item A comparison of multiple approaches to minimise the costs of
+  effective autotuning. \TODO{flesh out: compare cost of full
+    enumeration with that of classification and regression.}
+\end{itemize}
 
 \section{Structure}
 
