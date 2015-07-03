@@ -15,7 +15,7 @@
   myself from the data parallel operations defined in the SkelCL
   intro.}
 
-\subsection{Popular Algorithmic Skeleton Frameworks}
+\subsection{Algorithmic Skeleton Frameworks}
 
 \TODO{Case studies of skeleton-esque products in industry: Intel
   Thread Building Blocks, and Google's MapReduce and the various
@@ -350,13 +350,34 @@ autotuner only supports vector operations.
 % International Symposium on Code Generation and Optimization, 2012,
 % pp. 155–164.
 In~\cite{Zhang2013a}, \citeauthor{Zhang2013a} present a code generator
-and autotuner for 3D Jacobi stencil codes on GPUs. Using a DSL for
-expressing kernel functions, the code generator performs substitution
-from one of two CUDA templates to creates programs. These programs are
-parameterised by block size, block dimensions, and whether input data
-is stored in read only texture memory. This provides a search space of
-up to 200 configurations, which is exhaustively enumerated so as to
-find the global maximum.
+and autotuner for 3D Jacobi stencil codes. Using a DSL to express
+kernel functions, the code generator performs substitution from one of
+two CUDA templates to create GPU programs. These programs are
+parameterised and tuned for block size, block dimensions, and whether
+input data is stored in read only texture memory. This creates a
+search space of up to 200 configurations.
+
+The authors report impressive performance, comparable with previous
+implementations of iterative Jacobi stencils on
+GPUs~\cite{Holewinski2012,Phillips2010}. The dominating parameter is
+shown to be block dimensions, followed by block size, then read only
+memory. An unfortunate limitation of their system is that they do not
+support multi-GPU execution within a single node, instead using
+message passing in a cluster. This rules out the possible benefits of
+performing loop compaction for iterative stencils, an optimisation
+which has shown to be beneficial for multi-GPU performance
+in~\cite{Lutz2013}.
+
+The DSL presented in the paper is limited to expressing only Jacobi
+Stencils applications. Critically, their autotuner requires a full
+enumeration of the parameter space for each program, with no element
+of search space reduction or cross-program learning. Since there is no
+evidence of the compute time required to perform this enumeration, it
+gives the impression that the system would be impractical for the
+needs of general purpose Stencil
+computing.
+% The majority of applications tested are memory bound. Does this
+% transfer to computer bound?
 
 In~\cite{Ganapathi2009}, \citeauthor{Ganapathi2009} argues for
 applying statistical machine learning (SML) techniques to develop
