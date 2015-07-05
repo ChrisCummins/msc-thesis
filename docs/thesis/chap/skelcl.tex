@@ -213,7 +213,18 @@ g(f, S, M, t) =
 \end{equation}
 
 
-\section{Implementation details}
+\section{Container Types}
+
+\TODO{Description of vector and matrices, supported data types, lazy
+  data transfer \ldots}
+
+\subsubsection{Data distributions}
+
+\TODO{Description and diagrams for single, block, copy, and overlap
+  distributions.}
+
+
+\section{Implementation Details}
 
 Each skeleton is represented by a template class, declared in a header
 file detailing the public API. A private header file contains the
@@ -222,18 +233,15 @@ class, and \texttt{SkelCL/detail/MapDef.h} contains the
 implementation. Non-trivial kernels are stored in separate source
 files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
 
-\subsection{Container Types}
-
-\TODO{Description of vector and matrices, supported data types, lazy
-  data transfer \ldots}
-
-\subsection{Skeleton implementations}
+\subsection{Skeleton Implementations}
 
 \TODO{Description of OpenCL skeleton templates, and the compilation
   process - i.e. substitution of user functions, handling additional
   arguments  \ldots}
 
-\section{Example applications}
+\TODO{Algorithm listing for stencil}
+
+\section{Example Applications}
 
 \TODO{%
   Provide definition of three simple example programs, then code

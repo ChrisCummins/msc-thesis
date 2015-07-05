@@ -1,7 +1,14 @@
 \section{Introduction}
 
+In this chapter we describe the design and implementation of OmniTune,
+an extensible, dynamic autotuner. We evaluate the performance of
+OmniTune when tasked with tuning workgroup size of stencil codes.
 
-\section{Applying machine learning methods}
+
+\section{Machine Learning and Performance Tuning}
+
+\TODO{We're always dealing with a sparsity in data.}
+
 
 \subsection{Feature Extraction}
 
@@ -138,10 +145,13 @@ dev_version                        nominal
 \end{multicols}
 
 
-\section{Collective tuning and the client-server model}
+\section{Collective Tuning and the Client-Server Model}
+
+\TODO{Three-tier client, proxy, server model. Include UML sequence
+  diagrams and system diagram.}
 
 
-\section{Autotuning using classification}
+\section{Autotuning using Classification}
 
 The simplest autotuner is one which selects the workgroup size which
 is most commonly optimal (i.e. the mode of all optimal workgroup sizes
@@ -167,7 +177,7 @@ W_{safe} &= \cap \left\{ f(s) | s \in S \right\} \\
 This provides a baseline for comparing against a more sophisticated
 autotuning approaches using machine learning.
 
-\subsection{Satisfying constraints}
+\subsection{Satisfying Constraints}
 
 Since classifiers are probabilistic systems, it is possible that a
 classifier will predict a workgroup size that is invalid for the given
@@ -188,13 +198,53 @@ The evaluation compares the average performance achieved using each
 fallback strategy, along with the percentage of cases for which these
 fallback strategies were required.
 
+\subsection{Results}
 
-\section{Autotuning using regression}
+\TODO{Evaluate the effectiveness of training with synthetic
+  benchmarks.}
 
-\subsection{Classification using regression}
+
+\section{Autotuning using Regression}
+
+\TODO{If we could use regression to accurately predict the runtime or
+  relative performance of different workgroup sizes, then we could
+  overcome the expensive training cost of autotuning by
+  classification.}
+
+\subsection{Classification Using Regression}
+
+\subsection{Results}
 
 
-\section{Meta-tuning: a hybrid approach}
+\section{Meta-tuning: a Hybrid Approach}
 
+\begin{algorithm}
+\caption{Request workgroup size}\label{bar}
+\begin{algorithmic}[1]
+\Require kernel features $k$, hardware features $h$, dataset features $d$.
+\Ensure workgroup size $c$
+
+\State $C \leftarrow \{ c_1, c_2,\ldots, c_n \}$
+\Comment Set of all possible workgroup sizes
+
+\If{no control flow in kernel}
+    \State \textbf{return} $\underset{c}{\argmin} f(k,h,d,c) = r$
+\Else
+   \State converged $\leftarrow$ false
+   \State $c_b \leftarrow$ baseline values
+   \State $r_b \leftarrow$ measure runtime of runtime of program with $c_b$
+   \While{not converged}
+     \State return $\underset{c}{\argmax} g(k,h,d,c) = s$
+     \State evaluate $c$, measuring runtime $r$\;
+     \If{measured speedup $\frac{r_b}{r} \approx$ predicted speedup $s$}
+       \State converged = true
+     \Else
+       \State $C = C - \{c\}$
+     \EndIf
+   \EndWhile
+   \State \textbf{return} $c$
+\EndIf
+\end{algorithmic}
+\end{algorithm}
 
 \section{Summary}

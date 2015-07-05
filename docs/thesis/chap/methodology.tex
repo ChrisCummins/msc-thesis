@@ -1,153 +1,18 @@
 \section{Introduction}
 
-\section{Parameter Space of Stencil Codes}
-
-\section{Experimental setup}
-
-A total of \input{gen/num_scenarios} scenarios were tested. For each
-scenario, an average of \input{gen/num_avg_params} unique workgroup
-sizes were tested (max \input{gen/num_max_params}), for a total of
-\input{gen/num_runtime_stats} combinations of scenario and workgroup
-size. Runtimes were collected by randomly sampling $W_{safe}$, for an
-average of \input{gen/avg_sample_count} runtimes per scenario (total
-\input{gen/num_samples}). Figure~\ref{fig:min-max-runtimes} shows the
-distribution of minimum and maximum runtimes.
-
-\begin{figure}
-\centering
-\includegraphics{gen/img/min_max_runtimes}
-\caption{%
-  Distribution of minimum and maximum observed runtimes for each
-  combination of scenario and parameter value, normalised to their
-  respective mean runtimes.%
-}
-\label{fig:min-max-runtimes}
-\end{figure}
-
-The relative performance of different workgroup sizes for a scenario
-can be found by normalising the mean runtimes against that of the
-oracle workgroup size. This can provide an upper limit on the speedup
-which can be attained using autotuning as the reciprocal of the
-normalised runtime for the workgroup size which gave the lowest
-performance. Applying this to all scenarios, we find the upper limit
-of potential speedup to be between
-$\input{gen/min_possible_speedup}\times$ --
-$\input{gen/max_possible_speedup}\times$ (average
-$\input{gen/avg_possible_speedup}\times$). This demonstrates that
-selection of the optimal
-
-Figure~\ref{fig:max-wgsizes} shows the distribution of maximum
-workgroup sizes across all scenarios. Figure~\ref{fig:oracle-wgsizes}
-shows the distribution of oracle workgroup sizes. Clearly, the
-workgroup size $64 \times 4$ is the optimal value across the most
-scenarios, but even that proves optimal only 10\% of the time. As
-Figure~\ref{fig:oracle-accuracy} shows,
-\input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
-required in order to achieve oracle performance just 50\% of the time.
+In this chapter, we explore the performance influence of low level
+tuning parameters on the performance of SkelCL stencils. We describe
+an experiment to enumerate a large optimisation space of Stencil
+codes, measuring the relative performance achieved by varying the
+workgroup size of OpenCL kernels.
 
 
-\begin{figure}
-\begin{subfigure}[t]{0.32\textwidth}
-\centering
-\includegraphics{gen/img/performance_kernels.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Kernels}
-\label{fig:performance-kernels}
-\end{subfigure}
-~%
-\begin{subfigure}[t]{0.32\textwidth}
-\centering
-\includegraphics{gen/img/performance_devices.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Devices}
-\label{fig:performance-devices}
-\end{subfigure}
-~%
-\begin{subfigure}[t]{0.32\textwidth}
-\centering
-\includegraphics{gen/img/performance_datasets.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Datasets}
-\label{fig:performance-datasets}
-\end{subfigure}
-\label{fig:performance}
-\caption{%
-  Relative performance of workgroup sizes for different
-  scenarios, divided by kernels, devices, and datasets.%
-}
-\end{figure}
+\section{Grid Decomposition in Stencil Codes}
+
+\TODO{Add diagram showing workgroup decomposition.}
 
 
-\begin{figure}
-\begin{subfigure}[t]{0.45\textwidth}
-\centering
-\includegraphics{gen/img/max_wgsizes.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Maximum workgroup sizes}
-\label{fig:max-wgsizes}
-\end{subfigure}
-~%
-\begin{subfigure}[t]{0.45\textwidth}
-\centering
-\includegraphics{gen/img/oracle_param_space.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Oracle workgroup sizes}
-\label{fig:oracle-wgsizes}
-\end{subfigure}
-\caption{%
-  On the left, the distribution of maximum legal workgroup sizes for
-  all scenarios. On the right, the distribution of oracle workgroup
-  sizes.%
-}
-\label{fig:heatmaps}
-\end{figure}
-
-
-\begin{figure}
-\centering
-\includegraphics{gen/img/num_params_oracle.png}
-\caption{%
-  Accuracy compared to the oracle as a function of the number of
-  workgroup sizes used. The best accuracy that is achievable using a
-  single statically chosen value is
-  \protect\input{gen/max_oracle_param_frequency}\%.%
-}
-\label{fig:oracle-accuracy}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics{gen/img/params_summary.png}
-\caption{%
-  The red line shows the ``legality'' of the parameter value, i.e.\
-  the ratio of scenarios for which that workgroup size is legal.  The
-  blue and green lines show the geometric mean of the performance of
-  workgroup sizes relative to the oracle for: all scenarios, and only
-  the scenarios for which the workgroup size is legal.%
-}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics{gen/img/performance_max_wgsize.png}
-\caption{%
-  Performance of a workgroup size relative to the oracle vs the
-  maximum legal workgroup size. There is no clear trend between the
-  performance of a workgroup size and it's size relative to the
-  maximum allowed.%
-}
-\end{figure}
-
-
-\TODO{Evaluate the effectiveness of training with synthetic
-  benchmarks.}
-
-% P. J. Fleming and J. J. Wallace, “How not to lie with statistics:
-% the correct way to summarize benchmark results,” Commun. ACM,
-% vol. 29, no. 3, pp. 218–221, 1986.
-\TODO{%
-  How to properly report benchmark results~\cite{Fleming1986}.%
-}
+\section{Experimental Setup}
 
 % A. Georges, D. Buytaert, and L. Eeckhout, “Statistically Rigorous
 % Java Performance Evaluation,” in Proceedings of the 22Nd Annual ACM
@@ -210,17 +75,6 @@ randomly sampling the space of legal workgroup sizes, until multiple
 samples have been collected for each combination of scenario and
 workgroup size.
 
-% Leather, H., O’Boyle, M., & Worton, B. (2009). Raced Profiles:
-% Efficient Selection of Competing Compiler Optimizations. In LCTES
-% ’09: Proceedings of the ACM SIGPLAN/SIGBED 2009 Conference on
-% Languages, Compilers, and Tools for Embedded Systems
-% (pp. 1–10). Dublin.
-\TODO{%
-  Using adapting sampling plans to reduce the number of samples
-  required to distinguish good from bad compiler
-  configurations~\cite{Leather2009}.%
-}
-
 \begin{table}
 \footnotesize
 \centering
@@ -250,104 +104,7 @@ workgroup size.
 \TODO{I'm only tuning GPU-side runtimes, which could be
   misleading~\cite{Gregg2011}}.
 
-\begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l | l | l | l |}
-\hline
-\textbf{Name} & \textbf{Application} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
-\hline
-CannyEdgeDetection & Image processing & Stencil & - & 225 / 61\\
-DotProduct & Linear algebra & Zip, Reduce & - & 143 / 2\\
-FDTD & Scientific simulation & Map, Stencil & Y & 375 / 127\\
-GameOfLife & Cellular automata & Stencil & Y & 92 / 12\\
-GaussianBlur & Image processing & Stencil & - & 262 / 47\\
-HeatSimulation & Scientific simulation & Stencil & Y & 180 / 13\\
-MandelbrotSet & Fractal computation & Map & Y & 133 / 78\\
-MatrixMultiply & Linear algebra & AllPairs & - & 267 / 8\\
-SAXPY & Linear algebra & Zip & - & 149 / 3\\
-\hline
-\end{tabular}
-\caption{Benchmark applications. The LOC column shows lines of code, split between host (C++) and device (OpenCL).}
-\label{tab:benchmarks}
-\end{table}
-
-\begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l | l |}
-\hline
-\textbf{Parameter} & \textbf{Values} & \textbf{Skeleton}\\
-\hline
-Number of columns, rows, segments & \{8, 16, 32, 64, 128\} & AllPairs\\
-Global size & \{256, 512, 1024, 2048, \ldots, 2097152\} & Reduce\\
-Work group size & [32\ldots$n$] & *\\
-Work group size (2D) & \{8, 16, 32, 64, 128, 256\} & Stencil\\
-Device type & \{CPU, GPU\} & *\\
-Device count & [1,4] & *\\
-Halo region size & [1\ldots$n$] & Stencil\\
-Implementation of stencil operation & {MapOverlap, Stencil} & Stencil\\
-Border loading strategy & TODO & Stencil\\
-Thread coarsening factor & TODO & *\\
-\hline
-\end{tabular}
-\caption{Tunable parameters.}
-\label{tab:knobs}
-\end{table}
-
-\begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l | l | l |}
-\hline
-\textbf{CPU} & \textbf{Memory} & \textbf{GPU}\\
-\hline
-Intel i7-4770 & 16GiB & NVIDIA GTX TITAN\\
-Intel i7-2600K & 16GiB & NVIDIA GTX 690\\
-Intel i7-2600K & 8GiB & 2$\times$ NVIDIA GTX 590\\
-Intel i7-3820 & 8GiB & 2$\times$ AMD Tahiti 7970\\
-Intel i5-4570 & 8GiB & -\\
-\hline
-\end{tabular}
-\caption{Testing hardware.}
-\label{tab:hw}
-\end{table}
-
-\TODO{Table of derived dependent variables (e.g. FLOPS, GPU utilisation)}
-
-\newpage
-
-\begin{algorithm}
-\caption{Request workgroup size}\label{bar}
-\begin{algorithmic}[1]
-\Require kernel features $k$, hardware features $h$, dataset features $d$.
-\Ensure workgroup size $c$
-
-\State $C \leftarrow \{ c_1, c_2,\ldots, c_n \}$
-\Comment Set of all possible workgroup sizes
-
-\If{no control flow in kernel}
-    \State \textbf{return} $\underset{c}{\argmin} f(k,h,d,c) = r$
-\Else
-   \State converged $\leftarrow$ false
-   \State $c_b \leftarrow$ baseline values
-   \State $r_b \leftarrow$ measure runtime of runtime of program with $c_b$
-   \While{not converged}
-     \State return $\underset{c}{\argmax} g(k,h,d,c) = s$
-     \State evaluate $c$, measuring runtime $r$\;
-     \If{measured speedup $\frac{r_b}{r} \approx$ predicted speedup $s$}
-       \State converged = true
-     \Else
-       \State $C = C - \{c\}$
-     \EndIf
-   \EndWhile
-   \State \textbf{return} $c$
-\EndIf
-\end{algorithmic}
-\end{algorithm}
-
-
-\subsection{Runtime sampling and statistical soundness}
+\subsection{Runtime Sampling and Statistical Soundness}
 
 \TODO{%
   OpenCL API for getting runtimes, how many samples are needed? Is
@@ -355,7 +112,26 @@ Intel i5-4570 & 8GiB & -\\
   device, etc.)? \ldots%
 }
 
-\subsection{Assessing oracle performance}
+% Leather, H., O’Boyle, M., & Worton, B. (2009). Raced Profiles:
+% Efficient Selection of Competing Compiler Optimizations. In LCTES
+% ’09: Proceedings of the ACM SIGPLAN/SIGBED 2009 Conference on
+% Languages, Compilers, and Tools for Embedded Systems
+% (pp. 1–10). Dublin.
+\TODO{%
+  Using adapting sampling plans to reduce the number of samples
+  required to distinguish good from bad compiler
+  configurations~\cite{Leather2009}.%
+}
+
+\subsection{Measuring Relative Performance}
+
+% P. J. Fleming and J. J. Wallace, “How not to lie with statistics:
+% the correct way to summarize benchmark results,” Commun. ACM,
+% vol. 29, no. 3, pp. 218–221, 1986.
+\TODO{%
+  How to properly report benchmark results~\cite{Fleming1986}.%
+}
+
 For a given scenario $s$ and workgroup size $w$, the arithmetic mean
 of measured runtimes if $t(s,w)$. From the set of all scenarios $S$
 and workgroup sizes $W$, the subset of workgroup scenarios
@@ -395,20 +171,182 @@ across all scenarios:
 \end{equation}
 
 
-\section{Benchmark Stencil Applications}
+\subsection{Benchmark Stencil Applications}
 
-\subsection{Finite Difference Time Domain}
+\begin{table}
+\footnotesize
+\centering
+\begin{tabular}{| l | l | l | l | l |}
+\hline
+\textbf{Name} & \textbf{Application} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
+\hline
+CannyEdgeDetection & Image processing & Stencil & - & 225 / 61\\
+DotProduct & Linear algebra & Zip, Reduce & - & 143 / 2\\
+FDTD & Scientific simulation & Map, Stencil & Y & 375 / 127\\
+GameOfLife & Cellular automata & Stencil & Y & 92 / 12\\
+GaussianBlur & Image processing & Stencil & - & 262 / 47\\
+HeatSimulation & Scientific simulation & Stencil & Y & 180 / 13\\
+MandelbrotSet & Fractal computation & Map & Y & 133 / 78\\
+MatrixMultiply & Linear algebra & AllPairs & - & 267 / 8\\
+SAXPY & Linear algebra & Zip & - & 149 / 3\\
+\hline
+\end{tabular}
+\caption{Benchmark applications. The LOC column shows lines of code, split between host (C++) and device (OpenCL).}
+\label{tab:benchmarks}
+\end{table}
 
-\subsection{Heat Equation}
+\subsubsection{Finite Difference Time Domain}
 
-\subsection{Gaussian Blur}
+\subsubsection{Heat Equation}
 
-\subsection{Game of Life}
+\subsubsection{Gaussian Blur}
 
-\subsection{Canny Edge Detection}
+\subsubsection{Game of Life}
+
+\subsubsection{Canny Edge Detection}
 
 
-\section{Procedural Generation of Synthetic Stencils}
+\subsection{Procedural Generation of Synthetic Stencils}
+
+\TODO{Synthetic benchmarks as a solution to the ``small $n$, large
+  $P$'' problem for empirical performance tuning.}
+
+\TODO{Synthetic benchmarks as low cost training data.}
+
+
+\section{Results}
+
+A total of \input{gen/num_scenarios} scenarios were tested. For each
+scenario, an average of \input{gen/num_avg_params} unique workgroup
+sizes were tested (max \input{gen/num_max_params}), for a total of
+\input{gen/num_runtime_stats} combinations of scenario and workgroup
+size. Runtimes were collected by randomly sampling $W_{safe}$, for an
+average of \input{gen/avg_sample_count} runtimes per scenario (total
+\input{gen/num_samples}). Figure~\ref{fig:min-max-runtimes} shows the
+distribution of minimum and maximum runtimes.
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/min_max_runtimes}
+\caption{%
+  Distribution of minimum and maximum observed runtimes for each
+  combination of scenario and parameter value, normalised to their
+  respective mean runtimes.%
+}
+\label{fig:min-max-runtimes}
+\end{figure}
+
+The relative performance of different workgroup sizes for a scenario
+can be found by normalising the mean runtimes against that of the
+oracle workgroup size. This can provide an upper limit on the speedup
+which can be attained using autotuning as the reciprocal of the
+normalised runtime for the workgroup size which gave the lowest
+performance. Applying this to all scenarios, we find the upper limit
+of potential speedup to be between
+$\input{gen/min_possible_speedup}\times$ --
+$\input{gen/max_possible_speedup}\times$ (average
+$\input{gen/avg_possible_speedup}\times$). This demonstrates that
+selection of the optimal
+
+Figure~\ref{fig:max-wgsizes} shows the distribution of maximum
+workgroup sizes across all scenarios. Figure~\ref{fig:oracle-wgsizes}
+shows the distribution of oracle workgroup sizes. Clearly, the
+workgroup size $64 \times 4$ is the optimal value across the most
+scenarios, but even that proves optimal only 10\% of the time. As
+Figure~\ref{fig:oracle-accuracy} shows,
+\input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
+required in order to achieve oracle performance just 50\% of the time.
+
+\begin{figure}
+\begin{subfigure}[t]{0.32\textwidth}
+\centering
+\includegraphics{gen/img/performance_kernels.png}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{Kernels}
+\label{fig:performance-kernels}
+\end{subfigure}
+~%
+\begin{subfigure}[t]{0.32\textwidth}
+\centering
+\includegraphics{gen/img/performance_devices.png}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{Devices}
+\label{fig:performance-devices}
+\end{subfigure}
+~%
+\begin{subfigure}[t]{0.32\textwidth}
+\centering
+\includegraphics{gen/img/performance_datasets.png}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{Datasets}
+\label{fig:performance-datasets}
+\end{subfigure}
+\label{fig:performance}
+\caption{%
+  Relative performance of workgroup sizes for different
+  scenarios, divided by kernels, devices, and datasets.%
+}
+\end{figure}
+
+\begin{figure}
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+\includegraphics{gen/img/max_wgsizes.png}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{Maximum workgroup sizes}
+\label{fig:max-wgsizes}
+\end{subfigure}
+~%
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+\includegraphics{gen/img/oracle_param_space.png}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{Oracle workgroup sizes}
+\label{fig:oracle-wgsizes}
+\end{subfigure}
+\caption{%
+  On the left, the distribution of maximum legal workgroup sizes for
+  all scenarios. On the right, the distribution of oracle workgroup
+  sizes.%
+}
+\label{fig:heatmaps}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/num_params_oracle.png}
+\caption{%
+  Accuracy compared to the oracle as a function of the number of
+  workgroup sizes used. The best accuracy that is achievable using a
+  single statically chosen value is
+  \protect\input{gen/max_oracle_param_frequency}\%.%
+}
+\label{fig:oracle-accuracy}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/performance_max_wgsize.png}
+\caption{%
+  Performance of a workgroup size relative to the oracle vs the
+  maximum legal workgroup size. There is no clear trend between the
+  performance of a workgroup size and it's size relative to the
+  maximum allowed.%
+}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/params_summary.png}
+\caption{%
+  The red line shows the ``legality'' of the parameter value, i.e.\
+  the ratio of scenarios for which that workgroup size is legal.  The
+  blue and green lines show the geometric mean of the performance of
+  workgroup sizes relative to the oracle for: all scenarios, and only
+  the scenarios for which the workgroup size is legal.%
+}
+\end{figure}
+
 
 
 \section{Summary}
