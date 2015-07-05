@@ -1,22 +1,32 @@
-By their nature, Algorithmic Skeletons abstract implement details from
-the user which can be critical to performance. This project explores
-the effect of one such implementation detail --- setting the workgroup
-size of OpenCL kernels --- for SkelCL Stencil patterns. Through an
-exhaustive enumeration of a large optimisation space, we find that
-there is no one sensible default value which provides portable
-performance across the range of architectures, kernels, and datasets
-which SkelCL targets. As a result, we present a machine-learning
-enabled autotuner which performs runtime prediction of optimal
-workgroup sizes, achieving \fixme{XXX}\% performance of the oracle,
-providing an average speedup of \fixme{XXX}$\times$ (max
-\fixme{XXX}$\times$) over the best statically chosen value.
+Algorithmic Skeletons simplify parallel programming by providing
+high-level, reusable patterns of computation. This forces skeleton
+authors to optimise for the general case, and users to forgo the
+performance advantages that are gained from tuning low level
+optimisation parameters. This thesis examines the effect of one such
+implementation detail --- setting the workgroup size of OpenCL kernels
+--- on the performance of stencil codes in SkelCL, a library for data
+parallel patterns on GPUs and CPUs. Through an empirical evaluation of
+a large optimisation space, we find that there is no one sensible
+value which can provides portable performance across the range of
+architectures, kernels, and data sets which Algorithmic Skeletons must
+target. To address this, we present an extensible and distributed
+autotuner that performs runtime adaptive tuning of workgroup size. The
+presented autotuner uses offline training with synthetic stencils to
+rapidly evaluate a subset of the optimisation space. On a suite of 5
+stencil benchmarks on 4 different GPUs, the autotuner is able to
+achieve 97\% of the oracle performance, providing an average speedup
+of $1.35\times$ (max $4.00\times$) over the best possible performance
+which can be achieved without autotuning.
 
 \ifdraft{
-  \textcolor{red}{\section*{Notes about draft version \version{}}}
+  \textcolor{red}{\section*{Notes for draft version \version{}}}
+  \begin{itemize}
+  \item Abstract must be submitted for inclusion in industrial
+    newlsetter, deadline \emph{20th July}. No hard limits, but aim for
+    100-150 words.
 
-  \noindent
-  Missing some significant chunks of both text \emph{and} data. The
-  evaluation is not yet complete. Notable missing stuff: data from CPU
-  results, evaluation of linear regression.
-
+  \item Missing some significant chunks of both text \emph{and}
+    data. The evaluation is not yet complete. Notable missing stuff:
+    data from CPU results, evaluation of linear regression.
+  \end{itemize}
 }
