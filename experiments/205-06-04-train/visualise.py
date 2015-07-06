@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 from __future__ import division
+from __future__ import print_function
 
 import sys
 
@@ -26,58 +27,31 @@ from omnitune.skelcl import space as _space
 import experiment
 
 
-def main():
-    db = _db.Database(experiment.ORACLE_PATH)
-
-    # Delete any old stuff.
-    fs.rm("img")
-
-    # Make directories
-    fs.mkdir("img/scenarios/")
-
-    fs.mkdir("img/eval/classifiers")
-    fs.mkdir("img/eval/runtime_regression")
-    fs.mkdir("img/eval/err_fns")
-
-    fs.mkdir("img/coverage/devices")
-    fs.mkdir("img/coverage/kernels")
-    fs.mkdir("img/coverage/datasets")
-
-    fs.mkdir("img/safety/devices")
-    fs.mkdir("img/safety/kernels")
-    fs.mkdir("img/safety/datasets")
-
-    fs.mkdir("img/oracle/devices")
-    fs.mkdir("img/oracle/kernels")
-    fs.mkdir("img/oracle/datasets")
-
-    #########################
-    # ML Runtime Regression #
-    #########################
-
-    # Runtime regression accuracy.
-    visualise.xval_runtime_regression(db, "img/eval/runtime_regression.png")
-
+def visualise_classification_job(db, job):
     #####################
     # ML Classification #
     #####################
+    basedir = "img/eval/{}/".format(job)
+
+    fs.mkdir(basedir)
+    fs.mkdir(basedir + "classifiers")
+    fs.mkdir(basedir + "err_fns")
 
     # Bar plot of all results.
-    visualise.xval_classification(db, "img/eval/xval_classification.png")
+    visualise.classification(db, basedir + "results.png", job=job)
 
     # Per-classifier plots.
     for i,classifier in enumerate(db.classification_classifiers):
-        visualise.xval_classifier_speedups(db, classifier,
-                                           "img/eval/classifiers/{}.png"
-                                           .format(i))
+        visualise.classifier_speedups(db, classifier,
+                                      basedir + "classifiers/{}.png".format(i),
+                                      job=job)
     # Per-err_fn plots.
     for err_fn in db.err_fns:
-        visualise.xval_err_fn_speedups(db, err_fn,
-                                       "img/eval/err_fns/{}.png"
-                                       .format(err_fn), sort=True)
+        visualise.err_fn_speedups(db, err_fn,
+                                  basedir + "err_fns/{}.png".format(err_fn),
+                                  job=job, sort=True)
 
     # Results table.
-    job = "xval_classifiers"
     query = db.execute(
         "SELECT classifier,err_fn,Count(*) AS count\n"
         "FROM classification_results\n"
@@ -111,6 +85,8 @@ def main():
         "float_format": lambda f: "{:.2f}".format(f)
     }
 
+    print()
+    print("RESULTS FOR", job)
     print(fmt.table(results, str_args, columns=(
         "CLASSIFIER",
         "ERR_FN",
@@ -123,6 +99,39 @@ def main():
         "Savg",
         "Smax",
     )))
+
+
+def main():
+    db = _db.Database(experiment.ORACLE_PATH)
+
+    # Delete any old stuff.
+    fs.rm("img")
+
+    # Make directories
+    fs.mkdir("img/scenarios/")
+
+    fs.mkdir("img/eval/runtime_regression")
+
+    fs.mkdir("img/coverage/devices")
+    fs.mkdir("img/coverage/kernels")
+    fs.mkdir("img/coverage/datasets")
+
+    fs.mkdir("img/safety/devices")
+    fs.mkdir("img/safety/kernels")
+    fs.mkdir("img/safety/datasets")
+
+    fs.mkdir("img/oracle/devices")
+    fs.mkdir("img/oracle/kernels")
+    fs.mkdir("img/oracle/datasets")
+
+    #####################
+    # ML Visualisations #
+    #####################
+    visualise_classification_job(db, "real_only")
+    visualise_classification_job(db, "xval_classifiers")
+
+    # Runtime regression accuracy.
+    visualise.xval_runtime_regression(db, "img/eval/runtime_regression.png")
 
     # Whole-dataset plots
     visualise.runtimes_variance(db, "img/runtime_variance.png", min_samples=30)
