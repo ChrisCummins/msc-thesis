@@ -87,30 +87,35 @@ autotuner only supports vector operations.
 In~\cite{Zhang2013a}, \citeauthor{Zhang2013a} present a code generator
 and autotuner for 3D Jacobi stencil codes. Using a DSL to express
 kernel functions, the code generator performs substitution from one of
-two CUDA templates to create GPU programs. These programs are
-parameterised and tuned for block size, block dimensions, and whether
-input data is stored in read only texture memory. This creates a
-search space of up to 200 configurations.
+two CUDA templates to create programs for execution on GPUs. GPU
+programs are parameterised and tuned for block size, block dimensions,
+and whether input data is stored in read only texture memory. This
+creates an optimisation space of up to 200 configurations.
 
-The authors report impressive performance, comparable with previous
-implementations of iterative Jacobi stencils on
+In an evaluation of 4 benchmarks, the authors report impressive
+performance that is comparable with previous implementations of
+iterative Jacobi stencils on
 GPUs~\cite{Holewinski2012,Phillips2010}. The dominating parameter is
 shown to be block dimensions, followed by block size, then read only
 memory. An unfortunate limitation of their system is that they do not
 support multi-GPU execution within a single node, instead using
 message passing in a cluster. This rules out the possible benefits of
-performing loop compaction for iterative stencils, an optimisation
+performing loop compaction across stencil iterations, an optimisation
 which has shown to be beneficial for multi-GPU performance
 in~\cite{Lutz2013}.
 
 The DSL presented in the paper is limited to expressing only Jacobi
 Stencils applications. Critically, their autotuner requires a full
-enumeration of the parameter space for each program, with no element
-of search space reduction or cross-program learning. Since there is no
-evidence of the compute time required to perform this enumeration, it
-gives the impression that the system would be impractical for the
-needs of general purpose Stencil
-computing.
+enumeration of the parameter space for each program. Since there is no
+indication of the compute time required to gather this data, it gives
+the impression that the system would be impractical for the needs of
+general purpose stencil computing. The autotuner presented in this
+thesis overcomes this drawback by learning parameter values which
+transfer to unseen stencils, without the need for an expensive tuning
+phase for each program and architecture.
+% TODO: Depending on results of cross-architecture validation, this
+% last claim may not hold up.
+
 % The majority of applications tested are memory bound. Does this
 % transfer to computer bound?
 

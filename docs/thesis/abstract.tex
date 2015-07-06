@@ -1,22 +1,27 @@
 Algorithmic Skeletons simplify parallel programming by providing
-high-level, reusable patterns of computation. This forces skeleton
-authors to optimise for the general case, and users to forgo the
-performance advantages that are gained from tuning low level
-optimisation parameters. This thesis examines the effect of one such
-implementation detail --- setting the workgroup size of OpenCL kernels
---- on the performance of stencil codes in SkelCL, a library for data
-parallel patterns on GPUs and CPUs. Through an empirical evaluation of
-a large optimisation space, we find that there is no one sensible
-value which can provides portable performance across the range of
+high-level, reusable patterns of computation. Achieving performant
+skeleton implementations is a difficult task; developers must attempt
+to anticipate and tune for a wide range of architectures and use
+cases. This results in implementations that target the general case
+and cannot provide the performance advantages that are gained from
+tuning low level optimisation parameters.
+
+This thesis examines the effect of one such optimisation parameter ---
+setting the workgroup size of OpenCL kernels --- on the performance of
+stencil codes on GPUs and CPUs. Through an empirical evaluation of a
+large optimisation space, we find that there is no one sensible value
+which can provides portable performance across the range of
 architectures, kernels, and data sets which Algorithmic Skeletons must
-target. To address this, we present an extensible and distributed
-autotuner that performs runtime adaptive tuning of workgroup size. The
+target.
+
+To address this, we present an extensible and distributed autotuner
+that performs adaptive tuning of workgroup size at runtime. The
 presented autotuner uses offline training with synthetic stencils to
 rapidly evaluate a subset of the optimisation space. On a suite of 5
 stencil benchmarks on 4 different GPUs, the autotuner is able to
-achieve 97\% of the oracle performance, providing an average speedup
-of $1.35\times$ (max $4.00\times$) over the best possible performance
-which can be achieved without autotuning.
+achieve 97\% of the available performance, providing an average
+speedup of $1.35\times$ (max $4.00\times$) over the best possible
+performance which can be achieved without autotuning.
 
 \ifdraft{
   \textcolor{red}{\section*{Notes for draft version \version{}}}
