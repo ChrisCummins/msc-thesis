@@ -21,7 +21,7 @@ from weka.classifiers import Classifier as WekaClassifier
 from weka.classifiers import FilteredClassifier as WekaFilteredClassifier
 from weka.filters import Filter as WekaFilter
 from weka.core.classes import Random as WekaRandom
-from weka.core.dataset import Instances
+from weka.core.dataset import Instances as WekaInstances
 
 import labm8 as lab
 from labm8 import fmt
@@ -80,9 +80,22 @@ def summarise_perfs(perfs):
 
 class Dataset(ml.Dataset):
 
-    def __init__(self, db, *args, **kwargs):
-        super(Dataset, self).__init__(*args, **kwargs)
-        self.db = db
+
+    def split_synthetic_real(self, db):
+        real_scenarios = db.real_scenarios
+
+        synthetic = self.copy(self.instances)
+        real = self.copy(self.instances)
+
+        for i in range(self.instances.num_instances - 1, -1, -1):
+            instance = self.instances.get_instance(i)
+            scenario = instance.get_string_value(0)
+            if scenario in real_scenarios:
+                real.delete(i)
+            else:
+                synthetic.delete(i)
+
+        return synthetic, real
 
     @staticmethod
     def load(path, db):
@@ -104,7 +117,8 @@ class Dataset(ml.Dataset):
         force_nominal = ["-N", nominal_indices]
 
         # Load data from CSV.
-        dataset = ml.Dataset.load_csv(path, options=force_nominal)
+        dataset = Dataset.load_csv(path, options=force_nominal)
+        dataset.__class__ = Dataset
 
         # Set class index and database connection.
         dataset.class_index = -1
@@ -325,32 +339,25 @@ class Classifier(WekaFilteredClassifier):
         return self.__repr__()
 
 
-def xvalidate_classifiers(job, db, classifiers, err_fns, perf_fn, dataset,
-                          nfolds=10):
+def eval_classifiers(job, db, testing, training, classifiers,
+                     err_fns, perf_fn):
     """
     Cross validate a set of classifiers and err_fns.
     """
-    # Generate training and testing datasets.
-    folds = dataset.folds(nfolds)
-    io.info("Size of training set:", folds[0][0].num_instances)
-    io.info("Size of testing set: ", folds[0][1].num_instances)
+    for classifier in classifiers:
+        meta = Classifier(classifier)
+        meta.build_classifier(training)
 
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        for classifier in classifiers:
-            meta = Classifier(classifier)
-            meta.build_classifier(training)
+        for err_fn in err_fns:
+            basename = ml.classifier_basename(classifier.classname)
 
-            for err_fn in err_fns:
-                io.info("Evaluating fold", i + 1, "with",
-                        err_fn.func.__name__,
-                        text.truncate(str(classifier), 40))
+            for j,instance in enumerate(testing):
+                io.debug(job, basename, err_fn.func.__name__,
+                         j, "of", testing.num_instances)
+                eval_instance(job, db, meta, instance,
+                              perf_fn, err_fn, training)
+            db.commit()
 
-                for j,instance in enumerate(testing):
-                    io.debug(j)
-                    eval_instance(job, db, meta, instance,
-                                  perf_fn, err_fn, training)
-                db.commit()
 
 def classification(db, nfolds=10):
     dataset = Dataset.load("/tmp/omnitune/csv/oracle_params.csv", db)
@@ -370,8 +377,26 @@ def classification(db, nfolds=10):
         partial(reshape_fn, db),
     )
 
-    xvalidate_classifiers("xval_classifiers", db, classifiers, err_fns,
-                          perf_fn, dataset, nfolds=nfolds)
+    # Generate training and testing datasets for cross-validation.
+    folds = dataset.folds(nfolds)
+    print()
+    io.info("CROSS VALIDATION")
+    io.info("Size of training set:", folds[0][0].num_instances)
+    io.info("Size of testing set: ", folds[0][1].num_instances)
+
+    for i,fold in enumerate(folds):
+        training, testing = fold
+        io.debug("Cross-validating classifiers, fold", i, "of", nfolds)
+        eval_classifiers("xval_classifiers", db, training, testing,
+                         classifiers, err_fns, perf_fn)
+
+    print()
+    io.info("VALIDATION: REAL ONLY")
+    training, testing = dataset.split_synthetic_real(db)
+    io.info("Size of training set:", training.num_instances)
+    io.info("Size of testing set: ", testing.num_instances)
+    eval_classifiers("real_only", db, training, testing,
+                     classifiers, err_fns, perf_fn)
 
 
 def eval_regression(job, db, classifier, instance, dataset, add_cb):
