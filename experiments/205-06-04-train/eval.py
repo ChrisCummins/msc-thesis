@@ -340,7 +340,7 @@ class Classifier(WekaFilteredClassifier):
         return self.__repr__()
 
 
-def eval_classifiers(job, db, testing, training, classifiers,
+def eval_classifiers(job, db, training, testing, classifiers,
                      err_fns, perf_fn):
     """
     Cross validate a set of classifiers and err_fns.
@@ -348,10 +348,9 @@ def eval_classifiers(job, db, testing, training, classifiers,
     for classifier in classifiers:
         meta = Classifier(classifier)
         meta.build_classifier(training)
+        basename = ml.classifier_basename(classifier.classname)
 
         for err_fn in err_fns:
-            basename = ml.classifier_basename(classifier.classname)
-
             for j,instance in enumerate(testing):
                 io.debug(job, basename, err_fn.func.__name__,
                          j, "of", testing.num_instances)
@@ -387,7 +386,7 @@ def classification(db, nfolds=10):
 
     for i,fold in enumerate(folds):
         training, testing = fold
-        io.debug("Cross-validating classifiers, fold", i, "of", nfolds)
+        io.debug("Cross-validating classifiers, fold", i + 1, "of", nfolds)
         eval_classifiers("xval_classifiers", db, training, testing,
                          classifiers, err_fns, perf_fn)
 
@@ -413,27 +412,19 @@ def eval_regression(job, db, classifier, instance, dataset, add_cb):
            norm_predicted, norm_error)
 
 
-def xvalidate_regression(job, db, classifiers, dataset, nfolds, add_cb):
-    # Generate training and testing datasets.
-    folds = dataset.folds(nfolds)
-    io.info("Size of training set:", folds[0][0].num_instances)
-    io.info("Size of testing set: ", folds[0][1].num_instances)
+def eval_regressors(job, db, training, testing, classifiers, add_cb):
+    for classifier in classifiers:
+        meta = Classifier(classifier)
+        meta.build_classifier(training)
+        basename = ml.classifier_basename(classifier.classname)
 
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        for classifier in classifiers:
-            meta = Classifier(classifier)
-            meta.build_classifier(training)
+        for j,instance in enumerate(testing):
+            io.debug(job, basename, j, "of", testing.num_instances)
+            eval_regression(job, db, meta, instance, training, add_cb)
+        db.commit()
 
-            io.info("Evaluating fold", i + 1, "with",
-                    text.truncate(str(classifier), 40))
 
-            for j,instance in enumerate(testing):
-                io.debug(j)
-                eval_regression(job, db, meta, instance, training, add_cb)
-            db.commit()
-
-def regression(db, path, nfolds, job, add_cb):
+def xval_regressors(db, path, nfolds, job, add_cb):
     dataset = Dataset.load(path, db)
 
     classifiers = (
@@ -443,17 +434,27 @@ def regression(db, path, nfolds, job, add_cb):
         ml.ZeroR(),
     )
 
-    xvalidate_regression(job, db, classifiers, dataset,
-                         nfolds, add_cb)
+    # Generate training and testing datasets.
+    folds = dataset.folds(nfolds)
+    print()
+    io.info("CROSS VALIDATION")
+    io.info("Size of training set:", folds[0][0].num_instances)
+    io.info("Size of testing set: ", folds[0][1].num_instances)
+
+    for i,fold in enumerate(folds):
+        training, testing = fold
+        io.debug("Cross-validating regressors, fold", i + 1, "of", nfolds)
+        eval_regressors(job, db, training, testing, classifiers, add_cb)
+
 
 def runtime_regression(db, nfolds=10):
-    regression(db, "/tmp/omnitune/csv/runtime_stats.csv", nfolds,
-               "xval_runtimes", db.add_runtime_regression_result)
+    xval_regressors(db, "/tmp/omnitune/csv/runtime_stats.csv", nfolds,
+                    "xval_runtimes", db.add_runtime_regression_result)
 
 
 def speedup_regression(db, nfolds=10):
-    regression(db, "/tmp/omnitune/csv/speedup_stats.csv", nfolds,
-               "xval_speedups", db.add_speedup_regression_result)
+    xval_regressors(db, "/tmp/omnitune/csv/speedup_stats.csv", nfolds,
+                    "xval_speedups", db.add_speedup_regression_result)
 
 
 def main():
