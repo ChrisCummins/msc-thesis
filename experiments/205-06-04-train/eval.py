@@ -257,7 +257,8 @@ def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
     return hash_params(all_wg_c[c], all_wg_r[r])
 
 
-def eval_instance(job, db, classifier, instance, perf_fn, err_fn, training):
+def eval_classifier_instance(job, db, classifier, instance,
+                             perf_fn, err_fn, training):
     """
     Returns:
 
@@ -354,8 +355,8 @@ def eval_classifiers(job, db, testing, training, classifiers,
             for j,instance in enumerate(testing):
                 io.debug(job, basename, err_fn.func.__name__,
                          j, "of", testing.num_instances)
-                eval_instance(job, db, meta, instance,
-                              perf_fn, err_fn, training)
+                eval_classifier_instance(job, db, meta, instance,
+                                         perf_fn, err_fn, training)
             db.commit()
 
 
@@ -408,7 +409,7 @@ def eval_regression(job, db, classifier, instance, dataset, add_cb):
     norm_predicted = predicted / actual
     norm_error = abs(norm_predicted - 1)
 
-    add_cb(job, classifier, dataset, scenario, actual, predicted,
+    add_cb(job, classifier, dataset, scenario, params, actual, predicted,
            norm_predicted, norm_error)
 
 
