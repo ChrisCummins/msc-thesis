@@ -7650,3 +7650,51 @@ Converting runtimes dataset for regression:
   -R first-last`
 * Classify with: `weka.classifiers.functions.LinearRegression`
 * Classify with: `weka.classifiers.functions.SMOreg`
+
+
+# July 2015
+
+
+## Monday 6th
+
+TODO: Plot performance of different error handlers for *only* cases
+where they were required.
+
+Notes for supervisor meeting:
+
+* Abstract due 20th.
+* TODO: CPU data, classification with linear regression.
+* Evaluation of classification - OneR, random, reshape.
+* What is a good name for OneR?
+* First draft thesis on Friday
+* PhD phase?
+
+Notes from supervisor meeting:
+
+* Potential solution to the "invalid results" problem: have a
+  classifier *per* max wg size. That way, they will *never* pick an
+  invalid wgsize.
+* Thesis TOC: Some of this background sounds like related work.
+* Background section can be written towards the end. Go through the
+  final manuscript and check that all terminology is explained in the
+  background. Add sections as required.
+* Proposed structure of thesis body: a chapter for autotuner,
+  experiment, results.
+* Make sure to indicate the relevant changeset between iterations of
+  draft thesis. Address *all* comments raised. Even if I'm ignoring a
+  suggestion, make sure to explicitly say so.
+* Every section needs an introduction which provides "the message",
+  i.e. why should the reader give a crap about the following
+  text. Make sure each section has a clearly defined message.
+* I'll need *around* 24 papers for the related work section.
+* Review of related work section for Zhang's autotuner:
+  * The "an unfortunate limitation" bit isn't really relevant.
+  * The last section is pretty weakly worded.
+  * As far as word count, this is about right for *closest
+    competitors*. Note that this particular paper perhaps isn't that
+    close of a competitor.
+* For Friday, first draft of thesis. In the results section, list a
+  set of questions, and then a brief summary of how I expect the
+  results will answer it, and *hand drawn* visualisations. The is to
+  show interesting visualisations of the data, not repetitive, same-y
+  charts.
