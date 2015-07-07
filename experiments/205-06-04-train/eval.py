@@ -80,13 +80,22 @@ def summarise_perfs(perfs):
 
 class Dataset(ml.Dataset):
 
-
     def split_synthetic_real(self, db):
+        """
+        Split dataset based on whether scenario is a synthetic kernel or
+        not.
+
+        Returns:
+
+           (WekaInstances, WekaInstances): Only instances from
+             synthetic and real benchmarks, respectively.
+        """
         real_scenarios = db.real_scenarios
 
         synthetic = self.copy(self.instances)
         real = self.copy(self.instances)
 
+        # Loop over all instances from last to first.
         for i in range(self.instances.num_instances - 1, -1, -1):
             instance = self.instances.get_instance(i)
             scenario = instance.get_string_value(0)
