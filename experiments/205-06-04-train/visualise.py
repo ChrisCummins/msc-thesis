@@ -28,17 +28,15 @@ import experiment
 
 
 def visualise_classification_job(db, job):
-    #####################
-    # ML Classification #
-    #####################
-    basedir = "img/eval/{}/".format(job)
+    basedir = "img/classification/{}/".format(job)
 
     fs.mkdir(basedir)
     fs.mkdir(basedir + "classifiers")
     fs.mkdir(basedir + "err_fns")
 
     # Bar plot of all results.
-    visualise.classification(db, basedir + "results.png", job=job)
+    visualise.classification(db, "img/classification/{}.png".format(job),
+                             job=job)
 
     # Per-classifier plots.
     for i,classifier in enumerate(db.classification_classifiers):
@@ -101,6 +99,22 @@ def visualise_classification_job(db, job):
     )))
 
 
+def visualise_regression_job(db, job):
+    runtimedir = "img/runtime_regression/{}/".format(job)
+    speedupdir = "img/speedup_regression/{}/".format(job)
+
+    fs.mkdir(runtimedir)
+    fs.mkdir(speedupdir)
+
+    # Line plot of all classifiers.
+    visualise.runtime_regression(db,
+                                 "img/runtime_regression/{}.png".format(job),
+                                 job=job)
+    # visualise.speedup_regression(db,
+    #                              "img/speedup_regression/{}.png".format(job),
+    #                              job=job)
+
+
 def main():
     db = _db.Database(experiment.ORACLE_PATH)
 
@@ -109,8 +123,6 @@ def main():
 
     # Make directories
     fs.mkdir("img/scenarios/")
-
-    fs.mkdir("img/eval/runtime_regression")
 
     fs.mkdir("img/coverage/devices")
     fs.mkdir("img/coverage/kernels")
@@ -127,11 +139,16 @@ def main():
     #####################
     # ML Visualisations #
     #####################
-    visualise_classification_job(db, "real_only")
-    visualise_classification_job(db, "xval_classifiers")
+    visualise_classification_job(db, "xval")
+    visualise_classification_job(db, "arch")
+    visualise_classification_job(db, "xval_real")
+    visualise_classification_job(db, "synthetic_real")
 
     # Runtime regression accuracy.
-    visualise.xval_runtime_regression(db, "img/eval/runtime_regression.png")
+    visualise_regression_job(db, "xval")
+    visualise_regression_job(db, "arch")
+    visualise_regression_job(db, "xval_real")
+    visualise_regression_job(db, "synthetic_real")
 
     # Whole-dataset plots
     visualise.runtimes_variance(db, "img/runtime_variance.png", min_samples=30)
