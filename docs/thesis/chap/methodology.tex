@@ -1,10 +1,18 @@
 \section{Introduction}
 
-In this chapter, we explore the performance influence of low level
-tuning parameters on the performance of SkelCL stencils. We describe
-an experiment to enumerate a large optimisation space of Stencil
-codes, measuring the relative performance achieved by varying the
-workgroup size of OpenCL kernels.
+The number of ``moving parts'' in the modern software stack makes for
+noisy results when measuring program execution time. As such,
+evaluating the relative performance of different versions of programs
+should take a statistically rigorous approach, using the results of
+multiple iterations to reduce the impact of outliers.
+
+This chapter describe the methodology used to achieve statistically
+sound comparisons of differing workgroup sizes on the performance of a
+stencil code. I describe an experiment to explore the space of
+architectures, programs, and datasets, and detail some of the many
+factors which can influence the performance of stencils in different
+conditions. I present the results of this exploration phase and use
+this to present the case for autotuning.
 
 
 \section{Experimental Setup}
@@ -252,6 +260,8 @@ Figure~\ref{fig:oracle-accuracy} shows,
 \input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
 required in order to achieve oracle performance just 50\% of the time.
 
+\TODO{Plot speedups of over baseline.}
+
 \begin{figure}
 \begin{subfigure}[t]{0.32\textwidth}
 \centering
@@ -344,3 +354,22 @@ required in order to achieve oracle performance just 50\% of the time.
 
 
 \section{Summary}
+
+\TODO{Hmm. It seems that there is a lot of room for improvement, which
+demonstrates the problem with having to generalise for all cases - you
+lose out on up to *10x* performance improvements. Let's put this all
+together:}
+
+\begin{enumerate}
+\item The best workgroup size for a particular workload depends on the
+  hardware, software, and dataset.
+\item Not all workgroup sizes are legal, and we can only test if a
+  value \emph{is} legal at runtime.
+\item Differing workloads have wildly different optimal workgroup
+  sizes, and selecting the right one can give you a 10x boost in
+  performance.
+\end{enumerate}
+
+\todo{This presents a compelling case for the development of an
+  autotuner which can select the optimal workgroup size at
+  runtime. That is what I have set out to achieve.}

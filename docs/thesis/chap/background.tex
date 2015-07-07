@@ -163,22 +163,18 @@ of workgroups which may be simultaneously active.
 
 \section{High-Level GPU Programming with SkelCL}
 
-SkelCL\footnote{\url{http://skelcl.uni-muenster.de}} is an object
-oriented C++ library that provides OpenCL implementations of data
-parallel algorithmic skeletons for heterogeneous
-parallelism. Skeletons are parameterised with muscle functions by the
+Introduced in~\cite{Steuwer2011}, SkelCL is an object oriented C++
+library that provides OpenCL implementations of data parallel
+algorithmic skeletons for heterogeneous parallelism using CPUs or
+multi-GPUs. Skeletons are parameterised with muscle functions by the
 user, which are compiled into OpenCL kernels for execution on device
 hardware. The Vector and Matrix container types transparently handle
 communication between the host and device memory, and support
 partitioning for multi-GPU execution.
 
-% Steuwer, M., Kegel, P., & Gorlatch, S. (2011). SkelCL - A Portable
-% Skeleton Library for High-Level GPU Programming. In Parallel and
-% Distributed Processing Workshops and Phd Forum (IPDPSW), 2011 IEEE
-% International Symposium on
-% (pp. 1176–1182). IEEE. doi:10.1109/IPDPS.2011.269
-\TODO{The introductory SkelCL paper. Most highly cited:
-\cite{Steuwer2011}}
+SkelCL is freely
+available\footnote{\url{http://skelcl.uni-muenster.de}} and
+distributed under dual GPL and academic licenses.
 
 % Steuwer, M., & Gorlatch, S. (2013). SkelCL: Enhancing OpenCL for
 % High-Level Programming of Multi-GPU Systems. Parallel Computing
@@ -333,7 +329,14 @@ z_{ij} =
 \end{equation}
 
 
-\paragraph{Stencil}
+\paragraph{Stencil} are patterns of computation which operate on
+uniform grids of data, where the value of each cell is updated based
+on its current value and the value of one or more neighbouring
+elements, which we'll call the border region. In SkelCL, users provide
+the function which updates a cell's value, and SkelCL orchestrates the
+parallel execution of these functions. Each cell maps to a single work
+item; and this collection of work items is then divided into
+\emph{workgroups} for execution on the target hardware.
 
 Given a customising function $f$, a \emph{stencil shape} $S$
 
@@ -404,6 +407,12 @@ files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
 
 \subsection{Example Applications}
 
+Three example programs
+
+ease of use
+skeleton composition
+stencils
+
 \TODO{%
   Provide definition of three simple example programs, then code
   listings for SkelCL implementations and a comparison of runtimes
@@ -411,7 +420,65 @@ files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
   OpenCL?%
 }
 
-\subsubsection{Application 1: Dot Product}
+\subsubsection{Application 1: Mandelbrot Set}
+
+\TODO{%
+  The easy way to do this is to write a program which will iterate
+  over the pixels in your image and calculate their value. This is
+  easy, intuitive, and it's around 50 lines of code. The downside is
+  it is slow.%
+}
+
+\todo{%
+  So in the name of performance you start browsing around for ways to
+  make this fast. You notice a lot of buzz about "heterogeneous
+  parallelism", so you decide to give it a shot and dabble in a bit of
+  GPGPU programming. After reading through some tutorials and the API
+  documentation you find that all you have to do is: add a few OpenCL
+  headers, select a platform, select a device, create a command queue,
+  compile a program, create a kernel, create a buffer, enqueue a
+  kernel, read the buffer, handle any errors... and you are
+  done. This blows your single program out to around 200 lines of
+  code, but it runs 20 times faster. In the age of multicores you're
+  going to need that extra performance, but as a developer you may
+  not be willing to pay the high price that this demands.%
+}
+
+\todo{%
+  Algorithmic Skeletons offer a solution; by abstracting common
+  patterns of communication, they allow libraries and language authors
+  to provide robust parallel implementations which allow users to
+  focus on solving problems, rather than having to micro-manage the
+  tricky coordination of parallel resources. That's all well and good,
+  but if you said to me "Chris, surely you could illustrate this point
+  better using a cartoon skeleton doing a jig", I'd be inclined to
+  agree with you.%
+}
+
+\todo{%
+  So you take your new-found knowledge of Algorithmic Skeletons and
+  apply it to your Mandelbrot problem. You realise that calculating
+  each pixel is just a Map operation, so, armed with a Map skeleton,
+  you go back to your sequential Mandelbrot code and make the
+  necessary adjustments to use Skeletons. Now you have a program which
+  looks just like your sequential version, but harnesses all the power
+  of the GPU to provide near-``hand tuned'' levels of performance.%
+}
+
+\todo{%
+  I say near hand tuned performance because clearly it's not quite as
+  fast as when you did all of that OpenCL programming yourself. Why is
+  that? The reason is that by their nature, Algorithmic Skeletons are
+  forced to forgo low-level tuning in order to generalise for all
+  cases. If you think how hard it is to select the effective
+  optimisations for a program, imagine trying to achieve that at the
+  level of a patterns library for all possible use-cases! For this
+  reason, I would argue that if we want to achieve both the of ease of
+  use of skeletons and the high performance of hand tuned code, we
+  need autotuning.%
+}
+
+\subsubsection{Application 2: Dot Product}
 
 \TODO{Definition, and performance results.}
 
@@ -445,14 +512,19 @@ int main(int argc, char* argv[]) {
 }
 \end{lstlisting}
 
-\subsubsection{Application 2: Mandelbrot Set}
-
-\TODO{Definition, listing, and performance results.}
-
 \subsubsection{Application 3: Gaussian Blur}
 
 \TODO{Definition, listing, and performance results.}
 
 \subsection{Grid Decomposition of Stencil Codes}
+
+\TODO{%
+  While the user is clearly in control of the type of work which
+  is executed, the size of the grid, and the size of the border
+  region, it is very much the responsibility of the skeleton
+  implementation to select what workgroup size to use. As such I
+  designed an experiment to explore just what effect changing
+  workgroup sizes has on the performance of Stencil skeletons.%
+}
 
 \TODO{Add diagram showing workgroup decomposition.}
