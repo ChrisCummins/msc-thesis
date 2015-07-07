@@ -106,6 +106,38 @@ class Dataset(ml.Dataset):
 
         return synthetic, real
 
+    def arch_folds(self, db):
+        """
+        Split dataset to a list of leave-one-out instances, one for each
+        architecture.
+
+        Returns:
+
+           list of (WekaInstances, WekaInstances) tuples: A list of
+             training, testing pairs, where the training instances
+             exclude all scenarios from a specific architecture, and
+             the testing instances include only that architecture..
+        """
+        folds = []
+
+        for device in db.devices:
+            device_scenarios = db.scenarios_for_device(device)
+            testing = self.copy(self.instances)
+            training = self.copy(self.instances)
+
+            # Loop over all instances from last to first.
+            for i in range(self.instances.num_instances - 1, -1, -1):
+                instance = self.instances.get_instance(i)
+                scenario = instance.get_string_value(0)
+                if scenario in device_scenarios:
+                    training.delete(i)
+                else:
+                    testing.delete(i)
+
+            folds.append((training, testing))
+
+        return folds
+
     @staticmethod
     def load(path, db):
         nominals = [
