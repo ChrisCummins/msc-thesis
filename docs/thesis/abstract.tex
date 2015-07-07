@@ -1,6 +1,10 @@
-% TODO: Add one to two sentences of CRISIS. E.g. ``we're moving
-% towards heterogeneous parallelism, but do not yet have the tools to
-% cope with this.''
+The physical limitations of microprocessor design have forced
+manufactures towards increasingly heterogeneous architectures to
+extract performance. This trend has not been matched with software
+tools to cope with such parallelism, leading to a disparity between
+the levels of available performance and the ability for application
+developers to exploit it.
+
 Algorithmic Skeletons simplify parallel programming by providing
 high-level, reusable patterns of computation. Achieving performant
 skeleton implementations is a difficult task; developers must attempt
@@ -18,25 +22,25 @@ tuning low level optimisation parameters.
 This thesis examines the effect of one such optimisation parameter ---
 setting the workgroup size of OpenCL kernels --- on the performance of
 stencil codes on GPUs and CPUs. Through an empirical evaluation of a
-large optimisation space, we find that there is no one
+large optimisation space, I demonstrate that there is no one
 % TODO: rephrase ``sensible value''. It should be clear that there's
 % no static value OR simple heuristic which would work.
-sensible value which can provides portable performance across the
-range of architectures, kernels, and data sets which Algorithmic
-Skeletons must target.
+sensible value or heuristic which can provides portable performance
+across the range of architectures, kernels, and data sets which
+Algorithmic Skeletons must target.
 
 % TODO: Add a comparison of autotuner performance vs. human expert.
 %
 % TODO: Don't downplay the size of the evaluation. ``5 benchmarks and
 % 4 GPUs'' sounds really crap.
-To address this, we present an extensible and distributed autotuner
+To address this, I present an extensible and distributed autotuner
 that performs adaptive tuning of workgroup size at runtime. The
 presented autotuner uses offline training with synthetic stencils to
-rapidly evaluate a subset of the optimisation space. On a suite of 5
-stencil benchmarks on 4 different GPUs, the autotuner is able to
-achieve 97\% of the available performance, providing an average
-speedup of $1.35\times$ (max $4.00\times$) over the best possible
-performance which can be achieved without autotuning.
+rapidly sample the optimisation space. In an evaluation of 189 test
+cases across the range of architectures and programs, the autotuner is
+able to achieve 97\% of the available performance, providing an
+average speedup of $1.35\times$ (max $4.00\times$) over the best
+possible performance which can be achieved without autotuning.
 
 \ifdraft{
   \newpage

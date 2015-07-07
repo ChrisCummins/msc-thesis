@@ -150,6 +150,78 @@ dev_version                        nominal
 \TODO{Three-tier client, proxy, server model. Include UML sequence
   diagrams and system diagram.}
 
+\subsection{Decoupling Autotuner and Client Programs}
+
+\begin{lstlisting}[
+  language=C++,
+  label=lst:omnitune-client,
+  caption={
+    Implementation of client interface to OmniTune proxy.
+  }
+]
+void requestWgSize(const std::string &deviceName,
+                   const int deviceCount,
+                   const skelcl::StencilShape &shape,
+                   const int dataWidth,
+                   const int dataHeight,
+                   const std::string &Tin,
+                   const std::string &Tout,
+                   const std::string &source,
+                   const size_t maxWgSize,
+                   cl_uint *const local) {
+  init(); // Initialise DBus connection and proxy objects.
+
+  std::vector<Glib::VariantBase> _args;
+  _args.push_back(Glib::Variant<std::string>::create(deviceName));
+  _args.push_back(Glib::Variant<int>::create(deviceCount));
+  ... // pack additional input arguments
+  Glib::VariantContainerBase args
+      = Glib::VariantContainerBase::create_tuple(_args);
+
+  // Synchronously get parameter values.
+  Glib::VariantContainerBase response;
+  if (training)
+      response = proxy->call_sync("RequestTrainingWgsize", args);
+  else
+      response = proxy->call_sync("RequestWgsize", args);
+  Glib::VariantIter iterator(response.get_child(0));
+  Glib::Variant<int16_t> var;
+
+  // Set workgroup size.
+  iterator.next_value(var);
+  local[0] = var.get();
+  iterator.next_value(var);
+  local[1] = var.get();
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[
+  language=Python,
+  label=lst:omnitune-proxy,
+  caption={
+    Implementation of proxy interface for receiving requests.
+  }
+]
+class SkelCLProxy(omnitune.Proxy):
+    ...
+
+    @dbus.service.method(INTERFACE_NAME, in_signature='siiiiiiiisss',
+                         out_signature='(nn)')
+    def RequestWgsize(self, device_name, device_count,
+                                     north, south, east, west, data_width,
+                                     data_height, type_in, type_out, source,
+                                     max_wgsize):
+        ...
+
+    @dbus.service.method(INTERFACE_NAME, in_signature='siiiiiiiisss',
+                         out_signature='(nn)')
+    def RequestTrainingWgsize(self, device_name, device_count,
+                              north, south, east, west, data_width,
+                              data_height, type_in, type_out, source,
+                              max_wgsize):
+        ...
+\end{lstlisting}
 
 \section{Autotuning using Classification}
 
@@ -198,10 +270,41 @@ The evaluation compares the average performance achieved using each
 fallback strategy, along with the percentage of cases for which these
 fallback strategies were required.
 
-\subsection{Results}
+\begin{algorithm}
+\caption{Selecting optimal workgroup size using classification}\label{bar}
+\begin{algorithmic}[1]
+\Require kernel features $k$, hardware features $h$, dataset features
+$d$, error handler \textit{err\_fn}.
+\Ensure workgroup size $w$
 
-\TODO{Evaluate the effectiveness of training with synthetic
-  benchmarks.}
+\State $w \leftarrow \text{classify}(k, h, d)$
+
+\If{$\text{size}(w) \le k.\text{max\_wgsize}$}
+    \State \textbf{return} $w$
+\Else
+    \State \textbf{return} \textit{err\_fn}$(w, k, h, d)$
+\EndIf
+\item[]
+
+\Procedure{Random}{w, k, h, d}
+  \State $C \leftarrow \{c_1, c_2, \ldots, c_n \}$
+  \Comment Set of all workgroup sizes $\le k.\text{max\_wgsize}$
+  \State \textbf{return} random choice $w \in C$
+\EndProcedure
+\item[]
+
+\Procedure{Default}{w, k, h, d}
+  \State $C \leftarrow \{c_1, c_2, \ldots, c_n \}$
+  \Comment Set of all workgroup sizes $\le k.\text{max\_wgsize}$
+  \State \textbf{return} $\argmax_{c \in C}f(k,h,d,c)$
+\EndProcedure
+\item[]
+
+\Procedure{Reshape}{w, k, h, d}
+  \State \textbf{return} $w / |k.\text{max\_wgsize}|$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 
 \section{Autotuning using Regression}
@@ -213,13 +316,11 @@ fallback strategies were required.
 
 \subsection{Classification Using Regression}
 
-\subsection{Results}
-
 
 \section{Meta-tuning: a Hybrid Approach}
 
 \begin{algorithm}
-\caption{Request workgroup size}\label{bar}
+\caption{RequestWorkgroupSize}\label{bar}
 \begin{algorithmic}[1]
 \Require kernel features $k$, hardware features $h$, dataset features $d$.
 \Ensure workgroup size $c$
