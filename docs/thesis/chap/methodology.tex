@@ -15,7 +15,112 @@ conditions. I present the results of this exploration phase and use
 this to present the case for autotuning.
 
 
+\section{Defining the Optimisation Space}
+
+This section describes the benchmarks, architectures, and datasets
+used to gather performance data.
+
+\subsection{Benchmark Stencil Applications}
+
+To explore the effect of workgroup size across different stencils,
+reference implementations of standard stencil applications from the
+fields of image processing, cellular automata, and partial
+differential equation solvers are used.
+
+% \begin{table}
+% \footnotesize
+% \centering
+% \begin{tabular}{| l | l | l | l | l |}
+% \hline
+% \textbf{Name} & \textbf{Application} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
+% \hline
+% CannyEdgeDetection & Image processing & Stencil & - & 225 / 61\\
+% DotProduct & Linear algebra & Zip, Reduce & - & 143 / 2\\
+% FDTD & Scientific simulation & Map, Stencil & Y & 375 / 127\\
+% GameOfLife & Cellular automata & Stencil & Y & 92 / 12\\
+% GaussianBlur & Image processing & Stencil & - & 262 / 47\\
+% HeatSimulation & Scientific simulation & Stencil & Y & 180 / 13\\
+% MandelbrotSet & Fractal computation & Map & Y & 133 / 78\\
+% MatrixMultiply & Linear algebra & AllPairs & - & 267 / 8\\
+% SAXPY & Linear algebra & Zip & - & 149 / 3\\
+% \hline
+% \end{tabular}
+% \caption{Benchmark applications. The LOC column shows lines of code, split between host (C++) and device (OpenCL).}
+% \label{tab:benchmarks}
+% \end{table}
+
+\TODO{Descriptions (with diagrams) for each application:}
+
+\subsubsection{Finite Difference Time Domain}
+
+\subsubsection{Heat Equation}
+
+\subsubsection{Gaussian Blur}
+
+The Gaussian blur is a common image processing algorithm, used to
+reduce noise and detail in an image. A two dimensional Gaussian blur
+defines a function to compute a pixel value $f(x,y)$ using a standard
+deviation $\sigma$ using:
+
+\begin{equation}
+f(x,y) = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2 + y^2}{2\sigma^2}}
+\end{equation}
+
+Gaussian blurs are parameterised by a radius $r$ which define
+symmetric, square stencil regions about the centre
+pixel. \TODO{Describe the range of blur radius' used.} Unlike the
+previous two applications, a Gaussian blur is not iterative.
+
+\subsubsection{Game of Life}
+
+Conway's Game of Life (\FIXME{Citation needed}) is a cellular
+automaton which models the evolution of a regular grid of cells over
+discrete time steps. At each time step, each cell value is updated to
+be either \emph{live} or \emph{dead} based on it's current value and
+the value of the nearest neighbouring elements
+(Algorithm~\ref{alg:gol}).
+
+\begin{algorithm}[b]
+\caption{Conway's Game of Life}
+\label{alg:gol}
+\begin{algorithmic}[1]
+\Require current cell value $d_t$, neighbouring cell values $D_t$.
+\Ensure new cell value $d_{t+1}$
+\State $n \leftarrow $sum$(D_t)$
+\If{$n = 3$ OR $(n = 2$ AND $d_t = 1)$}
+  \State \textbf{return} 1
+\Else
+  \State \textbf{return} 0
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+The stencil shape for Game of Life is always 1 in each direction.
+
+\subsubsection{Canny Edge Detection}
+
+The Canny edge detection algorithm consists of four distinct stages:
+\TODO{4 separate stencils, with different behaviours.}
+
+
+\subsection{Procedural Generation of Synthetic Stencils}
+
+Given that stencil codes have a well defined interface
+
+\TODO{Synthetic benchmarks as low cost training data.}
+
+A secondary advantage for synthetic benchmarks is that for the
+purposes of autotuning, synthetic benchmarks may also aid to address
+the ``small $n$, large $P$'' problem, which describes the difficulty
+of statistical inference in spaces for which the set of possible
+hypotheses $P$ is greatly larger than the number of observations
+$n$. Given that the set of all possible stencil codes is infinite,
+this will always be an issue.
+
+
 \section{Experimental Setup}
+
+gen/tables/kernels
 
 % A. Georges, D. Buytaert, and L. Eeckhout, “Statistically Rigorous
 % Java Performance Evaluation,” in Proceedings of the 22Nd Annual ACM
@@ -172,49 +277,6 @@ across all scenarios:
   \prod_{s \in S} t(s,\Omega(s)) \cdot t(s,w)^{-1}
 \right)^{1/|S|}
 \end{equation}
-
-
-\subsection{Benchmark Stencil Applications}
-
-\begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l | l | l | l |}
-\hline
-\textbf{Name} & \textbf{Application} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
-\hline
-CannyEdgeDetection & Image processing & Stencil & - & 225 / 61\\
-DotProduct & Linear algebra & Zip, Reduce & - & 143 / 2\\
-FDTD & Scientific simulation & Map, Stencil & Y & 375 / 127\\
-GameOfLife & Cellular automata & Stencil & Y & 92 / 12\\
-GaussianBlur & Image processing & Stencil & - & 262 / 47\\
-HeatSimulation & Scientific simulation & Stencil & Y & 180 / 13\\
-MandelbrotSet & Fractal computation & Map & Y & 133 / 78\\
-MatrixMultiply & Linear algebra & AllPairs & - & 267 / 8\\
-SAXPY & Linear algebra & Zip & - & 149 / 3\\
-\hline
-\end{tabular}
-\caption{Benchmark applications. The LOC column shows lines of code, split between host (C++) and device (OpenCL).}
-\label{tab:benchmarks}
-\end{table}
-
-\subsubsection{Finite Difference Time Domain}
-
-\subsubsection{Heat Equation}
-
-\subsubsection{Gaussian Blur}
-
-\subsubsection{Game of Life}
-
-\subsubsection{Canny Edge Detection}
-
-
-\subsection{Procedural Generation of Synthetic Stencils}
-
-\TODO{Synthetic benchmarks as a solution to the ``small $n$, large
-  $P$'' problem for empirical performance tuning.}
-
-\TODO{Synthetic benchmarks as low cost training data.}
 
 
 \section{Results}

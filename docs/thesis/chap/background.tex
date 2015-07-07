@@ -125,9 +125,10 @@ in~\cite{Komatsu2010}. \TODO{This paper is deserving of close
 % fourth international workshop on High-level parallel programming and
 % applications (pp. 5–14). ACM. Retrieved from
 % http://dl.acm.org/citation.cfm?id=1863487
-\paragraph{SkePU} \TODO{Similar to SkelCL in scope and ambition,
-  alternative implementation with C++ macros and
-  CUDA~\cite{Enmyren2010}.}
+\subsubsection{SkePU}
+
+\TODO{Similar to SkelCL in scope and ambition, alternative
+  implementation with C++ macros and CUDA~\cite{Enmyren2010}.}
 
 \subsection{The OpenCL Programming Model}
 
@@ -208,7 +209,7 @@ application using SkelCL: \cite{Steuwer2013}}
 
 \subsection{Pattern definitions}
 
-\paragraph{Map}
+\subsubsection{Map}
 
 \begin{equation}
 \map\left(f, [x_1,x_2,\ldots,x_n]\right) \to [f(x_1),f(x_2),\ldots,f(x_n)]
@@ -231,7 +232,7 @@ When applied to an $n \times m$ matrix:
 \end{bmatrix}
 \end{equation}
 
-\paragraph{Zip}
+\subsubsection{Zip}
 
 \begin{equation}
 \zip\left( \oplus, [x_1,x_2,\ldots,x_n], [y_1,y_2,\ldots,y_n] \right)
@@ -261,7 +262,7 @@ When applied to an $n \times m$ matrix:
 \end{split}
 \end{equation}
 
-\paragraph{Reduce}
+\subsubsection{Reduce}
 
 \begin{equation}
 \reduce \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
@@ -280,7 +281,7 @@ x_1 \oplus x_2 \oplus \ldots \oplus x_n
 x_{11} \oplus x_{12} \oplus \ldots \oplus x_{nm}
 \end{equation}
 
-\paragraph{Scan}
+\subsubsection{Scan}
 
 \begin{equation}
 \scan \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
@@ -288,7 +289,7 @@ x_{11} \oplus x_{12} \oplus \ldots \oplus x_{nm}
 \left[ i, x_1, x_1 \oplus x_2, \ldots, x_1 \oplus x_2 \oplus \ldots \oplus x_n \right]
 \end{equation}
 
-\paragraph{AllPairs}
+\subsubsection{AllPairs}
 
 \begin{equation}
 \allpairs \left( \oplus,
@@ -329,14 +330,16 @@ z_{ij} =
 \end{equation}
 
 
-\paragraph{Stencil} are patterns of computation which operate on
-uniform grids of data, where the value of each cell is updated based
-on its current value and the value of one or more neighbouring
-elements, which we'll call the border region. In SkelCL, users provide
-the function which updates a cell's value, and SkelCL orchestrates the
-parallel execution of these functions. Each cell maps to a single work
-item; and this collection of work items is then divided into
-\emph{workgroups} for execution on the target hardware.
+\subsubsection{Stencil}
+
+Stencils are patterns of computation which operate on uniform grids of
+data, where the value of each cell is updated based on its current
+value and the value of one or more neighbouring elements, which we'll
+call the border region. In SkelCL, users provide the function which
+updates a cell's value, and SkelCL orchestrates the parallel execution
+of these functions. Each cell maps to a single work item; and this
+collection of work items is then divided into \emph{workgroups} for
+execution on the target hardware.
 
 Given a customising function $f$, a \emph{stencil shape} $S$
 
@@ -377,6 +380,9 @@ g(f, S, M, t) =
   M_{init}, & \text{otherwise}
 \end{cases}
 \end{equation}
+
+A Stencil operation in which the size of the stencil shape $S$ is zero
+in every direction is functionally equivalent to a Map operation.
 
 
 \subsection{Container Types}
