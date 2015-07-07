@@ -7698,3 +7698,19 @@ Notes from supervisor meeting:
   results will answer it, and *hand drawn* visualisations. The is to
   show interesting visualisations of the data, not repetitive, same-y
   charts.
+
+
+## Tuesday 7th
+
+ML jobs key:
+
+* **xval**: Cross-validation using both synthetic and real data.
+* **synthetic_real**: Train on synthetic data, test using real data.
+* **arch**: Leave-one-out validation across architectures.
+* **xval_real**: Cross-validation using only real data.
+
+TODO: Rename existing ML jobs to match key above.
+
+Regression is taking way too long (around .5 second per test
+instance). Is this because of the large number of features? It'd be
+worth checking.
