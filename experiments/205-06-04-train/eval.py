@@ -299,7 +299,7 @@ def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
 
 
 def eval_classifier_instance(job, db, classifier, instance,
-                             perf_fn, err_fn, training):
+                             err_fn, training):
     """
     Returns:
 
@@ -381,8 +381,7 @@ class Classifier(WekaFilteredClassifier):
         return self.__repr__()
 
 
-def eval_classifiers(job, db, training, testing, classifiers,
-                     err_fns, perf_fn):
+def eval_classifiers(db, classifiers, err_fns, job, training, testing):
     """
     Cross validate a set of classifiers and err_fns.
     """
@@ -394,10 +393,149 @@ def eval_classifiers(job, db, training, testing, classifiers,
         for err_fn in err_fns:
             for j,instance in enumerate(testing):
                 io.debug(job, basename, err_fn.func.__name__,
-                         j, "of", testing.num_instances)
-                eval_classifier_instance(job, db, meta, instance,
-                                         perf_fn, err_fn, training)
+                         j + 1, "of", testing.num_instances)
+                eval_classifier_instance(job, db, meta, instance, err_fn,
+                                         training)
             db.commit()
+
+
+def run_eval(db, dataset, eval_fn, eval_type="", nfolds=10):
+    # Cross validation using both synthetic and real data.
+    folds = dataset.folds(nfolds, seed=SEED)
+    print()
+    io.info("CROSS VALIDATION")
+    io.info("Size of training set:", folds[0][0].num_instances)
+    io.info("Size of testing set: ", folds[0][1].num_instances)
+
+    for i,fold in enumerate(folds):
+        training, testing = fold
+        io.debug("Cross-validating", eval_type, "- fold", i + 1, "of", nfolds)
+        eval_fn("xval", training, testing)
+
+    # Training on synthetic data, testing on real data.
+    training, testing = dataset.split_synthetic_real(db)
+    print()
+    io.info("VALIDATION: REAL ONLY")
+    io.info("Size of training set:", training.num_instances)
+    io.info("Size of testing set: ", testing.num_instances)
+    eval_fn("synthetic_real", training, testing)
+
+    # Cross validation using only real data.
+    real_only = Dataset(testing)
+    folds = real_only.folds(nfolds, SEED)
+    print()
+    io.info("CROSS VALIDATION: REAL ONLY")
+    io.info("Size of training set:", folds[0][0].num_instances)
+    io.info("Size of testing set: ", folds[0][1].num_instances)
+    for i,fold in enumerate(folds):
+        training, testing = fold
+        io.debug("Cross-validating classifiers, fold", i + 1, "of", nfolds)
+        eval_fn("xval_real", training, testing)
+
+    # Leave-one-out validation across architectures.
+    folds = dataset.arch_folds(db)
+    nfolds = len(folds)
+    print()
+    io.info("CROSS-ARCHITECTURE VALIDATION:")
+    for i,fold in enumerate(folds):
+        training, testing = fold
+        io.debug("Cross-architecture validating classifiers, fold", i + 1,
+                 "of", nfolds)
+        eval_fn("arch", training, testing)
+
+
+def eval_regression(job, db, classifier, instance, dataset, add_cb):
+    actual = instance.get_value(instance.class_index)
+    scenario = instance.get_string_value(0)
+    params = instance.get_string_value(102)
+
+    predicted = classifier.classify_instance(instance)
+    norm_predicted = predicted / actual
+    norm_error = abs(norm_predicted - 1)
+
+    add_cb(job, classifier, dataset, scenario, params, actual, predicted,
+           norm_predicted, norm_error)
+
+
+def eval_regressors(db, classifiers, add_cb, job, training, testing):
+    for classifier in classifiers:
+        meta = Classifier(classifier)
+        meta.build_classifier(training)
+        basename = ml.classifier_basename(classifier.classname)
+
+        for j,instance in enumerate(testing):
+            io.debug(job, basename, j + 1, "of", testing.num_instances)
+            eval_regression(job, db, meta, instance, training, add_cb)
+        db.commit()
+
+
+def eval_regressor_classification_instance(job, db, classifier, scenario,
+                                           get_prediction, add_cb, training):
+    """
+    Returns:
+
+       (int, float, float): From first to last: Correct, Performance
+         relative to oracle, Speedup over one_r.
+    """
+    oracle = db.oracle_param(scenario)
+
+    # Get default value.
+    try:
+        baseline = training.default
+    except AttributeError:
+        training.default = get_one_r(db, training)
+        baseline = training.default
+
+    # Classify instance.
+    predicted = get_prediction(db, scenario, job)
+
+    correct = 1 if predicted == oracle else 0
+    performance, speedup = perf_fn(db, scenario, predicted,
+                                   oracle, baseline)
+
+    # Add result to database.
+    add_cb(job, classifier, scenario, oracle, predicted, baseline,
+           correct, performance, speedup)
+
+
+def eval_regressor_classifiers(db, classifiers, get_prediction, add_cb,
+                               job, training, testing):
+    # Get all *unique* scenarios from training set. This is because
+    # training sets may have multiple entries for scenarios, one for
+    # each param.
+    scenarios = set([instance.get_string_value(0) for instance in testing])
+
+    for classifier in classifiers:
+        basename = ml.classifier_basename(classifier.classname)
+
+        for j,scenario in enumerate(scenarios):
+            io.debug(job, basename, j + 1, "of", len(scenarios))
+            eval_regressor_classification_instance(
+                job, db, classifier, scenario, get_prediction, add_cb, training
+            )
+        db.commit()
+
+
+def get_best_runtime_regression(db, scenario, job):
+    predictions = db.runtime_predictions(scenario, job)
+    try:
+        best = min(predictions, key=lambda x: x[1])
+        return best[0]
+    except ValueError as e:
+        print("No runtime predictions for scenario", scenario, "job", job)
+        print(e)
+        lab.exit(1)
+
+
+def get_best_speedup_regression(db, scenario, job):
+    predictions = db.speedup_predictions(scenario, job)
+    try:
+        best = max(predictions, key=lambda x: x[1])
+        return best[0]
+    except ValueError as e:
+        print("No speedup predictions for scenario", scenario, "job", job)
+        print(e)
+        lab.exit(1)
 
 
 def classification(db, nfolds=10):
@@ -418,54 +556,11 @@ def classification(db, nfolds=10):
         partial(reshape_fn, db),
     )
 
-    # Generate training and testing datasets for cross-validation.
-    folds = dataset.folds(nfolds)
-    print()
-    io.info("CROSS VALIDATION")
-    io.info("Size of training set:", folds[0][0].num_instances)
-    io.info("Size of testing set: ", folds[0][1].num_instances)
-
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        io.debug("Cross-validating classifiers, fold", i + 1, "of", nfolds)
-        eval_classifiers("xval_classifiers", db, training, testing,
-                         classifiers, err_fns, perf_fn)
-
-    print()
-    io.info("VALIDATION: REAL ONLY")
-    training, testing = dataset.split_synthetic_real(db)
-    io.info("Size of training set:", training.num_instances)
-    io.info("Size of testing set: ", testing.num_instances)
-    eval_classifiers("real_only", db, training, testing,
-                     classifiers, err_fns, perf_fn)
+    eval_fn = partial(eval_classifiers, db, classifiers, err_fns)
+    run_eval(db, dataset, eval_fn, "classification")
 
 
-def eval_regression(job, db, classifier, instance, dataset, add_cb):
-    actual = instance.get_value(instance.class_index)
-    scenario = instance.get_string_value(0)
-    params = instance.get_string_value(102)
-
-    predicted = classifier.classify_instance(instance)
-    norm_predicted = predicted / actual
-    norm_error = abs(norm_predicted - 1)
-
-    add_cb(job, classifier, dataset, scenario, params, actual, predicted,
-           norm_predicted, norm_error)
-
-
-def eval_regressors(job, db, training, testing, classifiers, add_cb):
-    for classifier in classifiers:
-        meta = Classifier(classifier)
-        meta.build_classifier(training)
-        basename = ml.classifier_basename(classifier.classname)
-
-        for j,instance in enumerate(testing):
-            io.debug(job, basename, j, "of", testing.num_instances)
-            eval_regression(job, db, meta, instance, training, add_cb)
-        db.commit()
-
-
-def xval_regressors(db, path, nfolds, job, add_cb):
+def regression(db, path, add_cb, get_prediction, add_classification_cb):
     dataset = Dataset.load(path, db)
 
     classifiers = (
@@ -475,27 +570,26 @@ def xval_regressors(db, path, nfolds, job, add_cb):
         ml.ZeroR(),
     )
 
-    # Generate training and testing datasets.
-    folds = dataset.folds(nfolds)
-    print()
-    io.info("CROSS VALIDATION")
-    io.info("Size of training set:", folds[0][0].num_instances)
-    io.info("Size of testing set: ", folds[0][1].num_instances)
+    eval_fn = partial(eval_regressors, db, classifiers, add_cb)
+    run_eval(db, dataset, eval_fn, "regressors")
 
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        io.debug("Cross-validating regressors, fold", i + 1, "of", nfolds)
-        eval_regressors(job, db, training, testing, classifiers, add_cb)
+    eval_fn = partial(eval_regressor_classifiers, db, classifiers,
+                      get_prediction, add_classification_cb)
+    run_eval(db, dataset, eval_fn, "regressor classifiers")
 
 
-def runtime_regression(db, nfolds=10):
-    xval_regressors(db, "/tmp/omnitune/csv/runtime_stats.csv", nfolds,
-                    "xval_runtimes", db.add_runtime_regression_result)
+def runtime_regression(db):
+    regression(db, "/tmp/omnitune/csv/runtime_stats.csv",
+               db.add_runtime_regression_result,
+               get_best_runtime_regression,
+               db.add_runtime_classification_result)
 
 
-def speedup_regression(db, nfolds=10):
-    xval_regressors(db, "/tmp/omnitune/csv/speedup_stats.csv", nfolds,
-                    "xval_speedups", db.add_speedup_regression_result)
+def speedup_regression(db):
+    regression(db, "/tmp/omnitune/csv/speedup_stats.csv",
+               db.add_speedup_regression_result,
+               get_best_speedup_regression,
+               db.add_speedup_classification_result)
 
 
 def main():
@@ -517,6 +611,8 @@ def main():
         "classification_results",
         "runtime_regression_results",
         "speedup_regression_results",
+        "classification_runtime_regression_results",
+        "classification_speedup_regression_results",
     ]
     for table in tables:
         db.empty_table(table)
