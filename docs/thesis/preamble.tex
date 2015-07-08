@@ -133,11 +133,17 @@
 % Code listings.
 \usepackage{listings}
 
+% Set \ttfamily to use courier fonts.
+%
+% See: http://tex.stackexchange.com/a/33686
+%
+\usepackage{courier}
+
 \lstset{frame=bt,                    % Add top and bottom frame lines
         breaklines=true,             % Force line wrapping
         captionpos=b,                % Place caption below listing
         numbers=left,                % Add left-side line numbers
-        basicstyle=\footnotesize,    % Use a small font size
+        basicstyle=\footnotesize\ttfamily, % Set font size and type
         showstringspaces=false,      % Don't show visible whitespace
         numberstyle=\footnotesize\bfseries,
         upquote=true,                % Use upright quotes, not curly
