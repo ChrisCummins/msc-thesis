@@ -122,8 +122,9 @@ def main():
     fs.rm("img")
 
     # Make directories
-    fs.mkdir("img/scenarios/2D")
-    fs.mkdir("img/scenarios/3D")
+    fs.mkdir("img/scenarios/bars")
+    fs.mkdir("img/scenarios/heatmap")
+    fs.mkdir("img/scenarios/trisurf")
 
     fs.mkdir("img/coverage/devices")
     fs.mkdir("img/coverage/kernels")
@@ -177,14 +178,18 @@ def main():
                          n=north, s=south, e=east, w=west,
                          width=width, height=height, type=tout))
 
-        # Grid plot.
-        output = "img/scenarios/2D/{id}.png".format(id=scenario)
-        visualise.scenario_performance(db, scenario, output, title=title)
-
-        # Trisurf plot.
-        output = "img/scenarios/3D/{id}.png".format(id=scenario)
+        # 3D bars.
+        output = "img/scenarios/bars/{id}.png".format(id=scenario)
         visualise.scenario_performance(db, scenario, output, title=title,
-                                       trisurf=True)
+                                       type="bar3d")
+        # Heatmaps.
+        output = "img/scenarios/heatmap/{id}.png".format(id=scenario)
+        visualise.scenario_performance(db, scenario, output, title=title,
+                                       type="heatmap")
+        # Trisurfs.
+        output = "img/scenarios/trisurf/{id}.png".format(id=scenario)
+        visualise.scenario_performance(db, scenario, output, title=title,
+                                       type="trisurf")
 
     # Per-device plots
     for i,device in enumerate(db.devices):
