@@ -78,7 +78,7 @@ the value of the nearest neighbouring elements
 \begin{algorithm}[b]
 \caption{Conway's Game of Life}
 \label{alg:gol}
-\include{alg/gol}
+\input{alg/gol}
 \end{algorithm}
 
 The stencil shape for Game of Life is always 1 in each direction.
@@ -131,6 +131,46 @@ stencil shape (one parameter for each of the four directions), data
 type (either integer or single or double precision floating point),
 and \emph{complexity} a simple metric for indicating the desired
 number of memory accesses and instructions per stencil.
+
+
+\subsection{Selection of Parameter Values}
+
+The parameter space is defined as the number of rows and columns in a
+workgroup. To explore this 2D space, the following values are used in
+each dimension: \input{gen/wg_c}. This provides a set of
+\input{gen/num_params} possible combinations of workgroup
+size. \TODO{Justify this choice of parameter values.}
+
+% When exploring a non-uniform space such as the performance of
+% workgroup sizes, there is a balance the cost of an exhaustive
+% enumeration of the space with the risk of missing
+
+The set of workgroup sizes which can be used for a specific program
+and architecture is subject to two hard constraints: the maximum
+workgroup size imposed by the architecture, and the maximum workgroup
+size imposed by a kernel. Exceeding either of these constraints will
+cause an \texttt{CL\_OUT\_OF\_RESOURCES} error when the OpenCL kernel
+is enqueued.
+
+\subsubsection{Architecture constraints}
+
+Each OpenCL device imposes a maximum workgroup size which can be
+statically checked by querying the \texttt{clGetDeviceInfo()}
+API. These are defined by the limits of the hardware, typically the
+number of execution units which have access to a shared memory pool.
+
+\subsubsection{Kernel constraints}
+
+At runtime, once an OpenCL program has been compiled to a kernel,
+users can query the maximum workgroup size supported by that kernel
+using the \texttt{clGetKernelInfo()} API. Crucially, this value cannot
+be checked statically. That is, there is no way to determine the
+maximum workgroup size for a given OpenCL source code and device
+without first compiling it, which in OpenCL does not occur until
+runtime. Factors which affect a kernel's maximum workgroup size
+include the number registers required for a kernel, and the available
+number of SIMD execution units for each type of instructions in a
+kernel.
 
 
 \section{Experimental Setup}
@@ -264,16 +304,19 @@ the location of the data in the system's memory as it is has no
 bearing on the throughput of a stencil kernel.
 
 
-\subsubsection{Selection of sampling plan}
+\subsubsection{Sampling plan and technique}
 
-% A. Georges, D. Buytaert, and L. Eeckhout, “Statistically Rigorous
-% Java Performance Evaluation,” in Proceedings of the 22Nd Annual ACM
-% SIGPLAN Conference on Object-oriented Programming Systems and
-% Applications, 2007, vol. 42, no. 10, p. 57.
-In~\cite{Georges2007}, \citeauthor{Georges2007} present techniques
-
-\FIXME{Back this up with empirical data. Design and run an experiment
-  to show how the static sampling plan is justified.}
+All runtimes were recorded with millisecond precision using either the
+system clock or OpenCL's Profiling API. Measurement noise was
+minimised by reducing system load through disabling all unwanted
+services and graphical environments, and exclusive single-user access
+was ensured for each machine. Frequency governors for each CPU were
+disabled, and the benchmark processes were set to the highest priority
+available to the task scheduler. Datasets and programs were stored in
+an in-memory file system. A static sampling plan of 30 samples per
+scenario was used.  \FIXME{Back this up with empirical data. Design
+  and run an experiment to show how the choice of 30 samples is
+  justified, or rather, why we can't get away with less.}
 
 % Leather, H., O’Boyle, M., & Worton, B. (2009). Raced Profiles:
 % Efficient Selection of Competing Compiler Optimizations. In LCTES
@@ -281,35 +324,64 @@ In~\cite{Georges2007}, \citeauthor{Georges2007} present techniques
 % Languages, Compilers, and Tools for Embedded Systems
 % (pp. 1–10). Dublin.
 \TODO{%
-  Consider using adapting sampling plans to reduce the number of
+  Consider using adaptive sampling plans to reduce the number of
   samples required to distinguish good from bad workgroup
   sizes~\cite{Leather2009}.%
 }
 
 \section{Results}
 
+This section presents the results of the empirical enumeration of
+workgroup size optimisation space for SkelCL stencils. A total of
+\input{gen/num_runtime_stats} combinations of scenario and workgroup
+size were tested, distributed across \input{gen/num_scenarios}
+scenarios, with an average \input{gen/num_avg_params} unique workgroup
+sizes each (max \input{gen/num_max_params}).
+
 \subsection{Statistical soundness}
 
-\TODO{Plot variance proportional to runtime}
+\begin{figure}
+\centering
+\includegraphics{gen/img/min_max_runtimes}
+\caption{%
+  Distribution of minimum and maximum observed runtimes for each
+  combination of scenario and workgroup size, normalised to their
+  respective mean runtimes. \FIXME{This is a weird way of getting the
+    message across. Perhaps plot the distribution of all runtimes
+    normalised to their respective mean?}%
+}
+\label{fig:min-max-runtimes}
+\end{figure}
+
+An average of \input{gen/avg_sample_count} runtimes were recorded per
+scenario (total
+\input{gen/num_samples}). Figure~\ref{fig:min-max-runtimes} shows the
+distribution of minimum and maximum runtimes for each combination of
+scenario and workgroup size. For a given scenario $s$ and workgroup
+size $w$, the arithmetic mean of $n$ measured runtimes $\bar{t}$ is
+calculated using:
+
+\begin{equation}
+\bar{t} = \frac{\sum_{i=1}^{n}t_i}{n}
+\end{equation}
+
+95\% confidence intervals are calculated assuming a Gaussian
+distribution of runtimes (given our sample size of
+$n \ge n$~\cite{Georges2007}):
+
+\begin{align}
+\sigma &= \sqrt{\frac{\sum_{i=1}^{n}(t_i - \bar{t})^2}{n - 1}}\\
+c_1 &= \bar{t} - z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}\\
+c_2 &= \bar{t} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
+\end{align}
+
+\TODO{Actually demonstrate that differences in runtime between
+  measured workgroup sizes are significant.}
 
 \subsection{Upper Bounds of Relative Performance}
 
-% P. J. Fleming and J. J. Wallace, “How not to lie with statistics:
-% the correct way to summarize benchmark results,” Commun. ACM,
-% vol. 29, no. 3, pp. 218–221, 1986.
-\TODO{%
-  How to properly report benchmark results~\cite{Fleming1986}.%
-}
-
-For a given scenario $s$ and workgroup size $w$, the arithmetic mean
-of measured runtimes is $t(s,w)$. From the set of all scenarios $S$
-and workgroup sizes $W$, the subset of workgroup scenarios
-$W_{legal}(S) \subset W$ which are legal for a given scenario can be
-found using:
-
-\begin{equation}
-W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\}
-\end{equation}
+The geometric mean is used to calculate aggregate means of relative
+performances, due to it's multiplicative property~\cite{Fleming1986}.
 
 \subsection{Assessing Oracle Performance}
 
@@ -346,25 +418,13 @@ across all scenarios:
 
 \subsection{Comparison with Baseline and Human Expert}
 
-A total of \input{gen/num_scenarios} scenarios were tested. For each
-scenario, an average of \input{gen/num_avg_params} unique workgroup
-sizes were tested (max \input{gen/num_max_params}), for a total of
-\input{gen/num_runtime_stats} combinations of scenario and workgroup
-size. Runtimes were collected by randomly sampling $W_{safe}$, for an
-average of \input{gen/avg_sample_count} runtimes per scenario (total
-\input{gen/num_samples}). Figure~\ref{fig:min-max-runtimes} shows the
-distribution of minimum and maximum runtimes.
+From the set of all scenarios $S$ and workgroup sizes $W$, the subset
+of workgroup scenarios $W_{legal}(S) \subset W$ which are legal for a
+given scenario can be found using:
 
-\begin{figure}
-\centering
-\includegraphics{gen/img/min_max_runtimes}
-\caption{%
-  Distribution of minimum and maximum observed runtimes for each
-  combination of scenario and parameter value, normalised to their
-  respective mean runtimes.%
-}
-\label{fig:min-max-runtimes}
-\end{figure}
+\begin{equation}
+W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\}
+\end{equation}
 
 The relative performance of different workgroup sizes for a scenario
 can be found by normalising the mean runtimes against that of the
