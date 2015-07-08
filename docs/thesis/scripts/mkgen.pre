@@ -20,6 +20,7 @@ from labm8 import math as labmath
 import omnitune
 from omnitune import skelcl
 from omnitune.skelcl import db as _db
+from omnitune.skelcl import unhash_params
 from omnitune.skelcl import visualise
 
 
@@ -28,6 +29,11 @@ def mktex(string, path):
     Write a latex data file, appended by a comment sign.
     """
     system.echo(str(string) + "%", path, end="")
+
+
+def print_params(params):
+    wg_c, wg_r = unhash_params(params)
+    return "${c} \\times {r}$".format(c=wg_c, r=wg_r)
 
 
 #################
@@ -106,6 +112,7 @@ def main():
 
     # Set plot style.
     sns.set_context("notebook", font_scale=.8, rc={"lines.linewidth": 2})
+    sns.set_style("whitegrid")
 
     ##################
     # Dynamic values #
@@ -113,6 +120,10 @@ def main():
     param_counts = db.num_params_for_scenarios().values()
     mktex(int(round(labmath.mean(param_counts))), "gen/num_avg_params.tex")
     mktex(max(param_counts), "gen/num_max_params.tex")
+
+    one_r = db.one_r()
+    mktex(print_params(one_r[0]), "gen/one_r.tex")
+    mktex(round(one_r[2], 2), "gen/one_r_perf.tex")
 
     mktex(db.num_rows("runtime_stats"), "gen/num_runtime_stats.tex")
     mktex(db.num_rows("runtimes"), "gen/num_samples.tex")
@@ -124,9 +135,9 @@ def main():
           "gen/max_sample_count.tex")
 
     wg_c = [str(row[0]) for row in
-            db.execute("SELECT DISTINCT wg_c FROM params")]
+            db.execute("SELECT DISTINCT wg_c FROM params order by wg_c asc")]
     wg_r = [str(row[0]) for row in
-            db.execute("SELECT DISTINCT wg_r FROM params")]
+            db.execute("SELECT DISTINCT wg_r FROM params order by wg_r asc")]
     mktex(", ".join(wg_c), "gen/wg_c.tex")
     mktex(", ".join(wg_r), "gen/wg_r.tex")
     mktex(len(wg_c) * len(wg_r), "gen/num_params.tex")
@@ -146,10 +157,10 @@ def main():
           "gen/max_oracle_param_frequency.tex")
 
     # Max speedups
-    speedups = sorted(db.max_speedups().values(), reverse=True)
-    mktex(round(speedups[0], 1), "gen/max_possible_speedup.tex")
-    mktex(round(speedups[-1], 1), "gen/min_possible_speedup.tex")
-    mktex(round(labmath.mean(speedups), 1),
+    max_speedups = sorted(db.max_speedups().values(), reverse=True)
+    mktex(round(max_speedups[0], 1), "gen/max_possible_speedup.tex")
+    mktex(round(max_speedups[-1], 1), "gen/min_possible_speedup.tex")
+    mktex(round(labmath.geomean(max_speedups), 1),
           "gen/avg_possible_speedup.tex")
 
     # Tables.
@@ -174,7 +185,11 @@ def main():
                              title="", figsize=(4, 2.5))
 
     # Trend plots
-    trend_size=(6,2.2)
+    trend_size=(5.8,2.2)
+    visualise.oracle_speedups(db, "gen/img/oracle_speedups.png", title="",
+                              figsize=trend_size)
+    visualise.max_speedups(db, "gen/img/max_speedups.png", title="",
+                           figsize=trend_size)
     visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.png",
                                      title="", figsize=trend_size)
     visualise.performance_vs_coverage(db, "gen/img/params_summary.png",
@@ -183,9 +198,10 @@ def main():
                                         title="", figsize=trend_size)
 
     # Performance plots
-    boxplot_size=(2.2,3)
+    boxplot_size=(5.8,3.5)
     visualise.kernel_performance(db, "gen/img/performance_kernels.png",
                                  title="", figsize=boxplot_size)
+    boxplot_size=(5.8 / 2,3.5)
     visualise.device_performance(db, "gen/img/performance_devices.png",
                                  title="", figsize=boxplot_size)
     visualise.dataset_performance(db, "gen/img/performance_datasets.png",

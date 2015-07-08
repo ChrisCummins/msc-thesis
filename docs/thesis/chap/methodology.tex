@@ -138,8 +138,9 @@ number of memory accesses and instructions per stencil.
 The parameter space is defined as the number of rows and columns in a
 workgroup. To explore this 2D space, the following values are used in
 each dimension: \input{gen/wg_c}. This provides a set of
-\input{gen/num_params} possible combinations of workgroup
-size. \TODO{Justify this choice of parameter values.}
+\input{gen/num_params} possible combinations of workgroup size, e.g.\
+$4 \times 4$, $4 \times 8$\ldots, $96 \times 96$. \TODO{Justify this
+  choice of parameter values.}
 
 % When exploring a non-uniform space such as the performance of
 % workgroup sizes, there is a balance the cost of an exhaustive
@@ -378,65 +379,113 @@ c_2 &= \bar{t} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
 \TODO{Actually demonstrate that differences in runtime between
   measured workgroup sizes are significant.}
 
-\subsection{Upper Bounds of Relative Performance}
+\TODO{Plot variance of runtimes as a function of mean runtime.}
 
-The geometric mean is used to calculate aggregate means of relative
-performances, due to it's multiplicative property~\cite{Fleming1986}.
+\subsection{Assessing Available Performance}
 
-\subsection{Assessing Oracle Performance}
-
-The arithmetic mean of the measured runtimes for a given scenario $s$
-and workgroup size $w$ is represented by $t(s,w)$. The oracle
-workgroup size $\Omega(s) \in W_{legal}(s)$ is the $w$ value which
-minimises the value of $t(s,w)$:
-
-\begin{equation}
-\Omega(s) = \argmin_{w \in W} t(s,w)
-\end{equation}
-
-This allows relative comparisons of performance of $w$ values against
-the oracle:
-
-\begin{equation}
-p(s,w) = \frac{t(s,\Omega(s))}{t(s,w)}
-\end{equation}
-
-Where the performance is within the range $0 \le p(s,w) \le 1$. For a
-given workgroup size, the average performance $\bar{p}(w)$ can be
-found using the geometric mean of performance relative to the oracle
-across all scenarios:
-
-\begin{equation}
-\bar{p}(w) =
-\left(
-  \prod_{s \in S} t(s,\Omega(s)) \cdot t(s,w)^{-1}
-\right)^{1/|S|}
-\end{equation}
-
-\TODO{Plot max relative performance}
-
-
-\subsection{Comparison with Baseline and Human Expert}
-
-From the set of all scenarios $S$ and workgroup sizes $W$, the subset
-of workgroup scenarios $W_{legal}(S) \subset W$ which are legal for a
-given scenario can be found using:
+From the set of all workgroup sizes $W$, the subset of workgroup sizes
+$W_{legal}(s) \subset W$ that are legal for a given scenario $s$ can
+be found using:
 
 \begin{equation}
 W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\}
 \end{equation}
 
-The relative performance of different workgroup sizes for a scenario
-can be found by normalising the mean runtimes against that of the
-oracle workgroup size. This can provide an upper limit on the speedup
-which can be attained using autotuning as the reciprocal of the
-normalised runtime for the workgroup size which gave the lowest
-performance. Applying this to all scenarios, we find the upper limit
-of potential speedup to be between
-$\input{gen/min_possible_speedup}\times$ --
-$\input{gen/max_possible_speedup}\times$ (average
-$\input{gen/avg_possible_speedup}\times$). This demonstrates that
-selection of the optimal
+Where $W_{max}(s)$ is the maximum workgroup size constraints imposed
+by the scenario device and kernel. Given a function $t(s,w)$ which
+returns the arithmetic mean of the measured runtimes for a given
+scenario $s$ and workgroup size $w$, we can calculate the speedup
+$r(s, w_1, w_2)$ of competing workgroup sizes $w_1$ over $w_2$ using:
+
+\begin{equation}
+  r(s, w_1, w_2) = \frac{t(s,w_2)}{t(s,w_1)}\\
+\end{equation}
+
+
+\subsubsection{Oracle Workgroup Size}
+
+For a given scenario, the \emph{oracle} workgroup size
+$\Omega(s) \in W_{legal}(s)$ is the $w$ value which provided the
+shortest average runtime. This allows for comparing the performance of
+a particular workgroup against the maximum available performance for
+that scenario:
+
+\begin{align}
+  \Omega(s) &= \argmin_{w \in W_{legal}(s)} t(s,w)\\
+  p(s,w) &= r(s, w, \Omega(s))
+\end{align}
+
+Where the performance is within the range $0 \le p(s,w) \le 1$. For a
+given workgroup size, the average performance $\bar{p}(w)$ across the
+set of all scenarios $S$ can be found using the geometric mean of
+performance relative to the oracle:
+
+\begin{equation}
+\bar{p}(w) =
+\left(
+  \prod_{s \in S} r(s, w, \Omega(s))
+\right)^{1/|S|}
+\end{equation}
+
+The geometric mean is used to aggregate relative performances due to
+it's multiplicative property~\cite{Fleming1986}.
+
+
+\subsubsection{Performance Upper Bounds}
+
+\begin{figure}
+\input{fig/speedups}
+\caption{%
+  Two comparisons of the performance of the best workgroup size for
+  each scenario relative to: (\ref{fig:oracle-speedups-worst})~the
+  worst workgroup size for each scenario; and
+  (\ref{fig:oracle-speedups-baseline})~the workgroup size which
+  provides the best average case performance across all scenarios.%
+}
+\label{fig:speedups}
+\end{figure}
+
+For a given scenario $s$, the ratio of the workgroups sizes from
+$W_{legal}(s)$ which provide the longest and shortest mean runtimes
+can be used to calculate the upper bound on the possible performance
+improvements to be attained from selecting the workgroup size:
+
+\begin{equation}
+r_{max}(s) = r(s, \argmax_{w \in W_{legal}(s)} t(s,w), \Omega(s))
+\end{equation}
+
+When applied to each scenario $s \in S$ from the experimental results,
+the range of performance upper bounds is found to be
+$\input{gen/min_possible_speedup}\times$ -
+$\input{gen/max_possible_speedup}\times$ (geometric mean
+$\input{gen/avg_possible_speedup}\times$). Figure~\ref{fig:oracle-speedups-worst}
+shows the maximum attainable speedups achieved for all scenarios.
+
+
+\subsubsection{Establishing a Baseline}
+
+By defining $W_{safe} \in W$ as the intersection of legal workgroup
+sizes across all scenarios, the optimal \emph{static} workgroup size
+$\bar{w}$ can be calculated as the workgroup size which provides which
+provides the best average case performance:
+
+\begin{align}
+W_{safe} &= \cap \left\{ W_{legal}(s) | s \in S \right\}\\
+\bar{w} &= \argmax_{w \in W_{safe}} \bar{p}(w)
+\end{align}
+
+From the experimental results, the baseline workgroup size $\bar{w}$
+is \input{gen/one_r}, with a geometric mean performance
+$\bar{p}(\bar{w})$ of
+\input{gen/one_r_perf}. Figure~\ref{fig:oracle-speedups-baseline}
+shows the average speedup of the oracle over this baseline for all
+scenarios. If we assume that a pragmatic developer with enough time
+would eventually find this static optimal, then this provides a
+reasonable upper bound on the attainable improvements of an autotuner
+for workgroup size over that of a static choice.
+
+
+\subsection{Distribution of Oracle Workgroup Sizes}
 
 Figure~\ref{fig:max-wgsizes} shows the distribution of maximum
 workgroup sizes across all scenarios. Figure~\ref{fig:oracle-wgsizes}
@@ -446,39 +495,6 @@ scenarios, but even that proves optimal only 10\% of the time. As
 Figure~\ref{fig:oracle-accuracy} shows,
 \input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
 required in order to achieve oracle performance just 50\% of the time.
-
-\TODO{Plot speedups of over baseline.}
-
-\begin{figure}
-\begin{subfigure}[t]{0.32\textwidth}
-\centering
-\includegraphics{gen/img/performance_kernels.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Kernels}
-\label{fig:performance-kernels}
-\end{subfigure}
-~%
-\begin{subfigure}[t]{0.32\textwidth}
-\centering
-\includegraphics{gen/img/performance_devices.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Devices}
-\label{fig:performance-devices}
-\end{subfigure}
-~%
-\begin{subfigure}[t]{0.32\textwidth}
-\centering
-\includegraphics{gen/img/performance_datasets.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Datasets}
-\label{fig:performance-datasets}
-\end{subfigure}
-\label{fig:performance}
-\caption{%
-  Relative performance of workgroup sizes for different
-  scenarios, divided by kernels, devices, and datasets.%
-}
-\end{figure}
 
 \begin{figure}
 \begin{subfigure}[t]{0.45\textwidth}
@@ -560,3 +576,12 @@ together:}
 \todo{This presents a compelling case for the development of an
   autotuner which can select the optimal workgroup size at
   runtime. That is what I have set out to achieve.}
+
+\begin{figure}
+\include{fig/performances}
+\label{fig:performances}
+\caption{%
+  Relative performance of all workgroup sizes across scenarios,
+  divided by kernels, devices, and datasets.%
+}
+\end{figure}

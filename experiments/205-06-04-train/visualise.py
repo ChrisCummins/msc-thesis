@@ -164,6 +164,7 @@ def main():
     visualise.performance_vs_coverage(db, "img/performance_vs_coverage.png")
     visualise.performance_vs_max_wgsize(db, "img/performance_vs_max_wgsize.png")
     visualise.max_wgsizes(db, "img/max_wgsizes.png")
+    visualise.oracle_speedups(db, "img/oracle_speedups.png")
 
     visualise.coverage(db, "img/coverage/coverage.png")
     visualise.safety(db, "img/safety/safety.png")
