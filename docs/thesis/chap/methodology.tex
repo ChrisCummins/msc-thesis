@@ -1,11 +1,5 @@
 \section{Introduction}
 
-The number of ``moving parts'' in the modern software stack makes for
-noisy results when measuring program execution time. As such,
-evaluating the relative performance of different versions of programs
-should take a statistically rigorous approach, using the results of
-multiple iterations to reduce the impact of outliers.
-
 This chapter describe the methodology used to achieve statistically
 sound comparisons of differing workgroup sizes on the performance of a
 stencil code. I describe an experiment to explore the space of
@@ -19,6 +13,7 @@ this to present the case for autotuning.
 
 This section describes the benchmarks, architectures, and datasets
 used to gather performance data.
+
 
 \subsection{Benchmark Stencil Applications}
 
@@ -83,16 +78,7 @@ the value of the nearest neighbouring elements
 \begin{algorithm}[b]
 \caption{Conway's Game of Life}
 \label{alg:gol}
-\begin{algorithmic}[1]
-\Require current cell value $d_t$, neighbouring cell values $D_t$.
-\Ensure new cell value $d_{t+1}$
-\State $n \leftarrow $sum$(D_t)$
-\If{$n = 3$ OR $(n = 2$ AND $d_t = 1)$}
-  \State \textbf{return} 1
-\Else
-  \State \textbf{return} 0
-\EndIf
-\end{algorithmic}
+\include{alg/gol}
 \end{algorithm}
 
 The stencil shape for Game of Life is always 1 in each direction.
@@ -105,39 +91,63 @@ The Canny edge detection algorithm consists of four distinct stages:
 
 \subsection{Procedural Generation of Synthetic Stencils}
 
-Given that stencil codes have a well defined interface
+Synthetic benchmarks are a popular method for evaluating relative
+performance of competing systems. The algorithmic generation of such
+benchmarks has clear benefits for reducing evaluation costs; however,
+creating meaningful benchmark programs is a difficult problem if we
+are to avoid the problems of redundant computation and produce
+provable halting benchmarks (\FIXME{Citations needed, although there
+  will need to be a more extensive review of this in the related work
+  chapter}).
 
-\TODO{Synthetic benchmarks as low cost training data.}
+In practise, stencil codes many common traits: a well tightly
+constrained interface, predictable memory access patterns, and well
+defined input and output data types. This can be used to create a
+confined space of possible stencil codes by enforcing upper and lower
+bounds on properties of the codes which can not normally be guaranteed
+for general-purpose programs, e.g. the number of floating point
+operations. By doing so, it is possible to create a system to
+programatically generate synthetic stencil workloads which can .
 
-A secondary advantage for synthetic benchmarks is that for the
-purposes of autotuning, synthetic benchmarks may also aid to address
-the ``small $n$, large $P$'' problem, which describes the difficulty
-of statistical inference in spaces for which the set of possible
-hypotheses $P$ is greatly larger than the number of observations
-$n$. Given that the set of all possible stencil codes is infinite,
-this will always be an issue.
+One motivation for the use of synthetic benchmarks is that for the
+purposes of autotuning, generating a large set of synthetic benchmarks
+can address the ``small $n$, large $P$'' problem, which describes the
+difficulty of statistical inference in spaces for which the set of
+possible hypotheses $P$ is greatly larger than the number of
+observations $n$\CitationNeeded. Creating parameterised, synthetic
+benchmarks, it is possible to explore a much larger set of the space
+of possible stencil codes than if relying solely on reference
+applications, for example, to evaluate the performance impact of
+highly irregular stencil shapes.
+
+\FIXME{The synthetic benchmarks I've used aren't actually
+  \emph{procedurally} generated. I'll either need to implement a
+  system, or failing that, describe my method for creating the
+  synthetic benchmarks and move the discussion of procedurally
+  generated stencils into the future work section.}
+
+The synthetic benchmarks used in this thesis are parameterised by
+stencil shape (one parameter for each of the four directions), data
+type (either integer or single or double precision floating point),
+and \emph{complexity} a simple metric for indicating the desired
+number of memory accesses and instructions per stencil.
 
 
 \section{Experimental Setup}
 
-gen/tables/kernels
+This section describes the environment under which performance data
+was collected. Tables~\ref{tab:hw},~\ref{tab:kernels},
+and~\ref{tab:datasets} list the range of execution devices, kernels,
+and datasets used. For each unique combination of architecture,
+kernel, and dataset (hereby referred to as a \emph{scenario}),
+training data was collected by randomly sampling the space of legal
+workgroup sizes, until multiple samples have been collected for each
+combination of scenario and workgroup size.
 
-% A. Georges, D. Buytaert, and L. Eeckhout, “Statistically Rigorous
-% Java Performance Evaluation,” in Proceedings of the 22Nd Annual ACM
-% SIGPLAN Conference on Object-oriented Programming Systems and
-% Applications, 2007, vol. 42, no. 10, p. 57.
-\TODO{%
-  Statistically rigorous performance evaluations.~\cite{Georges2007}.
-}
+\TODO{Description of each test system. E.g. mobo, memory, \& GPUs.}
 
 \begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| L{5.5cm} | L{1.5cm} | L{1.5cm} | L{1.5cm} | L{1.5cm} | L{1.5cm} |}
-\hline
-\input{gen/tables/devices}
-\hline
-\end{tabular}
+\input{tab/devices}
 \caption{%
   Execution devices. \FIXME{Missing data from CPUs!}%
 }
@@ -145,13 +155,7 @@ gen/tables/kernels
 \end{table}
 
 \begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l | l | l | l | l |}
-\hline
-\input{gen/tables/kernels}
-\hline
-\end{tabular}
+\input{tab/kernels}
 \caption{%
   Benchmark applications, border sizes, and static instruction counts.
   The ``simple'' and ``complex'' kernels are synthetic training
@@ -162,63 +166,114 @@ gen/tables/kernels
 \end{table}
 
 \begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l | l | l |}
-\hline
-\input{gen/tables/datasets}
-\hline
-\end{tabular}
+\input{tab/datasets}
 \caption{%
   Datasets used.%
 }
 \label{tab:datasets}
 \end{table}
 
-Tables~\ref{tab:hw},~\ref{tab:kernels}, and~\ref{tab:datasets} list
-the range of execution devices, kernels, and datasets used. For each
-unique combination of architecture, kernel, and dataset (hereby
-referred to as a \emph{scenario}), training data was collected by
-randomly sampling the space of legal workgroup sizes, until multiple
-samples have been collected for each combination of scenario and
-workgroup size.
-
-\begin{table}
-\footnotesize
-\centering
-\begin{tabular}{| l | l |}
-  \hline
-  & \textbf{Descriptionr}\\
-  \hline
-  $\bm{c}$ & Kernel compilation times \\
-  $\bm{p}$ & Skeleton prepare times \\
-  $\bm{u}$ & Host $\rightarrow$ Device transfers \\
-  $\bm{k}$ & Kernel execution times \\
-  $\bm{d}$ & Device $\rightarrow$ Host transfers \\
-  $\bm{s}$ & Devices $\leftrightarrow$ Host (sync) transfers \\
-  \hline
-\end{tabular}
-\caption{Measurable performance values.}
-\label{tab:metric}
-\end{table}
-
-\TODO{%
-  Approximating the total time of skeletons based on SkelCL profiling
-  times:
-\[t \approx \sum_{i=1}^n{\bm{1c}_{i}} + \bm{1p} + \bm{1s} +
-  \frac{\sum_{i=1}^n{\bm{1u}_{i} + \bm{1k}_{i} + \bm{1d}_{i}}}{n} \]
-}
-
-\TODO{I'm only tuning GPU-side runtimes, which could be
-  misleading~\cite{Gregg2011}}.
 
 \subsection{Runtime Sampling and Statistical Soundness}
 
-\TODO{%
-  OpenCL API for getting runtimes, how many samples are needed? Is
-  the number of samples required dependent on anything (e.g. runtime,
-  device, etc.)? \ldots%
-}
+The number of ``moving parts'' in the modern software stack makes for
+noisy results when measuring program execution time. As such,
+evaluating the relative performance of different versions of programs
+requires a judicious approach to isolate the appropriate performance
+metrics and to take a statistically rigorous approach to collecting
+data.
+
+
+\subsubsection{Isolating the Impact of Workgroup Size}
+
+The execution of a SkelCL stencil application can be divided into 6
+distinct phases, shown in Table~\ref{tab:stencil-runtime-components}.
+
+\TODO{Include a flow diagram}
+
+\begin{table}
+\include{tab/stencil-runtime-components}
+\caption{Execution phases of a SkelCL stencil skeleton. ``Fixed''
+  costs are those which occur up to once per stencil
+  invocation. ``Iterative'' costs are those which scale with the
+  number of iterations of a stencil.}
+\label{tab:stencil-runtime-components}
+\end{table}
+
+\paragraph{Kernel compilation times} Upon invocation, template
+substitution is performed of the user code into the stencil skeleton
+implementation, then compiled into an OpenCL program. Once compiled,
+the program is cached for the lifetime of the host program.
+
+\paragraph{Skeleton prepare times} Before a kernel is executed, a
+preparation phase is required to allocate buffers for the input and
+output data on each execution device.
+
+\paragraph{Host $\rightarrow$ Device and Device $\rightarrow$ Host
+  transfers} Data must be copied to and from the execution devices
+before and after execution of the stencils, respectively. Note that
+this is performed lazily, so iterative stencils do not require
+repeated transfers between host and device memory.
+
+\paragraph{Kernel execution times} This is the time elapsed executing
+the stencil kernel, and is representative of ``work done''.
+
+\paragraph{Devices $\leftrightarrow$ Host (sync) transfers} For
+iterative stencils on multiple execution devices, an overlapping halo
+region is shared at the border between the devices' grids. This must
+be synchronised between iterations, requiring an intermediate transfer
+to host memory, since device to device memory is not currently
+supported by OpenCL.
+
+For each of the six distinct phases of execution, accurate runtime
+information can be gathered either through timers embedded in the host
+code, or using the OpenCL \texttt{clGetEventProfilingInfo()} API for
+operations on the execution devices. For single-device stencils, the
+total time $t$ of a SkelCL stencil application is simply the sum of
+all times recorded for each distinct phase:
+
+\begin{equation}
+t = \bm{1c} + \bm{1p} + \bm{1u} + \bm{1k} + \bm{1d}
+\end{equation}
+
+For multi-device stencils with $n$ execution devices, this can be
+approximate as the sum of the sequential host-side phases, and the sum
+of the device-side phases divided by the number of devices:
+
+\begin{equation}
+t \approx \sum_{i=1}^n{(\bm{1c}_{i})} + \bm{1p} + \bm{1s} +
+  \frac{\sum_{i=1}^n{\bm{1u}_{i} + \bm{1k}_{i} + \bm{1d}_{i}}}{n}
+\end{equation}
+
+\TODO{Compare against empirical runtime information, showing how
+  accurate this estimation is.}
+
+The purpose of tuning workgroup size is to maximise the throughput of
+stencil kernels. For this reason, isolating the kernel execution times
+$\bm{k}$ produces the most accurate performance comparisons, as it
+removes the impact of constant overheads introduced by memory
+transfers between host and device memory, for which the selection of
+workgroup size has no influence. Note that as demonstrated
+in~\cite{Gregg2011}, care must be taken to ensure that isolating
+device compute time does not cause misleading comparisons to be made
+between across devices. For example, if using an autotuner to
+determine whether execution of a given stencil is faster on a CPU or
+GPU, the device transfer times $\bm{u}$, $\bm{d}$, and $\bm{s}$ would
+need to be considered. For our purposes, we do not need to consider
+the location of the data in the system's memory as it is has no
+bearing on the throughput of a stencil kernel.
+
+
+\subsubsection{Selection of sampling plan}
+
+% A. Georges, D. Buytaert, and L. Eeckhout, “Statistically Rigorous
+% Java Performance Evaluation,” in Proceedings of the 22Nd Annual ACM
+% SIGPLAN Conference on Object-oriented Programming Systems and
+% Applications, 2007, vol. 42, no. 10, p. 57.
+In~\cite{Georges2007}, \citeauthor{Georges2007} present techniques
+
+\FIXME{Back this up with empirical data. Design and run an experiment
+  to show how the static sampling plan is justified.}
 
 % Leather, H., O’Boyle, M., & Worton, B. (2009). Raced Profiles:
 % Efficient Selection of Competing Compiler Optimizations. In LCTES
@@ -226,12 +281,18 @@ workgroup size.
 % Languages, Compilers, and Tools for Embedded Systems
 % (pp. 1–10). Dublin.
 \TODO{%
-  Using adapting sampling plans to reduce the number of samples
-  required to distinguish good from bad compiler
-  configurations~\cite{Leather2009}.%
+  Consider using adapting sampling plans to reduce the number of
+  samples required to distinguish good from bad workgroup
+  sizes~\cite{Leather2009}.%
 }
 
-\subsection{Measuring Relative Performance}
+\section{Results}
+
+\subsection{Statistical soundness}
+
+\TODO{Plot variance proportional to runtime}
+
+\subsection{Upper Bounds of Relative Performance}
 
 % P. J. Fleming and J. J. Wallace, “How not to lie with statistics:
 % the correct way to summarize benchmark results,” Commun. ACM,
@@ -241,7 +302,7 @@ workgroup size.
 }
 
 For a given scenario $s$ and workgroup size $w$, the arithmetic mean
-of measured runtimes if $t(s,w)$. From the set of all scenarios $S$
+of measured runtimes is $t(s,w)$. From the set of all scenarios $S$
 and workgroup sizes $W$, the subset of workgroup scenarios
 $W_{legal}(S) \subset W$ which are legal for a given scenario can be
 found using:
@@ -249,6 +310,8 @@ found using:
 \begin{equation}
 W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\}
 \end{equation}
+
+\subsection{Assessing Oracle Performance}
 
 The arithmetic mean of the measured runtimes for a given scenario $s$
 and workgroup size $w$ is represented by $t(s,w)$. The oracle
@@ -278,8 +341,10 @@ across all scenarios:
 \right)^{1/|S|}
 \end{equation}
 
+\TODO{Plot max relative performance}
 
-\section{Results}
+
+\subsection{Comparison with Baseline and Human Expert}
 
 A total of \input{gen/num_scenarios} scenarios were tested. For each
 scenario, an average of \input{gen/num_avg_params} unique workgroup
