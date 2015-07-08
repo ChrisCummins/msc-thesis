@@ -23,6 +23,13 @@ from omnitune.skelcl import db as _db
 from omnitune.skelcl import visualise
 
 
+def mktex(string, path):
+    """
+    Write a latex data file, appended by a comment sign.
+    """
+    system.echo(str(string) + "%", path, end="")
+
+
 #################
 # Export tables #
 #################
@@ -104,17 +111,25 @@ def main():
     # Dynamic values #
     ##################
     param_counts = db.num_params_for_scenarios().values()
-    system.echo(int(round(labmath.mean(param_counts))), "gen/num_avg_params.tex")
-    system.echo(max(param_counts), "gen/num_max_params.tex")
+    mktex(int(round(labmath.mean(param_counts))), "gen/num_avg_params.tex")
+    mktex(max(param_counts), "gen/num_max_params.tex")
 
-    system.echo(db.num_rows("runtime_stats"), "gen/num_runtime_stats.tex")
-    system.echo(db.num_rows("runtimes"), "gen/num_samples.tex")
-    system.echo(db.num_rows("scenarios"), "gen/num_scenarios.tex")
-    system.echo(int(round(db.mean_samples)), "gen/avg_sample_count.tex")
-    system.echo(db.execute("SELECT Min(num_samples) FROM runtime_stats").fetchone()[0],
-                "gen/min_sample_count.tex")
-    system.echo(db.execute("SELECT Max(num_samples) FROM runtime_stats").fetchone()[0],
-                "gen/max_sample_count.tex")
+    mktex(db.num_rows("runtime_stats"), "gen/num_runtime_stats.tex")
+    mktex(db.num_rows("runtimes"), "gen/num_samples.tex")
+    mktex(db.num_rows("scenarios"), "gen/num_scenarios.tex")
+    mktex(int(round(db.mean_samples)), "gen/avg_sample_count.tex")
+    mktex(db.execute("SELECT Min(num_samples) FROM runtime_stats").fetchone()[0],
+          "gen/min_sample_count.tex")
+    mktex(db.execute("SELECT Max(num_samples) FROM runtime_stats").fetchone()[0],
+          "gen/max_sample_count.tex")
+
+    wg_c = [str(row[0]) for row in
+            db.execute("SELECT DISTINCT wg_c FROM params")]
+    wg_r = [str(row[0]) for row in
+            db.execute("SELECT DISTINCT wg_r FROM params")]
+    mktex(", ".join(wg_c), "gen/wg_c.tex")
+    mktex(", ".join(wg_r), "gen/wg_r.tex")
+    mktex(len(wg_c) * len(wg_r), "gen/num_params.tex")
 
     # Oracle param frequencies
     freqs = sorted(db.oracle_param_frequencies(normalise=True).values(),
@@ -125,17 +140,17 @@ def main():
         acc += freq
         acc_freqs.append(acc)
         if acc > .5:
-            system.echo(i + 1, "gen/num_wgsizes_50_accuracy.tex")
+            mktex(i + 1, "gen/num_wgsizes_50_accuracy.tex")
             break
-    system.echo(int(round(freqs[0] * 100)),
-                "gen/max_oracle_param_frequency.tex")
+    mktex(int(round(freqs[0] * 100)),
+          "gen/max_oracle_param_frequency.tex")
 
     # Max speedups
     speedups = sorted(db.max_speedups().values(), reverse=True)
-    system.echo(round(speedups[0], 1), "gen/max_possible_speedup.tex")
-    system.echo(round(speedups[-1], 1), "gen/min_possible_speedup.tex")
-    system.echo(round(labmath.mean(speedups), 1),
-                "gen/avg_possible_speedup.tex")
+    mktex(round(speedups[0], 1), "gen/max_possible_speedup.tex")
+    mktex(round(speedups[-1], 1), "gen/min_possible_speedup.tex")
+    mktex(round(labmath.mean(speedups), 1),
+          "gen/avg_possible_speedup.tex")
 
     # Tables.
     create_devices_table(db)
