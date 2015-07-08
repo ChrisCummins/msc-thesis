@@ -7714,3 +7714,10 @@ TODO: Rename existing ML jobs to match key above.
 Regression is taking way too long (around .5 second per test
 instance). Is this because of the large number of features? It'd be
 worth checking.
+
+
+## Wednesday 8th
+
+Recap of year:
+
+* 12/9/14 First supervisor meeting
