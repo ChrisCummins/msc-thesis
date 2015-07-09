@@ -22,12 +22,25 @@
 \newcommand{\note}[1]{\ifdraft{\noindent\textcolor{blue}{\em\footnotesize#1}}}
 
 % \fixme{} command.
-\newcommand{\fixme}[1]{\noindent\textcolor{red}{\em\footnotesize#1}}
+\newcommand{\fixme}[1]{%
+  \noindent\textcolor{red}{\em\footnotesize#1}
+  \ifndraft{\PackageWarning{draft}{fixme: #1}}%
+}
 
 % \FIXME{} command.
-\newcommand{\FIXME}[1]{\todo{\textbf{FIXME:} #1}}
+\newcommand{\FIXME}[1]{%
+  \todo{\textbf{FIXME:} #1}%
+  \ifndraft{\PackageWarning{draft}{FIXME: #1}}%
+}
 
-% \CitationNeeded placeholder.
-\newcommand{\CitationNeeded}{\ifdraft{%
- \textsuperscript{\textcolor{red}{\em (Citation needed)}}}%
+% \xref{} command.
+\newcommand{\xref}[1]{%
+  \ifdraft{\textcolor{red}{\em (xref: #1)}}%
+  \ifndraft{\PackageWarning{draft}{Missing xref: #1}\textbf{???}}%
+}
+
+% \CitationNeeded{} placeholder.
+\newcommand{\CitationNeeded}{%
+  \ifdraft{\textsuperscript{\textcolor{red}{\em (Citation needed)}}}%
+  \ifndraft{\PackageWarning{draft}{Citation needed}}%
 }
