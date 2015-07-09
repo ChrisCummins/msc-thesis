@@ -490,9 +490,10 @@ for workgroup size over that of a static choice.
 \begin{figure}
 \input{fig/heatmaps}
 \caption{%
-  On the left, the distribution of maximum legal workgroup sizes for
-  all scenarios. On the right, the distribution of oracle workgroup
-  sizes.%
+  The distribution of: (\subref{fig:max-wgsizes}) maximum legal
+  workgroup sizes, and (\subref{fig:oracle-wgsizes}) for all
+  scenarios. The distribution of oracle workgroup sizes is uneven and
+  spread across the space.%
 }
 \label{fig:heatmaps}
 \end{figure}
@@ -553,8 +554,8 @@ intuitive, these results indicate that there no useful correlation
 between the ratio of a particular workgroup size to the maximum legal
 workgroup and the observed performance, as shown in
 Figure~\ref{fig:performance-wgsizes}. Furthermore, the performance of
-workgroup sizes can be shown to be non-portable across architectures,
-kernels, and datasets, as shown in Figure~\ref{fig:performances}.
+workgroup sizes is shown in Figure~\ref{fig:performances} to be vary
+greatly across architectures, kernels, and datasets.
 
 \TODO{Go into some detail here about the knock-on effect that changing
   workgroup size has on memory utilisation and execution unit
@@ -564,21 +565,21 @@ kernels, and datasets, as shown in Figure~\ref{fig:performances}.
 \input{fig/performance-wgsizes}
 \caption{%
   Comparing workgroup performance relative to the oracle as function
-  of: (\ref{fig:performance-max-wgsize})~maximum legal size,
-  (\ref{fig:performance-wg-c})~number of columns, and
-  (\ref{fig:performance-wg-r})~ number of rows. As can be seen,
+  of: (\subref{fig:performance-max-wgsize})~maximum legal size,
+  (\subref{fig:performance-wg-c})~number of columns, and
+  (\subref{fig:performance-wg-r})~ number of rows. As can be seen,
   workgroup size alone is not indicative of performance.%
 }
 \label{fig:performance-wgsizes}
 \end{figure}
 
 \begin{figure}
-\include{fig/performances}
+\input{fig/performances}
 \caption{%
   Performance relative to the oracle of workgroup sizes across all
-  scenarios, grouped by: (\ref{fig:performance-kernels})~kernels,
-  (\ref{fig:performance-devices})~devices, and
-  (\ref{fig:performance-datasets})~datasets.%
+  scenarios, grouped by: (\subref{fig:performance-kernels})~kernels,
+  (\subref{fig:performance-devices})~devices, and
+  (\subref{fig:performance-datasets})~datasets.%
 }
 \label{fig:performances}
 \end{figure}
