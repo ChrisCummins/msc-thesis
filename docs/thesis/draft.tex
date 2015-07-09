@@ -19,7 +19,9 @@
 \newcommand{\TODO}[1]{\ifdraft{\todo{\textbf{TODO:} #1}}}
 
 % \note{} command.
-\newcommand{\note}[1]{\ifdraft{\noindent\textcolor{blue}{\em\footnotesize#1}}}
+\newcommand{\note}[1]{%
+  \ifdraft{\noindent\textcolor{blue}{\em\footnotesize note: #1}}%
+}
 
 % \fixme{} command.
 \newcommand{\fixme}[1]{%
