@@ -13,34 +13,23 @@ cases. This results in implementations that target the general case
 and cannot provide the performance advantages that are gained from
 tuning low level optimisation parameters.
 
-% TODO: Rephase this next sentence, to emphasise that the space we're
-% such is REALLY big (i.e. all possible stencil codes), and there are
-% a huge number of factors which determine the suitability of a
-% workgroup size.
-%
-% TODO: Clarify the phrase ``optimisation space''.
 This thesis examines the effect of one such optimisation parameter ---
 setting the workgroup size of OpenCL kernels --- on the performance of
-stencil codes on GPUs and CPUs. Through an empirical evaluation of a
-large optimisation space, I demonstrate that there is no one
-% TODO: rephrase ``sensible value''. It should be clear that there's
-% no static value OR simple heuristic which would work.
-sensible value or heuristic which provides portable performance across
-the range of architectures, kernels, and data sets which Algorithmic
-Skeletons must target.
+stencil codes on GPUs and CPUs. Through an empirical evaluation of
+\input{gen/num_runtime_stats} test cases, I demonstrate that there is
+no static value or simple heuristic which provides portable
+performance across the range of architectures, kernels, and data sets
+which Algorithmic Skeletons must target.
 
-% TODO: Add a comparison of autotuner performance vs. human expert.
-%
-% TODO: Don't downplay the size of the evaluation. ``5 benchmarks and
-% 4 GPUs'' sounds really crap.
 To address this, I present an extensible and distributed autotuner
 that performs adaptive tuning of workgroup size at runtime. The
 presented autotuner uses offline training with synthetic stencils to
-rapidly sample the optimisation space. In an evaluation of 189 test
-cases across the range of architectures and programs, the autotuner is
-able to achieve 97\% of the available performance, providing an
-average speedup of $1.35\times$ (max $4.00\times$) over the best
-possible performance which can be achieved without autotuning.
+rapidly sample the optimisation space. In an evaluation of
+\input{gen/num_scenarios} combinations of architecture and benchmark,
+the autotuner is able to achieve 97\% of the available performance,
+providing an average speedup of $1.35\times$ (max $4.00\times$) over
+the best possible performance which can be achieved without
+autotuning.
 
 \ifdraft{
   \newpage
@@ -73,9 +62,9 @@ possible performance which can be achieved without autotuning.
     \end{enumerate}
 
   \item Abstract: based on feedback from supervisor meeting on 6/7/15,
-    I've: added a sense of crisis to paragraph 1, changed the wording
-    of paragraph 2, and added a reference to human expert in paragraph
-    3.
+    I've added a sense of crisis in paragraph 1, and changed the
+    wording of paragraphs 3 and 4 to emphasise the \emph{size} of the
+    space explored.
 
   \item Reshuffled chapter structure: background and related work are
     distinct. Main body has separate sections for method, experimental
