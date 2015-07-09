@@ -1,3 +1,12 @@
+% Support alternating row colours in tables. Normal usage is to
+% include the xcolor package with option `table', but the xcolor
+% package is already getting pulled in from somewhere else which
+% causes builds to fail with a package options conflict.
+%
+% See: http://tex.stackexchange.com/a/5375
+%
+\PassOptionsToPackage{table}{xcolor}
+
 %%%%
 %% Load the class. Put any options that you want here (see the documentation
 %% for the list of options). The following are samples for each type of
