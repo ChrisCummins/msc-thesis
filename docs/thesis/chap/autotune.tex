@@ -47,8 +47,6 @@ write this thesis.
 \label{fig:omnitune-client-server}
 \end{figure}
 
-\subsection{Decoupling of Autotuning Service from Client Programs}
-
 As discussed in \xref{related work}, common implementations of
 autotuning in the literature either: embed the autotuning logic within
 the target applications, or take a ``meta-scripting'' approach in
@@ -76,13 +74,13 @@ communication between the components.
   connections.}
 
 
-\subsubsection{OmniTune Database}
+\subsection{OmniTune Database: Distributed Training Data}
 
 A master server maintains a common store of all empirical performance
 data. \TODO{Implement and write-up!}
 
 
-\subsubsection{OmniTune Servers}
+\subsection{OmniTune Server: Machine-learning Enabled Autotuning}
 
 For each autotuning-capable machine, a system-level daemon hosts a
 DBus session bus which client processes can communicate with to
@@ -97,8 +95,15 @@ with target applications. Proxies are application-specific, for
 example, there is a proxy which implements autotuning of workgroup
 size for SkelCL stencils. This proxy exposes two public methods,
 \texttt{RequestWgsize} and \texttt{RequestTrainingWgsize}, shown in
-
 Listing~\ref{lst:omnitune-proxy}.
+
+In addition to interfacing with client applications and the database,
+OmniTune servers contains a library of generic machine learning tools,
+using Weka\footnote{http://www.cs.waikato.ac.nz/ml/weka/} to perform
+classification. Each proxy performs feature extraction of incoming
+client requests and uses the common machine learning tools to predict
+optimal parameter values.
+
 \lstinputlisting[
   language=Python,
   float,
@@ -109,18 +114,25 @@ Listing~\ref{lst:omnitune-proxy}.
   }
 ]{dat/omnitune-skelcl-proxy.py}
 
-When a SkelCL stencil is invoked, it synchronously calls the
-\texttt{RequestWgsize()} method of the autotuner daemon, passing as
-arguments the required data in order to assemble a feature
-vector. Feature extraction then occurs within the daemon, which
-classifies the datapoint and returns the suggested workgroup size to
-the SkelCL process. This is a very low latency operation, and the
-system daemon can handle multiple connections from separate SkelCL
-processes simultaneously (although this is an admittedly unlikely
-use-case given that most GPGPU programs expect to be run in
-isolation).
 
-\subsubsection{Client interface}
+\subsection{Client Interface: Lightweight Communication}
+
+The modifications required to enable OmniTune support within SkelCL
+were minimal. The stencil implementation was modified to use an
+OmniTune client interface to suggest workgroup sizes, instead of the
+hardcoded value which was previously present
+(Listing~\ref{lst:skelcl-set-wgsize}). When a SkelCL stencil is
+executed, the client interface synchronously calls the
+\texttt{RequestWgsize()} method of the OmniTune server, passing as
+arguments the required parameters for feature extraction
+(Listing~\ref{lst:omnitune-client}). Feature extraction then occurs
+within the server, which then classifies the extracted feature vector
+and returns the suggested workgroup size to the client SkelCL process.
+
+This is a very low latency operation, and the system daemon can handle
+multiple connections from separate SkelCL processes simultaneously
+(although this is an admittedly unlikely use-case given that most
+GPGPU programs expect to be run in isolation).
 
 \lstinputlisting[
   language=C++,
@@ -128,7 +140,10 @@ isolation).
   floatplacement=t,
   label=lst:skelcl-set-wgsize,
   caption={
-    Implementation of SkeCL's client interface to OmniTune proxy.
+    %
+    An extract from the SkelCL stencil implementation, showing setting
+    of.
+    %
   }
 ]{dat/skelcl-set-wgsize.cpp}
 
@@ -141,9 +156,6 @@ isolation).
     Implementation of SkeCL's client interface to OmniTune proxy.
   }
 ]{dat/skelcl-omnitune-client.cpp}
-
-
-\subsection{Distributing Training Data}
 
 
 \section{Machine-learning Enabled Autotuning}

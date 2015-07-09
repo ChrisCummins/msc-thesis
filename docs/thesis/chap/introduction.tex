@@ -67,10 +67,11 @@ The key contributions of this thesis are:
 \item An empirical evaluation of the performance impact of values used
   to parameterise high-level parallel patterns. We enumerate the
   optimisation space of workgroup size for SkelCL stencil kernels
-  using \fixme{XXX} test instances, showing how choice of workgroup
-  size has an average \fixme{XXX}$\times$ influence on runtime (max
-  \fixme{XXX}$\times$).
-\item The development of \emph{omnitune} --- an extensible,
+  using \input{gen/num_runtime_stats} test instances, showing how
+  choice of workgroup size has an average
+  $\input{gen/avg_possible_speedup}\times$ influence on runtime (max
+  $\input{gen/max_possible_speedup}\times$).
+\item The development of \emph{OmniTune} --- an extensible,
   distributed autotuner. When tasked with selecting workgroup sizes of
   stencil codes in SkelCL, the presented autotuner achieves an average
   \fixme{XXX}$\times$ speedup over the best possible statically chosen
@@ -80,8 +81,9 @@ The key contributions of this thesis are:
   autotuning. This has the advantages of reducing the cost of training
   while increasing the size of the space which can be explored. The
   effectiveness of this approach is demonstrated by training an
-  autotuner for 4 real world Stencil codes using synthetic benchmarks,
-  showing that \FIXME{sexy result goes here}.
+  autotuner for \input{gen/num_real_kernels} real world Stencil codes
+  using synthetic benchmarks, showing that \FIXME{sexy result goes
+    here}.
 \item A comparison of multiple approaches to minimise the costs of
   effective autotuning. \TODO{flesh out: compare cost of full
     enumeration with that of classification and regression.}

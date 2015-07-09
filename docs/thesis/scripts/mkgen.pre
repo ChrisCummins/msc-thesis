@@ -137,6 +137,7 @@ def main():
           "gen/min_sample_count.tex")
     mktex(db.execute("SELECT Max(num_samples) FROM runtime_stats").fetchone()[0],
           "gen/max_sample_count.tex")
+    mktex(len(db.real_kernels), "gen/num_real_kernels.tex")
 
     wg_c = [str(row[0]) for row in
             db.execute("SELECT DISTINCT wg_c FROM params order by wg_c asc")]

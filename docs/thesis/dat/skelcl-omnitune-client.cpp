@@ -1,4 +1,4 @@
-void requestWgSize(const std::string &deviceName,
+void requestWgsize(const std::string &deviceName,
                    const int deviceCount,
                    const skelcl::StencilShape &shape,
                    const int dataWidth,
