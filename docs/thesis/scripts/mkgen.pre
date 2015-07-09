@@ -35,6 +35,10 @@ def print_params(params):
     wg_c, wg_r = unhash_params(params)
     return "${c} \\times {r}$".format(c=wg_c, r=wg_r)
 
+def print_w(params):
+    wg_c, wg_r = unhash_params(params)
+    return "w_{{({c} \\times {r})}}".format(c=wg_c, r=wg_r)
+
 
 #################
 # Export tables #
@@ -143,8 +147,10 @@ def main():
     mktex(len(wg_c) * len(wg_r), "gen/num_params.tex")
 
     # Oracle param frequencies
-    freqs = sorted(db.oracle_param_frequencies(normalise=True).values(),
-                   reverse=True)
+    oracle_params = sorted(db.oracle_param_frequencies(normalise=True).items(),
+                           reverse=True, key=lambda x: x[1])
+    freqs = [x[1] for x in oracle_params]
+
     acc = 0
     acc_freqs = []
     for i,freq in enumerate(freqs):
@@ -153,8 +159,14 @@ def main():
         if acc > .5:
             mktex(i + 1, "gen/num_wgsizes_50_accuracy.tex")
             break
-    mktex(int(round(freqs[0] * 100)),
+    max_oracle_param = oracle_params[0]
+    mktex(print_params(max_oracle_param[0]),
+          "gen/max_oracle_param.tex")
+    mktex(print_w(max_oracle_param[0]),
+          "gen/max_oracle_param_w.tex")
+    mktex("${}\\%$".format(int(round(max_oracle_param[1] * 100))),
           "gen/max_oracle_param_frequency.tex")
+
 
     # Max speedups
     max_speedups = sorted(db.max_speedups().values(), reverse=True)
@@ -173,13 +185,13 @@ def main():
     ################
 
     # Heatmaps
-    heatmap_size=(3.28, 2.7)
+    figsize=(3.28, 2.7)
     visualise.oracle_wgsizes(db, "gen/img/oracle_param_space.png",
-                             figsize=heatmap_size, cmap="Reds", title=None,
+                             figsize=figsize, cmap="Reds", title=None,
                              vmax=0.10 # clamp range
     )
     visualise.max_wgsizes(db, "gen/img/max_wgsizes.png",
-                          figsize=heatmap_size, cmap="Blues", title=None)
+                          figsize=figsize, cmap="Blues", title=None)
 
     visualise.runtimes_range(db, "gen/img/min_max_runtimes.png",
                              title="", figsize=(4, 2.5))
@@ -194,18 +206,26 @@ def main():
                                      title="", figsize=trend_size)
     visualise.performance_vs_coverage(db, "gen/img/params_summary.png",
                                       title="", figsize=trend_size)
+
+    # Scatter plots
+    figsize=(5,4)
     visualise.performance_vs_max_wgsize(db, "gen/img/performance_max_wgsize.png",
-                                        title="", figsize=trend_size)
+                                        title="", figsize=figsize)
+    figsize=(3,2.2) # Half-width
+    visualise.performance_vs_wg_c(db, "gen/img/performance_wg_c.png",
+                                  title="", figsize=figsize)
+    visualise.performance_vs_wg_r(db, "gen/img/performance_wg_r.png",
+                                  title="", figsize=figsize)
 
     # Performance plots
-    boxplot_size=(5.8,3.5)
+    figsize=(5.8,3.5) # Full page width
     visualise.kernel_performance(db, "gen/img/performance_kernels.png",
-                                 title="", figsize=boxplot_size)
-    boxplot_size=(5.8 / 2,3.5)
+                                 title="", figsize=figsize)
+    figsize=(5.8 / 2,3.5) # Half-width
     visualise.device_performance(db, "gen/img/performance_devices.png",
-                                 title="", figsize=boxplot_size)
+                                 title="", figsize=figsize)
     visualise.dataset_performance(db, "gen/img/performance_datasets.png",
-                                  title="", figsize=boxplot_size)
+                                  title="", figsize=figsize)
 
 if __name__ == "__main__":
     main()

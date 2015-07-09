@@ -487,31 +487,8 @@ for workgroup size over that of a static choice.
 
 \subsection{Distribution of Oracle Workgroup Sizes}
 
-Figure~\ref{fig:max-wgsizes} shows the distribution of maximum
-workgroup sizes across all scenarios. Figure~\ref{fig:oracle-wgsizes}
-shows the distribution of oracle workgroup sizes. Clearly, the
-workgroup size $64 \times 4$ is the optimal value across the most
-scenarios, but even that proves optimal only 10\% of the time. As
-Figure~\ref{fig:oracle-accuracy} shows,
-\input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
-required in order to achieve oracle performance just 50\% of the time.
-
 \begin{figure}
-\begin{subfigure}[t]{0.45\textwidth}
-\centering
-\includegraphics{gen/img/max_wgsizes.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Maximum workgroup sizes}
-\label{fig:max-wgsizes}
-\end{subfigure}
-~%
-\begin{subfigure}[t]{0.45\textwidth}
-\centering
-\includegraphics{gen/img/oracle_param_space.png}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{Oracle workgroup sizes}
-\label{fig:oracle-wgsizes}
-\end{subfigure}
+\input{fig/heatmaps}
 \caption{%
   On the left, the distribution of maximum legal workgroup sizes for
   all scenarios. On the right, the distribution of oracle workgroup
@@ -520,6 +497,14 @@ required in order to achieve oracle performance just 50\% of the time.
 \label{fig:heatmaps}
 \end{figure}
 
+Figure~\ref{fig:max-wgsizes} shows the distribution of maximum
+workgroup sizes across all scenarios. Figure~\ref{fig:oracle-wgsizes}
+shows the distribution of oracle workgroup sizes, demonstrating that
+there is clearly no ``silver bullet'' workgroup size which works for
+all scenarios. As Figure~\ref{fig:oracle-accuracy} shows,
+\input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
+required in order to achieve oracle performance just 50\% of the time.
+
 \begin{figure}
 \centering
 \includegraphics{gen/img/num_params_oracle.png}
@@ -527,21 +512,22 @@ required in order to achieve oracle performance just 50\% of the time.
   Accuracy compared to the oracle as a function of the number of
   workgroup sizes used. The best accuracy that is achievable using a
   single statically chosen value is
-  \protect\input{gen/max_oracle_param_frequency}\%.%
+  \protect\input{gen/max_oracle_param_frequency}.%
 }
 \label{fig:oracle-accuracy}
 \end{figure}
 
-\begin{figure}
-\centering
-\includegraphics{gen/img/performance_max_wgsize.png}
-\caption{%
-  Performance of a workgroup size relative to the oracle vs the
-  maximum legal workgroup size. There is no clear trend between the
-  performance of a workgroup size and it's size relative to the
-  maximum allowed.%
-}
-\end{figure}
+The mode of the oracle workgroup sizes is
+\input{gen/max_oracle_param}, which is optimal for
+\input{gen/max_oracle_param_frequency} of scenarios. Note that this is
+a different value from the \emph{baseline} identified previously,
+which identifies the single choice which provides the best average
+case performance. This is because the value is not legal for all
+scenarios; that is, $\input{gen/max_oracle_param_w} \not\in W_{safe}$.
+Figure~\ref{fig:performance-legality} illustrates this point by
+plotting the geometric mean performance across workgroup sizes for:
+all scenarios, and only the scenarios for which the workgroup size is
+legal.
 
 \begin{figure}
 \centering
@@ -553,10 +539,55 @@ required in order to achieve oracle performance just 50\% of the time.
   workgroup sizes relative to the oracle for: all scenarios, and only
   the scenarios for which the workgroup size is legal.%
 }
+\label{fig:performance-legality}
+\end{figure}
+
+
+\subsubsection{Factors Influencing Workgroup Size Performance}
+
+A common approach taken by application developers is to set the
+workgroup size for a kernel based on the maximum legal workgroup size,
+for example to use the square root of the maximum to set the number of
+columns and rows. While the reasoning for this approach is perfectly
+intuitive, these results indicate that there no useful correlation
+between the ratio of a particular workgroup size to the maximum legal
+workgroup and the observed performance, as shown in
+Figure~\ref{fig:performance-wgsizes}. Furthermore, the performance of
+workgroup sizes can be shown to be non-portable across architectures,
+kernels, and datasets, as shown in Figure~\ref{fig:performances}.
+
+\TODO{Go into some detail here about the knock-on effect that changing
+  workgroup size has on memory utilisation and execution unit
+  occupancy.}
+
+\begin{figure}
+\input{fig/performance-wgsizes}
+\caption{%
+  Comparing workgroup performance relative to the oracle as function
+  of: (\ref{fig:performance-max-wgsize})~maximum legal size,
+  (\ref{fig:performance-wg-c})~number of columns, and
+  (\ref{fig:performance-wg-r})~ number of rows. As can be seen,
+  workgroup size alone is not indicative of performance.%
+}
+\label{fig:performance-wgsizes}
+\end{figure}
+
+\begin{figure}
+\include{fig/performances}
+\caption{%
+  Performance relative to the oracle of workgroup sizes across all
+  scenarios, grouped by: (\ref{fig:performance-kernels})~kernels,
+  (\ref{fig:performance-devices})~devices, and
+  (\ref{fig:performance-datasets})~datasets.%
+}
+\label{fig:performances}
 \end{figure}
 
 
 \section{Summary}
+
+The performance gap between different workgroup sizes can lead to
+speedups of up to $\input{gen/max_possible_speedup}\times$.
 
 \TODO{Hmm. It seems that there is a lot of room for improvement, which
 demonstrates the problem with having to generalise for all cases - you
@@ -576,12 +607,3 @@ together:}
 \todo{This presents a compelling case for the development of an
   autotuner which can select the optimal workgroup size at
   runtime. That is what I have set out to achieve.}
-
-\begin{figure}
-\include{fig/performances}
-\label{fig:performances}
-\caption{%
-  Relative performance of all workgroup sizes across scenarios,
-  divided by kernels, devices, and datasets.%
-}
-\end{figure}

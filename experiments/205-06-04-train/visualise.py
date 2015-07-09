@@ -163,6 +163,8 @@ def main():
     visualise.num_params_vs_accuracy(db, "img/num_params_vs_accuracy.png")
     visualise.performance_vs_coverage(db, "img/performance_vs_coverage.png")
     visualise.performance_vs_max_wgsize(db, "img/performance_vs_max_wgsize.png")
+    visualise.performance_vs_wg_c(db, "img/performance_vs_wg_c.png")
+    visualise.performance_vs_wg_r(db, "img/performance_vs_wg_r.png")
     visualise.max_wgsizes(db, "img/max_wgsizes.png")
     visualise.oracle_speedups(db, "img/oracle_speedups.png")
 
