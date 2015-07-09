@@ -4,25 +4,21 @@ $d$.
 \Ensure workgroup size $w$
 
 \Procedure{Default}{w, k, h, d}
+\Comment Use baseline as fallback.
 \State $w \leftarrow \text{classify}(k, h, d)$
-\If{$w \le W_{max}(s)$}
+\If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
-  \State $W_{legal} \leftarrow \{w | w \in W, w \le W_{max}(s) \}$
-  \Comment Set of safe workgroup sizes
-  \State \textbf{return} $\underset{w \in W_{legal}}{\argmax} f(k,h,d,w)$
-  \Comment Baseline workgroup size
+  \State \textbf{return} $\underset{w \in W_{legal}(s)}{\argmax} \text{performance}(s,w)$
 \EndIf
 \EndProcedure
 \item[]
 
 \Procedure{Random}{w, k, h, d}
 \State $w \leftarrow \text{classify}(k, h, d)$
-\If{$w \le W_{max}(s)$}
+\If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
-  \State $W_{legal} \leftarrow \{w | w \in W, w \le W_{max}(s) \}$
-  \Comment Set of safe workgroup sizes
   \State \textbf{return} random choice $w \in W_{legal}$
 \EndIf
 \EndProcedure
@@ -30,7 +26,7 @@ $d$.
 
 \Procedure{Reshape}{w, k, h, d}
 \State $w \leftarrow \text{classify}(k, h, d)$
-\If{$w \le W_{max}(s)$}
+\If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
   \State \textbf{return} $w \cdot (W_{max}(s) / w)$

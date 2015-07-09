@@ -1,0 +1,33 @@
+\begin{algorithmic}[1]
+\Require kernel features $k$, hardware features $h$, dataset features $d$.
+\Ensure workgroup size $w$
+
+\State $r \leftarrow \underset{w \in W_{legal}(s)}{\min} f(k,h,d,w)$
+\Comment Predict minimum runtime.
+\State $w \leftarrow \underset{w \in W_{legal}(s)}{\argmin} f(k,h,d,w)$
+\Comment Workgroup size for $r$.
+\State $t_r \leftarrow$ measure runtime of program with $w$
+\If{$t_r \approx r$}
+  \State \textbf{return} $w$
+\Comment Predicted runtime is accurate.
+\Else
+   \State $W \leftarrow W_{legal}(s)$
+   \State converged $\leftarrow$ false
+   \State $w_b \leftarrow$ baseline value
+   \State $t_b \leftarrow$ measure runtime of runtime of program with $w_b$
+   \While{not converged}
+     \State $s \leftarrow \underset{w \in W}{\max} g(k,h,d,w)$
+     \Comment Predict best speedup.
+     \State $w \leftarrow \underset{w \in W}{\argmax} g(k,h,d,w)$
+     \Comment Workgroup size for $s$.
+     \State $t \leftarrow$ measure runtime of program with $s$
+     \If{$t_b / t \approx s$}
+       \State converged = true
+       \Comment Predicted speedup is accurate.
+     \Else
+       \State $W = W - \{w\}$
+     \EndIf
+   \EndWhile
+   \State \textbf{return} $w$
+\EndIf
+\end{algorithmic}
