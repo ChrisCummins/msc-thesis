@@ -7721,3 +7721,13 @@ worth checking.
 Recap of year:
 
 * 12/9/14 First supervisor meeting
+
+
+## Thursday 9th
+
+The full `eval.py` script took 27 hours to run (!!!). By the time I've
+added CPU data back in, this will be crazy.
+
+```
+unbuffer ./eval.py 2>&1  125194.46s user 386.99s system 129% cpu 26:59:17.25 total
+```
