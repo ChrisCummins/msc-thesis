@@ -1,13 +1,152 @@
 \section{Introduction}
 
-In this chapter we describe the design and implementation of OmniTune,
-an extensible, dynamic autotuner. We evaluate the performance of
-OmniTune when tasked with tuning workgroup size of stencil codes.
+In this chapter I describe the design and implementation of OmniTune,
+an extensible, dynamic autotuner, capable of runtime prediction of
+optimisation parameters using machine learning. First, I describe the
+architecture and public interface exposed by OmniTune, demonstrating
+the communication pattern between OmniTune and SkelCL
+applications. This is followed by a description of the machine
+learning techniques employed to select workgroup sizes for SkelCL
+stencils.
+
+\TODO{Check that this structure still makes sense.}
 
 
-\section{Machine Learning and Performance Tuning}
+% \section{Machine Learning and Performance Tuning}
+%
+% \TODO{We're always dealing with a sparsity in data.}
 
-\TODO{We're always dealing with a sparsity in data.}
+\section{Collective Tuning and the Client-Server Model}
+
+Omnitune uses a three tier client-server model, illustrated in
+Figure~\ref{fig:omnitune-client-server}. Target applications request
+optimisation parameter values from a system-wide server, which in turn
+communicates with a global database to add and receive training data.
+
+This design has two primary advantages: the first is that it decouples
+the autotuning logic from that of the client program, allowing
+developers to easily repurpose the autotuning framework to target
+additional optimisation parameters through a plugin system; the second
+advantage is that this enables collective tuning, in which training
+data gathered from a range of devices can be accessed and added to by
+any OmniTune server. Anyone downloading a copy of OmniTune will
+instantly have access to the global database of training data,
+including the \input{gen/num_samples} runtimes which were collected to
+write this thesis.
+
+\FIXME{This last sentence is not currently implemented, since I'm
+  using only a system-wide database. I'll need to implement a MySQL
+  interface or reword.}
+
+\begin{figure}
+\centering
+\includegraphics[width=.4\textwidth]{omnitune-client-server}
+\caption{%
+  High level system overview of OmniTune.%
+}
+\label{fig:omnitune-client-server}
+\end{figure}
+
+\subsection{Decoupling of Autotuning Service from Client Programs}
+
+As discussed in \xref{related work}, common implementations of
+autotuning in the literature either: embed the autotuning logic within
+the target applications, or take a ``meta-scripting'' approach in
+which the autotuner is an entirely separate program which must be
+invoked by the user to tune a target application. The approach taken
+in this work aims to capture the advantages of both techniques by
+implementing an autotuning service with communication logic embedded
+in the target applications. The resulting design consists of three
+sets of components: clients, servers, and a global
+database. Figure~\ref{fig:omnitune-comms} shows a typical pattern of
+communication between the components.
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\textwidth]{img/omnitune-comms}
+\caption{%
+  Communication pattern between OmniTune components.%
+}
+\label{fig:omnitune-comms}
+\end{figure}
+
+\TODO{Advantages: asynchronous communication with ``the
+  cloud''. Expensive tasks such as model building aren't bound by the
+  lifespan of the client application. Lightweight handling of multiple
+  connections.}
+
+
+\subsubsection{OmniTune Database}
+
+A master server maintains a common store of all empirical performance
+data. \TODO{Implement and write-up!}
+
+
+\subsubsection{OmniTune Servers}
+
+For each autotuning-capable machine, a system-level daemon hosts a
+DBus session bus which client processes can communicate with to
+request optimisation parameter values. This daemon acts as an
+intermediate between the training data and the client applications. On
+launch, the server requests the latest training data from the master
+database, it then builds the relevant models for performing prediction
+of optimisation parameter values.
+
+OmniTune servers use a plugin system to host proxies that interface
+with target applications. Proxies are application-specific, for
+example, there is a proxy which implements autotuning of workgroup
+size for SkelCL stencils. This proxy exposes two public methods,
+\texttt{RequestWgsize} and \texttt{RequestTrainingWgsize}, shown in
+
+Listing~\ref{lst:omnitune-proxy}.
+\lstinputlisting[
+  language=Python,
+  float,
+  floatplacement=t,
+  label=lst:omnitune-proxy,
+  caption={%
+    Public OmniTune proxy interface for SkelCL autotuning.%
+  }
+]{dat/omnitune-skelcl-proxy.py}
+
+When a SkelCL stencil is invoked, it synchronously calls the
+\texttt{RequestWgsize()} method of the autotuner daemon, passing as
+arguments the required data in order to assemble a feature
+vector. Feature extraction then occurs within the daemon, which
+classifies the datapoint and returns the suggested workgroup size to
+the SkelCL process. This is a very low latency operation, and the
+system daemon can handle multiple connections from separate SkelCL
+processes simultaneously (although this is an admittedly unlikely
+use-case given that most GPGPU programs expect to be run in
+isolation).
+
+\subsubsection{Client interface}
+
+\lstinputlisting[
+  language=C++,
+  float,
+  floatplacement=t,
+  label=lst:skelcl-set-wgsize,
+  caption={
+    Implementation of SkeCL's client interface to OmniTune proxy.
+  }
+]{dat/skelcl-set-wgsize.cpp}
+
+\lstinputlisting[
+  language=C++,
+  float,
+  floatplacement=t,
+  label=lst:omnitune-client,
+  caption={
+    Implementation of SkeCL's client interface to OmniTune proxy.
+  }
+]{dat/skelcl-omnitune-client.cpp}
+
+
+\subsection{Distributing Training Data}
+
+
+\section{Machine-learning Enabled Autotuning}
 
 
 \subsection{Feature Extraction}
@@ -174,51 +313,7 @@ dev_version                        nominal
 \end{Verbatim}
 \end{multicols}
 
-
-\section{Collective Tuning and the Client-Server Model}
-
-\TODO{Three-tier client, proxy, server model. Include UML sequence
-  diagrams and system diagram.}
-
-\TODO{The implementation of this autotuner uses a three-tier
-  client-server model. A master server stores the labelled training
-  data in a common location. Then, for each SkelCL-capable machine, a
-  system-level daemon hosts a DBus session bus which SkelCL processes
-  can communicate with to request workgroup sizes. On launch, this
-  daemon requests the latest training data from the master
-  server. When a SkelCL stencil is invoked, it synchronously calls the
-  \texttt{RequestWgsize()} method of the autotuner daemon, passing as
-  arguments the required data in order to assemble a feature
-  vector. Feature extraction then occurs within the daemon, which
-  classifies the datapoint and returns the suggested workgroup size to
-  the SkelCL process. This is a very low latency operation, and the
-  system daemon can handle multiple connections from separate SkelCL
-  processes simultaneously (although this is an admittedly unlikely
-  use-case given that most GPGPU programs expect to be run in
-  isolation).}
-
-
-\subsection{Decoupling Autotuner and Client Programs}
-
-\lstinputlisting[
-  language=Python,
-  label=lst:omnitune-proxy,
-  caption={
-    Public OmniTune proxy interface for SkelCL autotuning.
-  }
-]{dat/omnitune-skelcl-proxy.py}
-
-
-\lstinputlisting[
-  language=C++,
-  label=lst:omnitune-client,
-  caption={
-    Implementation of SkeCL's client interface to OmniTune proxy.
-  }
-]{dat/skelcl-omnitune-client.cpp}
-
-
-\section{Autotuning using Classification}
+\subsection{Autotuning using Classification}
 
 \TODO{Once we have features, we can create a dataset from which will
   can train a machine learning classifier. We label each feature
@@ -230,7 +325,7 @@ dev_version                        nominal
   invocation.}
 
 
-\subsection{Satisfying Constraints}
+\subsubsection{Satisfying Constraints}
 
 Since classifiers are probabilistic systems, it is possible that a
 classifier will predict a workgroup size that is invalid for the given
@@ -258,14 +353,14 @@ fallback strategies were required.
 \end{algorithm}
 
 
-\section{Autotuning using Regression}
+\subsection{Autotuning using Regression}
 
 \TODO{If we could use regression to accurately predict the runtime or
   relative performance of different workgroup sizes, then we could
   overcome the expensive training cost of autotuning by
   classification.}
 
-\subsection{Classification Using Regression}
+% \subsubsection{Classification Using Regression}
 
 Algorithms~\ref{alg:autotune-classification} and~\ref{alg:autotune-regression}.
 
@@ -282,7 +377,7 @@ Algorithms~\ref{alg:autotune-classification} and~\ref{alg:autotune-regression}.
 \end{algorithm}
 
 
-\section{Meta-tuning: a Hybrid Approach}
+\subsection{Meta-tuning: a Hybrid Approach}
 
 \begin{algorithm}
 \caption{Selecting workgroup size using hybrid approach}
