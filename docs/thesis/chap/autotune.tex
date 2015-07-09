@@ -229,29 +229,6 @@ dev_version                        nominal
   feature extraction and classification before every stencil
   invocation.}
 
-The simplest autotuner is one which selects the workgroup size which
-is most commonly optimal (i.e. the mode of all optimal workgroup sizes
-$\left\{ \Omega(s) | s \in S \right\}$):
-
-\begin{equation}
-\text{ZeroR} = \text{mode}( \left\{ \Omega(s) | s \in S \right\} )
-\end{equation}
-
-However, this is not satisfactory for the purpose of selecting a
-workgroup size to use, due to the constraint $W_{max}(s)$ enforced for
-each scenario. As a result, we propose a so called ``OneR''
-classifier, which first defines $W_{safe} \in W$ as the intersection
-of legal workgroup sizes across all scenarios, then selects the
-workgroup size $w$ which maximises the average performance
-$\bar{p}(w)$ across this reduced parameter space.
-
-\begin{align}
-W_{safe} &= \cap \left\{ f(s) | s \in S \right\} \\
-\text{OneR} &= \argmax_{w \in W_{safe}} \bar{p}(w)
-\end{align}
-
-This provides a baseline for comparing against a more sophisticated
-autotuning approaches using machine learning.
 
 \subsection{Satisfying Constraints}
 
@@ -261,7 +238,7 @@ scenario, $w \not\in W_{legal}(s)$. In these cases, one of three
 fallback strategies is used to select a safe workgroup size:
 
 \begin{enumerate}
-\item \emph{OneR} --- select the workgroup size which is known to be
+\item \emph{Baseline} --- select the workgroup size which is known to be
   safe and provides the highest average case performance.
 \item \emph{Random} --- select a random workgroup size uniformly from
   the set of legal values $w \in W_{legal}$.
@@ -275,40 +252,9 @@ fallback strategy, along with the percentage of cases for which these
 fallback strategies were required.
 
 \begin{algorithm}
+\input{alg/autotune-classification}
 \caption{Select optimal workgroup size using classification}
 \label{alg:autotune-classification}
-\begin{algorithmic}[1]
-\Require kernel features $k$, hardware features $h$, dataset features
-$d$, error handler \textit{err\_fn}.
-\Ensure workgroup size $w$
-
-\State $w \leftarrow \text{classify}(k, h, d)$
-
-\If{$\text{size}(w) \le k.\text{max\_wgsize}$}
-    \State \textbf{return} $w$
-\Else
-    \State \textbf{return} \textit{err\_fn}$(w, k, h, d)$
-\EndIf
-\item[]
-
-\Procedure{Random}{w, k, h, d}
-  \State $C \leftarrow \{c_1, c_2, \ldots, c_n \}$
-  \Comment Set of all workgroup sizes $\le k.\text{max\_wgsize}$
-  \State \textbf{return} random choice $w \in C$
-\EndProcedure
-\item[]
-
-\Procedure{Default}{w, k, h, d}
-  \State $C \leftarrow \{c_1, c_2, \ldots, c_n \}$
-  \Comment Set of all workgroup sizes $\le k.\text{max\_wgsize}$
-  \State \textbf{return} $\underset{c \in C}{\argmax} f(k,h,d,c)$
-\EndProcedure
-\item[]
-
-\Procedure{Reshape}{w, k, h, d}
-  \State \textbf{return} $w / |k.\text{max\_wgsize}|$
-\EndProcedure
-\end{algorithmic}
 \end{algorithm}
 
 
@@ -324,36 +270,22 @@ $d$, error handler \textit{err\_fn}.
 Algorithms~\ref{alg:autotune-classification} and~\ref{alg:autotune-regression}.
 
 \begin{algorithm}
-\caption{Select optimal workgroup size using runtime regression}
-\label{alg:autotune-classification}
-\begin{algorithmic}[1]
-\Require kernel features $k$, hardware features $h$, dataset features
-$d$.
-\Ensure workgroup size $w$
-\State $C \leftarrow \{c_1, c_2, \ldots, c_n \}$
-\Comment Set of all workgroup sizes $\le k.\text{max\_wgsize}$
-\State \textbf{return} $\underset{c \in C}{\argmin} f(k,h,d,c)$
-\end{algorithmic}
+\input{alg/autotune-runtime-regression}
+\caption{Selecting workgroup size using runtime regression}
+\label{alg:autotune-runtime-regression}
 \end{algorithm}
 
 \begin{algorithm}
-\caption{Select optimal workgroup size using speedup regression}
-\label{alg:autotune-regression}
-\begin{algorithmic}[1]
-\Require kernel features $k$, hardware features $h$, dataset features
-$d$.
-\Ensure workgroup size $w$
-\State $C \leftarrow \{c_1, c_2, \ldots, c_n \}$
-\Comment Set of all workgroup sizes $\le k.\text{max\_wgsize}$
-\State \textbf{return} $\underset{c \in C}{\argmax} f(k,h,d,c)$
-\end{algorithmic}
+\input{alg/autotune-speedup-regression}
+\caption{Selecting workgroup size using speedup regression}
+\label{alg:autotune-speedup-regression}
 \end{algorithm}
 
 
 \section{Meta-tuning: a Hybrid Approach}
 
 \begin{algorithm}
-\caption{Select optimal workgroup size using hybrid classification and regression}
+\caption{Selecting workgroup size using hybrid approach}
 \label{alg:autotune-hybrid}
 \begin{algorithmic}[1]
 \Require kernel features $k$, hardware features $h$, dataset features $d$.

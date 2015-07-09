@@ -587,24 +587,25 @@ greatly across architectures, kernels, and datasets.
 
 \section{Summary}
 
-The performance gap between different workgroup sizes can lead to
-speedups of up to $\input{gen/max_possible_speedup}\times$.
-
-\TODO{Hmm. It seems that there is a lot of room for improvement, which
-demonstrates the problem with having to generalise for all cases - you
-lose out on up to *10x* performance improvements. Let's put this all
-together:}
+Using a statistically sound approach, I have collected runtimes for
+\input{gen/num_runtime_stats} combinations of architectures, programs,
+datasets, and workgroup sizes, using a mixture of synthetic and real
+world benchmarks. Comparing the relative performance of an average of
+\input{gen/num_avg_params} workgroup sizes for each workload, the
+following conclusions can be drawn:
 
 \begin{enumerate}
-\item The best workgroup size for a particular workload depends on the
-  hardware, software, and dataset.
+\item The performance of a workgroup size for a particular workload
+  depends properties of the hardware, software, and dataset. The
+  performance gap between different workgroup sizes for a single
+  workload is up to $\input{gen/max_possible_speedup}\times$.
 \item Not all workgroup sizes are legal, and we can only test if a
   value \emph{is} legal at runtime.
 \item Differing workloads have wildly different optimal workgroup
-  sizes, and selecting the right one can give you a 10x boost in
-  performance.
+  sizes, and the best performance can be achieved using static tuning
+  is optimal for only \input{gen/max_oracle_param_frequency} of
+  workloads.
 \end{enumerate}
 
-\todo{This presents a compelling case for the development of an
-  autotuner which can select the optimal workgroup size at
-  runtime. That is what I have set out to achieve.}
+I believe this presents a compelling case for the development of an
+autotuner which can select the optimal workgroup size at runtime.

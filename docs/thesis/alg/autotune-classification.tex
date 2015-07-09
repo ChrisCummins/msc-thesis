@@ -1,0 +1,39 @@
+\begin{algorithmic}[1]
+\Require kernel features $k$, hardware features $h$, dataset features
+$d$.
+\Ensure workgroup size $w$
+
+\Procedure{Default}{w, k, h, d}
+\State $w \leftarrow \text{classify}(k, h, d)$
+\If{$w \le W_{max}(s)$}
+    \State \textbf{return} $w$
+\Else
+  \State $W_{legal} \leftarrow \{w | w \in W, w \le W_{max}(s) \}$
+  \Comment Set of safe workgroup sizes
+  \State \textbf{return} $\underset{w \in W_{legal}}{\argmax} f(k,h,d,w)$
+  \Comment Baseline workgroup size
+\EndIf
+\EndProcedure
+\item[]
+
+\Procedure{Random}{w, k, h, d}
+\State $w \leftarrow \text{classify}(k, h, d)$
+\If{$w \le W_{max}(s)$}
+    \State \textbf{return} $w$
+\Else
+  \State $W_{legal} \leftarrow \{w | w \in W, w \le W_{max}(s) \}$
+  \Comment Set of safe workgroup sizes
+  \State \textbf{return} random choice $w \in W_{legal}$
+\EndIf
+\EndProcedure
+\item[]
+
+\Procedure{Reshape}{w, k, h, d}
+\State $w \leftarrow \text{classify}(k, h, d)$
+\If{$w \le W_{max}(s)$}
+    \State \textbf{return} $w$
+\Else
+  \State \textbf{return} $w \cdot (W_{max}(s) / w)$
+\EndIf
+\EndProcedure
+\end{algorithmic}
