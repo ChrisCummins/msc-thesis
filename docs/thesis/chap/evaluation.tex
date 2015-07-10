@@ -7,17 +7,83 @@ previous chapter are scrutinised and evaluated using multiple
 different machine learning algorithms, and the prediction quality is
 evaluated for portability across programs, devices, and datasets.
 
-\section{Synthetic Benchmarks as Surrogates}
 
-\TODO{Rank eigenvectors of PCA on features.}
+\subsubsection{Questions to ask of each approach to autotuning}
 
-\TODO{Evaluate the effectiveness of training with synthetic
-  benchmarks.}
+\begin{enumerate}
+\item How successful is it at selecting optimal workgroup sizes?
+\item How successful is it at selecting \emph{good} workgroup sizes?
+\item What is the performance when training on synthetic benchmarks
+  and testing on real?
+\item What is the performance when testing on an unseen: architecture,
+  kernel, dataset? (leave one out evaluation)
+\item How well does it perform as a function of the number of training
+  points?
+\end{enumerate}
 
-\section{Validation methods and datasets}
+\section{Classification Performance}
 
-\section{Training Time and Accuracy}
+\begin{enumerate}
+\item How often does it select \emph{invalid} workgroup sizes?
+\item How does the three different techniques of handling invalid
+  workgroup sizes perform?
+\end{enumerate}
 
-\section{Results}
+\begin{figure}
+\centering
+\includegraphics[width=.75\textwidth]{../../experiments/205-06-04-train/img/classification/xval.png}
+\caption{%
+  Classification performance using cross-validation.%
+}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\textwidth]{../../experiments/205-06-04-train/img/classification/xval/err_fns/random_fn.png}
+\caption{%
+  Classification performance for all test cases.%
+}
+\end{figure}
+
+
+% \TODO{Rank eigenvectors of PCA on features.}
+
+% \TODO{Evaluate the effectiveness of training with synthetic
+%   benchmarks.}
+
+
+\section{Predicting Stencil Runtime}
+
+\begin{enumerate}
+\item How accurately does it predict the runtime of a stencil?
+\item What is the relationship between \emph{classification} accuracy,
+  and the accuracy of predicted runtimes? Does it really matter if the
+  predicted runtime is inaccurate?
+\end{enumerate}
+
+\begin{figure}
+\centering
+\includegraphics[width=.75\textwidth]{../../experiments/205-06-04-train/img/runtime_regression/xval.png}
+\caption{%
+  Performance of regressors at predicting program runtime.%
+}
+\end{figure}
+
+
+\section{Predicting Relative Performance}
+
 
 \section{Summary}
+
+\begin{table}
+\scriptsize
+\input{../../experiments/205-06-04-train/xval.tex}
+\caption{Results of 10 cross-validation.}
+\end{table}
+
+\begin{table}
+\scriptsize
+\input{../../experiments/205-06-04-train/synthetic_real.tex}
+\caption{Results of training using synthetic benchmarks and testing on
+  real.}
+\end{table}

@@ -7,6 +7,7 @@ import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas
 import seaborn as sns
 
 from matplotlib.ticker import FormatStrFormatter
@@ -17,6 +18,7 @@ from labm8 import fmt
 from labm8 import fs
 from labm8 import math as labmath
 from labm8 import text
+from labm8 import ml
 
 import omnitune
 from omnitune import skelcl
@@ -82,6 +84,25 @@ def visualise_classification_job(db, job):
     str_args = {
         "float_format": lambda f: "{:.2f}".format(f)
     }
+
+    for i in range(len(results)):
+        results[i][0] = ml.classifier_basename(results[i][0])
+
+    frame = pandas.DataFrame(results)
+    frame.columns = [
+        "CLASSIFIER",
+        "ERR_FN",
+        "ACC %",
+        "INV %",
+        "Omin %",
+        "Oavg %",
+        "Omax %",
+        "Smin",
+        "Savg",
+        "Smax",
+    ]
+    print(frame.to_latex(index=False, **str_args), file=open(job + ".tex", "w"))
+    io.debug("Wrote {}.tex".format(job))
 
     print()
     print("RESULTS FOR", job)
