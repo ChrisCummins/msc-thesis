@@ -7,18 +7,18 @@ import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas
 import seaborn as sns
 
 from matplotlib.ticker import FormatStrFormatter
 
 import labm8 as lab
-from labm8 import io
 from labm8 import fmt
 from labm8 import fs
+from labm8 import io
+from labm8 import latex
 from labm8 import math as labmath
-from labm8 import text
 from labm8 import ml
+from labm8 import text
 
 import omnitune
 from omnitune import skelcl
@@ -88,8 +88,7 @@ def visualise_classification_job(db, job):
     for i in range(len(results)):
         results[i][0] = ml.classifier_basename(results[i][0])
 
-    frame = pandas.DataFrame(results)
-    frame.columns = [
+    columns=(
         "CLASSIFIER",
         "ERR_FN",
         "ACC %",
@@ -100,9 +99,10 @@ def visualise_classification_job(db, job):
         "Smin",
         "Savg",
         "Smax",
-    ]
-    print(frame.to_latex(index=False, **str_args), file=open(job + ".tex", "w"))
-    io.debug("Wrote {}.tex".format(job))
+    )
+
+    latex.table(results, output=job + ".tex", columns=columns,
+                latex_args=str_args)
 
     print()
     print("RESULTS FOR", job)
