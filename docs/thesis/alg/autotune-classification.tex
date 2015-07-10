@@ -3,9 +3,9 @@
 $d$.
 \Ensure workgroup size $w$
 
-\Procedure{Default}{w, k, h, d}
+\Procedure{Default}{w, a, k, d}
 \Comment Use baseline as fallback.
-\State $w \leftarrow \text{classify}(k, h, d)$
+\State $w \leftarrow \text{classify}(a, k, d)$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
@@ -14,8 +14,8 @@ $d$.
 \EndProcedure
 \item[]
 
-\Procedure{Random}{w, k, h, d}
-\State $w \leftarrow \text{classify}(k, h, d)$
+\Procedure{Random}{w, a, k, d}
+\State $w \leftarrow \text{classify}(a, k, d)$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
@@ -24,8 +24,8 @@ $d$.
 \EndProcedure
 \item[]
 
-\Procedure{Reshape}{w, k, h, d}
-\State $w \leftarrow \text{classify}(k, h, d)$
+\Procedure{Reshape}{w, a, k, d}
+\State $w \leftarrow \text{classify}(a, k, d)$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else

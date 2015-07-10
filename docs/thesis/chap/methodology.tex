@@ -1,12 +1,12 @@
 \section{Introduction}
 
-This chapter describe the methodology used to achieve statistically
-sound comparisons of differing workgroup sizes on the performance of a
-stencil code. I describe an experiment to explore the space of
-architectures, programs, and datasets, and detail some of the many
-factors which can influence the performance of stencils in different
-conditions. I present the results of this exploration phase and use
-this to present the case for autotuning.
+This chapter describes the methodology used to achieve statistically
+sound comparisons of the performance of stencil codes using different
+workgroup sizes. I describe an experiment to explore the performance
+influence of implementation-independent factors: architecture,
+programs, and datasets, and detail the influence of some of these
+factors. I present the results of this exploration phase and use this
+to present the case for autotuning.
 
 
 \section{Defining the Optimisation Space}
@@ -64,16 +64,16 @@ f(x,y) = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2 + y^2}{2\sigma^2}}
 Gaussian blurs are parameterised by a radius $r$ which define
 symmetric, square stencil regions about the centre
 pixel. \TODO{Describe the range of blur radius' used.} Unlike the
-previous two applications, a Gaussian blur is not iterative.
+previous two applications, the Gaussian blur is not an iterative
+stencil.
 
 \subsubsection{Game of Life}
 
-Conway's Game of Life (\FIXME{Citation needed}) is a cellular
-automaton which models the evolution of a regular grid of cells over
-discrete time steps. At each time step, each cell value is updated to
-be either \emph{live} or \emph{dead} based on it's current value and
-the value of the nearest neighbouring elements
-(Algorithm~\ref{alg:gol}).
+Conway's Game of Life\CitationNeeded{} is a cellular automaton which
+models the evolution of a regular grid of cells over discrete time
+steps. At each time step, each cell value is updated to be either
+\emph{live} or \emph{dead} based on it's current value and the value
+of the nearest neighbouring elements (Algorithm~\ref{alg:gol}).
 
 \begin{algorithm}[b]
 \caption{Conway's Game of Life}
@@ -91,30 +91,33 @@ The Canny edge detection algorithm consists of four distinct stages:
 
 \subsection{Procedural Generation of Synthetic Stencils}
 
-Synthetic benchmarks are a popular method for evaluating relative
-performance of competing systems. The algorithmic generation of such
-benchmarks has clear benefits for reducing evaluation costs; however,
-creating meaningful benchmark programs is a difficult problem if we
-are to avoid the problems of redundant computation and produce
-provable halting benchmarks (\FIXME{Citations needed, although there
-  will need to be a more extensive review of this in the related work
-  chapter}).
+One challenge of performing empirical performance evaluations is
+gathering enough applications to ensure meaningful
+comparisons. Synthetic benchmarks are a popular method for
+circumventing this issue, by comparing the performance of artificial
+workloads. The automatic generation of such benchmarks has clear
+benefits for reducing evaluation costs; however, creating meaningful
+benchmark programs is a difficult problem if we are to avoid the
+problems of redundant computation and produce provable halting
+benchmarks (\FIXME{Citations needed, although there will need to be a
+  more extensive review of this in the related work chapter}).
 
-In practise, stencil codes many common traits: a well tightly
-constrained interface, predictable memory access patterns, and well
-defined input and output data types. This can be used to create a
+In practise, stencil codes exhibit many common traits: they have a
+tightly constrained interface, predictable memory access patterns, and
+well defined input and output data types. This can be used to create a
 confined space of possible stencil codes by enforcing upper and lower
 bounds on properties of the codes which can not normally be guaranteed
 for general-purpose programs, e.g. the number of floating point
 operations. By doing so, it is possible to create a system to
-programatically generate synthetic stencil workloads which can .
+programatically generate synthetic stencil workloads which can
+\TODO{\ldots}.
 
 One motivation for the use of synthetic benchmarks is that for the
 purposes of autotuning, generating a large set of synthetic benchmarks
 can address the ``small $n$, large $P$'' problem, which describes the
 difficulty of statistical inference in spaces for which the set of
-possible hypotheses $P$ is greatly larger than the number of
-observations $n$\CitationNeeded. Creating parameterised, synthetic
+possible hypotheses $P$ is significantly larger than the number of
+observations $n$\CitationNeeded{}. Creating parameterised, synthetic
 benchmarks, it is possible to explore a much larger set of the space
 of possible stencil codes than if relying solely on reference
 applications, for example, to evaluate the performance impact of
@@ -122,15 +125,16 @@ highly irregular stencil shapes.
 
 \FIXME{The synthetic benchmarks I've used aren't actually
   \emph{procedurally} generated. I'll either need to implement a
-  system, or failing that, describe my method for creating the
-  synthetic benchmarks and move the discussion of procedurally
+  stencil generator, or failing that, describe my method for creating
+  the synthetic benchmarks and move the discussion of procedurally
   generated stencils into the future work section.}
 
 The synthetic benchmarks used in this thesis are parameterised by
-stencil shape (one parameter for each of the four directions), data
-type (either integer or single or double precision floating point),
-and \emph{complexity} a simple metric for indicating the desired
-number of memory accesses and instructions per stencil.
+stencil shape (one parameter for each of the four directions), input
+and output data types (either integers, or single or double precision
+floating points), and \emph{complexity} --- a simple metric for
+indicating the desired number of memory accesses and instructions per
+stencil.
 
 
 \subsection{Selection of Parameter Values}
@@ -181,11 +185,10 @@ was collected. Tables~\ref{tab:hw},~\ref{tab:kernels},
 and~\ref{tab:datasets} list the range of execution devices, kernels,
 and datasets used. For each unique combination of architecture,
 kernel, and dataset (hereby referred to as a \emph{scenario}),
-training data was collected by randomly sampling the space of legal
-workgroup sizes, until multiple samples have been collected for each
-combination of scenario and workgroup size.
+training data was collected by iteratively sampling the space of
+workgroup sizes.
 
-\TODO{Description of each test system. E.g. mobo, memory, \& GPUs.}
+\TODO{Description of test systems. E.g. mobo, memory, \& GPUs.}
 
 \begin{table}
 \input{tab/devices}
@@ -200,8 +203,10 @@ combination of scenario and workgroup size.
 \caption{%
   Benchmark applications, border sizes, and static instruction counts.
   The ``simple'' and ``complex'' kernels are synthetic training
-  programs. \FIXME{I also have a FDTD benchmark which I have yet to
-    collect results for.}%
+  programs. \FIXME{There's some suspicious duplicate entries
+    here\ldots}.
+  % \FIXME{I also have a FDTD benchmark which I have yet to
+  % collect results for.}
 }
 \label{tab:kernels}
 \end{table}
@@ -215,14 +220,14 @@ combination of scenario and workgroup size.
 \end{table}
 
 
-\subsection{Runtime Sampling}
+\subsection{Sampling Runtimes}
 
-The number of ``moving parts'' in the modern software stack makes for
-noisy results when measuring program execution time. As such,
-evaluating the relative performance of different versions of programs
-requires a judicious approach to isolate the appropriate performance
-metrics and to take a statistically rigorous approach to collecting
-data.
+The number of ``moving parts'' in the modern software stack provides
+multiple sources of noise when measuring program execution times. As
+such, evaluating the relative performance of different versions of
+programs requires a judicious approach to isolate the appropriate
+performance metrics and to take a statistically rigorous approach to
+collecting data.
 
 
 \subsubsection{Isolating the Impact of Workgroup Size}
@@ -244,7 +249,7 @@ distinct phases, shown in Table~\ref{tab:stencil-runtime-components}.
 \paragraph{Kernel compilation times} Upon invocation, template
 substitution is performed of the user code into the stencil skeleton
 implementation, then compiled into an OpenCL program. Once compiled,
-the program is cached for the lifetime of the host program.
+the program binary is cached for the lifetime of the host program.
 
 \paragraph{Skeleton prepare times} Before a kernel is executed, a
 preparation phase is required to allocate buffers for the input and
@@ -277,9 +282,10 @@ all times recorded for each distinct phase:
 t = \bm{1c} + \bm{1p} + \bm{1u} + \bm{1k} + \bm{1d}
 \end{equation}
 
-For multi-device stencils with $n$ execution devices, this can be
-approximate as the sum of the sequential host-side phases, and the sum
-of the device-side phases divided by the number of devices:
+Note that there are no synchronisation costs $s$. For applications
+with $n$ execution devices, the runtime can be approximate as the sum
+of the sequential host-side phases, and the sum of the device-side
+phases divided by the number of devices:
 
 \begin{equation}
 t \approx \sum_{i=1}^n{(\bm{1c}_{i})} + \bm{1p} + \bm{1s} +
@@ -297,12 +303,12 @@ transfers between host and device memory, for which the selection of
 workgroup size has no influence. Note that as demonstrated
 in~\cite{Gregg2011}, care must be taken to ensure that isolating
 device compute time does not cause misleading comparisons to be made
-between across devices. For example, if using an autotuner to
-determine whether execution of a given stencil is faster on a CPU or
-GPU, the device transfer times $\bm{u}$, $\bm{d}$, and $\bm{s}$ would
-need to be considered. For our purposes, we do not need to consider
-the location of the data in the system's memory as it is has no
-bearing on the throughput of a stencil kernel.
+between devices. For example, if using an autotuner to determine
+whether execution of a given stencil is faster on a CPU or GPU, the
+device transfer times $\bm{u}$, $\bm{d}$, and $\bm{s}$ would need to
+be considered. For our purposes, we do not need to consider the
+location of the data in the system's memory as it is has no bearing on
+the execution time of a stencil kernel.
 
 
 \subsubsection{Sampling plan and technique}
@@ -336,8 +342,8 @@ This section presents the results of the empirical enumeration of
 workgroup size optimisation space for SkelCL stencils. A total of
 \input{gen/num_runtime_stats} combinations of scenario and workgroup
 size were tested, distributed across \input{gen/num_scenarios}
-scenarios, with an average \input{gen/num_avg_params} unique workgroup
-sizes each (max \input{gen/num_max_params}).
+scenarios, with an average of \input{gen/num_avg_params} unique
+workgroup sizes each. % FIXME: (max \input{gen/num_max_params}).
 
 \subsection{Statistical soundness}
 
@@ -368,7 +374,7 @@ calculated using:
 
 95\% confidence intervals are calculated assuming a Gaussian
 distribution of runtimes (given our sample size of
-$n \ge n$~\cite{Georges2007}):
+$n \ge 30$~\cite{Georges2007}):
 
 \begin{align}
 \sigma &= \sqrt{\frac{\sum_{i=1}^{n}(t_i - \bar{t})^2}{n - 1}}\\
@@ -379,13 +385,14 @@ c_2 &= \bar{t} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
 \TODO{Actually demonstrate that differences in runtime between
   measured workgroup sizes are significant.}
 
-\TODO{Plot variance of runtimes as a function of mean runtime.}
 
 \subsection{Assessing Available Performance}
 
-From the set of all workgroup sizes $W$, the subset of workgroup sizes
-$W_{legal}(s) \subseteq W$ that are legal for a given scenario $s$ can
-be found using:
+By comparing the relative performance of different workgroup sizes
+across workloads, we can begin to get a feel for the real performance
+impact. From the set of all workgroup sizes $W$, the subset of
+workgroup sizes $W_{legal}(s) \subseteq W$ that are legal for a given
+scenario $s$ can be found using:
 
 \begin{equation}
 W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\}
@@ -406,8 +413,8 @@ $r(s, w_1, w_2)$ of competing workgroup sizes $w_1$ over $w_2$ using:
 
 For a given scenario, the \emph{oracle} workgroup size
 $\Omega(s) \in W_{legal}(s)$ is the $w$ value which provided the
-shortest average runtime. This allows for comparing the performance of
-a particular workgroup against the maximum available performance for
+lowest mean runtime. This allows for comparing the performance of a
+particular workgroup against the maximum available performance for
 that scenario:
 
 \begin{align}
@@ -415,10 +422,12 @@ that scenario:
   p(s,w) &= r(s, w, \Omega(s))
 \end{align}
 
-Where the performance is within the range $0 \le p(s,w) \le 1$. For a
-given workgroup size, the average performance $\bar{p}(w)$ across the
-set of all scenarios $S$ can be found using the geometric mean of
-performance relative to the oracle:
+Where the performance is within the range $0 \le p(s,w) \le 1$. The
+geometric mean is used to aggregate relative performances due to it's
+multiplicative property~\cite{Fleming1986}. For a given workgroup
+size, the average performance $\bar{p}(w)$ across the set of all
+scenarios $S$ can be found using the geometric mean of performance
+relative to the oracle:
 
 \begin{equation}
 \bar{p}(w) =
@@ -427,19 +436,16 @@ performance relative to the oracle:
 \right)^{1/|S|}
 \end{equation}
 
-The geometric mean is used to aggregate relative performances due to
-it's multiplicative property~\cite{Fleming1986}.
-
 
 \subsubsection{Performance Upper Bounds}
 
 \begin{figure}
 \input{fig/speedups}
 \caption{%
-  Two comparisons of the performance of the best workgroup size for
-  each scenario relative to: (\ref{fig:oracle-speedups-worst})~the
+  Two comparisons of the performance of the oracle workgroup size for
+  each scenario relative to: (\subref{fig:oracle-speedups-worst})~the
   worst workgroup size for each scenario; and
-  (\ref{fig:oracle-speedups-baseline})~the workgroup size which
+  (\subref{fig:oracle-speedups-baseline})~the workgroup size which
   provides the best average case performance across all scenarios.%
 }
 \label{fig:speedups}
@@ -447,8 +453,8 @@ it's multiplicative property~\cite{Fleming1986}.
 
 For a given scenario $s$, the ratio of the workgroups sizes from
 $W_{legal}(s)$ which provide the longest and shortest mean runtimes
-can be used to calculate the upper bound on the possible performance
-improvements to be attained from selecting the workgroup size:
+can be used to calculate the upper bound of the possible performance
+influence of workgroup size:
 
 \begin{equation}
 r_{max}(s) = r(s, \argmax_{w \in W_{legal}(s)} t(s,w), \Omega(s))
@@ -464,10 +470,10 @@ shows the maximum attainable speedups achieved for all scenarios.
 
 \subsubsection{Establishing a Baseline}
 
-By defining $W_{safe} \in W$ as the intersection of legal workgroup
-sizes across all scenarios, the optimal \emph{static} workgroup size
-$\bar{w}$ can be calculated as the workgroup size which provides which
-provides the best average case performance:
+The \emph{baseline} workgroup size $\bar{w}$ is the value which
+provides the best average case performance across all scenarios.  By
+defining $W_{safe} \in W$ as the intersection of legal workgroup
+sizes, the baseline can be found using:
 
 \begin{align}
 W_{safe} &= \cap \left\{ W_{legal}(s) | s \in S \right\}\\
@@ -475,7 +481,7 @@ W_{safe} &= \cap \left\{ W_{legal}(s) | s \in S \right\}\\
 \end{align}
 
 From the experimental results, the baseline workgroup size $\bar{w}$
-is \input{gen/one_r}, with a geometric mean performance
+is found to be \input{gen/one_r}, with a geometric mean performance
 $\bar{p}(\bar{w})$ of
 \input{gen/one_r_perf}. Figure~\ref{fig:oracle-speedups-baseline}
 shows the average speedup of the oracle over this baseline for all
@@ -504,7 +510,9 @@ shows the distribution of oracle workgroup sizes, demonstrating that
 there is clearly no ``silver bullet'' workgroup size which works for
 all scenarios. As Figure~\ref{fig:oracle-accuracy} shows,
 \input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
-required in order to achieve oracle performance just 50\% of the time.
+required in order to achieve oracle performance just 50\% of the
+time. \FIXME{These values are going to change massively once I'd
+  incorporated the CPU data\ldots}
 
 \begin{figure}
 \centering
@@ -534,11 +542,11 @@ legal.
 \centering
 \includegraphics{gen/img/params_summary.png}
 \caption{%
-  The red line shows the ``legality'' of the parameter value, i.e.\
-  the ratio of scenarios for which that workgroup size is legal.  The
-  blue and green lines show the geometric mean of the performance of
-  workgroup sizes relative to the oracle for: all scenarios, and only
-  the scenarios for which the workgroup size is legal.%
+  The red line shows the ``legality'' of workgroup sizes, i.e.\ the
+  ratio of scenarios for which that workgroup size is legal.  The blue
+  and green lines show the geometric mean of the performance relative
+  to the oracle for: all scenarios, and only the scenarios for which
+  the workgroup size is legal.%
 }
 \label{fig:performance-legality}
 \end{figure}
@@ -568,7 +576,8 @@ greatly across architectures, kernels, and datasets.
   of: (\subref{fig:performance-max-wgsize})~maximum legal size,
   (\subref{fig:performance-wg-c})~number of columns, and
   (\subref{fig:performance-wg-r})~ number of rows. As can be seen,
-  workgroup size alone is not indicative of performance.%
+  workgroup size alone is not indicative of performance. \FIXME{Shit
+    plots.}%
 }
 \label{fig:performance-wgsizes}
 \end{figure}

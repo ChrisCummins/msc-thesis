@@ -4,7 +4,7 @@ In this chapter I describe the design and implementation of OmniTune,
 an extensible, dynamic autotuner, capable of runtime prediction of
 optimisation parameters using machine learning. First, I describe the
 architecture and public interface exposed by OmniTune, demonstrating
-the communication pattern between OmniTune and SkelCL
+the communication pattern between the autotuner and SkelCL
 applications. This is followed by a description of the machine
 learning techniques employed to select workgroup sizes for SkelCL
 stencils. A high level overview of the integration of OmniTune and
@@ -39,11 +39,11 @@ requests for optimisation parameter values.
 This design has two primary advantages: the first is that it decouples
 the autotuning logic from that of the client program, allowing
 developers to easily repurpose the autotuning framework to target
-additional optimisation parameters through a plugin system; the second
-advantage is that this enables collective tuning, in which training
-data gathered from a range of devices can be accessed and added to by
-any OmniTune server. Anyone downloading a copy of OmniTune will
-instantly have access to the global database of training data,
+additional optimisation parameters through a system of plugins; the
+second advantage is that this enables collective tuning, in which
+training data gathered from a range of devices can be accessed and
+added to by any OmniTune server. Anyone downloading a copy of OmniTune
+will instantly have access to the global database of training data,
 including the \input{gen/num_samples} runtimes which were collected to
 write this thesis.
 
@@ -90,18 +90,21 @@ communication between the components.
 \subsection{Database: Distributed Training Data}
 
 A master server maintains a common store of all performance
-data. \TODO{Implement and write-up!}
+data. \TODO{Write-up schemas, table normal forms, checksum IDs,
+  \ldots}
 
 
 \subsection{Server: Autotuning Engine}
 
 For each autotuning-capable machine, a system-level daemon hosts a
-DBus session bus which client processes can communicate with to
-request optimisation parameter values. This daemon acts as an
-intermediate between the training data and the client applications. On
+DBus session bus which client processes communicate with. This daemon
+acts as an intermediate between the training data and the client
+applications, \emph{serving} requests for optimisation parameter
+values. The server is implemented as a standalone Python program. On
 launch, the server requests the latest training data from the master
 database, it then builds the relevant models for performing prediction
-of optimisation parameter values.
+of optimisation parameter values. \TODO{Synchronisation, local caching
+  and of global DB state.}
 
 OmniTune servers use a plugin system to host proxies that interface
 with target applications. Proxies are application-specific, for
@@ -112,10 +115,11 @@ Listing~\ref{lst:omnitune-proxy}.
 
 In addition to interfacing with client applications and the database,
 OmniTune servers contains a library of generic machine learning tools,
-using Weka\footnote{http://www.cs.waikato.ac.nz/ml/weka/} to perform
-classification. Each proxy performs feature extraction of incoming
-client requests and uses the common machine learning tools to predict
-optimal parameter values.
+interfacing with Weka\footnote{http://www.cs.waikato.ac.nz/ml/weka/}
+using the JNI to perform classification. Each proxy performs feature
+extraction of incoming client requests and uses the common machine
+learning tools to predict optimal parameter values. \TODO{Plugins
+  allow separation of concerns.}
 
 \lstinputlisting[
   language=Python,
@@ -130,10 +134,12 @@ optimal parameter values.
 
 \subsection{Client Interface: Lightweight Communication}
 
-The modifications required to enable OmniTune support within SkelCL
-were minimal. The stencil implementation was modified to use an
-OmniTune client interface to suggest workgroup sizes, instead of the
-hardcoded value which was previously present
+By design, the client-server model allows for enabling autotuning with
+a low impact on the target applications. As such, the modifications
+required to enable OmniTune support within SkelCL were minimal. The
+stencil implementation was modified to use an OmniTune client
+interface to suggest workgroup sizes, instead of the hardcoded value
+which was previously present
 (Listing~\ref{lst:skelcl-set-wgsize}). When a SkelCL stencil is
 executed, the client interface synchronously calls the
 \texttt{RequestWgsize()} method of the OmniTune server, passing as
@@ -176,7 +182,8 @@ the suggested workgroup size to the client SkelCL process.
 The optimisation space presented by selection of workgroup size is
 large, complex, and non-linear. In this section I apply the techniques
 of machine learning and statistical inference to build a system which
-is capable of predicting workgroup sizes for unseen programs.
+is capable of predicting workgroup sizes for unseen programs, based on
+previously collected performance data.
 
 
 \subsection{Feature Extraction}
@@ -185,9 +192,9 @@ As demonstrated in Chapter~\ref{chap:methodology}, the performance of
 a workgroup size depends on properties of the architecture, device,
 and dataset. The success of a machine learning system depends on the
 ability to translate these properties into explanatory variables ---
-\emph{features} --- which can capture the differences between
-workloads. For each scenario, a feature vector is extracted to capture
-properties of the architecture, device, and dataset:
+\emph{features}. For each scenario, a vector of 102 features is
+extracted to capture properties of the architecture, device, and
+dataset.
 
 
 \subsubsection{Architectural features}
@@ -247,9 +254,9 @@ features. To evaluate this approach, a subset of scenarios
 $S_{training} \subset S$ are labelled with their oracle workgroup
 size. The classifier is trained on this labelled training data, and
 tested using a set of unseen scenarios
-$S_{testing} = S - (S \cap S_{training})$. The performance of each
-predicted oracle workgroup size is compared against the true oracle
-for that set.
+$S_{testing} = S - S_{training}$. The performance of each predicted
+oracle workgroup size is compared against the true oracles for that
+set.
 
 
 \subsubsection{Satisfying Constraints}
@@ -262,7 +269,7 @@ W_{training} = \{ \Omega(s) | s \in S_{training} \}
 \end{equation}
 
 This does not guarantee that the set of workgroup sizes which may be
-predicted is within the set of legal workgroup sizes for each testing
+predicted is within the set of legal workgroup sizes for each tested
 scenario:
 
 \begin{equation}
@@ -279,10 +286,11 @@ to select a legal workgroup size:
   be safe and provides the highest average case performance on
   training data.
 \item \emph{Random} --- select a random workgroup size which is known
-  to be legal $w \in W_{legal}$.
+  to be legal $w \in W_{legal}(s)$.
 \item \emph{Reshape} --- scale the predicted workgroup size
   proportionally so that it fits within the space of legal workgroup
-  sizes. This attempts to preserve
+  sizes, $w < W_{max}(s)$. This attempts to preserve ``shape'' of the
+  predicted workgroup size.
 \end{enumerate}
 
 See Algorithm~\ref{alg:autotune-classification} for definitions. The
@@ -303,14 +311,17 @@ fallback strategies were required.
 
 \subsection{Predicting Stencil Code Runtime}
 
-A second approach to selecting the workgroup size is to attempt to
-directly predict the runtime of a given workload. Given a regressor
-$f(k,h,d,w)$ which predicts the runtime of a given set of features and
-workgroup size $w$, the predicted optimal workgroup size is the $w$
-value which minimises the output of this function:
+\TODO{The first approach requires very expensive training and isn't
+  amenable to online tuning\ldots} A second approach to selecting the
+workgroup size is to attempt to directly predict the runtime of a
+given workload. Given a regressor $f(a,k,d,w)$ which predicts the
+runtime of a program given a set of architecture, kernel, and dataset
+features $a,k,d$, and workgroup size $w$, the predicted optimal
+workgroup size is the $w$ value which minimises the output of the
+regressor:
 
 \begin{equation}
-  \underset{w \in W_{legal}(s)}{\argmin} f(k,h,d,w)
+  \underset{w \in W_{legal}(s)}{\argmin} f(a,k,d,w)
 \end{equation}
 
 By predicting the runtimes of only the workgroup sizes from within
@@ -332,12 +343,12 @@ difficult problem due to the impacts of flow control. It may be
 effective to instead predict the \emph{relative} performance of two
 different workgroup sizes for the same program. To do this, we select
 a baseline workgroup size $w_b \in W_{safe}$, and train a regressor
-$g(k,h,d,w)$ with training data labelled with the relative performance
+$g(a,k,d,w)$ with training data labelled with the relative performance
 over the baseline $r(w, w_b)$. Predicting the optimal workgroup
-requires maximising the output of this regressor:
+requires maximising the output of the regressor:
 
 \begin{equation}
-  \underset{w \in W_{legal}(s)}{\argmax} g(k,h,d,w)
+  \underset{w \in W_{legal}(s)}{\argmax} g(a,k,d,w)
 \end{equation}
 
 % \begin{algorithm}
@@ -359,11 +370,12 @@ requires maximising the output of this regressor:
 
 \section{Summary}
 
-This chapter has presented OmniTune, a distributed autotuner which is
-capable of performing runtime prediction of optimal workgroup sizes
-for SkelCL stencils using a variety of machine learning
-approaches. OmniTune uses a client-server model to decouple the
-autotuning logic from target programs and to maintain separation of
-concerns. It uses lightweight inter-process communication to achieve
-low latency autotuning, and uses caches and lookup tables to minimise
-the one-off costs of feature extraction.
+This chapter has described the design and implementation of OmniTune,
+a distributed autotuner which is capable of performing runtime
+prediction of optimal workgroup sizes for SkelCL stencils using a
+variety of machine learning approaches. OmniTune uses a client-server
+model to decouple the autotuning logic from target programs and to
+maintain separation of concerns. It uses lightweight inter-process
+communication to achieve low latency autotuning, and uses caches and
+lookup tables to minimise the one-off costs of feature
+extraction. \TODO{Summarise ML approaches\ldots}
