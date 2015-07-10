@@ -2,101 +2,49 @@
 
 \section{Parallel Programming with Algorithmic Skeletons}
 
-\TODO{Intro to alg skel}
-
-% Cole, M. I. (1989). Algorithmic Skeletons: Structured Management of
-% Parallel Computation. Pitman London. Retrieved from
-% http://homepages.inf.ed.ac.uk/mic/Pubs/skeletonbook.pdf
-\TODO{Murray's thesis~\cite{Cole1989}.}
-
-% Cole, M. I. (2004). Bringing skeletons out of the closet: a
-% pragmatic manifesto for skeletal parallel programming. Parallel
-% Computing, 30(3), 389–406. doi:10.1016/j.parco.2003.12.002
-\TODO{Algorithmic Skeletons in academia~\cite{Cole2004}.}
+\TODO{Intro to alg skel. Murray's thesis~\cite{Cole1989}. Algorithmic
+  Skeletons in academia~\cite{Cole2004}.}
 
 % Striegnitz, J. (2000). Making C ++ Ready for Algorithmic Skeletons
 % (Vol. 2000). Retrieved from http://www.fz-juelich.de/zam/FACT
-\TODO{Early work towards C++ Alg. Skeletons\cite{Striegnitz2000}}
+% \TODO{Early work towards C++ Alg. Skeletons\cite{Striegnitz2000}}
 
 \subsection{Abstracting Task and Data Parallelism}
 
-\TODO{Short examples of task parallel skeletons. Describe the
-  shortcomings of GPUs for task parallel operations. Don't repeat
-  myself from the data parallel operations defined in the SkelCL
-  intro.}
+\TODO{%
+  Short examples of task parallel skeletons. Describe the shortcomings
+  of GPUs for task parallel operations. Data parallel operations will
+  be described in detail in the SkelCL section.%
+}
 
 \subsection{Algorithmic Skeleton Frameworks}
 
-\TODO{Case studies of skeleton-esque products in industry: Intel
-  Thread Building Blocks, and Google's MapReduce and the various
-  implementations. Comment on their lack of ``Skeleton'' branding.}
+\TODO{%
+  Introduction to ASkFs. Give a couple of real world examples, both
+  inside of academia and out (e.g. Intel Thread Building Blocks, and
+  Google's MapReduce).%
+}
 
 
 \section{Heterogeneous parallelism and GPUs}
 
-\TODO{Start with a description of GPU hardware, i.e. SIMD EUs, many
-  simple cores, lockstep execution. Describe the historical reasoning
-  for this and how it influences the types of programs which are well
+\TODO{%
+  Start with a description of GPU hardware, i.e. SIMD EUs, many simple
+  cores, lockstep execution. Describe the historical reasoning for
+  this and how it influences the types of programs which are well
   suited for GPUs. GPUs offer huge throughput, but are even more
-  challenging to program and debug. Give concrete examples.}
-
-% S. Ryoo, C. I. Rodrigues, S. S. Baghsorkhi, S. S. Stone, D. B. Kirk,
-% and W. W. Hwu, “Optimization principles and application performance
-% evaluation of a multithreaded GPU using CUDA,” Proc. 13th ACM
-% SIGPLAN Symp. Princ. Pract. parallel Program. - PPoPP ’08, p. 73,
-% 2008.
-\TODO{The challenges and approaches to optimising GPU programs. CUDA
-programming requires the developer to explicitly manage data layout in
-DRAM, caching, thread communication and other resources. Performance
-of such programs depends heavily on fully utilizing zero-overhead
-thread scheduling, memory bandwidth, thread grouping, shared control
-flow, and intra-block thread communication. The paper gives an example
-of optimising matrix multiplication by utilising shared memory through
-tiling, and loop unrolling. \cite{Ryoo2008a}}
-
-Prior research has shown that the performance of a GPGPU program is
-heavily influenced by proper exploitation of local shared memory and
-synchronisation costs~\cite{Ryoo2008a, Lee2010} \TODO{``Where's the
-  data?'' paper}
+  challenging to program and debug. Give concrete examples.%
+}
 
 % S. Ryoo, C. I. Rodrigues, S. S. Stone, S. S. Baghsorkhi, S.-Z. Ueng,
 % J. a. Stratton, and W. W. Hwu, “Program optimization space pruning
 % for a multithreaded GPU,” in Proceedings of the 6th annual IEEE/ACM
 % international symposium on Code generation and optimization, 2008,
 % pp. 195–204.
-\TODO{Background info about optimizing for GPUs, including a checklist
-of optimization metrics: \cite{Ryoo2008}}
-
-% D. Grewe, Z. Wang, and M. F. P. M. O’Boyle, “Portable mapping of
-% data parallel programs to OpenCL for heterogeneous systems,” in Code
-% Generation and Optimization (CGO), 2013 IEEE/ACM International
-% Symposium on, 2013, pp. 1–10.
-\TODO{Vaguely ``autopar''-esque: automatic translation from OpenMP to
-  OpenCL~\cite{Grewe2013}.}
-
-
-\subsubsection{GPU vs CPU performance analysis}
-
-% V. W. Lee, P. Hammarlund, R. Singhal, P. Dubey, C. Kim, J. Chhugani,
-% M. Deisher, D. Kim, A. D. Nguyen, N. Satish, M. Smelyanskiy, and
-% S. Chennupaty, “Debunking the 100X GPU vs. CPU myth,” ACM SIGARCH
-% Comput. Archit. News, vol. 38, p. 451, 2010.
-In~\cite{Lee2010}, \citeauthor{Lee2010} present a performance analysis
-of optimised throughput computing applications for GPUs and CPUs. Of
-the 14 applications tested, they found GPU performance to be
-$0.7\times$-$14.9\times$ that of multi-threaded CPU code, with an
-average of only 2.5$\times$. This is much lower than the
-$100\times$-$1000\times$ values reported by other studies,
-% TODO: ^^ Citation needed!
-a fact that they attribute to uneven comparison of optimised GPU code
-to unoptimised CPU code, or vice versa. \citeauthor{Lee2010} found
-that multithreading, cache blocking, reordering of memory accesses and
-use of SIMD instructions to contribute most to CPU performance. For
-GPUs, the most effective optimisations are reducing synchronization
-costs, and exploiting local shared memory. In all cases, the programs
-were optimised and hand-tuned by programmers with expert knowledge of
-the target architectures. It is unclear whether their performance
-results still hold for subsequent generations of devices.
+\TODO{%
+  Background info about optimizing for GPUs, including a checklist of
+  optimization metrics~\cite{Ryoo2008}.%
+}
 
 
 \subsection{GPGPU Programming}
@@ -125,42 +73,46 @@ in~\cite{Komatsu2010}. \TODO{This paper is deserving of close
 % fourth international workshop on High-level parallel programming and
 % applications (pp. 5–14). ACM. Retrieved from
 % http://dl.acm.org/citation.cfm?id=1863487
-\subsubsection{SkePU}
+\subsubsection{Skeletal Programming for GPUs}
 
-\TODO{Similar to SkelCL in scope and ambition, alternative
-  implementation with C++ macros and CUDA~\cite{Enmyren2010}.}
+\TODO{%
+  SkePU Similar to SkelCL in scope and ambition, alternative
+  implementation with C++ macros and CUDA~\cite{Enmyren2010}.%
+}
+
+\subsubsection{GPU vs CPU performance analysis}
+
+% V. W. Lee, P. Hammarlund, R. Singhal, P. Dubey, C. Kim, J. Chhugani,
+% M. Deisher, D. Kim, A. D. Nguyen, N. Satish, M. Smelyanskiy, and
+% S. Chennupaty, “Debunking the 100X GPU vs. CPU myth,” ACM SIGARCH
+% Comput. Archit. News, vol. 38, p. 451, 2010.
+In~\cite{Lee2010}, \citeauthor{Lee2010} present a performance analysis
+of optimised throughput computing applications for GPUs and CPUs. Of
+the 14 applications tested, they found GPU performance to be
+$0.7\times$-$14.9\times$ that of multi-threaded CPU code, with an
+average of only 2.5$\times$. This is much lower than the
+$100\times$-$1000\times$ values reported by other studies,
+% TODO: ^^ Citation needed!
+a fact that they attribute to uneven comparison of optimised GPU code
+to unoptimised CPU code, or vice versa. \citeauthor{Lee2010} found
+that multithreading, cache blocking, reordering of memory accesses and
+use of SIMD instructions to contribute most to CPU performance. For
+GPUs, the most effective optimisations are reducing synchronization
+costs, and exploiting local shared memory. In all cases, the programs
+were optimised and hand-tuned by programmers with expert knowledge of
+the target architectures. It is unclear whether their performance
+results still hold for subsequent generations of devices.
+
 
 \subsection{The OpenCL Programming Model}
 
 \TODO{Technical details of OpenCL model. Describe the memory model.}
 
-
 % Rul, S., Vandierendonck, H., Haene, J. D., & Bosschere,
 % K. De. (2010). An Experimental Study on Performance Portability of
 % OpenCL Kernels. In 2010 Symposium on Application Accelerators in
 % High Performance Computing (SAAHPC’10) (pp. 4–6).
-\TODO{Portability of OpenCL kernels: \cite{Rul2010}}
-
-\subsubsection{Problem decomposition and workgroups}
-
-In OpenCL, kernels are mapped to work-items for execution on the
-processing units of GPUs and CPUs. These work-items are then grouped
-into one or more workgroups. The choice of workgroup size is left to
-the developer, but with two sets of constraints. The first set of
-constraints is the maximum workgroup size which an execution device
-supports. This value cannot be exceeded, irrespective of the kernel
-being executed. The second constraint is the maximum workgroup size a
-kernel supports, and can only be queried at runtime once a kernel has
-been compiled. The selection of workgroup size for stencil skeletons
-is particularly relevant to the performance of the stencil as it
-affects utilisation of fast local memory. In a stencil code, each
-work-item reads the values of multiple neighbouring elements. To
-facilitate this, the value of all elements within a workgroup are
-stored in fast local memory, which greatly reduces the read latency
-for GPUs. Changing the workgroup size affects the amount of local
-memory required for each workgroup, which in turn affects the number
-of workgroups which may be simultaneously active.
-
+\TODO{Portability of OpenCL kernels~\cite{Rul2010}}
 
 \section{High-Level GPU Programming with SkelCL}
 
@@ -177,37 +129,18 @@ SkelCL is freely
 available\footnote{\url{http://skelcl.uni-muenster.de}} and
 distributed under dual GPL and academic licenses.
 
-% Steuwer, M., & Gorlatch, S. (2013). SkelCL: Enhancing OpenCL for
-% High-Level Programming of Multi-GPU Systems. Parallel Computing
-% Technologies, 7979, 258–272. doi:10.1007/978-3-642-39958-9_24
-\TODO{Support for multi-GPU systems: \cite{Steuwer2013a}}
+\TODO{%
+  Towards high-level programming~\cite{Steuwer2012}. Support for
+  multi-GPU systems~\cite{Steuwer2013a}. Stencil
+  computations~\cite{Breuer2014}. Allpairs
+  skeleton~\cite{Steuwer2014}. An example of reduced programmer effort
+  for real world application using SkelCL: \cite{Steuwer2013}%
+}
 
-% S. Breuer, M. Steuwer, and S. Gorlatch, “Extending the SkelCL
-% Skeleton Library for Stencil Computations on Multi-GPU Systems,”
-% HiStencils 2014, pp. 23–30, 2014.
-\TODO{Stencil computations: \cite{Breuer2014}}
-
-% M. Steuwer, M. Friese, S. Albers, and S. Gorlatch, “Introducing and
-% implementing the allpairs skeleton for programming multi-GPU
-% Systems,” Int. J. Parallel Program., vol. 42, pp. 601–618, 2014.
-\TODO{Allpairs skeleton: \cite{Steuwer2014}}
-
-
-% Steuwer, M., & Gorlatch, S. (2013). High-level Programming for
-% Medical Imaging on Multi-GPU Systems Using the SkelCL
-% Library. Procedia Computer Science, 18,
-% 749–758. doi:10.1016/j.procs.2013.05.239
-\TODO{An example of reduced programmer effort for real world
-application using SkelCL: \cite{Steuwer2013}}
-
-% Steuwer, M., Kegel, P., & Gorlatch, S. (2012). Towards High-Level
-% Programming of Multi-GPU Systems Using the SkelCL Library. In
-% Parallel and Distributed Processing Symposium Workshops & PhD Forum
-% (IPDPSW), 2012 IEEE 26th International
-% (pp. 1858–1865). Ieee. doi:10.1109/IPDPSW.2012.229
-\TODO{\cite{Steuwer2012}}
 
 \subsection{Pattern definitions}
+
+\TODO{Brief descriptions and example uses of patterns.}
 
 \subsubsection{Map}
 
@@ -319,7 +252,7 @@ z_{ij} =
 \left[ y_{j1}, y_{j2}, \ldots, y_{jd} \right]
 \end{equation}
 
-an additional implementation is provided for when the $\oplus$
+An additional implementation is provided for when the $\oplus$
 operator is known to match that of a zip pattern:
 
 \begin{equation}
@@ -341,7 +274,8 @@ of these functions. Each cell maps to a single work item; and this
 collection of work items is then divided into \emph{workgroups} for
 execution on the target hardware.
 
-Given a customising function $f$, a \emph{stencil shape} $S$
+Given a customising function $f$, a \emph{stencil shape} $S$, and an
+$n \times m$ matrix:
 
 \begin{equation}
 \stencil \left( f, S,
@@ -429,11 +363,11 @@ files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
 
 \subsection{Example Applications}
 
-Three example programs
+% Three example programs
 
-ease of use
-skeleton composition
-stencils
+% ease of use
+% skeleton composition
+% stencils
 
 \TODO{%
   Provide definition of three simple example programs, then code
@@ -444,61 +378,63 @@ stencils
 
 \subsubsection{Application 1: Mandelbrot Set}
 
-\TODO{%
-  The easy way to do this is to write a program which will iterate
-  over the pixels in your image and calculate their value. This is
-  easy, intuitive, and it's around 50 lines of code. The downside is
-  it is slow.%
-}
+\TODO{Definition, and performance results.}
 
-\todo{%
-  So in the name of performance you start browsing around for ways to
-  make this fast. You notice a lot of buzz about "heterogeneous
-  parallelism", so you decide to give it a shot and dabble in a bit of
-  GPGPU programming. After reading through some tutorials and the API
-  documentation you find that all you have to do is: add a few OpenCL
-  headers, select a platform, select a device, create a command queue,
-  compile a program, create a kernel, create a buffer, enqueue a
-  kernel, read the buffer, handle any errors... and you are
-  done. This blows your single program out to around 200 lines of
-  code, but it runs 20 times faster. In the age of multicores you're
-  going to need that extra performance, but as a developer you may
-  not be willing to pay the high price that this demands.%
-}
+% \TODO{%
+%   The easy way to do this is to write a program which will iterate
+%   over the pixels in your image and calculate their value. This is
+%   easy, intuitive, and it's around 50 lines of code. The downside is
+%   it is slow.%
+% }
 
-\todo{%
-  Algorithmic Skeletons offer a solution; by abstracting common
-  patterns of communication, they allow libraries and language authors
-  to provide robust parallel implementations which allow users to
-  focus on solving problems, rather than having to micro-manage the
-  tricky coordination of parallel resources. That's all well and good,
-  but if you said to me "Chris, surely you could illustrate this point
-  better using a cartoon skeleton doing a jig", I'd be inclined to
-  agree with you.%
-}
+% \todo{%
+%   So in the name of performance you start browsing around for ways to
+%   make this fast. You notice a lot of buzz about "heterogeneous
+%   parallelism", so you decide to give it a shot and dabble in a bit of
+%   GPGPU programming. After reading through some tutorials and the API
+%   documentation you find that all you have to do is: add a few OpenCL
+%   headers, select a platform, select a device, create a command queue,
+%   compile a program, create a kernel, create a buffer, enqueue a
+%   kernel, read the buffer, handle any errors... and you are
+%   done. This blows your single program out to around 200 lines of
+%   code, but it runs 20 times faster. In the age of multicores you're
+%   going to need that extra performance, but as a developer you may
+%   not be willing to pay the high price that this demands.%
+% }
 
-\todo{%
-  So you take your new-found knowledge of Algorithmic Skeletons and
-  apply it to your Mandelbrot problem. You realise that calculating
-  each pixel is just a Map operation, so, armed with a Map skeleton,
-  you go back to your sequential Mandelbrot code and make the
-  necessary adjustments to use Skeletons. Now you have a program which
-  looks just like your sequential version, but harnesses all the power
-  of the GPU to provide near-``hand tuned'' levels of performance.%
-}
+% \todo{%
+%   Algorithmic Skeletons offer a solution; by abstracting common
+%   patterns of communication, they allow libraries and language authors
+%   to provide robust parallel implementations which allow users to
+%   focus on solving problems, rather than having to micro-manage the
+%   tricky coordination of parallel resources. That's all well and good,
+%   but if you said to me "Chris, surely you could illustrate this point
+%   better using a cartoon skeleton doing a jig", I'd be inclined to
+%   agree with you.%
+% }
 
-\todo{%
-  I say near hand tuned performance because clearly it's not quite as
-  fast as when you did all of that OpenCL programming yourself. Why is
-  that? The reason is that by their nature, Algorithmic Skeletons are
-  forced to forgo low-level tuning in order to generalise for all
-  cases. If you think how hard it is to select the effective
-  optimisations for a program, imagine trying to achieve that at the
-  level of a patterns library for all possible use-cases! For this
-  reason, I would argue that if we want to achieve both the of ease of
-  use of skeletons and the high performance of hand tuned code, we
-  need autotuning.%
-}
+% \todo{%
+%   So you take your new-found knowledge of Algorithmic Skeletons and
+%   apply it to your Mandelbrot problem. You realise that calculating
+%   each pixel is just a Map operation, so, armed with a Map skeleton,
+%   you go back to your sequential Mandelbrot code and make the
+%   necessary adjustments to use Skeletons. Now you have a program which
+%   looks just like your sequential version, but harnesses all the power
+%   of the GPU to provide near-``hand tuned'' levels of performance.%
+% }
+
+% \todo{%
+%   I say near hand tuned performance because clearly it's not quite as
+%   fast as when you did all of that OpenCL programming yourself. Why is
+%   that? The reason is that by their nature, Algorithmic Skeletons are
+%   forced to forgo low-level tuning in order to generalise for all
+%   cases. If you think how hard it is to select the effective
+%   optimisations for a program, imagine trying to achieve that at the
+%   level of a patterns library for all possible use-cases! For this
+%   reason, I would argue that if we want to achieve both the of ease of
+%   use of skeletons and the high performance of hand tuned code, we
+%   need autotuning.%
+% }
 
 \subsubsection{Application 2: Dot Product}
 
@@ -542,13 +478,31 @@ int main(int argc, char* argv[]) {
 
 \subsection{Grid Decomposition of Stencil Codes}
 
+In OpenCL, kernels are mapped to work-items for execution on the
+processing units of GPUs and CPUs. These work-items are then grouped
+into one or more workgroups. The choice of workgroup size is left to
+the developer, but with two sets of constraints. The first set of
+constraints is the maximum workgroup size which an execution device
+supports. This value cannot be exceeded, irrespective of the kernel
+being executed. The second constraint is the maximum workgroup size a
+kernel supports, and can only be queried at runtime once a kernel has
+been compiled. The selection of workgroup size for stencil skeletons
+is particularly relevant to the performance of the stencil as it
+affects utilisation of fast local memory. In a stencil code, each
+work-item reads the values of multiple neighbouring elements. To
+facilitate this, the value of all elements within a workgroup are
+stored in fast local memory, which greatly reduces the read latency
+for GPUs. Changing the workgroup size affects the amount of local
+memory required for each workgroup, which in turn affects the number
+of workgroups which may be simultaneously active.
+
 \TODO{%
-  While the user is clearly in control of the type of work which
-  is executed, the size of the grid, and the size of the border
-  region, it is very much the responsibility of the skeleton
-  implementation to select what workgroup size to use. As such I
-  designed an experiment to explore just what effect changing
-  workgroup sizes has on the performance of Stencil skeletons.%
+  While the user is clearly in control of the type of work which is
+  executed, the size of the grid, and the size of the border region,
+  it is very much the responsibility of the skeleton implementation to
+  select what workgroup size to use. As such I designed an experiment
+  to explore just what effect changing workgroup sizes has on the
+  performance of Stencil skeletons.%
 }
 
 \TODO{Add diagram showing workgroup decomposition.}

@@ -3,54 +3,56 @@ parallelism. However, developing software for these devices is
 challenging, as the programming models provided by OpenCL and CUDA
 require a low level knowledge of the underlying architecture to
 properly exploit the potential performance. SkelCL addresses this
-programmability challenge by providing high level skeleton patterns
-for common data parallel operations. This project demonstrates that
-the parameters which are necessarily abstracted by such skeletons can
-have a huge impact on performance. To demonstrate this, I present an
-autotuner for selecting the \emph{workgroup size} of Stencil pattern
-kernels.
+programmability challenge by providing high level patterns for common
+data parallel operations. This thesis demonstrates that the parameters
+which are necessarily abstracted by such skeletons can have a huge
+impact on performance.
 
-The ambition of this thesis is demonstrate that we can achieve ``hand
-tuned''-like performance from tools that make parallel programming
-simple.
+The ambition of this thesis is demonstrate that, using machine
+learning, we can develop self-tuning systems which closely approach
+--- and in some cases, outperform --- the kinds of hand tuned code
+which traditionally came at the cost of hundreds of man hours of work
+from expert programmers to develop.
 
 % B. Catanzaro and K. Keutzer, “Parallel computing with patterns and
 % frameworks,” XRDS Crossroads, ACM Mag. Students, vol. 17, no. 5,
 % p. 22, 2010.
-\todo{\cite{Catanzaro2010}}
+% \todo{\cite{Catanzaro2010}}
 
-\TODO{The rationale for autotuning long running iterative skeleton
+\note{There is already a wealth of research literature on the topic
+  autotuning which begs the question, why isn't the majority of
+  software autotuned? The bulk of autotuning research projects falls
+  prey of one of two shortcomings. Either they identify and develop a
+  methodology for tuning a particular optimisation space but then fail
+  to deliver a usable product, or they deliver an autotuner which
+  targets too specific of a niche to gather mainstream traction. This
+  projects attempts to address both of those shortcomings by expending
+  great effort to deliver a working implementation which users can
+  download and use without any setup costs, and by providing a modular
+  and extensible framework which allows rapid targeting of new
+  autotuning platforms, enabled by a shared autotuning logic and
+  distributed training data.}
+
+\note{The rationale for autotuning long running iterative skeleton
   applications is that the longer the program runs, the smaller the
   training data we can reasonably expect the user to gather. A typical
   long running scientific program workload will only be run once, as
   there is no need to repeat a computation for which you already have
   the answer.}
 
-\TODO{There is already a wealth of research literature on the topic
-  autotuning which begs the question, why isn't the majority of
-  software autotuned? The bulk of autotuning research projects falls
-  prey of one of two shortcomings. Either they identify and develop a
-  methodology for tuning a particular optimisation space but then fail
-  to deliver on any usable product, or they deliver an autotuner which
-  targets too specific of a niche to become mainstream. This projects
-  attempts to address both of those shortcomings by expending great
-  effort to deliver a working implementation which users can download
-  and use without any setup costs, and by providing a modular and
-  extensible framework which allows rapid targeting of new autotuning
-  platforms, enabled by a shared autotuning logic and distributed
-  training data.}
-
-
 \section{The Problem}
 
 \TODO{Why do we need autotuning? Describe necessary abstraction of low
-  level tuning parameters, and demonstrate their effect on application
-  performance.}
+  level tuning parameters for high-level patterns, and demonstrate
+  their effect on application performance.}
 
 
 \section{Motivating Example}
 
-\TODO{Simple example showing the ``power'' of autotuning.}
+\TODO{Simple example showing the ``power'' of picking the right
+  optimisation parameter values. Take a small handful of contrasting
+  performance results, especially for cases where human intuition
+  fails.}
 
 
 \section{Contributions}
@@ -59,13 +61,12 @@ The key contributions of this thesis are:
 
 \begin{itemize}
 \item A broad review of the current state of the art in approaches to
-  the challenge of parallel programmability, namely automatic
-  parallelisation and high-level parallel programming. A focused
-  literature review on iterative and machine-learning enabled
+  the challenge of programmability for heterogeneous systems. A
+  focused literature review on iterative and machine-learning enabled
   compilation and autotuning for compute intensive parallel
   applications.
-\item An empirical evaluation of the performance impact of values used
-  to parameterise high-level parallel patterns. We enumerate the
+\item An empirical evaluation of the performance of workgroup size to
+  parameterise high-level parallel patterns. We enumerate the
   optimisation space of workgroup size for SkelCL stencil kernels
   using \input{gen/num_runtime_stats} test instances, showing how
   choice of workgroup size has an average
@@ -77,13 +78,13 @@ The key contributions of this thesis are:
   \fixme{XXX}$\times$ speedup over the best possible statically chosen
   value, achieving \fixme{XXX}\% of the oracle performance.
 \item The novel application of synthetic \TODO{(programatically
-    generated?)} benchmarks for training machine learning-enabled
+    generated?)} stencil codes for training machine learning-enabled
   autotuning. This has the advantages of reducing the cost of training
   while increasing the size of the space which can be explored. The
   effectiveness of this approach is demonstrated by training an
-  autotuner for \input{gen/num_real_kernels} real world Stencil codes
-  using synthetic benchmarks, showing that \FIXME{sexy result goes
-    here}.
+  testing an autotuner trained using synthetic benchmarks against
+  \input{gen/num_real_kernels} real world stencil codes, showing
+  \FIXME{sexy result goes here}.
 \item A comparison of multiple approaches to minimise the costs of
   effective autotuning. \TODO{flesh out: compare cost of full
     enumeration with that of classification and regression.}

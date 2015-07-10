@@ -6,9 +6,18 @@ for the research undertaken for this thesis.
 
 \section{Automatic Parallelisation}
 
-\TODO{Brief summary of auto-parallelising compilers. Highlight the
+\TODO{%
+  Brief summary of auto-parallelising compilers. Highlight the
   shortcomings which lay the scene for Alg Skel to succeed where
-  compilers haven't.}
+  compilers haven't.%
+}
+
+% D. Grewe, Z. Wang, and M. F. P. M. O’Boyle, “Portable mapping of
+% data parallel programs to OpenCL for heterogeneous systems,” in Code
+% Generation and Optimization (CGO), 2013 IEEE/ACM International
+% Symposium on, 2013, pp. 1–10.
+\TODO{Vaguely ``autopar''-esque: automatic translation from OpenMP to
+  OpenCL~\cite{Grewe2013}.}
 
 % O. Jeffrey and M. David, “The Vision of Autonomic Computing,”
 %Computer (Long. Beach. Calif)., vol. 36, no. 1, pp. 41–50, 2003.
@@ -133,6 +142,28 @@ a search engine to optimise parameters: \cite{Bilmes1997}}
 
 Performance tuning of GPGPU programming is a nascent field,
 \TODO{\ldots}
+
+% S. Ryoo, C. I. Rodrigues, S. S. Baghsorkhi, S. S. Stone, D. B. Kirk,
+% and W. W. Hwu, “Optimization principles and application performance
+% evaluation of a multithreaded GPU using CUDA,” Proc. 13th ACM
+% SIGPLAN Symp. Princ. Pract. parallel Program. - PPoPP ’08, p. 73,
+% 2008.
+\TODO{%
+  The challenges and approaches to optimising GPU programs. CUDA
+  programming requires the developer to explicitly manage data layout
+  in DRAM, caching, thread communication and other
+  resources. Performance of such programs depends heavily on fully
+  utilizing zero-overhead thread scheduling, memory bandwidth, thread
+  grouping, shared control flow, and intra-block thread
+  communication. The paper gives an example of optimising matrix
+  multiplication by utilising shared memory through tiling, and loop
+  unrolling~\cite{Ryoo2008a}/%
+}
+
+Prior research has shown that the performance of a GPGPU program is
+heavily influenced by proper exploitation of local shared memory and
+synchronisation costs~\cite{Ryoo2008a, Lee2010} \TODO{``Where's the
+  data?'' paper}
 
 % Ryoo, S., Rodrigues, C. I., Stone, S. S., Baghsorkhi, S. S., Ueng,
 % S.-Z., Stratton, J. a., & Hwu, W. W. (2008). Program optimization

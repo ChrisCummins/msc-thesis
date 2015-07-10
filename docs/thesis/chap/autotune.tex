@@ -7,9 +7,19 @@ architecture and public interface exposed by OmniTune, demonstrating
 the communication pattern between OmniTune and SkelCL
 applications. This is followed by a description of the machine
 learning techniques employed to select workgroup sizes for SkelCL
-stencils.
+stencils. A high level overview of the integration of OmniTune and
+SkelCL is shown in Figure~\ref{fig:omnitune-system-flow}.
 
-\TODO{Check that this structure still makes sense.}
+
+\begin{figure}
+\centering
+\includegraphics[width=.95\textwidth]{omnitune-system-flow}
+\caption{%
+  Integration of OmniTune into SkelCL stencil execution.%
+}
+\label{fig:omnitune-system-flow}
+\end{figure}
+
 
 
 % \section{Machine Learning and Performance Tuning}
@@ -19,9 +29,12 @@ stencils.
 \section{Collective Tuning and the Client-Server Model}
 
 Omnitune uses a three tier client-server model, illustrated in
-Figure~\ref{fig:omnitune-client-server}. Target applications request
+Figure~\ref{fig:omnitune-system-overview}. Target applications request
 optimisation parameter values from a system-wide server, which in turn
-communicates with a global database to add and receive training data.
+communicates with a global database to add and receive training
+data. A set of caches in the system wide server act as a buffer
+between the client and the global database to minimise the latency of
+requests for optimisation parameter values.
 
 This design has two primary advantages: the first is that it decouples
 the autotuning logic from that of the client program, allowing
@@ -40,22 +53,22 @@ write this thesis.
 
 \begin{figure}
 \centering
-\includegraphics[width=.4\textwidth]{omnitune-client-server}
+\includegraphics[width=.95\textwidth]{omnitune-system-overview}
 \caption{%
   High level system overview of OmniTune.%
 }
-\label{fig:omnitune-client-server}
+\label{fig:omnitune-system-overview}
 \end{figure}
 
 As discussed in \xref{related work}, common implementations of
 autotuning in the literature either: embed the autotuning logic within
 the target applications, or take a ``meta-scripting'' approach in
-which the autotuner is an entirely separate program which must be
-invoked by the user to tune a target application. The approach taken
-in this work aims to capture the advantages of both techniques by
-implementing an autotuning service with communication logic embedded
-in the target applications. The resulting design consists of three
-sets of components: clients, servers, and a global
+which the autotuner is a standalone program which must be invoked by
+the user to tune a target application. The approach taken in this work
+aims to capture the advantages of both techniques by implementing an
+autotuning service with communication logic embedded in the target
+applications. The resulting design consists of three sets of
+components: clients, servers, and a global
 database. Figure~\ref{fig:omnitune-comms} shows a typical pattern of
 communication between the components.
 
@@ -74,13 +87,13 @@ communication between the components.
   connections.}
 
 
-\subsection{OmniTune Database: Distributed Training Data}
+\subsection{Database: Distributed Training Data}
 
 A master server maintains a common store of all performance
 data. \TODO{Implement and write-up!}
 
 
-\subsection{OmniTune Server: Autotuning Engine}
+\subsection{Server: Autotuning Engine}
 
 For each autotuning-capable machine, a system-level daemon hosts a
 DBus session bus which client processes can communicate with to
@@ -312,7 +325,7 @@ and the measured mean runtime as the label.
 % \label{alg:autotune-runtime-regression}
 % \end{algorithm}
 
-\subsection{Predicting Relative Performance of Workgroup Sizes}
+\subsection{Predicting Relative Performance}
 
 Accurately predicting the runtime of an arbitrary program is a
 difficult problem due to the impacts of flow control. It may be
