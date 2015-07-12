@@ -101,23 +101,8 @@ def visualise_classification_job(db, job):
         "Smax",
     )
 
-    latex.table(results, output=job + ".tex", columns=columns,
-                latex_args=str_args)
-
-    print()
-    print("RESULTS FOR", job)
-    print(fmt.table(results, str_args, columns=(
-        "CLASSIFIER",
-        "ERR_FN",
-        "ACC %",
-        "INV %",
-        "Omin %",
-        "Oavg %",
-        "Omax %",
-        "Smin",
-        "Savg",
-        "Smax",
-    )))
+    latex.table(results, output="tab/{}.tex".format(job),
+                columns=columns, latex_args=str_args)
 
 
 def visualise_regression_job(db, job):
@@ -141,8 +126,10 @@ def main():
 
     # Delete any old stuff.
     fs.rm("img")
+    fs.rm("tab")
 
     # Make directories
+    fs.mkdir("tab")
     fs.mkdir("img/scenarios/bars")
     fs.mkdir("img/scenarios/heatmap")
     fs.mkdir("img/scenarios/trisurf")
