@@ -198,7 +198,7 @@ def main():
                              title="", figsize=(4, 2.5))
 
     # Trend plots
-    trend_size=(5.8,2.2)
+    trend_size=(5.8,2)
     visualise.oracle_speedups(db, "gen/img/oracle_speedups.png", title="",
                               figsize=trend_size)
     visualise.max_speedups(db, "gen/img/max_speedups.png", title="",
@@ -209,7 +209,7 @@ def main():
                                       title="", figsize=trend_size)
 
     # Scatter plots
-    figsize=(5,4)
+    figsize=(5.8,3)
     visualise.performance_vs_max_wgsize(db, "gen/img/performance_max_wgsize.png",
                                         title="", figsize=figsize)
     figsize=(3,2.2) # Half-width
@@ -219,10 +219,10 @@ def main():
                                   title="", figsize=figsize)
 
     # Boxplots
-    figsize=(5.8,3.5) # Full page width
+    figsize=(5.8,3) # Full page width
     visualise.kernel_performance(db, "gen/img/performance_kernels.png",
                                  title="", figsize=figsize)
-    figsize=(5.8 / 2,3.5) # Half-width
+    figsize=(5.8/2,3) # Half-width
     visualise.device_performance(db, "gen/img/performance_devices.png",
                                  title="", figsize=figsize)
     visualise.dataset_performance(db, "gen/img/performance_datasets.png",
