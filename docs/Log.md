@@ -7731,3 +7731,56 @@ added CPU data back in, this will be crazy.
 ```
 unbuffer ./eval.py 2>&1  125194.46s user 386.99s system 129% cpu 26:59:17.25 total
 ```
+
+
+## Monday 13th
+
+`runtime_classification_results` appear broken. They are all reporting
+the exact same predictions:
+
+```
+sqlite> select predicted,actual from runtime_classification_results where job="xval" and classifier="weka.classifiers.trees.RandomForest -I 100 -K 0 -S 1 -num-slots 1" limit 10;
+88x4|64x4
+32x24|64x4
+56x4|56x4
+16x16|64x4
+32x24|64x4
+56x16|64x16
+8x24|48x4
+24x8|8x24
+8x88|32x16
+40x16|64x4
+sqlite> select predicted,actual from runtime_classification_results where job="xval" and classifier="weka.classifiers.functions.LinearRegression -S 0 -R 1.0E-8" limit 10;
+88x4|64x4
+32x24|64x4
+56x4|56x4
+16x16|64x4
+32x24|64x4
+56x16|64x16
+8x24|48x4
+24x8|8x24
+8x88|32x16
+40x16|64x4
+sqlite> select predicted,actual from runtime_classification_results where job="xval" and classifier="weka.classifiers.rules.ZeroR" limit 10;
+88x4|64x4
+32x24|64x4
+56x4|56x4
+16x16|64x4
+32x24|64x4
+56x16|64x16
+8x24|48x4
+24x8|8x24
+8x88|32x16
+40x16|64x4
+```
+
+I've tracked the source of the bug to the
+`(runtime|speedup)_predictions` functions in
+`omnitune.skelcl.db`. They didn't filter the results by classifier, so
+were runtime *all* predictions for every classifier. Simple fix, but
+I'll need to re-run the entire eval script, so that's 26 hours down the pan.
+
+TODO:
+
+* Consider whether we need to implement a tie-breaker for runtime
+  regression classification.
