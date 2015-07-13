@@ -101,7 +101,7 @@ def visualise_classification_job(db, job):
         "Smax",
     )
 
-    latex.table(results, output="tab/{}.tex".format(job),
+    latex.table(results, output=fs.path(experiment.TAB_ROOT, job + ".tex"),
                 columns=columns, latex_args=str_args)
 
 
@@ -126,10 +126,10 @@ def main():
 
     # Delete any old stuff.
     fs.rm("img")
-    fs.rm("tab")
+    fs.rm(experiment.TAB_ROOT)
 
     # Make directories
-    fs.mkdir("tab")
+    fs.mkdir(experiment.TAB_ROOT)
     fs.mkdir("img/scenarios/bars")
     fs.mkdir("img/scenarios/heatmap")
     fs.mkdir("img/scenarios/trisurf")
