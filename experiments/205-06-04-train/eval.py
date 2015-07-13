@@ -64,19 +64,6 @@ class ReshapeError(ErrFnError):
     """
     pass
 
-CLASSIFIER_NAME_LEN = 25
-
-def summarise_perfs(perfs):
-    def _fmt(n):
-        return "{:.3f}".format(n)
-
-    print("        n: ", len(perfs))
-    print("     mean: ", _fmt(labmath.mean(perfs)))
-    print("  geomean: ", _fmt(labmath.geomean(perfs)))
-    print("      min: ", _fmt(min(perfs)))
-    print("      max: ", _fmt(max(perfs)))
-    print()
-
 
 class Dataset(ml.Dataset):
 
