@@ -40,9 +40,10 @@ def run_job(db, wgsize, program, args):
     fs.cd(fs.path(experiment.EXAMPLES_BUILD, program))
 
     cmd_str = "./{} {}".format(program, args.rstrip())
+    cmd = cmd_str.split()
 
     io.info("COMMAND:", io.colourise(io.Colours.RED, cmd_str))
-    ret, _, _ = system.run(cmd, stdout=system.STDOUT, stderr=system.STDERR)
+    ret, _, _ = system.run(cmd_str, stdout=system.STDOUT, stderr=system.STDERR)
 
     if ret:
         print(ret, wgsize, program, args, sep="\t", file=errlog)
