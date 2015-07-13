@@ -107,18 +107,25 @@ def visualise_classification_job(db, job):
 
 def visualise_regression_job(db, job):
     runtimedir = "img/runtime_regression/{}/".format(job)
+    runtimeclassificationdir = "img/runtime_classification/{}/".format(job)
     speedupdir = "img/speedup_regression/{}/".format(job)
+    speedupclassificationdir = "img/speedup_classification/{}/".format(job)
 
     fs.mkdir(runtimedir)
+    fs.mkdir(runtimeclassificationdir)
     fs.mkdir(speedupdir)
+    fs.mkdir(speedupclassificationdir)
 
     # Line plot of all classifiers.
     visualise.runtime_regression(db,
                                  "img/runtime_regression/{}.png".format(job),
                                  job=job)
-    # visualise.speedup_regression(db,
-    #                              "img/speedup_regression/{}.png".format(job),
-    #                              job=job)
+    visualise.runtime_classification(db,
+                                     "img/runtime_classification/{}.png"
+                                     .format(job), job=job)
+    visualise.speedup_regression(db,
+                                 "img/speedup_regression/{}.png".format(job),
+                                 job=job)
 
 
 def main():
