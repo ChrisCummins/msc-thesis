@@ -44,7 +44,7 @@ def print_w(params):
 # Export tables #
 #################
 def create_devices_table(db, output=None):
-    output = output or open("gen/tables/devices.tex", "wb")
+    output = output or open("gen/tab/devices.tex", "wb")
     infos = set()
     for row in db.execute("SELECT name,max_compute_units,"
                           "max_clock_frequency,local_mem_size,"
@@ -83,7 +83,7 @@ def create_kernels_table(db, output=None):
         kernels = db.execute("SELECT id from kernel_names where name=?", (name,)).fetchall()
         return [_process_kernel(row[0]) for row in kernels]
 
-    output = output or open("gen/tables/kernels.tex", "wb")
+    output = output or open("gen/tab/kernels.tex", "wb")
     synthetics, real = set(), set()
     for row in db.execute("SELECT DISTINCT name FROM kernel_names WHERE synthetic=1"):
         [synthetics.add(entry) for entry in _process_row(row)]
@@ -98,7 +98,7 @@ def create_kernels_table(db, output=None):
                                     "West", "Instruction Count"))
 
 def create_datasets_table(db, output=None):
-    output = output or open("gen/tables/datasets.tex", "wb")
+    output = output or open("gen/tab/datasets.tex", "wb")
     headers = "Width", "Height", "Type in", "Type out"
     infos = set(row for row in
                 db.execute("SELECT width,height,tin,tout "
@@ -112,7 +112,7 @@ def main():
 
     fs.rm("gen")
     fs.mkdir("gen/img")
-    fs.mkdir("gen/tables")
+    fs.mkdir("gen/tab")
 
     # Set plot style.
     sns.set_context("notebook", font_scale=.8, rc={"lines.linewidth": 2})
