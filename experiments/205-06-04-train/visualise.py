@@ -126,6 +126,9 @@ def visualise_regression_job(db, job):
     visualise.speedup_regression(db,
                                  "img/speedup_regression/{}.png".format(job),
                                  job=job)
+    visualise.speedup_classification(db,
+                                     "img/speedup_classification/{}.png"
+                                     .format(job), job=job)
 
 
 def main():
