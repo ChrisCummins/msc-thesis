@@ -20,13 +20,44 @@ from labm8 import math as labmath
 from labm8 import ml
 from labm8 import text
 
+from eval import Dataset
+
 import omnitune
 from omnitune import skelcl
 from omnitune.skelcl import db as _db
-from omnitune.skelcl import visualise
 from omnitune.skelcl import space as _space
+from omnitune.skelcl import visualise
 
 import experiment
+
+
+def features_tab(db, path):
+    def _attribute_type(attribute):
+        if attribute.type == 0:
+            return "numeric"
+        else:
+            return "categorical: {}".format(attribute.num_values)
+
+    def _format_name_col(name):
+        return "\\texttt{{{}}}".format(latex.escape(name))
+
+    def _table(rows, output):
+        latex.table(rows, output=output, columns=("Name", "Type"),
+                    latex_args={
+                        "escape": False,
+                        "formatters": (_format_name_col, None),
+                    })
+
+    db.dump_csvs("/tmp/omnitune/visualise")
+    dataset = Dataset.load("/tmp/omnitune/visualise/oracle_params.csv", db)
+
+    attributes = [[attribute.name, _attribute_type(attribute)]
+                  for attribute in dataset.instances.attributes()]
+    features = attributes[1:-1]
+    half = labmath.ceil(len(features) / 2)
+
+    _table(features[:half], fs.path(path, "features.1.tex"))
+    _table(features[half:], fs.path(path, "features.2.tex"))
 
 
 def visualise_classification_job(db, job):
@@ -133,10 +164,11 @@ def visualise_regression_job(db, job):
 
 def main():
     db = _db.Database(experiment.ORACLE_PATH)
+    ml.start()
 
     # Delete any old stuff.
     fs.rm("img/*")
-    fs.rm(experiment.TAB_ROOT + "*")
+    fs.rm(experiment.TAB_ROOT + "/*")
 
     # Make directories
     fs.mkdir(experiment.TAB_ROOT)
@@ -155,6 +187,8 @@ def main():
     fs.mkdir("img/oracle/devices")
     fs.mkdir("img/oracle/kernels")
     fs.mkdir("img/oracle/datasets")
+
+    features_tab(db, experiment.TAB_ROOT)
 
     #####################
     # ML Visualisations #
@@ -287,6 +321,7 @@ def main():
         output = "img/oracle/datasets/{0}.png".format(i)
         visualise.safety(db, output, where=where, title=dataset)
 
+    ml.stop()
 
 if __name__ == "__main__":
     main()
