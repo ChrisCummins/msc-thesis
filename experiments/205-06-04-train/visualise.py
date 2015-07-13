@@ -135,8 +135,8 @@ def main():
     db = _db.Database(experiment.ORACLE_PATH)
 
     # Delete any old stuff.
-    fs.rm("img")
-    fs.rm(experiment.TAB_ROOT)
+    fs.rm("img/*")
+    fs.rm(experiment.TAB_ROOT + "*")
 
     # Make directories
     fs.mkdir(experiment.TAB_ROOT)
