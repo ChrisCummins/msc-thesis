@@ -241,9 +241,9 @@ define pdflatex
 	 $(PDFLATEX) $(PdflatexArgs) $1 2>&1 >>$(DocumentBuildLog) || $(PDFLATEX) $(PdflatexArgs) $1)
 endef
 
-define bibtex
-	(echo -e "\nCOMMAND: $(BIBTEX) $1\n" >>$(DocumentBuildLog);	\
-	 $(BIBTEX) $1 2>&1 >>$(DocumentBuildLog) || $(BIBTEX) $1)
+define biber
+	(echo -e "\nCOMMAND: $(BIBER) $1\n" >>$(DocumentBuildLog);	\
+	 $(BIBER) $1 2>&1 >>$(DocumentBuildLog) || $(BIBER) $1)
 endef
 
 define bibtool
@@ -262,14 +262,14 @@ define hook
 endef
 
 # The LaTeX build target. This gnarly bit of shell hackery uses nested
-# conditionals and sub-shells to invoke pdflatex, bibtex, bibtool, and
+# conditionals and sub-shells to invoke pdflatex, biber, bibtool, and
 # cleanbib the correct number of times depending on the document
 # contents. The sequence of program invocations is as follows:
 #
 # 1. pre-execution hooks
 # 2. pdflatex
 # -  If the document contains citations:
-# 3.     bibtex
+# 3.     biber
 # -      If the document uses the global biblibrary:
 # 4.          bibtool
 # 5.          cleanbib
@@ -284,9 +284,9 @@ endef
 	$(AM_V_at)echo -e "Build log for `date`\n" >$(DocumentBuildLog)
 	@if ! $(AM_V_P); then echo '  LATEX    $@'; fi
 	$(AM_V_at)$(call pdflatex, $<)
-	$(AM_V_at)($(GREP) '\\citation' >/dev/null 2>&1 < $*.aux && {	\
-			if ! $(AM_V_P); then echo "  BIBTEX   $@"; fi;	\
-			$(call bibtex, $*);				\
+	$(AM_V_at)($(GREP) 'cite{' >/dev/null 2>&1 < $*.aux && {	\
+			if ! $(AM_V_P); then echo "  BIBER    $@"; fi;	\
+			$(call biber, $*);				\
 			$(EGREP) '\\bibdata.*$(BIBLIBRARY)' $*.aux >/dev/null 2>&1 && { \
 				if ! $(AM_V_P); then echo '  BIBTOOL  $(DocumentBibfile)'; fi; \
 				$(call bibtool,$*.aux,$(DocumentBibfile)); \

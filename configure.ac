@@ -161,15 +161,15 @@ AM_CONDITIONAL([HAVE_PDFLATEX],[test "x$HAVE_PDFLATEX" = xyes])
 
 
 dnl ================================================================
-dnl Do we have bibtex installed?
+dnl Do we have biber installed?
 dnl ================================================================
-AC_CHECK_PROG([BIBTEX],[bibtex],[bibtex])
-AS_IF([test "x$BIBTEX" != x],
-      [HAVE_BIBTEX=yes],
-      [HAVE_BIBTEX=no
+AC_CHECK_PROG([BIBER],[biber],[biber])
+AS_IF([test "x$BIBER" != x],
+      [HAVE_BIBER=yes],
+      [HAVE_BIBER=no
        AC_MSG_WARN([Unable to build LaTeX documentation.])])
-AC_SUBST([HAVE_BIBTEX],[$HAVE_BIBTEX])
-AM_CONDITIONAL([HAVE_BIBTEX],[test "x$HAVE_BIBTEX" = xyes])
+AC_SUBST([HAVE_BIBER],[$HAVE_BIBER])
+AM_CONDITIONAL([HAVE_BIBER],[test "x$HAVE_BIBER" = xyes])
 
 
 dnl ================================================================
