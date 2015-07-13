@@ -8,9 +8,12 @@
 %
 \usepackage{etex}
 
-\usepackage{booktabs}
-
 \usepackage[utf8]{inputenc}
+
+% Fix for "'babel/polyglossia' detected but 'csquotes' missing"
+% warning. NOTE: Include after inputenc.
+%
+\usepackage{csquotes}
 
 % Make internal macro definitions accessible,
 % e.g. \@title, \@date \@author.
@@ -27,15 +30,23 @@
 %
 %\setlength{\columnsep}{5mm}
 
+% Allow user-defined warning and error filters.
+%
+\usepackage{silence}
+
+
+%%%%%%%%%%%%%%%%%%%%%
+% Table of Contents %
+%%%%%%%%%%%%%%%%%%%%%
 
 % Set chapter and section numbering depth:
 %
 \setcounter{secnumdepth}{2}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Bibliography and Appendices %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+% Bibliography %
+%%%%%%%%%%%%%%%%
 \usepackage[%
     backend=biber,
     style=numeric-comp,  % numerical-compressed
@@ -49,6 +60,9 @@
     doi=false,           % print DOI?
     natbib=true,         % natbib compatability
   ]{biblatex}
+
+% Filter annoying and unavoidable biblatex warning:
+\WarningFilter{biblatex}{Patching footnotes failed}
 
 % Reduce the font size of the bibliography:
 % \renewcommand{\bibfont}{\normalfont\scriptsize}
@@ -67,6 +81,11 @@
   {\newcommand{\BibResource}{\BibResourceLocal}}
 
 \addbibresource{\BibResource}
+
+
+%%%%%%%%%%%%%%
+% Appendices %
+%%%%%%%%%%%%%%
 
 % Appendix package. Documentation:
 %
@@ -786,6 +805,10 @@
 %
 \usepackage{pgfplots}
 
+% Disable compatability mode.
+%
+\pgfplotsset{compat=1.12}
+
 % Gantt charts using pgfgantt, see:
 %
 %     http://www.ctan.org/pkg/pgfgantt
@@ -873,6 +896,10 @@
 %%%%%%%%%%%%%%%%%%%%%%
 %% Tables and lists %%
 %%%%%%%%%%%%%%%%%%%%%%
+
+% Required to use labm8 exported tables.
+%
+\usepackage{booktabs}
 
 %\usepackage{enumitem}
 %\setenumerate{itemsep=0pt}
