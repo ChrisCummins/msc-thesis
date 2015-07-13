@@ -487,7 +487,7 @@ def eval_regressor_classification_instance(job, db, classifier, scenario,
         baseline = training.default
 
     # Classify instance.
-    predicted = get_prediction(db, scenario, job)
+    predicted = get_prediction(db, scenario, classifier, job)
 
     correct = 1 if predicted == oracle else 0
     performance, speedup = perf_fn(db, scenario, predicted,
