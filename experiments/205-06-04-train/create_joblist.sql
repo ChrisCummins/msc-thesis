@@ -18,6 +18,7 @@ CREATE TABLE rhs.jobs (
     height                          INTEGER,
     device                          TEXT,
     params                          TEXT,
+    num_samples                     INTEGER,
     PRIMARY KEY (scenario,params)
 );
 
@@ -32,7 +33,11 @@ SELECT
     datasets.width,
     datasets.height,
     scenarios.device,
-    params.id
+    params.id,
+    CASE
+        WHEN runtime_stats.num_samples IS NULL THEN 30
+        ELSE (30 - runtime_stats.num_samples)
+    END AS num_samples
 FROM scenarios
 LEFT JOIN params
 LEFT JOIN runtime_stats
@@ -45,6 +50,6 @@ LEFT JOIN datasets
     ON scenarios.dataset=datasets.id
 WHERE
     (params.wg_c * params.wg_r) < kernels.max_wg_size
-    AND runtime_stats.num_samples IS NULL;
+    AND (runtime_stats.num_samples IS NULL) OR (runtime_stats.num_samples < 30);
 
 DETACH rhs;

@@ -26,19 +26,10 @@ from omnitune.skelcl import unhash_params
 import experiment
 import train
 
+errlog = open("jobscomplete.txt", "wa")
+runlog = open("jobsfailed.txt", "wa")
 
-def device2devargs(device):
-    count_re = re.compile(r"^(\d+)x")
-    devcount = re.search(count_re, device).group(1)
-    name = re.sub(count_re, "", device)
-    info = opencl.lookup_by_name(name)
-    devtype = "GPU" if info["type"] == 4 else "CPU"
-
-    return ["--device-type", devtype, "--device-count", devcount]
-
-
-def run_job(db, scenario, kernel, north, south, east, west,
-            width, height, device, wgsize):
+def run_job(db, wgsize, program, args):
     wg_c, wg_r = unhash_params(wgsize)
 
     # Set environment variable.
@@ -46,100 +37,39 @@ def run_job(db, scenario, kernel, north, south, east, west,
     os.environ["OMNITUNE_STENCIL_WG_C"] = str(wg_c)
     os.environ["OMNITUNE_STENCIL_WG_R"] = str(wg_r)
 
-    iterations = 30
+    fs.cd(fs.path(experiment.EXAMPLES_BUILD, program))
 
-    cmd = [
-        "./SimpleBig",
-        "--iterations", str(iterations),
-        "--north", str(north),
-        "--south", str(south),
-        "--east", str(east),
-        "--west", str(west),
-    ] + device2devargs(device)
+    cmd_str = "./{} {}".format(program, args.rstrip())
 
-    if kernel == "complex":
-        cmd += ["-c"]
-
-    fs.cd(fs.path(experiment.EXAMPLES_BUILD, "SimpleBig"))
-
-    cmd_str = " ".join(cmd)
     io.info("COMMAND:", io.colourise(io.Colours.RED, cmd_str))
     ret, _, _ = system.run(cmd, stdout=system.STDOUT, stderr=system.STDERR)
 
-    values = (scenario, kernel, north, south, east, west, width,
-              height, device, wgsize)
-
-    db.execute("DELETE FROM jobs_failed WHERE " +
-               where("scenario", "kernel", "north", "south", "east",
-                     "west", "width", "height", "device",
-                     "params"),
-               values)
-
     if ret:
-        io.warn(io.colourise(io.Colours.RED, "Job failed!"))
-        db.execute("INSERT INTO jobs_failed VALUES " +
-                   placeholders(*values), values)
+        print(ret, wgsize, program, args, sep="\t", file=errlog)
     else:
-        db.execute("INSERT INTO jobs_done VALUES " +
-                   placeholders(*values), values)
-
-    # Remove values from old tables.
-    db.execute("DELETE FROM jobs WHERE " +
-               where("scenario", "kernel", "north", "south", "east",
-                     "west", "width", "height", "device",
-                     "params"),
-               values)
-
-    db.commit()
+        print(ret, wgsize, program, args, sep="\t", file=runlog)
 
 
-def run_jobs(table_name, db, devices):
-    jobs = [row for row in
-            db.execute("SELECT *\n"
-                       "FROM " + table_name + "\n"
-                       "WHERE device IN " + placeholders(*devices),
-                       devices)]
+def get_jobs():
+    joblist = "jobs/{}.txt".format(system.HOSTNAME)
 
-    total=len(jobs)
-    io.info("Running {total} jobs ...".format(total=total))
-
-    for i,job in enumerate(jobs):
-        # Print progress message.
-        io.info(io.colourise(io.Colours.GREEN,
-                             "Running job {n} / {total} ({perc:.2f}%) ..."
-                             .format(n=i, total=total, perc=(i / total) * 100)))
-        run_job(db, *job)
+    if fs.isfile(joblist):
+        return open(joblist).readlines()
+    else:
+        return []
 
 
 def main():
     db = _db.Database(fs.path("joblist.db"))
 
-    # Create jobs tables.
-    if "jobs_done" not in db.tables:
-        db.create_table_from("jobs_done", "jobs")
-    if "jobs_failed" not in db.tables:
-        db.create_table_from("jobs_failed", "jobs")
-
-    data = [row for row in
-            db.execute("SELECT device,Count(*) AS count\n"
-                       "FROM jobs\n"
-                       "GROUP BY device\n"
-                       "ORDER BY count")]
-    io.info("Job list:")
-    print(fmt.table(data, columns=("Device", "Jobs")))
-    print()
-
-    devices = [hash_device(info["name"], 1) for info in
-               opencl.get_devinfos()]
+    jobs = get_jobs()
 
     # Build example programs.
     fs.cd(experiment.EXAMPLES_BUILD)
     make.make()
 
-    run_jobs("jobs", db, devices)
-
-    while db.num_rows("jobs_failed") > 0:
-        run_jobs("jobs_failed", db, devices)
+    for job in jobs:
+        run_job(db, *job.split("\t"))
 
     lab.exit()
 
