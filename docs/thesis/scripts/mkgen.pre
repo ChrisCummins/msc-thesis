@@ -228,5 +228,15 @@ def main():
     visualise.dataset_performance(db, "gen/img/performance_datasets.png",
                                   title="", figsize=figsize)
 
+    # ML Visualisations
+    figsize=(5.8,3.5)
+    visualise.classification(db, "gen/img/classification-xval.png", job="xval",
+                             title="", figsize=figsize)
+    visualise.runtime_regression(db, "gen/img/runtime-regression-xval.png", job="xval",
+                                 title="", figsize=figsize)
+    visualise.err_fn_speedups(db, "random_fn", "gen/img/classification-xval-random.png",
+                              job="xval", sort=True, title="", figsize=figsize)
+
+
 if __name__ == "__main__":
     main()
