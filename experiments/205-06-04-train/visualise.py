@@ -67,6 +67,8 @@ def visualise_classification_job(db, job):
     fs.mkdir(basedir + "classifiers")
     fs.mkdir(basedir + "err_fns")
 
+    visualise.err_fn_performance(db, basedir + "err_fns.png", job=job)
+
     # Bar plot of all results.
     visualise.classification(db, "img/classification/{}.png".format(job),
                              job=job)
