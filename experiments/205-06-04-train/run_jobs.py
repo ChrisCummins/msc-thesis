@@ -26,8 +26,8 @@ from omnitune.skelcl import unhash_params
 import experiment
 import train
 
-errlog = open("jobscomplete.txt", "wa")
-runlog = open("jobsfailed.txt", "wa")
+errlog = open("jobsfailed.txt", "wa")
+runlog = open("jobscomplete.txt", "wa")
 
 def run_job(db, wgsize, program, args):
     wg_c, wg_r = unhash_params(wgsize)
