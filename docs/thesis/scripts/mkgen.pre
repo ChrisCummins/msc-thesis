@@ -2,6 +2,7 @@
 from __future__ import division
 from __future__ import print_function
 
+import csv
 import re
 
 import numpy as np
@@ -43,6 +44,14 @@ def print_w(params):
 #################
 # Export tables #
 #################
+def create_hosts_table(output=None):
+    output = output or "gen/tab/hosts.tex"
+    reader = csv.reader(open("dat/hosts.csv"), delimiter="\t")
+    header = reader.next()
+    rows = [row for row in reader]
+    latex.table(rows, output=output, columns=header, escape=False)
+
+
 def create_devices_table(db, output=None):
     def _escape_name(name):
         name = name.strip()
@@ -195,6 +204,7 @@ def main():
           "gen/avg_possible_speedup.tex")
 
     # Tables.
+    create_hosts_table()
     create_devices_table(db)
     create_kernels_table(db)
     create_datasets_table(db)
