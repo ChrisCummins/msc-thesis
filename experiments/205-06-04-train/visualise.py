@@ -43,10 +43,7 @@ def features_tab(db, path):
 
     def _table(rows, output):
         latex.table(rows, output=output, columns=("Name", "Type"),
-                    latex_args={
-                        "escape": False,
-                        "formatters": (_format_name_col, None),
-                    })
+                    escape=False, formatters=(_format_name_col, None))
 
     db.dump_csvs("/tmp/omnitune/visualise")
     dataset = Dataset.load("/tmp/omnitune/visualise/oracle_params.csv", db)
@@ -135,7 +132,7 @@ def visualise_classification_job(db, job):
     )
 
     latex.table(results, output=fs.path(experiment.TAB_ROOT, job + ".tex"),
-                columns=columns, latex_args=str_args)
+                columns=columns, **str_args)
 
 
 def visualise_regression_job(db, job):
