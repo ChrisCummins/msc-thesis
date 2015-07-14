@@ -136,7 +136,7 @@ endif
 
 # If we have texcount then we can perform word counts.
 if HAVE_TEXCOUNT
-PhonyTargets += wc
+PhonyTargets += wc status
 
 wc: $(Document).wc
 	$(AM_V_at)$(SED) '1,/total/Id' < $<				\
@@ -150,6 +150,15 @@ $(Document).wc: $(DocumentSources)
 		$(MAKE) $(DocumentPDF);					\
 		$(MAKE) $@;						\
 	fi
+
+status: $(Document).wc
+	@echo -n " Words:    "
+	$(AM_V_at)$(SED) '1,/total/Id' < $(Document).wc			\
+		| $(EGREP) '^Words in text:' | sed 's/Words in text: //'
+	@echo -n " TODOs:    "
+	$(AM_V_at)cat $(DocumentSources) | $(EGREP) -ic '\todo'
+	@echo -n "FIXMEs:    "
+	$(AM_V_at)cat $(DocumentSources) | $(EGREP) -ic '\fixme'
 
 MOSTLYCLEANFILES += $(Document).wc
 endif

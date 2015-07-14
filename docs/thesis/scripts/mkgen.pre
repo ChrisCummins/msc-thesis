@@ -29,7 +29,7 @@ def mktex(string, path):
     """
     Write a latex data file, appended by a comment sign.
     """
-    system.echo(str(string) + "%", path, end="")
+    system.echo("\\checkme{{{}}}%".format(string), path, end="")
 
 
 def print_params(params):
@@ -220,13 +220,17 @@ def main():
           "gen/avg_possible_speedup_perc.tex")
 
     # ML speedups
-    mktex(int(round(db.best_average_classification_performance)),
+    best_classification_results = db.best_classification_results
+    best_synthetic_real_classification_results = db.best_synthetic_real_classification_results
+    mktex(int(round(best_classification_results[2])),
           "gen/best_avg_classification_performance.tex")
-    mktex(round(db.best_average_classification_speedup, 2),
+    mktex(round(best_classification_results[3], 2),
           "gen/best_avg_classification_speedup.tex")
-    mktex(int(round(db.best_average_synthetic_real_classification_performance)),
+    mktex(round(best_classification_results[4], 2),
+          "gen/best_max_classification_speedup.tex")
+    mktex(int(round(best_synthetic_real_classification_results[2])),
           "gen/best_avg_synthetic_real_classification_performance.tex")
-    mktex(round(db.best_average_synthetic_real_classification_speedup, 2),
+    mktex(round(best_synthetic_real_classification_results[3], 2),
           "gen/best_avg_synthetic_real_classification_speedup.tex")
     mktex(int(round(db.biggest_synthetic_real_classification_performance_drop)),
           "gen/biggest_synthetic_real_classification_performance_drop.tex")

@@ -23,9 +23,15 @@
   \ifdraft{\noindent\textcolor{blue}{\em\footnotesize note: #1}}%
 }
 
+% \checkme{} command.
+\newcommand{\checkme}[1]{%
+  \ifdraft{\textcolor{blue}{#1}}%
+  \ifndraft{#1}%
+}
+
 % \fixme{} command.
 \newcommand{\fixme}[1]{%
-  \noindent\textcolor{red}{\em\footnotesize#1}
+  \noindent\textcolor{red}{\em\footnotesize#1}%
   \ifndraft{\PackageWarning{draft}{fixme: #1}}%
 }
 
