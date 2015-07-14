@@ -12,6 +12,7 @@ DATA_ROOT = fs.path("~/data/msc-thesis/2015-07-13")
 DB_DEST = fs.path(DATA_ROOT, "db")
 ORACLE_PATH = fs.path(DATA_ROOT, "oracle.db")
 TAB_ROOT = fs.path(DATA_ROOT, "tab")
+IMG_ROOT = fs.path(DATA_ROOT, "img")
 
 # Path to classifier results using cross-validation.
 CLASS_XVAL_PATH = fs.path(DATA_ROOT, "class_xval.json")

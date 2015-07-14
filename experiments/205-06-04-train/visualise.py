@@ -169,26 +169,26 @@ def main():
     ml.start()
 
     # Delete any old stuff.
-    fs.rm("img/*")
+    fs.rm(experiment.IMG_ROOT + "/*")
     fs.rm(experiment.TAB_ROOT + "/*")
 
     # Make directories
     fs.mkdir(experiment.TAB_ROOT)
-    fs.mkdir("img/scenarios/bars")
-    fs.mkdir("img/scenarios/heatmap")
-    fs.mkdir("img/scenarios/trisurf")
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "scenarios/bars"))
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "scenarios/heatmap"))
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "scenarios/trisurf"))
 
-    fs.mkdir("img/coverage/devices")
-    fs.mkdir("img/coverage/kernels")
-    fs.mkdir("img/coverage/datasets")
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "coverage/devices"))
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "coverage/kernels"))
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "coverage/datasets"))
 
-    fs.mkdir("img/safety/devices")
-    fs.mkdir("img/safety/kernels")
-    fs.mkdir("img/safety/datasets")
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "safety/devices"))
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "safety/kernels"))
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "safety/datasets"))
 
-    fs.mkdir("img/oracle/devices")
-    fs.mkdir("img/oracle/kernels")
-    fs.mkdir("img/oracle/datasets")
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "oracle/devices"))
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "oracle/kernels"))
+    fs.mkdir(fs.path(experiment.IMG_ROOT, "oracle/datasets"))
 
     # Per-scenario plots
     for row in db.scenario_properties:
@@ -200,15 +200,18 @@ def main():
                          width=width, height=height, type=tout))
 
         # 3D bars.
-        output = "img/scenarios/bars/{id}.png".format(id=scenario)
+        output = fs.path(experiment.IMG_ROOT,
+                         "scenarios/bars/{id}.png".format(id=scenario))
         visualise.scenario_performance(db, scenario, output, title=title,
                                        type="bar3d")
         # Heatmaps.
-        output = "img/scenarios/heatmap/{id}.png".format(id=scenario)
+        output = fs.path(experiment.IMG_ROOT,
+                         "scenarios/heatmap/{id}.png".format(id=scenario))
         visualise.scenario_performance(db, scenario, output, title=title,
                                        type="heatmap")
         # Trisurfs.
-        output = "img/scenarios/trisurf/{id}.png".format(id=scenario)
+        output = fs.path(experiment.IMG_ROOT,
+                         "scenarios/trisurf/{id}.png".format(id=scenario))
         visualise.scenario_performance(db, scenario, output, title=title,
                                        type="trisurf")
 
@@ -217,11 +220,14 @@ def main():
         where = ("scenario IN "
                  "(SELECT id from scenarios WHERE device='{0}')"
                  .format(device))
-        output = "img/coverage/devices/{0}.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "coverage/devices/{0}.png".format(i))
         visualise.coverage(db, output=output, where=where, title=device)
-        output = "img/safety/devices/{0}.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "safety/devices/{0}.png".format(i))
         visualise.safety(db, output, where=where, title=device)
-        output = "img/oracle/devices/{0}.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "oracle/devices/{0}.png".format(i))
         visualise.oracle_wgsizes(db, output, where=where, title=device)
 
         where = ("scenario IN (\n"
@@ -232,13 +238,16 @@ def main():
                  "    )\n"
                  ")"
                  .format(device))
-        output = "img/coverage/devices/{0}_real.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "coverage/devices/{0}_real.png".format(i))
         visualise.coverage(db, output=output, where=where,
                            title=device + ", real")
-        output = "img/safety/devices/{0}_real.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "safety/devices/{0}_real.png".format(i))
         visualise.safety(db, output, where=where,
                          title=device + ", real")
-        output = "img/oracle/devices/{0}_real.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "oracle/devices/{0}_real.png".format(i))
         visualise.oracle_wgsizes(db, output, where=where,
                                  title=device + ", real")
 
@@ -251,13 +260,16 @@ def main():
                  "    )\n"
                  ")"
                  .format(device))
-        output = "img/coverage/devices/{0}_synthetic.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "coverage/devices/{0}_synthetic.png".format(i))
         visualise.coverage(db, output=output, where=where,
                            title=device + ", synthetic")
-        output = "img/safety/devices/{0}_synthetic.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "safety/devices/{0}_synthetic.png".format(i))
         visualise.safety(db, output, where=where,
                          title=device + ", synthetic")
-        output = "img/oracle/devices/{0}_synthetic.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "oracle/devices/{0}_synthetic.png".format(i))
         visualise.oracle_wgsizes(db, output, where=where,
                                  title=device + ", synthetic")
 
@@ -267,11 +279,14 @@ def main():
         where = ("scenario IN "
                  "(SELECT id from scenarios WHERE kernel IN ({0}))"
                  .format(",".join(id_wrapped)))
-        output = "img/coverage/kernels/{0}.png".format(kernel)
+        output = fs.path(experiment.IMG_ROOT,
+                         "coverage/kernels/{0}.png".format(kernel))
         visualise.coverage(db, output=output, where=where, title=kernel)
-        output = "img/safety/kernels/{0}.png".format(kernel)
+        output = fs.path(experiment.IMG_ROOT,
+                         "safety/kernels/{0}.png".format(kernel))
         visualise.safety(db, output=output, where=where, title=kernel)
-        output = "img/oracle/kernels/{0}.png".format(kernel)
+        output = fs.path(experiment.IMG_ROOT,
+                         "oracle/kernels/{0}.png".format(kernel))
         visualise.safety(db, output=output, where=where, title=kernel)
 
     # Per-dataset plots
@@ -279,11 +294,14 @@ def main():
         where = ("scenario IN "
                  "(SELECT id from scenarios WHERE dataset='{0}')"
                  .format(dataset))
-        output = "img/coverage/datasets/{0}.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "coverage/datasets/{0}.png".format(i))
         visualise.coverage(db, output, where=where, title=dataset)
-        output = "img/safety/datasets/{0}.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "safety/datasets/{0}.png".format(i))
         visualise.safety(db, output, where=where, title=dataset)
-        output = "img/oracle/datasets/{0}.png".format(i)
+        output = fs.path(experiment.IMG_ROOT,
+                         "oracle/datasets/{0}.png".format(i))
         visualise.safety(db, output, where=where, title=dataset)
 
     #####################
@@ -303,25 +321,43 @@ def main():
     visualise_regression_job(db, "synthetic_real")
 
     # Whole-dataset plots
-    visualise.runtimes_variance(db, "img/runtime_variance.png", min_samples=30)
-    visualise.num_samples(db, "img/num_samples.png")
-    visualise.runtimes_range(db, "img/runtimes_range.png")
-    visualise.max_speedups(db, "img/max_speedups.png")
-    visualise.kernel_performance(db, "img/kernel_performance.png")
-    visualise.device_performance(db, "img/device_performance.png")
-    visualise.dataset_performance(db, "img/dataset_performance.png")
-    visualise.num_params_vs_accuracy(db, "img/num_params_vs_accuracy.png")
-    visualise.performance_vs_coverage(db, "img/performance_vs_coverage.png")
-    visualise.performance_vs_max_wgsize(db, "img/performance_vs_max_wgsize.png")
-    visualise.performance_vs_wgsize(db, "img/performance_vs_wgsize.png")
-    visualise.performance_vs_wg_c(db, "img/performance_vs_wg_c.png")
-    visualise.performance_vs_wg_r(db, "img/performance_vs_wg_r.png")
-    visualise.max_wgsizes(db, "img/max_wgsizes.png")
-    visualise.oracle_speedups(db, "img/oracle_speedups.png")
+    visualise.runtimes_variance(db, fs.path(experiment.IMG_ROOT,
+                                            "runtime_variance.png",
+                                            min_samples=30))
+    visualise.num_samples(db, fs.path(experiment.IMG_ROOT,
+                                      "num_samples.png"))
+    visualise.runtimes_range(db, fs.path(experiment.IMG_ROOT,
+                                         "runtimes_range.png"))
+    visualise.max_speedups(db, fs.path(experiment.IMG_ROOT,
+                                       "max_speedups.png"))
+    visualise.kernel_performance(db, fs.path(experiment.IMG_ROOT,
+                                             "kernel_performance.png"))
+    visualise.device_performance(db, fs.path(experiment.IMG_ROOT,
+                                             "device_performance.png"))
+    visualise.dataset_performance(db, fs.path(experiment.IMG_ROOT,
+                                              "dataset_performance.png"))
+    visualise.num_params_vs_accuracy(db, fs.path(experiment.IMG_ROOT,
+                                                 "num_params_vs_accuracy.png"))
+    visualise.performance_vs_coverage(db,
+                                      fs.path(experiment.IMG_ROOT,
+                                              "performance_vs_coverage.png"))
+    visualise.performance_vs_max_wgsize(
+        db, fs.path(experiment.IMG_ROOT, "performance_vs_max_wgsize.png")
+    )
+    visualise.performance_vs_wgsize(db, fs.path(experiment.IMG_ROOT,
+                                                "performance_vs_wgsize.png"))
+    visualise.performance_vs_wg_c(db, fs.path(experiment.IMG_ROOT,
+                                              "performance_vs_wg_c.png"))
+    visualise.performance_vs_wg_r(db, fs.path(experiment.IMG_ROOT,
+                                              "performance_vs_wg_r.png"))
+    visualise.max_wgsizes(db, fs.path(experiment.IMG_ROOT, "max_wgsizes.png"))
+    visualise.oracle_speedups(db, fs.path(experiment.IMG_ROOT,
+                                          "oracle_speedups.png"))
 
-    visualise.coverage(db, "img/coverage/coverage.png")
-    visualise.safety(db, "img/safety/safety.png")
-    visualise.oracle_wgsizes(db, "img/oracle/all.png")
+    visualise.coverage(db,
+                       fs.path(experiment.IMG_ROOT, "coverage/coverage.png"))
+    visualise.safety(db, fs.path(experiment.IMG_ROOT, "safety/safety.png"))
+    visualise.oracle_wgsizes(db, fs.path(experiment.IMG_ROOT, "oracle/all.png"))
 
     ml.stop()
 
