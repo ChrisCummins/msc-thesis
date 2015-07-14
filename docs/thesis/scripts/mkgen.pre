@@ -44,28 +44,37 @@ def print_w(params):
 # Export tables #
 #################
 def create_devices_table(db, output=None):
-    output = output or open("gen/tab/devices.tex", "wb")
+    def _escape_name(name):
+        name = name.strip()
+        name = re.sub("GeForce", "Nvidia", name)
+        name = re.sub("Tahiti", "AMD Tahiti 7970", name)
+        name = re.sub("Intel\(R\) Core\(TM\)", "Intel", name)
+        name = re.sub(" CPU @ [0-9\.]+GHz", "", name)
+        return name
+
+    output = output or "gen/tab/devices.tex"
     infos = set()
     for row in db.execute("SELECT name,max_compute_units,"
                           "max_clock_frequency,local_mem_size,"
                           "global_mem_cache_size,global_mem_size "
                           "FROM devices WHERE id LIKE '1x%'"):
         name,cunits,freq,lmem,gcache,gmem = row
-        infos.add((name.strip(), cunits, freq,
-                   labmath.ceil(lmem / 1024),
-                   labmath.ceil(gcache / 1024),
-                   labmath.ceil(gmem / 1024 / 1024)))
+        infos.add((_escape_name(name),
+                   cunits,
+                   str(freq) + " Hz",
+                   str(labmath.ceil(lmem / 1024)) + " KB",
+                   str(labmath.ceil(gcache / 1024)) + " KB",
+                   str(labmath.ceil(gmem / 1024 / 1024)) + " MB"))
 
-    infos = list(sorted(infos, key=lambda x: x[1]))
-    latex.write_table_body(infos, output=output,
-                           headers=(
-                               "Name",
-                               "Compute units",
-                               "Frequency (Hz)",
-                               "Local Memory (KB)",
-                               "Global Cache (KB)",
-                               "Global Memory (MB)"
-                           ))
+    infos = list(sorted(infos, key=lambda x: x[0]))
+    latex.table(infos, output=output, columns=(
+        "Name",
+        "Compute units",
+        "Frequency",
+        "Local Memory",
+        "Global Cache",
+        "Global Memory"
+    ))
 
 
 def create_kernels_table(db, output=None):
@@ -83,7 +92,7 @@ def create_kernels_table(db, output=None):
         kernels = db.execute("SELECT id from kernel_names where name=?", (name,)).fetchall()
         return [_process_kernel(row[0]) for row in kernels]
 
-    output = output or open("gen/tab/kernels.tex", "wb")
+    output = output or "gen/tab/kernels.tex"
     synthetics, real = set(), set()
     for row in db.execute("SELECT DISTINCT name FROM kernel_names WHERE synthetic=1"):
         [synthetics.add(entry) for entry in _process_row(row)]
@@ -93,18 +102,27 @@ def create_kernels_table(db, output=None):
     synthetics = list(sorted(synthetics, key=lambda x: x[0]))
     real = list(sorted(real, key=lambda x: x[0]))
 
-    latex.write_table_body(synthetics + real, output=output,
-                           headers=("Name", "North", "South", "East",
-                                    "West", "Instruction Count"))
+    latex.table(synthetics + real, output=output, columns=(
+        "Name",
+        "North",
+        "South",
+        "East",
+        "West",
+        "Instruction Count"
+    ))
 
 def create_datasets_table(db, output=None):
-    output = output or open("gen/tab/datasets.tex", "wb")
-    headers = "Width", "Height", "Type in", "Type out"
+    output = output or "gen/tab/datasets.tex"
     infos = set(row for row in
                 db.execute("SELECT width,height,tin,tout "
                            "FROM datasets"))
     data = list(sorted(infos, key=lambda x: x[0]))
-    latex.write_table_body(data, output=output, headers=headers)
+    latex.table(data, output=output, columns=(
+        "Width",
+        "Height",
+        "Type in",
+        "Type out"
+    ))
 
 
 def main():
