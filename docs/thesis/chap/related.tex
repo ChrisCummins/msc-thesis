@@ -246,7 +246,36 @@ autotuner only supports vector operations.
 
 \section{Code Generation and Autotuning of Stencil Codes}
 
-\TODO{Intro to section: autotuning of stencil codes\ldots}
+Stencil codes have a variety of computationally expensive uses from
+image processing to fluid dynamics. Efficient, tuned stencil kernels
+are highly sought after, and as such they have received much attention
+from autotuning research. \TODO{Some sense of timeline and scale of
+  the field\ldots}
+
+% A. Ganapathi, K. Datta, A. Fox, and D. Patterson, “A Case for
+% Machine Learning to Optimize Multicore Performance,” in First USENIX
+% Workshop on Hot Topics in Parallelism (HotPar’09), 2009.
+\citeauthor{Ganapathi2009} demonstrated early attempts at autotuning
+multicore stencil kernels in~\cite{Ganapathi2009}, drawing from the
+success of statistical machine learning techniques in the compiler
+community. They present an autotuner which can achieve performance
+within 1\% or up to 18\% better than that of a human expert after 2
+hours of running. From a space of 10 million configurations, they
+evaluate the performance of a randomly selected 1500, using Kernel
+Canonical Correlation Analysis (KCAA) to build correlations between
+tunable parameter values and measured performance values. Performance
+targets are L1 cache misses, TLB misses, cycles per thread, and power
+consumption. The choice of KCAA seems troubling, \TODO{reword\ldots}
+as model building complexity scales exponentially with the feature
+vector sizes. This is demonstrated in their experimental results, in
+which two hours are required to build the KCAA model for only 400
+seconds of benchmark data.
+
+They present a compelling argument for the use of energy efficiency as
+an optimisation target in addition to runtime, citing that it was the
+power wall that lead to the multicore revolution in the first
+place. Their choice of only 2 benchmarks and 2 platforms makes the
+evaluation of their autotuner a little limited.
 
 % Y. Zhang and F. Mueller, “Auto-generation and Auto-tuning of 3D
 % Stencil Codes on GPU clusters,” in Proceedings of the Tenth
@@ -290,30 +319,8 @@ phase for each program and architecture.
 % The majority of applications tested are memory bound. Does this
 % transfer to computer bound?
 
-In~\cite{Ganapathi2009}, \citeauthor{Ganapathi2009} argues for
-applying statistical machine learning (SML) techniques to develop
-autotuners for multicore software. They present an autotuner for
-Stencil codes which can achieve performance within 1\% or up to 18\%
-better than that of a human expert after 2 hours of running. They
-evaluate the performance of a randomly selected 1500 configurations
-(from a posible 10 million configs), and use Kernel Canonical
-Correlation Analysis (KCCA) to build correlations between tunable
-parameter values and measured performance values. Performance is
-measured using hardware counters (L1 cache misses, TLB misses, cycles
-per thread) and power consumtion in Watts/sec. KCCA seems like a
-strange choice: it scales exponentially with the feature vector sizes,
-and it takes 2 hours (!!!) to build the ML model for 400 sec worth of
-benchmark data. They present an interesting argument that enegy
-efficiency should be used as an autotuning target as well as just run
-time, since it was the power wall that lead to the multicore
-revolution in the first place. They explain the motivation and results
-well. I like that they compare their results with human expert and
-hardware upper bound. It is a solid paper which makes a compelling
-argument, but their choice of only 2 benchmarks and 2 platforms makes
-the evaluation of their autotuner a little limited.
-
-\citeauthor{Kamil2010} presents an auto-tuning framework which accepts as input a
-Fortran 95 stencil expression, and generates tuned parallel
+\citeauthor{Kamil2010} presents an auto-tuning framework which accepts
+as input a Fortran 95 stencil expression, and generates tuned parallel
 implementations in Fortan, C, or CUDA. The system uses an IR to
 explore auto-tuning transformations, and has an SMP backend code
 generator. They demonstrate their system on 4 architectures using 3
