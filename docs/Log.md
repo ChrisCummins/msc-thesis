@@ -7784,3 +7784,13 @@ TODO:
 
 * Consider whether we need to implement a tie-breaker for runtime
   regression classification.
+
+
+## Tuesday 14th
+
+Experiment status:
+
+* florence - Running
+* cec - Completed first run.
+* whz5 - Finished
+* monza - Queued. Looks like the server's in use at the minute.
