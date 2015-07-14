@@ -276,6 +276,10 @@ scenario:
 W_{training} \nsubseteq \cup \{ W_{legal}(s) | s \in S_{testing} \}
 \end{equation}
 
+\TODO{2 solutions: satisfy constraint at classification time
+  (i.e. error handlers), or at training time (i.e. one classifier per
+  max-wg-size)\ldots}
+
 As a result, it is possible that a classifier will predict a workgroup
 size that is invalid for a given scenario, $w \not\in W_{legal}(s)$.
 For these cases, I evaluate the effective of three fallback strategies
