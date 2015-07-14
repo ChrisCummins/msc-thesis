@@ -139,8 +139,7 @@ if HAVE_TEXCOUNT
 PhonyTargets += wc status
 
 wc: $(Document).wc
-	$(AM_V_at)$(SED) '1,/total/Id' < $<				\
-		| $(EGREP) --color=never '^(Words|Number)'
+	$(AM_V_at)$(top_srcdir)/scripts/parse_texcount.py < $<
 
 # Generate a word count file.
 $(Document).wc: $(DocumentSources)
