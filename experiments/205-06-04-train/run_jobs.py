@@ -29,7 +29,7 @@ import train
 errlog = open("jobsfailed.txt", "wa")
 runlog = open("jobscomplete.txt", "wa")
 
-def run_job(db, wgsize, program, args):
+def run_job(i, n, wgsize, program, args):
     wg_c, wg_r = unhash_params(wgsize)
 
     # Set environment variable.
@@ -42,7 +42,7 @@ def run_job(db, wgsize, program, args):
     cmd_str = "./{} {}".format(program, args.rstrip())
     cmd = cmd_str.split()
 
-    io.info("COMMAND:", io.colourise(io.Colours.RED, cmd_str))
+    io.info(i, "of", n, " - ", wgsize, "COMMAND:", io.colourise(io.Colours.RED, cmd_str))
     ret, _, _ = system.run(cmd, stdout=system.STDOUT, stderr=system.STDERR)
 
     if ret:
@@ -54,6 +54,8 @@ def run_job(db, wgsize, program, args):
 def get_jobs():
     joblist = "jobs/{}.txt".format(system.HOSTNAME)
 
+    io.debug(joblist)
+
     if fs.isfile(joblist):
         return open(joblist).readlines()
     else:
@@ -61,16 +63,15 @@ def get_jobs():
 
 
 def main():
-    db = _db.Database(fs.path("joblist.db"))
+    jobs = get_jobs()
+    io.info("Loaded", len(jobs), "jobs")
 
     # Build example programs.
     fs.cd(experiment.EXAMPLES_BUILD)
     make.make()
 
-    jobs = get_jobs()
-
-    for job in jobs:
-        run_job(db, *job.split("\t"))
+    for i,job in enumerate(jobs):
+        run_job(i, len(jobs), *job.split("\t"))
 
     lab.exit()
 
