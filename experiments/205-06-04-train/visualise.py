@@ -190,43 +190,6 @@ def main():
     fs.mkdir("img/oracle/kernels")
     fs.mkdir("img/oracle/datasets")
 
-    features_tab(db, experiment.TAB_ROOT)
-
-    #####################
-    # ML Visualisations #
-    #####################
-    visualise_classification_job(db, "xval")
-    visualise_classification_job(db, "arch")
-    visualise_classification_job(db, "xval_real")
-    visualise_classification_job(db, "synthetic_real")
-
-    # Runtime regression accuracy.
-    visualise_regression_job(db, "xval")
-    visualise_regression_job(db, "arch")
-    visualise_regression_job(db, "xval_real")
-    visualise_regression_job(db, "synthetic_real")
-
-    # Whole-dataset plots
-    visualise.runtimes_variance(db, "img/runtime_variance.png", min_samples=30)
-    visualise.num_samples(db, "img/num_samples.png")
-    visualise.runtimes_range(db, "img/runtimes_range.png")
-    visualise.max_speedups(db, "img/max_speedups.png")
-    visualise.kernel_performance(db, "img/kernel_performance.png")
-    visualise.device_performance(db, "img/device_performance.png")
-    visualise.dataset_performance(db, "img/dataset_performance.png")
-    visualise.num_params_vs_accuracy(db, "img/num_params_vs_accuracy.png")
-    visualise.performance_vs_coverage(db, "img/performance_vs_coverage.png")
-    visualise.performance_vs_max_wgsize(db, "img/performance_vs_max_wgsize.png")
-    visualise.performance_vs_wgsize(db, "img/performance_vs_wgsize.png")
-    visualise.performance_vs_wg_c(db, "img/performance_vs_wg_c.png")
-    visualise.performance_vs_wg_r(db, "img/performance_vs_wg_r.png")
-    visualise.max_wgsizes(db, "img/max_wgsizes.png")
-    visualise.oracle_speedups(db, "img/oracle_speedups.png")
-
-    visualise.coverage(db, "img/coverage/coverage.png")
-    visualise.safety(db, "img/safety/safety.png")
-    visualise.oracle_wgsizes(db, "img/oracle/all.png")
-
     # Per-scenario plots
     for row in db.scenario_properties:
         scenario,device,kernel,north,south,east,west,width,height,tout = row
@@ -322,6 +285,43 @@ def main():
         visualise.safety(db, output, where=where, title=dataset)
         output = "img/oracle/datasets/{0}.png".format(i)
         visualise.safety(db, output, where=where, title=dataset)
+
+    #####################
+    # ML Visualisations #
+    #####################
+    features_tab(db, experiment.TAB_ROOT)
+
+    visualise_classification_job(db, "xval")
+    visualise_classification_job(db, "arch")
+    visualise_classification_job(db, "xval_real")
+    visualise_classification_job(db, "synthetic_real")
+
+    # Runtime regression accuracy.
+    visualise_regression_job(db, "xval")
+    visualise_regression_job(db, "arch")
+    visualise_regression_job(db, "xval_real")
+    visualise_regression_job(db, "synthetic_real")
+
+    # Whole-dataset plots
+    visualise.runtimes_variance(db, "img/runtime_variance.png", min_samples=30)
+    visualise.num_samples(db, "img/num_samples.png")
+    visualise.runtimes_range(db, "img/runtimes_range.png")
+    visualise.max_speedups(db, "img/max_speedups.png")
+    visualise.kernel_performance(db, "img/kernel_performance.png")
+    visualise.device_performance(db, "img/device_performance.png")
+    visualise.dataset_performance(db, "img/dataset_performance.png")
+    visualise.num_params_vs_accuracy(db, "img/num_params_vs_accuracy.png")
+    visualise.performance_vs_coverage(db, "img/performance_vs_coverage.png")
+    visualise.performance_vs_max_wgsize(db, "img/performance_vs_max_wgsize.png")
+    visualise.performance_vs_wgsize(db, "img/performance_vs_wgsize.png")
+    visualise.performance_vs_wg_c(db, "img/performance_vs_wg_c.png")
+    visualise.performance_vs_wg_r(db, "img/performance_vs_wg_r.png")
+    visualise.max_wgsizes(db, "img/max_wgsizes.png")
+    visualise.oracle_speedups(db, "img/oracle_speedups.png")
+
+    visualise.coverage(db, "img/coverage/coverage.png")
+    visualise.safety(db, "img/safety/safety.png")
+    visualise.oracle_wgsizes(db, "img/oracle/all.png")
 
     ml.stop()
 
