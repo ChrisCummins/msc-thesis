@@ -1,15 +1,4 @@
 \scriptsize
 \centering
 \rowcolors{2}{white}{gray!25}
-\begin{tabular}{ l l l l }
-  \hline
-  & \textbf{Description} & \textbf{Type} & \textbf{Cost}\\
-  \hline
-  $\bm{c}$ & Kernel compilation times & Host & Fixed \\
-  $\bm{p}$ & Skeleton prepare times & Host & Fixed \\
-  $\bm{u}$ & Host $\rightarrow$ Device transfers & Device & Fixed \\
-  $\bm{k}$ & Kernel execution times & Device & Iterative \\
-  $\bm{d}$ & Device $\rightarrow$ Host transfers & Device & Fixed \\
-  $\bm{s}$ & Devices $\leftrightarrow$ Host (sync) transfers & Host & Iterative \\
-  \hline
-\end{tabular}
+\input{gen/tab/stencil-runtime-components}

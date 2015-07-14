@@ -51,6 +51,14 @@ def create_hosts_table(output=None):
     rows = [row for row in reader]
     latex.table(rows, output=output, columns=header, escape=False)
 
+def create_stencil_runtime_components_table(output=None):
+    output = output or "gen/tab/stencil-runtime-components.tex"
+    reader = csv.reader(open("dat/stencil-runtime-components.csv"),
+                        delimiter="\t")
+    header = reader.next()
+    rows = [row for row in reader]
+    latex.table(rows, output=output, columns=header, escape=False)
+
 
 def create_devices_table(db, output=None):
     def _escape_name(name):
@@ -205,6 +213,7 @@ def main():
 
     # Tables.
     create_hosts_table()
+    create_stencil_runtime_components_table()
     create_devices_table(db)
     create_kernels_table(db)
     create_datasets_table(db)
