@@ -63,11 +63,11 @@ def get_jobs():
 def main():
     db = _db.Database(fs.path("joblist.db"))
 
-    jobs = get_jobs()
-
     # Build example programs.
     fs.cd(experiment.EXAMPLES_BUILD)
     make.make()
+
+    jobs = get_jobs()
 
     for job in jobs:
         run_job(db, *job.split("\t"))
