@@ -68,26 +68,36 @@ The key contributions of this thesis are:
 \item An empirical evaluation of the performance of workgroup size to
   parameterise high-level parallel patterns. We enumerate the
   optimisation space of workgroup size for SkelCL stencil kernels
-  using \input{gen/num_runtime_stats} test instances, showing how
-  choice of workgroup size has an average
-  $\input{gen/avg_possible_speedup}\times$ influence on runtime (max
-  $\input{gen/max_possible_speedup}\times$).
+  across \input{gen/num_runtime_stats} test instances, demonstrating
+  an average performance loss of
+  $\input{gen/avg_possible_speedup_perc}\%$ (max
+  $\input{gen/max_possible_speedup_perc}\%$) if workgroup size is not
+  correctly tuned.
 \item The development of \emph{OmniTune} --- an extensible,
   distributed autotuner. When tasked with selecting workgroup sizes of
-  stencil codes in SkelCL, the presented autotuner achieves an average
-  \fixme{XXX}$\times$ speedup over the best possible statically chosen
-  value, achieving \fixme{XXX}\% of the oracle performance.
+  stencil codes in SkelCL, the presented autotuner achieves
+  $\input{gen/best_avg_classification_performance}\%$ of the available
+  performance, providing an average
+  $\input{gen/best_avg_classification_speedup}\times$ speedup over the
+  best possible statically chosen value.
 \item The novel application of synthetic \TODO{(programatically
     generated?)} stencil codes for training machine learning-enabled
   autotuning. This has the advantages of reducing the cost of training
   while increasing the size of the space which can be explored. The
   effectiveness of this approach is demonstrated by training an
   testing an autotuner trained using synthetic benchmarks against
-  \input{gen/num_real_kernels} real world stencil codes, showing
-  \FIXME{sexy result goes here}.
+  \input{gen/num_real_kernels} real world stencil codes, achieving
+  $\input{gen/best_avg_synthetic_real_classification_performance}\%$
+  of the available performance, providing an average
+  $\input{gen/best_avg_synthetic_real_classification_speedup}\times$
+  speedup over the best possible statically chosen value.
 \item A comparison of multiple approaches to minimise the costs of
   effective autotuning. \TODO{flesh out: compare cost of full
     enumeration with that of classification and regression.}
+  % TODO: Unexpected results. By exploring a much larger space than is
+  % traditionally used, we find that workgroup sizes outside the
+  % expected norm (i.e. not a multiple of 32) can bring huge
+  % performance bonuses.
 \end{itemize}
 
 \section{Structure}
