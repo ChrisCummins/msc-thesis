@@ -247,10 +247,25 @@ autotuner only supports vector operations.
 \section{Code Generation and Autotuning of Stencil Codes}
 
 Stencil codes have a variety of computationally expensive uses from
-image processing to fluid dynamics. Efficient, tuned stencil kernels
+fluid dynamics to quantum mechanics. Efficient, tuned stencil kernels
 are highly sought after, and as such they have received much attention
 from autotuning research. \TODO{Some sense of timeline and scale of
   the field\ldots}
+
+\TODO{seminal work \cite{Bolz2003}}
+
+\TODO{\cite{Berkeley2009} Datta presents an application-specific
+  auto-tuner for stencils. 3D stencil problems are decomposed into
+  core blocks, sufficiently small to avoid last level cache capacity
+  misses. These are then decomposed to thread blocks, designed to
+  exploit common locality threads may have within a shared cache or
+  loca lmemory. Thread blocks are then decomposed to register blocks,
+  designed to take advantage of data level parallelism provided by
+  available registers. Data allocation is optimised on NUMA
+  systems. The performance evaluation considers speedups of various
+  optimisations with and without consideration for host/device
+  transfer overhead. Cited by 445.%
+}
 
 % A. Ganapathi, K. Datta, A. Fox, and D. Patterson, “A Case for
 % Machine Learning to Optimize Multicore Performance,” in First USENIX
