@@ -7794,3 +7794,59 @@ Experiment status:
 * cec - Completed first run.
 * whz5 - Finished
 * monza - Queued. Looks like the server's in use at the minute.
+
+
+## Monday 20th
+
+Notes from thesis first draft review with Hugh and Pavlos:
+
+* TODO: Implement MySQL back-end for collective tuning.
+* Explicitly state separate training from evaluation phases for
+  OmniTune.
+* Emphasise *collaborative* tuning to justify distributed tuning.
+* Abstract: down play the number of params.
+* Intro: don't put lit review as a contribution.
+* GPUs are *not* heterogeneous.
+* Fight for every line of listing. A listing indicates that I can't
+  come up with a better way to explain an idea.
+* Use pseudo-code to explain an algorithm *if it is my own*.
+* Replace example applications with a stencil example.
+* De-clutter any listings (import namespaces, omit all useless gumpf).
+* Proposed chapter structure:
+  4. What I did (including proc generation of stencils).
+  5. Experimental setup
+  6. Results
+* Move definition of CI into background.
+* Cite central limit theorem for why n >= 30.
+* For statistical soundness, plot CI divided by mean. Show that it's
+  below a certain threshold.
+* Don't use contractions.
+* Export all plots to PDF.
+* TODO: read about kernel estimation & t-tests.
+* Don't use line charts for plots of non-continuous functions. Use bar
+  charts, and add confidence intervals.
+* In the definition of *W_{safe}*, describe that coming up with a
+  sensible baseline is hard, since *S* is infinite in practise.
+* Use tri-surfs not heat maps.
+* Replace the shit-ugly plots with a plot of slowdown for each
+  scenario if we *only* use max workgroup size.
+* Evaluation - don't plot accuracy and invalidity on the same plot as
+  speedups, as this implies that they are comparable.
+* All plot captions need a title, and more of a description.
+* The "max speedups" plot is not clear. Consider plotting *slowdown*,
+  and sort from best to worst.
+* NEVER leave a machine idle! I should increase the size of the
+  workgroup space (say, using all values between 1-100), and keep
+  running until the deadline.
+* Using an uneven number of samples is fine, just report the minimum
+  number, and plot a fine-grained histogram of runtimes to justify the
+  Gaussian distribution assumption.
+
+Notes on poster:
+
+* This is a one-distance poster. It's OK to add bits of small detailed
+  text, as long as it doesn't clutter.
+* It has *some* aspects of good poster diagram (the flow between
+  centre diagram and the speech bubbles works), but it lacks a clear
+  *message*.
+* The section titles are not descriptive.
