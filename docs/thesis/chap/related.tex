@@ -249,49 +249,46 @@ autotuner only supports vector operations.
 
 Stencil codes have a variety of computationally expensive uses from
 fluid dynamics to quantum mechanics. Efficient, tuned stencil kernels
-are highly sought after, and as such they have received much attention
-from autotuning research. \TODO{Some sense of timeline and scale of
-  the field\ldots}
-
-\TODO{seminal work \cite{Bolz2003}}
-
-\TODO{\cite{Berkeley2009} Datta presents an application-specific
-  auto-tuner for stencils. 3D stencil problems are decomposed into
-  core blocks, sufficiently small to avoid last level cache capacity
-  misses. These are then decomposed to thread blocks, designed to
-  exploit common locality threads may have within a shared cache or
-  loca lmemory. Thread blocks are then decomposed to register blocks,
-  designed to take advantage of data level parallelism provided by
-  available registers. Data allocation is optimised on NUMA
-  systems. The performance evaluation considers speedups of various
-  optimisations with and without consideration for host/device
-  transfer overhead. Cited by 445.%
-}
+are highly sought after, with early work in \citeyear{Bolz2003} by
+\citeauthor{Bolz2003} demonstrating the capability of GPUs for
+massively parallel stencil operations~\cite{Bolz2003}. In the
+resulting years, stencil codes have received much attention from the
+performance tuning research community.
 
 % A. Ganapathi, K. Datta, A. Fox, and D. Patterson, “A Case for
 % Machine Learning to Optimize Multicore Performance,” in First USENIX
 % Workshop on Hot Topics in Parallelism (HotPar’09), 2009.
 \citeauthor{Ganapathi2009} demonstrated early attempts at autotuning
-multicore stencil kernels in~\cite{Ganapathi2009}, drawing from the
+multicore stencil codes in~\cite{Ganapathi2009}, drawing from the
 success of statistical machine learning techniques in the compiler
 community. They present an autotuner which can achieve performance
-within 1\% or up to 18\% better than that of a human expert after 2
-hours of running. From a space of 10 million configurations, they
-evaluate the performance of a randomly selected 1500, using Kernel
-Canonical Correlation Analysis (KCAA) to build correlations between
-tunable parameter values and measured performance values. Performance
-targets are L1 cache misses, TLB misses, cycles per thread, and power
-consumption. The choice of KCAA seems troubling, \TODO{reword\ldots}
-as model building complexity scales exponentially with the feature
-vector sizes. This is demonstrated in their experimental results, in
-which two hours are required to build the KCAA model for only 400
-seconds of benchmark data.
+within 1\% or up to 18\% better than that of a human expert. From a
+space of 10 million configurations, they evaluate the performance of a
+randomly selected 1500 combinations, using Kernel Canonical
+Correlation Analysis (KCAA) to build correlations between tunable
+parameter values and measured performance values. Performance targets
+are L1 cache misses, TLB misses, cycles per thread, and power
+consumption. The use of KCAA restricts the scalality of their system
+as the complexity of model building grows exponentially with the
+number of features. In their evaluation, the system requires two hours
+to build the KCAA model for only 400 seconds of benchmark data.
 
 They present a compelling argument for the use of energy efficiency as
 an optimisation target in addition to runtime, citing that it was the
 power wall that lead to the multicore revolution in the first
 place. Their choice of only 2 benchmarks and 2 platforms makes the
 evaluation of their autotuner a little limited.
+
+\citeauthor{Berkeley2009} targeted 3D stencils code performance
+in~\cite{Berkeley2009}. Stencils are decomposed into core blocks,
+sufficiently small to avoid last level cache capacity misses. These
+are then decomposed to thread blocks, designed to exploit common
+locality threads may have within a shared cache or local
+memory. Thread blocks are then decomposed to register blocks, designed
+to take advantage of data level parallelism provided by available
+registers. Data allocation is optimised on NUMA systems. The
+performance evaluation considers speedups of various optimisations
+with and without consideration for host/device transfer overhead.
 
 % Y. Zhang and F. Mueller, “Auto-generation and Auto-tuning of 3D
 % Stencil Codes on GPU clusters,” in Proceedings of the Tenth
@@ -336,16 +333,16 @@ phase for each program and architecture.
 % The majority of applications tested are memory bound. Does this
 % transfer to computer bound?
 
-\TODO{\citeauthor{Kamil2010} presents an auto-tuning framework which
-  accepts as input a Fortran 95 stencil expression, and generates
-  tuned parallel implementations in Fortan, C, or CUDA. The system
-  uses an IR to explore auto-tuning transformations, and has an SMP
-  backend code generator. They demonstrate their system on 4
-  architectures using 3 benchmarks, with speedups of up to x22 over
-  serial. The CUDA code generator only uses global memory (!!). Also,
-  there's no real search engine. They randomly enumerate a subset of
-  the optimisation space, and then record only a single execution time
-  (!!!), reporting the fastest. Cited by 127.~\cite{Kamil2010}}
+\citeauthor{Kamil2010} presents an autotuning framework which accepts
+as input a Fortran 95 stencil expression and generates tuned
+shared-memory parallel implementations in Fortan, C, or CUDA. The
+system uses an IR to explore autotuning transformations, enumerating a
+subset of the optimisation space and recording only a single execution
+time for each configuration, reporting the fastest. They demonstrate
+their system on 4 architectures using 3 benchmarks, with speedups of
+up to x22 over serial. The CUDA code generator does not optimise for
+GPU memory hierarchy, using only global memory. There is no directed
+search or cross-program learning.
 
 \paragraph{PATUS} \TODO{In~\cite{Christen2011},
   \citeauthor{Christen2011} presents a DSL for expressing stencil
