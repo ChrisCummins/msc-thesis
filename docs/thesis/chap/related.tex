@@ -124,24 +124,25 @@ a search engine to optimise parameters: \cite{Bilmes1997}}
 % Structures. In Proceedings of the 8th ACM International Conference
 % on Autonomic Computing (pp. 11–20). New York, NY, USA:
 % ACM. doi:10.1145/1998582.1998587
-%
+\TODO{Online reinforcement learning for optimising data structures
+  online, \cite{Tesauro2005}}
+
 % Tesauro, G. (2005). Online Resource Allocation Using Decompositional
 % Reinforcement Learning. In AAAI (pp. 886–891).
-\paragraph{Reinforcement learning} \TODO{\cite{Eastep2011},
-  \cite{Tesauro2005}}
+\TODO{Reinforcement learning for resource allocation~\cite{Eastep2011}}
 
 % W. F. Ogilvie, P. Petoumenos, Z. Wang, and H. Leather, “Intelligent
 % Heuristic Construction with Active Learning,” in 18th International
 % Workshop on Compilers for Parallel Computing, 2015.
-\paragraph{Active Learning} \TODO{Using Active Learning to speed up
-  the learning of compiler heuristics~\cite{Ogilvie2015}. Towards
-  online auto-tuning, albeit only with binary optimisation parameter.}
+\TODO{Using Active Learning to speed up the learning of compiler
+  heuristics~\cite{Ogilvie2015}. Towards online auto-tuning, albeit
+  only with binary optimisation parameter.}
 
 
 \section{Performance Tuning for Heterogeneous Parallelism}
 
 Performance tuning of GPGPU programming is a nascent field,
-\TODO{\ldots}
+\todo{\ldots}
 
 % S. Ryoo, C. I. Rodrigues, S. S. Baghsorkhi, S. S. Stone, D. B. Kirk,
 % and W. W. Hwu, “Optimization principles and application performance
@@ -311,13 +312,14 @@ GPUs~\cite{Holewinski2012,Phillips2010}. The dominating parameter is
 shown to be block dimensions, followed by block size, then read only
 memory.
 
-% FIXME: This section isn't really relevant.
-An unfortunate limitation of their system is that they do not support
-multi-GPU execution within a single node, instead using message
-passing in a cluster. This rules out the possible benefits of
-performing loop compaction across stencil iterations, an optimisation
-which has shown to be beneficial for multi-GPU performance
-in~\cite{Lutz2013}.
+% THIS PARAGRAPH ISN'T REALLY RELEVANT:
+%
+% An unfortunate limitation of their system is that they do not support
+% multi-GPU execution within a single node, instead using message
+% passing in a cluster. This rules out the possible benefits of
+% performing loop compaction across stencil iterations, an optimisation
+% which has shown to be beneficial for multi-GPU performance
+% in~\cite{Lutz2013}.
 
 The DSL presented in the paper is limited to expressing only Jacobi
 Stencils applications. Critically, their autotuner requires a full
@@ -334,40 +336,42 @@ phase for each program and architecture.
 % The majority of applications tested are memory bound. Does this
 % transfer to computer bound?
 
-\citeauthor{Kamil2010} presents an auto-tuning framework which accepts
-as input a Fortran 95 stencil expression, and generates tuned parallel
-implementations in Fortan, C, or CUDA. The system uses an IR to
-explore auto-tuning transformations, and has an SMP backend code
-generator. They demonstrate their system on 4 architectures using 3
-benchmarks, with speedups of up to x22 over serial. The CUDA code
-generator only uses global memory (!!). Also, there's no real search
-engine. They randomly enumerate a subset of the optimisation space,
-and then record only a single execution time (!!!), reporting the
-fastest. Cited by 127.~\cite{Kamil2010}
+\TODO{\citeauthor{Kamil2010} presents an auto-tuning framework which
+  accepts as input a Fortran 95 stencil expression, and generates
+  tuned parallel implementations in Fortan, C, or CUDA. The system
+  uses an IR to explore auto-tuning transformations, and has an SMP
+  backend code generator. They demonstrate their system on 4
+  architectures using 3 benchmarks, with speedups of up to x22 over
+  serial. The CUDA code generator only uses global memory (!!). Also,
+  there's no real search engine. They randomly enumerate a subset of
+  the optimisation space, and then record only a single execution time
+  (!!!), reporting the fastest. Cited by 127.~\cite{Kamil2010}}
 
-\paragraph{PATUS} In~\cite{Christen2011}, \citeauthor{Christen2011}
-presents a DSL for expressing stencil codes, a C code generator, and
-an autotuner for exploring the optimisation space, using blocking and
-vectorisation strategies. Pro: Supports arbitrarily high dimensional
-grids. They introduce *2* new DSLs without comment on why they were
-needed. This is a huge price of entry for anyone who actually wants to
-*use* PATUS to solve problems, and a decision that I think they could
-have justified better. They provide nice and concise explanations of
-stencil codes and the types of optimisation methods used by other
-autotuners (ATLAS, FLAME, FFTW, SPIRAL). However, they *barely*
-explain their own, saying only that they perform *either* an
-exhaustive, multi-run Powell, Nelder Mead, or evolutionary algorithms.
-Their evaluation uses 6 benchmarks, and 3 architectures. Only 1 of
-those is a GPU. It would have been nice to shown performance across
-GPU architectures. From the perspective of autotuning, the paper comes
-as across quite weak: They do not present an "oracle" performance, so
-we can't compare the quality of their autotuner compared to it. They
-don't show how the optimal tunable parameter values vary across
-results, so they don't demonstrate how autotuning is *necessary*
-(maybe there's one single value which works well for all
-results?). They do not give any indication of convergence time of
-their autotuner. They do not report the number of different
-combinations that their autotuner tries.
+\paragraph{PATUS} \TODO{In~\cite{Christen2011},
+  \citeauthor{Christen2011} presents a DSL for expressing stencil
+  codes, a C code generator, and an autotuner for exploring the
+  optimisation space, using blocking and vectorisation
+  strategies. Pro: Supports arbitrarily high dimensional grids. They
+  introduce *2* new DSLs without comment on why they were needed. This
+  is a huge price of entry for anyone who actually wants to *use*
+  PATUS to solve problems, and a decision that I think they could have
+  justified better. They provide nice and concise explanations of
+  stencil codes and the types of optimisation methods used by other
+  autotuners (ATLAS, FLAME, FFTW, SPIRAL). However, they *barely*
+  explain their own, saying only that they perform *either* an
+  exhaustive, multi-run Powell, Nelder Mead, or evolutionary
+  algorithms.  Their evaluation uses 6 benchmarks, and 3
+  architectures. Only 1 of those is a GPU. It would have been nice to
+  shown performance across GPU architectures. From the perspective of
+  autotuning, the paper comes as across quite weak: They do not
+  present an "oracle" performance, so we can't compare the quality of
+  their autotuner compared to it. They don't show how the optimal
+  tunable parameter values vary across results, so they don't
+  demonstrate how autotuning is *necessary* (maybe there's one single
+  value which works well for all results?). They do not give any
+  indication of convergence time of their autotuner. They do not
+  report the number of different combinations that their autotuner
+  tries.}
 
 % T. Lutz, C. Fensch, and M. Cole, “PARTANS: An Autotuning Framework
 % for Stencil Computation on Multi-GPU Systems,” ACM

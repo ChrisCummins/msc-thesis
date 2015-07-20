@@ -372,6 +372,54 @@ requires maximising the output of the regressor:
 \label{alg:autotune-hybrid}
 \end{algorithm}
 
+\section{Procedural Generation of Stencil Codes}
+
+One challenge of performing empirical performance evaluations is
+gathering enough applications to ensure meaningful
+comparisons. Synthetic benchmarks are a popular method for
+circumventing this issue, by comparing the performance of artificial
+workloads. The automatic generation of such benchmarks has clear
+benefits for reducing evaluation costs; however, creating meaningful
+benchmark programs is a difficult problem if we are to avoid the
+problems of redundant computation and produce provable halting
+benchmarks (\FIXME{Citations needed, although there will need to be a
+  more extensive review of this in the related work chapter}).
+
+In practise, stencil codes exhibit many common traits: they have a
+tightly constrained interface, predictable memory access patterns, and
+well defined input and output data types. This can be used to create a
+confined space of possible stencil codes by enforcing upper and lower
+bounds on properties of the codes which can not normally be guaranteed
+for general-purpose programs, e.g. the number of floating point
+operations. By doing so, it is possible to create a system to
+programatically generate synthetic stencil workloads which can
+\TODO{\ldots}.
+
+One motivation for the use of synthetic benchmarks is that for the
+purposes of autotuning, generating a large set of synthetic benchmarks
+can address the ``small $n$, large $P$'' problem, which describes the
+difficulty of statistical inference in spaces for which the set of
+possible hypotheses $P$ is significantly larger than the number of
+observations $n$\CitationNeeded{}. Creating parameterised, synthetic
+benchmarks, it is possible to explore a much larger set of the space
+of possible stencil codes than if relying solely on reference
+applications, for example, to evaluate the performance impact of
+highly irregular stencil shapes.
+
+\FIXME{The synthetic benchmarks I've used aren't actually
+  \emph{procedurally} generated. I'll either need to implement a
+  stencil generator, or failing that, describe my method for creating
+  the synthetic benchmarks and move the discussion of procedurally
+  generated stencils into the future work section.}
+
+The synthetic benchmarks used in this thesis are parameterised by
+stencil shape (one parameter for each of the four directions), input
+and output data types (either integers, or single or double precision
+floating points), and \emph{complexity} --- a simple metric for
+indicating the desired number of memory accesses and instructions per
+stencil.
+
+
 \section{Summary}
 
 This chapter has described the design and implementation of OmniTune,

@@ -13,25 +13,26 @@ cases. This results in implementations that target the general case
 and cannot provide the performance advantages that are gained from
 tuning low level optimisation parameters.
 
-This thesis examines the effect of one such optimisation parameter ---
-setting the workgroup size of OpenCL kernels --- on the performance of
-stencil codes on GPUs and CPUs. Through an empirical evaluation of
-\input{gen/num_runtime_stats} test cases, I demonstrate that there is
-no static value or simple heuristic which provides portable
-performance across the range of architectures, kernels, and data sets
-which Algorithmic Skeletons must target.
+To address this, I present OmniTune - an extensible and distributed
+autotuner for stencil skeletons on CPUs and GPUs. Targeting the
+workgroup size of OpenCL kernels, I demonstrate in a comprehensive
+evaluation of \input{gen/num_runtime_stats} test cases that simple
+heuristics cannot provide portable performance across the range of
+architectures, kernels, and datasets which Algorithmic Skeletons must
+target.
 
-To address this, I present an extensible and distributed autotuner
-that performs adaptive tuning of workgroup size at runtime. The
-presented autotuner uses offline training with synthetic stencils to
-rapidly sample the optimisation space. In an evaluation of
-\input{gen/num_scenarios} combinations of architecture and benchmark,
-the autotuner is able to achieve
+OmniTune uses procedurally generated synthetic benchmarks and machine
+learning to predict workgroup sizes for unseen programs. In an
+evaluation of \input{gen/num_scenarios} combinations of programs,
+architectures, and datasets, OmniTune is able to achieve
 $\input{gen/best_avg_classification_performance}\%$ of the available
 performance, providing an average speedup of
 $\input{gen/best_avg_classification_speedup}\times$ (max
 $\input{gen/best_max_classification_speedup}\times$) over the best
 possible performance which can be achieved without autotuning.
+
+% TODO: Contrast with human expert.
+
 
 \ifdraft{
   \newpage
@@ -39,6 +40,10 @@ possible performance which can be achieved without autotuning.
   \begin{itemize}
   \item \textcolor{blue}{Blue} figures and all graphs are auto
     generated and may change before submission.
+  \item Addressed all comments from Hugh's first draft review on
+    20/7/2015.
+  \item Chapter restructuring: after related work, open with a ``what
+    I've done'' chapter, then methodology, then results.
   \item There are significant chunks of work I need to do before I can
     do a ``complete'' write-up. Notable missing stuff (and target
     deadlines):

@@ -265,16 +265,26 @@ z_{ij} =
 
 \subsubsection{Stencil}
 
+\TODO{Define border region (sometimes referred to as halo region).}
+
 Stencils are patterns of computation which operate on uniform grids of
 data, where the value of each cell is updated based on its current
-value and the value of one or more neighbouring elements, which we'll
-call the border region. In SkelCL, users provide the function which
-updates a cell's value, and SkelCL orchestrates the parallel execution
-of these functions. Each cell maps to a single work item; and this
-collection of work items is then divided into \emph{workgroups} for
-execution on the target hardware.
+value and the value of one or more neighbouring elements, called the
+border region. In SkelCL, a 2D stencil skeleton allows users to
+provide a function which updates a cell's value, and SkelCL
+orchestrates the parallel execution of this function across all
+cells. Each cell maps to a single work item; and this collection of
+work items is then divided into \emph{workgroups} for execution on the
+target hardware.
 
-Given a customising function $f$, a \emph{stencil shape} $S$, and an
+In SkelCL, the border region is described by a \emph{stencil shape},
+which defines an $i \times j$ rectangular region about each cell which
+is used to update the cell value. Stencil shapes may be asymmetrical,
+and a defined in terms of the number of cells in the border region to
+the north, east, south, and west of each cell, shown in
+Figure~\xref{\TODO{Diagram of 3 stencil shapes.}}
+
+Given a customising function $f$, a stencil shape $S$, and an
 $n \times m$ matrix:
 
 \begin{equation}
@@ -318,6 +328,9 @@ g(f, S, M, t) =
 A Stencil operation in which the size of the stencil shape $S$ is zero
 in every direction is functionally equivalent to a Map operation.
 
+\TODO{Explain border handling logic\ldots Add a diagram of the 3
+  border handling techniques.}
+
 
 \subsection{Container Types}
 
@@ -345,8 +358,10 @@ files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
 
 \TODO{Algorithm listing for stencil}
 
+
 \subsubsection{Stencil}
 
+% TODO: This listing isn't required.
 \lstinputlisting[
   language=C++,
   float,
@@ -357,126 +372,24 @@ files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
   }
 ]{dat/skelcl-stencil-interface.cpp}
 
+
 \subsubsection{StencilSequence}
 
 \TODO{Iterative stencils, and sequences of stencils}
 
-\subsection{Example Applications}
 
-% Three example programs
-
-% ease of use
-% skeleton composition
-% stencils
+\subsection{Example Application}
 
 \TODO{%
-  Provide definition of three simple example programs, then code
-  listings for SkelCL implementations and a comparison of runtimes
-  using a decent GPU vs. sequential CPU. Preferably also hand coded
-  OpenCL?%
+  Provide definition of an example stencil program, a code listing for
+  SkelCL implementation, and a comparison of runtimes using a decent
+  GPU vs. sequential CPU. Preferably also hand coded OpenCL?%
 }
 
-\subsubsection{Application 1: Mandelbrot Set}
 
-\TODO{Definition, and performance results.}
+\subsection{Workgroup size and Stencil Codes}
 
-% \TODO{%
-%   The easy way to do this is to write a program which will iterate
-%   over the pixels in your image and calculate their value. This is
-%   easy, intuitive, and it's around 50 lines of code. The downside is
-%   it is slow.%
-% }
-
-% \todo{%
-%   So in the name of performance you start browsing around for ways to
-%   make this fast. You notice a lot of buzz about "heterogeneous
-%   parallelism", so you decide to give it a shot and dabble in a bit of
-%   GPGPU programming. After reading through some tutorials and the API
-%   documentation you find that all you have to do is: add a few OpenCL
-%   headers, select a platform, select a device, create a command queue,
-%   compile a program, create a kernel, create a buffer, enqueue a
-%   kernel, read the buffer, handle any errors... and you are
-%   done. This blows your single program out to around 200 lines of
-%   code, but it runs 20 times faster. In the age of multicores you're
-%   going to need that extra performance, but as a developer you may
-%   not be willing to pay the high price that this demands.%
-% }
-
-% \todo{%
-%   Algorithmic Skeletons offer a solution; by abstracting common
-%   patterns of communication, they allow libraries and language authors
-%   to provide robust parallel implementations which allow users to
-%   focus on solving problems, rather than having to micro-manage the
-%   tricky coordination of parallel resources. That's all well and good,
-%   but if you said to me "Chris, surely you could illustrate this point
-%   better using a cartoon skeleton doing a jig", I'd be inclined to
-%   agree with you.%
-% }
-
-% \todo{%
-%   So you take your new-found knowledge of Algorithmic Skeletons and
-%   apply it to your Mandelbrot problem. You realise that calculating
-%   each pixel is just a Map operation, so, armed with a Map skeleton,
-%   you go back to your sequential Mandelbrot code and make the
-%   necessary adjustments to use Skeletons. Now you have a program which
-%   looks just like your sequential version, but harnesses all the power
-%   of the GPU to provide near-``hand tuned'' levels of performance.%
-% }
-
-% \todo{%
-%   I say near hand tuned performance because clearly it's not quite as
-%   fast as when you did all of that OpenCL programming yourself. Why is
-%   that? The reason is that by their nature, Algorithmic Skeletons are
-%   forced to forgo low-level tuning in order to generalise for all
-%   cases. If you think how hard it is to select the effective
-%   optimisations for a program, imagine trying to achieve that at the
-%   level of a patterns library for all possible use-cases! For this
-%   reason, I would argue that if we want to achieve both the of ease of
-%   use of skeletons and the high performance of hand tuned code, we
-%   need autotuning.%
-% }
-
-\subsubsection{Application 2: Dot Product}
-
-\TODO{Definition, and performance results.}
-
-\lstset{language=C++}
-\begin{lstlisting}[
-  float,
-  floatplacement=t,
-  basicstyle=\scriptsize,
-  caption={Example program to calculate dot product using SkelCL.}
-]
-#include <SkelCL/SkelCL.h>
-#include <SkelCL/Vector.h>
-#include <SkelCL/Zip.h>
-#include <SkelCL/Reduce.h>
-
-int main(int argc, char* argv[]) {
-  // Initialise SkelCL to use any device.
-  skelcl::init(skelcl::nDevices(1).deviceType(skelcl::device_type::ANY));
-
-  // Define the skeleton objects.
-  skelcl::Zip<int(int, int)> mult("int func(int x, int y) { return x * y; }");
-  skelcl::Reduce<int(int)> sum("int func(int x, int y) { return x + y; }", "0");
-
-  // Create two vectors A and B of length "n".
-  const int n = 1024; skelcl::Vector<int> A(n), B(n);
-  skelcl::Vector<int>::iterator a = A.begin(), b = B.begin();
-  while (a != A.end()) { *a = rand() % n; ++a; *b = rand() % n; ++b; }
-
-  // Invoke skeleton: x = A . B
-  int x = sum(mult(A, B)).first();
-
-  return 0;
-}
-\end{lstlisting}
-
-\subsubsection{Application 3: Gaussian Blur}
-
-\TODO{Definition, listing, and performance results.}
-
-\subsection{Grid Decomposition of Stencil Codes}
+% TODO:
 
 In OpenCL, kernels are mapped to work-items for execution on the
 processing units of GPUs and CPUs. These work-items are then grouped
@@ -494,7 +407,10 @@ facilitate this, the value of all elements within a workgroup are
 stored in fast local memory, which greatly reduces the read latency
 for GPUs. Changing the workgroup size affects the amount of local
 memory required for each workgroup, which in turn affects the number
-of workgroups which may be simultaneously active.
+of workgroups which may be simultaneously active. \TODO{Explain (or
+  rephrase) why this isn't a curve that gets better as the memory size
+  goes up until a threshold after which it falls off. Would binary
+  search work?}
 
 \TODO{%
   While the user is clearly in control of the type of work which is
@@ -506,3 +422,9 @@ of workgroups which may be simultaneously active.
 }
 
 \TODO{Add diagram showing workgroup decomposition.}
+
+
+\section{Statistics}
+
+
+\section{Machine Learning}
