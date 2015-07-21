@@ -319,8 +319,8 @@ def main():
 
     # Whole-dataset plots
     visualise.runtimes_variance(db, fs.path(experiment.IMG_ROOT,
-                                            "runtime_variance.png",
-                                            min_samples=30))
+                                            "runtime_variance.png"),
+                                min_samples=30)
     visualise.num_samples(db, fs.path(experiment.IMG_ROOT,
                                       "num_samples.png"))
     visualise.runtimes_range(db, fs.path(experiment.IMG_ROOT,
