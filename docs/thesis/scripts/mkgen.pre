@@ -6,6 +6,11 @@ import csv
 import re
 
 import numpy as np
+import matplotlib
+
+# Use Agg backend to silence warnings on OS X.
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -248,54 +253,55 @@ def main():
 
     # Heatmaps
     figsize=(3.28, 2.7)
-    visualise.oracle_wgsizes(db, "gen/img/oracle_param_space.png",
+    visualise.oracle_wgsizes(db, "gen/img/oracle_param_space.pdf",
                              figsize=figsize, cmap="Reds", title=None,
                              vmax=0.10 # clamp range
     )
-    visualise.max_wgsizes(db, "gen/img/max_wgsizes.png",
+    visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf",
                           figsize=figsize, cmap="Blues", title=None)
 
-    visualise.runtimes_range(db, "gen/img/min_max_runtimes.png",
+    visualise.runtimes_range(db, "gen/img/min_max_runtimes.pdf",
                              title="", figsize=(4, 2.5))
 
     # Trend plots
     trend_size=(5.8,2)
-    visualise.oracle_speedups(db, "gen/img/oracle_speedups.png", title="",
+    visualise.oracle_speedups(db, "gen/img/oracle_speedups.pdf", title="",
                               figsize=trend_size)
-    visualise.max_speedups(db, "gen/img/max_speedups.png", title="",
+    visualise.max_speedups(db, "gen/img/max_speedups.pdf", title="",
                            figsize=trend_size)
-    visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.png",
+    visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.pdf",
                                      title="", figsize=trend_size)
-    visualise.performance_vs_coverage(db, "gen/img/params_summary.png",
+    visualise.performance_vs_coverage(db, "gen/img/params_summary.pdf",
                                       title="", figsize=trend_size)
 
     # Scatter plots
     figsize=(5.8,3)
-    visualise.performance_vs_max_wgsize(db, "gen/img/performance_max_wgsize.png",
+    visualise.performance_vs_max_wgsize(db, "gen/img/performance_max_wgsize.pdf",
                                         title="", figsize=figsize)
     figsize=(3,2.2) # Half-width
-    visualise.performance_vs_wg_c(db, "gen/img/performance_wg_c.png",
+    visualise.performance_vs_wg_c(db, "gen/img/performance_wg_c.pdf",
                                   title="", figsize=figsize)
-    visualise.performance_vs_wg_r(db, "gen/img/performance_wg_r.png",
+    visualise.performance_vs_wg_r(db, "gen/img/performance_wg_r.pdf",
                                   title="", figsize=figsize)
 
     # Boxplots
     figsize=(5.8,3) # Full page width
-    visualise.kernel_performance(db, "gen/img/performance_kernels.png",
+    visualise.kernel_performance(db, "gen/img/performance_kernels.pdf",
                                  title="", figsize=figsize)
     figsize=(5.8/2,3) # Half-width
-    visualise.device_performance(db, "gen/img/performance_devices.png",
+    visualise.device_performance(db, "gen/img/performance_devices.pdf",
                                  title="", figsize=figsize)
-    visualise.dataset_performance(db, "gen/img/performance_datasets.png",
+    visualise.dataset_performance(db, "gen/img/performance_datasets.pdf",
                                   title="", figsize=figsize)
 
     # ML Visualisations
     figsize=(5.8,2.5)
-    visualise.classification(db, "gen/img/classification-xval.png", job="xval",
+    visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
                              title="", figsize=figsize)
-    visualise.runtime_regression(db, "gen/img/runtime-regression-xval.png", job="xval",
-                                 title="", figsize=figsize)
-    visualise.err_fn_speedups(db, "random_fn", "gen/img/classification-xval-random.png",
+    visualise.runtime_regression(db, "gen/img/runtime-regression-xval.pdf",
+                                 job="xval", title="", figsize=figsize)
+    visualise.err_fn_speedups(db, "random_fn",
+                              "gen/img/classification-xval-random.pdf",
                               job="xval", sort=True, title="", figsize=figsize)
 
 
