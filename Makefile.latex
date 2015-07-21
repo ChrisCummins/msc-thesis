@@ -256,17 +256,17 @@ endef
 
 define bibtool
 	(echo -e "\nCOMMAND: $(BIBTOOL) -x $1 -o $2\n" >>$(DocumentBuildLog); \
-	 $(BIBTOOL) -v -x $1 -o $2 &>>$(DocumentBuildLog) || $(BIBTOOL) -v -x $1 -o $2)
+	 $(BIBTOOL) -v -x $1 -o $2 >$(DocumentBuildLog) 2>&1 || $(BIBTOOL) -v -x $1 -o $2)
 endef
 
 define cleanbib
 	(echo -e "\nCOMMAND: $(CLEANBIB) $1\n" >>$(DocumentBuildLog); \
-	 $(CLEANBIB) $1 &>>$(DocumentBuildLog) || $(CLEANBIB) $1)
+	 $(CLEANBIB) $1 >$(DocumentBuildLog) 2>&1 || $(CLEANBIB) $1)
 endef
 
 define hook
 	(echo -e "\nCOMMAND: $1\n" >>$(DocumentBuildLog); \
-	 $1 &>>$(DocumentBuildLog) || $1)
+	 $1 >$(DocumentBuildLog) 2>&1 || $1)
 endef
 
 # The LaTeX build target. This gnarly bit of shell hackery uses nested
