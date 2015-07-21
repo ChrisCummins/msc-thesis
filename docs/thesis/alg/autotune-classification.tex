@@ -4,7 +4,7 @@ $d$.
 \Ensure workgroup size $w$
 
 \Procedure{Default}{w, a, k, d}
-\Comment Use baseline as fallback.
+\Comment Use the best param from $W_{safe}$.
 \State $w \leftarrow \text{classify}(a, k, d)$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
@@ -15,6 +15,7 @@ $d$.
 \item[]
 
 \Procedure{Random}{w, a, k, d}
+\Comment Use a random param from $W_{legal}$.
 \State $w \leftarrow \text{classify}(a, k, d)$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
@@ -25,6 +26,7 @@ $d$.
 \item[]
 
 \Procedure{Reshape}{w, a, k, d}
+\Comment Coerce params to be legal.
 \State $w \leftarrow \text{classify}(a, k, d)$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
