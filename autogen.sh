@@ -16,9 +16,15 @@ autoconf_min=$(sed -n 's/^ *AC_PREREQ(\([0-9\.]*\)).*/\1/p' configure.ac)
 
 automake_min=$(sed -n 's/^ *AM_INIT_AUTOMAKE( *\[\? *\([0-9\.]*\).*/\1/p' configure.ac)
 
-test -n "$autoconf_min" || exit 127
-test -n "$automake_min" || exit 127
+if [ -z "$autoconf_min" ]; then
+    echo "Failed to get autoconf version from configure.ac!"
+    exit 127
+fi
 
+if [ -z "$automake_min" ]; then
+    echo "Failed to get automake version from configure.ac!"
+    exit 127
+fi
 
 ## $1 = program, eg "autoconf".
 ## Echo the version string, eg "2.59".
