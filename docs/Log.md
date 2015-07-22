@@ -7850,3 +7850,45 @@ Notes on poster:
   centre diagram and the speech bubbles works), but it lacks a clear
   *message*.
 * The section titles are not descriptive.
+
+
+## Wednesday 22nd
+
+Clang compilation fails on Pavlos' server:
+
+```
+$ echo "" | /home/chris/src/msc-thesis/skelcl/libraries/llvm/build/bin/clang -Dcl_clang_storage_class_specifiers -isystem libclc/generic/include -include clc/clc.h -target nvptx64-nvidia-nvcl -xcl -emit-llvm -c - -o -
+
+In file included from <built-in>:134:
+<command line>:2:10: fatal error: 'clc/clc.h' file not found
+#include "clc/clc.h"
+```
+
+Building libclc from source:
+
+```
+# I had to add some extra includes to find cassert.h: -I/usr/include/c++/4.8 -I/usr/include/x86_64-linux-gnu/c++/4.8/
+
+/home/chris/src/msc-thesis/skelcl/libraries/llvm/build//bin/clang++ -I/usr/include/c++/4.8 -I/usr/include/x86_64-linux-gnu/c++/4.8/ -MMD -MF utils/prepare-builtins.o.d -I/home/chris/src/msc-thesis/skelcl/libraries/llvm/include -I/home/chris/src/msc-thesis/skelcl/libraries/llvm/build/include -fPIC -fvisibility-inlines-hidden -Wall -W -Wno-unused-parameter -Wwrite-strings -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-uninitialized -Wnon-virtual-dtor -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MAC
+```
+
+OK fuck it this is not going to happen... I'll just copy of the
+"kernel_lookup" table from the oracle and skip the whole problem.
+
+To get a list of list of scenarios for which params "4x4" was not legal:
+
+```
+SELECT DISTINCT scenario FROM runtime_stats WHERE scenario NOT IN (
+    SELECT scenario FROM runtime_stats WHERE params="4x4"
+);
+```
+
+To remove any scenarios from runtime_stats where the param "4x4" was not legal:
+
+```
+SELECT Count(*) FROM runtime_stats WHERE scenario NOT IN (
+    SELECT DISTINCT scenario FROM runtime_stats WHERE scenario NOT IN (
+        SELECT scenario FROM runtime_stats WHERE params="4x4"
+    )
+);
+```
