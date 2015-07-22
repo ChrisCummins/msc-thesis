@@ -1,0 +1,43 @@
+# coding: utf-8
+from __future__ import division
+from __future__ import print_function
+import json
+import re
+from functools import partial
+from itertools import product
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy
+import seaborn as sns
+from matplotlib.ticker import FormatStrFormatter
+from scipy import stats
+import weka
+from weka.classifiers import Classifier as WekaClassifier
+from weka.classifiers import FilteredClassifier as WekaFilteredClassifier
+from weka.filters import Filter as WekaFilter
+from weka.core.classes import Random as WekaRandom
+from weka.core.dataset import Instances as WekaInstances
+import labm8 as lab
+from labm8 import fmt
+from labm8 import fs
+from labm8 import io
+from labm8 import math as labmath
+from labm8 import ml
+from labm8 import text
+from labm8.db import where
+import omnitune
+from omnitune.skelcl import db as _db
+from omnitune.skelcl import hash_params
+from omnitune.skelcl import unhash_params
+from omnitune.skelcl.migrate import migrate
+import experiment
+db = migrate(_db.Database(experiment.ORACLE_PATH))
+params = sorted([
+    (
+        param,
+        db.param_coverage(param),
+        db.perf_param_avg_legal(param)
+    )
+    for param in db.params
+    if db.perf_param_avg_legal(param) > 0
+], reverse=True, key=lambda x: (x[1], x[2], x[0]))
