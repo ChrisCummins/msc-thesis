@@ -63,7 +63,7 @@ def sample_heat_equation(devargs, iterations):
     ])
 
 
-def sample_simplebig(args, iterations=500):
+def sample_simplebig(args, iterations=250):
     """
     Run the SimpleBig program.
     """
@@ -72,7 +72,7 @@ def sample_simplebig(args, iterations=500):
     ])
 
 
-def run_real_benchmarks(iterations=500):
+def run_real_benchmarks(iterations=250):
     """
     Sample the space of real benchmarks.
     """
@@ -84,7 +84,7 @@ def run_real_benchmarks(iterations=500):
         sample_heat_equation(devargs, iterations)
 
 
-def run_synthetic_benchmarks(iterations=500):
+def run_synthetic_benchmarks(iterations=250):
     """
     Sample the space of synthetic benchmarks.
     """
@@ -101,22 +101,12 @@ def run_synthetic_benchmarks(iterations=500):
             sample_simplebig(args, iterations=iterations)
 
 
-def sample_space(iterations=500):
+def sample_space(iterations=250):
     """
     Sample the space of all benchmarks.
     """
     run_synthetic_benchmarks(iterations=iterations)
     run_real_benchmarks(iterations=iterations)
-
-
-def setup():
-    os.environ["OMNITUNE_OFFLINE_TRAINING"] = "1"
-    fs.cd(experiment.EXAMPLES_BUILD)
-
-    # Build sources.
-    ret, _, _ = make.make()
-    if ret:
-        labm8.exit(ret)
 
 
 def main():
