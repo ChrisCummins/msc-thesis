@@ -7872,23 +7872,30 @@ Building libclc from source:
 /home/chris/src/msc-thesis/skelcl/libraries/llvm/build//bin/clang++ -I/usr/include/c++/4.8 -I/usr/include/x86_64-linux-gnu/c++/4.8/ -MMD -MF utils/prepare-builtins.o.d -I/home/chris/src/msc-thesis/skelcl/libraries/llvm/include -I/home/chris/src/msc-thesis/skelcl/libraries/llvm/build/include -fPIC -fvisibility-inlines-hidden -Wall -W -Wno-unused-parameter -Wwrite-strings -Wno-missing-field-initializers -pedantic -Wno-long-long -Wno-uninitialized -Wnon-virtual-dtor -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MAC
 ```
 
-OK fuck it this is not going to happen... I'll just copy of the
-"kernel_lookup" table from the oracle and skip the whole problem.
+OK fuck it this is not going to happen... I'll just copy the
+"kernel_lookup" table from the oracle and skip all the faff of feature
+extraction.
 
-To get a list of list of scenarios for which params "4x4" was not legal:
-
-```
-SELECT DISTINCT scenario FROM runtime_stats WHERE scenario NOT IN (
-    SELECT scenario FROM runtime_stats WHERE params="4x4"
-);
-```
-
-To remove any scenarios from runtime_stats where the param "4x4" was not legal:
+To get a list of list of scenarios for which params "32x4" was not legal:
 
 ```
-SELECT Count(*) FROM runtime_stats WHERE scenario NOT IN (
-    SELECT DISTINCT scenario FROM runtime_stats WHERE scenario NOT IN (
-        SELECT scenario FROM runtime_stats WHERE params="4x4"
-    )
-);
+SELECT DISTINCT scenario FROM runtime_stats WHERE scenario NOT IN (SELECT scenario FROM runtime_stats WHERE params="32x4");
+```
+
+To remove any scenarios from runtime_stats where the param "32x4" was not legal:
+
+```
+SELECT Count(*) FROM runtime_stats WHERE scenario NOT IN (SELECT DISTINCT scenario FROM runtime_stats WHERE scenario NOT IN (SELECT scenario FROM runtime_stats WHERE params="32x4"));
+```
+
+```
+DELETE FROM scenarios WHERE id IN (SELECT DISTINCT scenario FROM runtime_stats WHERE scenario NOT IN (SELECT scenario FROM runtime_stats WHERE params="32x4"));
+DELETE FROM runtime_stats WHERE scenario IN (SELECT DISTINCT scenario FROM runtime_stats WHERE scenario NOT IN (SELECT scenario FROM runtime_stats WHERE params="32x4"));
+```
+
+Interesting scenario plots!
+
+```
+65c60f245d242dd01c3caf21cf7618e5bbb57422 <- what the flip is that pattern?
+91502cf12851f3178d7164d2a9b3552fdeafd8db <- bizarre triangular pattern
 ```
