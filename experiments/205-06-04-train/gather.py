@@ -53,7 +53,6 @@ def main():
     fs.mkdir(experiment.DATA_ROOT)
     fs.mkdir(experiment.DB_DEST)
 
-    cp_loc("~/data/msc-thesis/2015-06-07/oracle.db", "previous")
     cp_loc("~/.omnitune/skelcl.db", "cec")
     cp_rmt("dhcp-90-060")
     cp_rmt("brendel.inf.ed.ac.uk", path="~/florence.db", name="florence")
