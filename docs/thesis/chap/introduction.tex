@@ -1,41 +1,60 @@
 Parallelism is increasingly seen as the only viable approach to
 maintaining continued performance improvements in a multicore
-world. Core counts in all types of computers from mobile to
-supercomputers have been steadily increasing, with most machines
-having a graphics card. Despite this shift in the hardware paradigm,
-the adoption of parallel programming practises has been slow and
-awkward due to the prohibitive complexity and low level of
-abstractions available to programmers.
+world. Core counts in all types of devices from mobile to
+supercomputers are increasing, and devices are becoming increasingly
+heterogeneous. Despite this shift in the hardware paradigm, the
+adoption of parallel programming practises has been slow and awkward
+due to the prohibitive complexity and low level of abstractions
+available to developers.
 
-Programmers today who want to take advantage of the available
-processing power of a machine must be intimiately knowledgable of the
-operating system or language-specific threading model and
-synchronisation primitives, and at least one system for programming
-the GPU (which is almost certainly an entirely different programming
-language). Coupled with the inherent cognitive overhead of reasoning
+To fully harness the processing power of a modern machine, programmers
+must be equipped with an intimiate knowledge of the operating system
+or language-specific threading model and synchronisation primitives,
+and at least one system for programming heterogeneous devices (almost
+certainly using an entirely different programming language to the host
+device). Coupled with the inherent cognitive overhead of reasoning
 about and debugging parallel programs, this has led to the
 understandable belief that parallel programming is only for the
-elite. \fixme{We need some way of improving accessibility}
+elite. More than ever, tools are needed to make parallel programming
+accessible, without sacrificing performance.
+
+SkelCL addresses this programmability challenge by allowing users to
+easily harness the power of GPUs and CPUs for data parallel
+computing~\cite{Steuwer2011}. To achieve this, SkelCL separates the
+concerns of problem solving and coordinating heterogeneous devices,
+achieving this abstraction using Algorithmic Skeletons.
 
 Introduced by \citeauthor{Cole1989} in \citeyear{Cole1989},
-Algorithmic Skeletons offer to simplify the task of parallel
-programming by abstracting common patterns of communication, providing
-parallelised implementations of higher order
-functions~\cite{Cole1989}. Algorithmic Skeletons capture patterns of
-communication, and are parameterised with ``muscle functions'' by the
-programmer that implement the problem specific logic.
+Algorithmic Skeletons simplify the task of parallel programming by
+abstracting common patterns of communication, providing parallel
+implementations of higher order functions~\cite{Cole1989}. Algorithmic
+Skeletons capture patterns of communication, and are parameterised by
+the programmer with ``muscle functions'' that implement problem
+specific logic. In doing so, they allow users to focus on solving the
+problem at hand, while the Algorithmic Skeletons are responsible for
+coordinating the parallel execution.
 
-\TODO{The problem with threads\ldots \cite{Lee2006}}
 
-GPUs enable massive performance through heterogeneous
-parallelism. However, developing software for these devices is
-challenging, as the programming models provided by OpenCL and CUDA
-require a low level knowledge of the underlying architecture to
-properly exploit the potential performance. SkelCL addresses this
-programmability challenge by providing high level patterns for common
-data parallel operations. This thesis demonstrates that the parameters
-which are necessarily abstracted by such skeletons can have a huge
-impact on performance.
+\section{The Problem}
+
+The cost of ease of use is performance. With each increase in the
+level of the abstraction, implementation details are hidden from the
+user which can be significantly impactful on performance. In SkelCL,
+one such implementation detail which is abstracted from the user is
+the selection of workgroup size --- a parameter of OpenCL kernels
+which controls the mapping of threads to parallel execution
+devices. Hiding such low level details from the user is key to the
+goal of separating problem solving logic from coordination logic, so
+it is the responsiblity of SkelCL to set the value of this parameter
+to ensure good performance automatically.
+
+Unfortunately, static values and simple heuristics fail at this
+goal. Many optimisation parameters are sensitive to the factors
+outside the influence of the developers control, such as the type of
+program, the data being operated on, and the underlying hardware. This
+makes portable performance tuning a difficult task, and it has
+tradtional been the responsibility to domain specialists to
+labourisiously hand tune hot code sections on a per-case basis.
 
 The ambition of this thesis is to demonstrate that, using machine
 learning, we can develop self-tuning systems which closely approach
@@ -43,40 +62,10 @@ learning, we can develop self-tuning systems which closely approach
 which traditionally came at the cost of hundreds of man hours of work
 from expert programmers to develop.
 
-% B. Catanzaro and K. Keutzer, “Parallel computing with patterns and
-% frameworks,” XRDS Crossroads, ACM Mag. Students, vol. 17, no. 5,
-% p. 22, 2010.
-% \todo{\cite{Catanzaro2010}}
-
-\note{There is already a wealth of research literature on the topic
-  autotuning which begs the question, why isn't the majority of
-  software autotuned? The bulk of autotuning research projects falls
-  prey of one of two shortcomings. Either they identify and develop a
-  methodology for tuning a particular optimisation space but then fail
-  to deliver a usable product, or they deliver an autotuner which
-  targets too specific of a niche to gather mainstream traction. This
-  projects attempts to address both of those shortcomings by expending
-  great effort to deliver a working implementation which users can
-  download and use without any setup costs, and by providing a modular
-  and extensible framework which allows rapid targeting of new
-  autotuning platforms, enabled by a shared autotuning logic and
-  distributed training data.}
-
-\note{The rationale for autotuning long running iterative skeleton
-  applications is that the longer the program runs, the smaller the
-  training data we can reasonably expect the user to gather. A typical
-  long running scientific program workload will only be run once, as
-  there is no need to repeat a computation for which you already have
-  the answer.}
-
-\section{The Problem}
-
-\TODO{Why do we need autotuning? Describe necessary abstraction of low
-  level tuning parameters for high-level patterns, and demonstrate
-  their effect on application performance.}
-
 
 \section{Motivating Example}
+
+
 
 \TODO{Simple example showing the ``power'' of picking the right
   optimisation parameter values. Take a small handful of contrasting
@@ -141,14 +130,16 @@ The remainder of the document is structured as follows:
 \item Chapter~\ref{chap:autotune} presents OmniTune, an extensible and
   distributed autotuner capable of predicting optimisation parameter
   values for unseen programs at runtime;
+\item Chapter~\ref{chap:omnitune-skelcl} describes the application of
+  OmniTune for selecting workgroup size of SkelCL stencils;
 \item Chapter~\ref{chap:methodology} describes a comprehensive
   exploration of the optimisation space of workgroup size for stencil
   skeletons, including the methodology for obtaining performance data
   and experimental setup;
-\item Chapter~\ref{chap:evaluation} contains an extensive evaluation
-  of the effectiveness of OmniTune with respect to its accuracy,
-  performance performance compared to human experts, and a cost
-  benefit analysis of autotuning;
+\item Chapter~\ref{chap:evaluation} evaluates the effectiveness of
+  OmniTune with respect to its accuracy, performance performance
+  compared to human experts, and a cost benefit analysis of
+  autotuning;
 \item Chapter~\ref{chap:conclusions} contains concluding remarks, a
   critical evaluation of the presented work, and plans for future
   research.
