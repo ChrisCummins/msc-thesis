@@ -7899,3 +7899,14 @@ Interesting scenario plots!
 65c60f245d242dd01c3caf21cf7618e5bbb57422 <- what the flip is that pattern?
 91502cf12851f3178d7164d2a9b3552fdeafd8db <- bizarre triangular pattern
 ```
+
+## Thursday 23rd
+
+To import CSV exports to MySQL:
+
+```
+for f in $(ls); do
+    echo "Importing $f ..."
+    mysqlimport --ignore-lines=1 --fields-terminated-by=, --local omnitune $f
+done
+```
