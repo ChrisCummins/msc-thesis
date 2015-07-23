@@ -152,7 +152,7 @@ $(Document).wc: $(DocumentSources)
 
 status: $(Document).wc
 	@echo -n " Words:    "
-	$(AM_V_at)$(SED) '1,/total/Id' < $(Document).wc			\
+	$(AM_V_at)$(SED) -n '/Total/,$$p' < $(Document).wc		\
 		| $(EGREP) '^Words in text:' | sed 's/Words in text: //'
 	@echo -n " TODOs:    "
 	$(AM_V_at)cat $(DocumentSources) | $(EGREP) -ic '\todo'
