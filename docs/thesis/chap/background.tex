@@ -11,11 +11,14 @@
 
 \subsection{Abstracting Task and Data Parallelism}
 
-\TODO{%
-  Short examples of task parallel skeletons. Describe the shortcomings
-  of GPUs for task parallel operations. Data parallel operations will
-  be described in detail in the SkelCL section.%
-}
+Algorithmic Skeletons are categorised as either data parallel or task
+parallel. \TODO{Explain the difference} Examples of data parallel
+Algorithmic Skeletons include \emph{map}, \emph{zip}, and
+\emph{reduce}. Examples of task parallel Algorithmic Skeletons include
+\emph{pipe}, \emph{farm}, and \emph{for loops}. The data parallel
+operations supplied by SkelCL are described in detail in
+Section~\ref{sec:skelcl-intro}.
+
 
 \subsection{Algorithmic Skeleton Frameworks}
 
@@ -114,7 +117,7 @@ results still hold for subsequent generations of devices.
 % High Performance Computing (SAAHPC’10) (pp. 4–6).
 \TODO{Portability of OpenCL kernels~\cite{Rul2010}}
 
-\section{High-Level GPU Programming with SkelCL}
+\section{High-Level GPU Programming with SkelCL}\label{sec:skelcl-intro}
 
 Introduced in~\cite{Steuwer2011}, SkelCL is an object oriented C++
 library that provides OpenCL implementations of data parallel

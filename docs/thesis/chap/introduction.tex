@@ -1,3 +1,32 @@
+Parallelism is increasingly seen as the only viable approach to
+maintaining continued performance improvements in a multicore
+world. Core counts in all types of computers from mobile to
+supercomputers have been steadily increasing, with most machines
+having a graphics card. Despite this shift in the hardware paradigm,
+the adoption of parallel programming practises has been slow and
+awkward due to the prohibitive complexity and low level of
+abstractions available to programmers.
+
+Programmers today who want to take advantage of the available
+processing power of a machine must be intimiately knowledgable of the
+operating system or language-specific threading model and
+synchronisation primitives, and at least one system for programming
+the GPU (which is almost certainly an entirely different programming
+language). Coupled with the inherent cognitive overhead of reasoning
+about and debugging parallel programs, this has led to the
+understandable belief that parallel programming is only for the
+elite. \fixme{We need some way of improving accessibility}
+
+Introduced by \citeauthor{Cole1989} in \citeyear{Cole1989},
+Algorithmic Skeletons offer to simplify the task of parallel
+programming by abstracting common patterns of communication, providing
+parallelised implementations of higher order
+functions~\cite{Cole1989}. Algorithmic Skeletons capture patterns of
+communication, and are parameterised with ``muscle functions'' by the
+programmer that implement the problem specific logic.
+
+\TODO{The problem with threads\ldots \cite{Lee2006}}
+
 GPUs enable massive performance through heterogeneous
 parallelism. However, developing software for these devices is
 challenging, as the programming models provided by OpenCL and CUDA

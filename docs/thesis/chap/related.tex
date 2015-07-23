@@ -4,13 +4,81 @@ research, focusing on heterogeneous parallelism, Algorithmic
 Skeletons, and stencil codes. It presents the context and rationale
 for the research undertaken for this thesis.
 
-\section{Automatic Parallelisation}
 
-\TODO{%
-  Brief summary of auto-parallelising compilers. Highlight the
-  shortcomings which lay the scene for Alg Skel to succeed where
-  compilers haven't.%
-}
+\section{Approaches to Parallelism}
+
+\subsubsection{Algorithmic Skeletons}
+
+Introduced by \citeauthor{Cole1989} in \citeyear{Cole1989},
+Algorithmic Skeletons offer to simplify the task of parallel
+programming by abstracting common patterns of communication, providing
+parallelised implementations of higher order
+functions~\cite{Cole1989}. Algorithmic Skeletons captures single
+pattern of communication, and are parameterised with ``muscle
+functions'' by the programmer, which provide the problem specific
+logic. Algorithmic Skeletons are categorised as either data parallel
+or task parallel. Examples of data parallel Algorithmic Skeletons
+include \emph{map}, \emph{zip}, and \emph{reduce}. Examples of task
+parallel Algorithmic Skeletons include \emph{pipe}, \emph{farm}, and
+\emph{for loops}.
+
+Since their inception, Algorithmic Skeletons have been the focus of
+much research attention, and Algorithmic Skeleton Frameworks abound.
+\citeauthor{Gonzalez2010} provides a survey of such frameworks in
+\cite{Gonzalez2010}. Since then, new frameworks for heterogeneous
+parallelism have arisen, spurred by the increasing programmability of
+graphics hardware for general purpose computing.
+
+Outside of academia, notable frameworks for parallel computation
+include Google's MapReduce~\cite{Dean2008} and Intel's Thread Building
+Blocks~\cite{IntelTBB}, which both fall under the definition of
+Algorithmic Skeletons, although they do not describes themselves as
+such.
+
+
+% Banerjee, U., Eigenmann, R., & Nicolau, A. (1993). Automatic program
+% parallelization. Proceedings of the IEEE, 81,
+% 211–243. http://doi.org/10.1109/5.214548
+Algorithmic Skeletons were presented by \citeauthor{Cole1989} in
+\citeyear{Cole1989} as a technique for separating problem solving
+logic from the coordination of parallel
+resources~\cite{Cole1989}. This automatic --- from the persepective of
+the user --- parallelisation is similar in spirit to ongoing research
+in automatically parallelising compiliers. By providing patterns of
+computation for users to frame their algorithms, the burden of
+extracting parallelism is placed on the skeleton author, as opposed to
+the compiler. This overcomes the difficult problem of extracting the
+parallelism from arbitrary programs, which is an ongoing research
+challenge with many open research problems, such as dynamic dependency
+and alias analysis~\cite{Banerjee1993}. The result of these challenges
+is that automatically parallelising compilers typically reduce the
+problem by either restricting the supported constructs or targetting a
+single class of applications.
+
+\begin{itemize}
+\item determining whether sequential code can be legally transformed
+  for parallel execution; and
+\item identifying the transformation which will provide the highest
+  performance improvement for a given piece of code.
+\end{itemize}
+
+\TODO{Pointer and points-to analysis: \cite{Hind2001} \cite{Ghiya2001}
+  \cite{Wilson1995}}
+
+
+\paragraph{Annotation-driven parallelism}
+\todo{Requiring the programmer to give ``hints'' to the compiler by
+  annotating their source programs. Bad due to extra effort for the
+  programmer and bit-rot of annotations. Straddles the border of
+  ``automatic'' parallelisation, in the case of something like
+  OpenMP.}
+
+
+
+
+% IF auto-parallelisation was a solved problem, none of this would be
+% necessary.
+
 
 % D. Grewe, Z. Wang, and M. F. P. M. O’Boyle, “Portable mapping of
 % data parallel programs to OpenCL for heterogeneous systems,” in Code
@@ -210,7 +278,14 @@ features of kernels.
 
 \section{Autotuning of Algorithmic Skeletons}
 
-\TODO{Intro to section: autotuning of alg skel\ldots}
+
+% Gonz, H., & Leyton, M. (2010). A survey of algorithmic skeleton
+% frameworks: high-level structured parallel programming enablers,
+% 1135–1160. http://doi.org/10.1002/spe
+Since their inception, Algorithmic Skeletons have captured a wide
+range of research interests, and Algorithmic Skeleton Frameworks
+(ASkFs) abound~\cite{Gonz2010}.
+
 
 % Contreras, G., & Martonosi, M. (2008). Characterizing and improving
 % the performance of Intel Threading Building Blocks. In Workload
