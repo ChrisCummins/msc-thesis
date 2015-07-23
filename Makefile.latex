@@ -155,9 +155,9 @@ status: $(Document).wc
 	$(AM_V_at)$(SED) -n '/Total/,$$p' < $(Document).wc		\
 		| $(EGREP) '^Words in text:' | sed 's/Words in text: //'
 	@echo -n " TODOs:    "
-	$(AM_V_at)cat $(DocumentSources) | $(EGREP) -ic '\todo'
+	$(AM_V_at)cat $(DocumentSources) | $(EGREP) -ic '\todo' || true
 	@echo -n "FIXMEs:    "
-	$(AM_V_at)cat $(DocumentSources) | $(EGREP) -ic '\fixme'
+	$(AM_V_at)cat $(DocumentSources) | $(EGREP) -ic '\fixme' || true
 
 MOSTLYCLEANFILES += $(Document).wc
 endif
