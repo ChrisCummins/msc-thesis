@@ -53,10 +53,14 @@ def main():
     fs.mkdir(experiment.DATA_ROOT)
     fs.mkdir(experiment.DB_DEST)
 
+    if system.HOSTNAME != "cec":
+        io.fatal("script must be ran on machine `cec'")
+
     cp_loc("~/.omnitune/skelcl.db", "cec")
-    cp_rmt("dhcp-90-060")
     cp_rmt("brendel.inf.ed.ac.uk", path="~/florence.db", name="florence")
+    cp_rmt("dhcp-90-060")
     cp_rmt("monza")
+    cp_rmt("tim")
     cp_rmt("whz5")
 
 if __name__ == "__main__":

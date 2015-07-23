@@ -7902,6 +7902,14 @@ Interesting scenario plots!
 
 ## Thursday 23rd
 
+Today I'm going to take a look at implementing MySQL integration for
+omnitune. I've started by installing MySQL on Pavlos' server:
+
+```
+$  sudo netstat -tap | grep mysql
+tcp  0  0  localhost:mysql  *:*  LISTEN  32669/mysqld
+```
+
 To import CSV exports to MySQL:
 
 ```
@@ -7910,3 +7918,11 @@ for f in $(ls); do
     mysqlimport --ignore-lines=1 --fields-terminated-by=, --local omnitune $f
 done
 ```
+
+
+Notes for next meeting with Pavlos and Hugh:
+
+* Implementing stencil generator?
+* Poster redesign.
+* Review thesis structure.
+* Internship?
