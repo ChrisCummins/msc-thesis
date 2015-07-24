@@ -195,22 +195,27 @@ def main():
                  .format(device=text.truncate(device, 18), kernel=kernel,
                          n=north, s=south, e=east, w=west,
                          width=width, height=height, type=tout))
+        space = _space.ParamSpace.from_dict(db.perf_scenario(scenario))
+        max_c = min(25, len(space.c))
+        max_r = min(25, len(space.r))
+        space.reshape(max_c=max_c, max_r=max_r)
 
         # 3D bars.
         output = fs.path(experiment.IMG_ROOT,
                          "scenarios/bars/{id}.png".format(id=scenario))
-        visualise.scenario_performance(db, scenario, output, title=title,
-                                       type="bar3d")
+        space.bar3d(output=output, title=title, zlabel="Performance",
+                    rotation=45)
+
         # Heatmaps.
         output = fs.path(experiment.IMG_ROOT,
                          "scenarios/heatmap/{id}.png".format(id=scenario))
-        visualise.scenario_performance(db, scenario, output, title=title,
-                                       type="heatmap")
+        space.heatmap(output=output, title=title)
+
         # Trisurfs.
         output = fs.path(experiment.IMG_ROOT,
                          "scenarios/trisurf/{id}.png".format(id=scenario))
-        visualise.scenario_performance(db, scenario, output, title=title,
-                                       type="trisurf")
+        space.trisurf(output=output, title=title, zlabel="Performance",
+                      rotation=45)
 
     # Per-device plots
     for i,device in enumerate(db.devices):
