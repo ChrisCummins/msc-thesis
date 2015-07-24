@@ -56,6 +56,7 @@ def main():
     if system.HOSTNAME != "cec":
         io.fatal("script must be ran on machine `cec'")
 
+    # TODO: Perform integrity checks. If they fail, transfer again.
     cp_loc("~/.omnitune/skelcl.db", "cec")
     cp_rmt("brendel.inf.ed.ac.uk", path="~/florence.db", name="florence")
     cp_rmt("dhcp-90-060")
