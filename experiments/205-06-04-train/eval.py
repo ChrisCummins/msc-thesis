@@ -3,6 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 import json
+import math
+import random
 import re
 
 from functools import partial
@@ -29,6 +31,7 @@ from labm8 import fs
 from labm8 import io
 from labm8 import math as labmath
 from labm8 import ml
+from labm8 import prof
 from labm8 import text
 from labm8.db import where
 
@@ -181,22 +184,27 @@ def get_one_r(db, instances):
           instances.
     """
     # Get the list of scenarios in instances.
+    W_safe = db.W_safe
+    escaped_params = ",".join(['"' + param + '"' for param in W_safe])
+
     scenarios = [instance.get_string_value(0) for instance in instances]
     escaped_scenarios = ",".join(['"' + scenario + '"'
                                   for scenario in scenarios])
 
-    # Get the list of params for instances.
-    params = [row[0] for row in db.execute(
-        "SELECT DISTINCT params\n"
+    baseline = db.execute(
+        "SELECT runtime_stats.params\n"
         "FROM runtime_stats\n"
-        "WHERE scenario IN ({scenarios})".format(scenarios=escaped_scenarios)
-    )]
+        "LEFT JOIN oracle_params AS oracle\n"
+        "ON runtime_stats.scenario=oracle.scenario\n"
+        "WHERE runtime_stats.params IN ({params})\n"
+        "    AND runtime_stats.scenario IN ({scenarios})\n"
+        "GROUP BY runtime_stats.params\n"
+        "ORDER BY GEOMEAN(oracle.runtime / runtime_stats.mean) DESC\n"
+        "LIMIT 1"
+        .format(scenarios=escaped_scenarios, params=escaped_params)
+    ).fetchone()[0]
 
-    # Calculate mean performance of each param.
-    avgs = [(param, db.perf_param_avg(param)) for param in params]
-
-    # Select the param with the best performance.
-    return max(avgs, key=lambda x: x[1])[0]
+    return baseline
 
 
 def perf_fn(db, scenario, predicted, oracle, baseline):
@@ -242,15 +250,9 @@ def random_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
     Pick a random workgroup size from the parameters table which is
     smaller than or equal to the max workgroup size.
     """
-    wgsize = db.rand_wgsize(max_wgsize - 1)
     scenario = instance.get_string_value(0)
-
-    try:
-        db.runtime(scenario, hash_params(*wgsize))
-        return hash_params(*wgsize)
-    except lab.db.Error:
-        io.warn("Random lookup failed for", wg_c, wg_r)
-        return random_fn(db, instance, max_wgsize, wg_c, wg_r, baseline)
+    W_legal = db.W_legal(scenario)
+    return random.choice(W_legal)
 
 
 def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
@@ -259,30 +261,23 @@ def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
 
     Iteratively reduce the given wgsize in each dimension until it
     fits within the maximum.
-
-    Raises:
-
-        ReshapeError: If the miminum workgroup size is > max_wgsize.
     """
-    # Get the lists of all possible wg_c and wg_r values.
-    all_wg_c = db.wg_c
-    all_wg_r = db.wg_r
+    scenario = instance.get_string_value(0)
+    W_legal = db.W_legal(scenario)
 
-    # Convert predicted wg_c, wg_r values into list indices.
-    c = all_wg_c.index(wg_c)
-    r = all_wg_r.index(wg_r)
+    min_distance = float("inf")
+    min_param = None
 
-    # Iteratively reduce the workgroup size by walking backwards
-    # through the list of all possible values.
-    while all_wg_c[c] * all_wg_r[r] >= max_wgsize:
-        if c + r == 0:
-            raise ReshapeError("Failed to shrink wgsize {0}x{1} <= {2}"
-                               .format(all_wg_c[c], all_wg_r[r], max_wgsize))
-        # Reduce list indices.
-        if c > 1: c -= 1
-        if r > 1: r -= 1
+    # Find the *legal* parameter which is closest to the predicted by
+    # calculating the distance to each and returning the smallest.
+    for param in W_legal:
+        p_c, p_r = unhash_params(param)
+        distance = math.sqrt((wg_c - p_c) ** 2 + (wg_r - p_r) ** 2)
+        if distance < min_distance:
+            min_distance = distance
+            min_param = param
 
-    return hash_params(all_wg_c[c], all_wg_r[r])
+    return min_param
 
 
 def eval_classifier_instance(job, db, classifier, instance,
@@ -321,8 +316,12 @@ def eval_classifier_instance(job, db, classifier, instance,
         max_wgsize_attr = instance.dataset.attribute_by_name("kern_max_wg_size")
         max_wgsize_attr_index = max_wgsize_attr.index
         max_wgsize = int(instance.get_value(max_wgsize_attr_index))
-        wg_c, wg_r = unhash_params(predicted)
-        is_valid = wg_c * wg_r < max_wgsize
+
+        try:
+            db.runtime(scenario, predicted)
+            is_valid = True
+        except lab.db.Error:
+            is_valid = False
 
         if is_valid:
             correct = 0
@@ -330,16 +329,12 @@ def eval_classifier_instance(job, db, classifier, instance,
             performance, speedup = perf_fn(db, scenario, predicted,
                                            oracle, baseline)
         else:
+            wg_c, wg_r = unhash_params(predicted)
             correct = 0
             invalid = 1
             predicted = err_fn(instance, max_wgsize, wg_c, wg_r, baseline)
-            try:
-                performance, speedup = perf_fn(db, scenario, predicted,
-                                               oracle, baseline)
-            except lab.db.Error:
-                performance, speedup, baseline = 0, 0, "Null"
-                io.error("Woops!", scenario, max_wgsize, predicted,
-                         err_fn.func.__name__)
+            performance, speedup = perf_fn(db, scenario, predicted,
+                                           oracle, baseline)
 
     db.add_classification_result(job, classifier,
                                  err_fn, training, scenario,
@@ -378,9 +373,8 @@ def eval_classifiers(db, classifiers, err_fns, job, training, testing):
         basename = ml.classifier_basename(classifier.classname)
 
         for err_fn in err_fns:
+            io.debug(job, basename, err_fn.func.__name__, testing.num_instances)
             for j,instance in enumerate(testing):
-                io.debug(job, basename, err_fn.func.__name__,
-                         j + 1, "of", testing.num_instances)
                 eval_classifier_instance(job, db, meta, instance, err_fn,
                                          training)
             db.commit()
