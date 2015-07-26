@@ -21,6 +21,7 @@ from labm8 import system
 import omnitune
 from omnitune import skelcl
 from omnitune.skelcl import db as _db
+from omnitune.skelcl.migrate import migrate
 
 import experiment
 import gather
@@ -49,7 +50,7 @@ def merge(old_oracle, dbs, path):
     io.info("Coping", old_oracle, "->", fs.basename(path))
     fs.cp(old_oracle, path)
 
-    target = _db.Database(path=path)
+    target = migrate(_db.Database(path=path))
 
     num_runtimes = [db.num_rows("runtimes") for db in dbs]
     expected_total = target.num_rows("runtimes") + sum(num_runtimes)
@@ -72,7 +73,7 @@ def main():
     """
     Reduce all databases to oracle.
     """
-    dbs = [_db.Database(path) for path in
+    dbs = [migrate(_db.Database(path)) for path in
            fs.ls(experiment.DB_DEST, abspaths=True)
            if not re.search("oracle.db$", path)]
     merge(fs.abspath(experiment.DB_DEST, "oracle.db"),

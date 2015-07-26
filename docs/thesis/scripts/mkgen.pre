@@ -28,6 +28,7 @@ from omnitune import skelcl
 from omnitune.skelcl import db as _db
 from omnitune.skelcl import unhash_params
 from omnitune.skelcl import visualise
+from omnitune.skelcl.migrate import migrate
 
 
 def mktex(string, path):
@@ -148,7 +149,7 @@ def create_datasets_table(db, output=None):
 
 
 def main():
-    db = _db.Database("~/data/msc-thesis/2015-06-23/oracle.db")
+    db = migrate(_db.Database("~/data/msc-thesis/2015-07-24/oracle.db"))
 
     fs.rm("gen")
     fs.mkdir("gen/img")
