@@ -4,12 +4,12 @@ $d$.
 \Ensure workgroup size $w$
 
 \Procedure{Default}{w, a, k, d}
-\Comment Use the best param from $W_{safe}$.
+\Comment Use the best safe param.
 \State $w \leftarrow \text{classify}(a, k, d)$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
-  \State \textbf{return} $\underset{w \in W_{legal}(s)}{\argmax} \text{performance}(s,w)$
+  \State \textbf{return} $\underset{w \in W_{safe}}{\argmax} \text{performance}(\{s|s \in S_{training}\},w)$
 \EndIf
 \EndProcedure
 \item[]
@@ -31,6 +31,15 @@ $d$.
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
+  \State $d_{min} \leftarrow \infty$
+  \State $w_{best} \leftarrow \text{null}$
+  \For{$c \in W_{legal}$}
+    \State $d \leftarrow \sqrt{\left(c_r - w_r\right)^2 + \left(c_c - w_c\right)^2}$
+    \If{$d < d_{min}$}
+      \State $d_{min} \leftarrow d$
+      \State $w_{best} \leftarrow c$
+    \EndIF
+  \EndFor
   \State \textbf{return} $w \cdot (W_{max}(s) / w)$
 \EndIf
 \EndProcedure
