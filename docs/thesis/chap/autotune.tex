@@ -7,12 +7,14 @@ an extensible, dynamic autotuner, capable of runtime prediction of
 optimisation parameters using machine learning. OmniTune is designed
 to support collaborative, online learning of optimisation spaces, and
 is easily adapated to optimisation targets, by separating the
-application-specific and autotuning logic. First, I describe the basic
-approaches to selecting optimisation parameters that OmniTune
-supports. This is followed by a description of the architecture and
-public interface exposed by OmniTune, and the last section describes
-the application of OmniTune for selecting the workgroup size of SkelCL
-stencil operations.
+application-specific and autotuning logic. OmniTune is publicly
+available under the GPL
+license\footnote{\url{https://github.com/ChrisCummins/omnitune}}. First,
+I describe the basic approaches to selecting optimisation parameters
+that OmniTune supports. This is followed by a description of the
+architecture and public interface exposed by OmniTune, and the last
+section describes the application of OmniTune for selecting the
+workgroup size of SkelCL stencil operations.
 
 
 \section{Approaches to Autotuning}
@@ -67,7 +69,7 @@ communication between the components.
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\textwidth]{img/omnitune-comms}
+\includegraphics[width=\textwidth]{img/omnitune-comms.pdf}
 \caption{%
   Communication pattern between OmniTune components.%
 }

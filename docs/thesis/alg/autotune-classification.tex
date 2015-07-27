@@ -9,7 +9,10 @@ $d$.
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
-  \State \textbf{return} $\underset{w \in W_{safe}}{\argmax} \text{performance}(\{s|s \in S_{training}\},w)$
+  \State \textbf{return} $\underset{w \in W_{safe}}{\argmax}
+\left(
+  \prod_{s \in S_{training}} p(s, w)
+\right)^{1/|S_{training}|}$
 \EndIf
 \EndProcedure
 \item[]
@@ -32,15 +35,15 @@ $d$.
     \State \textbf{return} $w$
 \Else
   \State $d_{min} \leftarrow \infty$
-  \State $w_{best} \leftarrow \text{null}$
+  \State $w_{closest} \leftarrow \text{null}$
   \For{$c \in W_{legal}$}
     \State $d \leftarrow \sqrt{\left(c_r - w_r\right)^2 + \left(c_c - w_c\right)^2}$
     \If{$d < d_{min}$}
       \State $d_{min} \leftarrow d$
-      \State $w_{best} \leftarrow c$
-    \EndIF
+      \State $w_{closest} \leftarrow c$
+    \EndIf
   \EndFor
-  \State \textbf{return} $w \cdot (W_{max}(s) / w)$
+  \State \textbf{return} $w_{closest}$
 \EndIf
 \EndProcedure
 \end{algorithmic}
