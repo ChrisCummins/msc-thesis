@@ -7926,3 +7926,16 @@ Notes for next meeting with Pavlos and Hugh:
 * Poster redesign.
 * Review thesis structure.
 * Internship?
+
+
+## Monday 27th
+
+Notes on data wrangling:
+
+* Mounted all data in a tmpfs.
+* Gathered data from cec, florence, tim, and dhcp-90-060.
+* Used `2015-07-24/db/oracle.db` as previous oracle.
+* Migrated all db's to version 6.
+* Reduced all runtimes. Copied to
+  `~/data/msc-thesis/2015-07-27/all.db`. md5sum:
+  `d201f18a14277003b1887850bee608ff`
