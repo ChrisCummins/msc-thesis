@@ -74,8 +74,9 @@ def main():
     Reduce all databases to oracle.
     """
     dbs = [migrate(_db.Database(path)) for path in
-           fs.ls(experiment.DB_DEST + "/*.db", abspaths=True)
-           if not re.search("oracle.db$", path)]
+           fs.ls(experiment.DB_DEST, abspaths=True)
+           if not re.search("oracle.db$", path)
+           and re.search(".db$", path)]
     merge(fs.abspath(experiment.DB_DEST, "oracle.db"),
           dbs, experiment.ORACLE_PATH)
 
