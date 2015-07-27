@@ -3,10 +3,11 @@
 from __future__ import division
 from __future__ import print_function
 
+import os
 import random
 import re
+import sqlite3
 import sys
-import os
 
 from time import time
 from datetime import datetime
@@ -51,6 +52,13 @@ def merge(old_oracle, dbs, path):
     fs.cp(old_oracle, path)
 
     target = migrate(_db.Database(path=path))
+
+    for db in dbs + [target]:
+        try:
+            db.num_rows("runtimes")
+        except sqlite3.DatabaseError as e:
+            io.error("Broken db:", db.path)
+            io.fatal(e)
 
     num_runtimes = [db.num_rows("runtimes") for db in dbs]
     expected_total = target.num_rows("runtimes") + sum(num_runtimes)
