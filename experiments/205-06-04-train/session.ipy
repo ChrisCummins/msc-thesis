@@ -1,4 +1,7 @@
 # coding: utf-8
+%load_ext autoreload
+%autoreload 2
+
 from __future__ import division
 from __future__ import print_function
 import json
@@ -30,5 +33,6 @@ from omnitune.skelcl import db as _db
 from omnitune.skelcl import hash_params
 from omnitune.skelcl import unhash_params
 from omnitune.skelcl.migrate import migrate
+from omnitune.skelcl import visualise
 import experiment
 db = migrate(_db.Database(experiment.ORACLE_PATH))
