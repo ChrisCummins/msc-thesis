@@ -32,12 +32,3 @@ from omnitune.skelcl import unhash_params
 from omnitune.skelcl.migrate import migrate
 import experiment
 db = migrate(_db.Database(experiment.ORACLE_PATH))
-params = sorted([
-    (
-        param,
-        db.param_coverage(param),
-        db.perf_param_avg_legal(param)
-    )
-    for param in db.params
-    if db.perf_param_avg_legal(param) > 0
-], reverse=True, key=lambda x: (x[1], x[2], x[0]))
