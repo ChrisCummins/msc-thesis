@@ -48,9 +48,13 @@ def main():
     # Get the latest dataset from the oracle.
     db = migrate(_db.Database(experiment.ORACLE_PATH))
 
+    backup_path = db.path + ".unprune"
+    io.info("Writing backup to", backup_path)
+    fs.cp(db.path, backup_path)
+
     # Strip scenarios for which there isn't enough unique workgroup
     # sizes.
-    db.prune_min_params_per_scenario(10)
+    db.prune_min_params_per_scenario(25)
     # Strip scenarios so that there are at least a certain number of
     # safe parameters.
     db.prune_safe_params(3)
