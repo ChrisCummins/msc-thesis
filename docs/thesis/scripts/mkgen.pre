@@ -70,6 +70,7 @@ def create_stencil_runtime_components_table(output=None):
 def create_devices_table(db, output=None):
     def _escape_name(name):
         name = name.strip()
+        name = re.sub("^\dx", "", name)
         name = re.sub("GeForce", "Nvidia", name)
         name = re.sub("Tahiti", "AMD Tahiti 7970", name)
         name = re.sub("Intel\(R\) Core\(TM\)", "Intel", name)
@@ -262,6 +263,7 @@ def main():
     visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf",
                           figsize=figsize, cmap="Blues", title=None)
 
+    # TODO: Replace with plot of confinterval over the mean.
     visualise.runtimes_range(db, "gen/img/min_max_runtimes.pdf",
                              title="", figsize=(4, 2.5))
 
