@@ -35,6 +35,15 @@ workgroup sizes each. % FIXME: (max \input{gen/num_max_params}).
 
 \begin{figure}
 \centering
+\includegraphics{gen/img/num_samples}
+\caption{%
+  Number of sample counts per instance.%
+}
+\label{fig:sample-counts}
+\end{figure}
+
+\begin{figure}
+\centering
 \includegraphics{gen/img/min_max_runtimes}
 \caption{%
   Distribution of minimum and maximum observed runtimes for each
@@ -46,27 +55,13 @@ workgroup sizes each. % FIXME: (max \input{gen/num_max_params}).
 \label{fig:min-max-runtimes}
 \end{figure}
 
-An average of \input{gen/avg_sample_count} runtimes were recorded per
-scenario (total
-\input{gen/num_samples}). Figure~\ref{fig:min-max-runtimes} shows the
-distribution of minimum and maximum runtimes for each combination of
-scenario and workgroup size. For a given scenario $s$ and workgroup
-size $w$, the arithmetic mean of $n$ measured runtimes $\bar{t}$ is
-calculated using:
-
-\begin{equation}
-\bar{t} = \frac{\sum_{i=1}^{n}t_i}{n}
-\end{equation}
-
-95\% confidence intervals are calculated assuming a Gaussian
-distribution of runtimes (given our sample size of
-$n \ge 30$~\cite{Georges2007}):
-
-\begin{align}
-\sigma &= \sqrt{\frac{\sum_{i=1}^{n}(t_i - \bar{t})^2}{n - 1}}\\
-c_1 &= \bar{t} - z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}\\
-c_2 &= \bar{t} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
-\end{align}
+A total of \input{gen/num_samples} runtimes were recorded, with an
+average of \input{gen/avg_sample_count} runtimes test case (min
+\input{gen/min_sample_count}). Figure~\ref{fig:sample-counts} shows
+plots the ratio of test cases as a function of the minimum number of
+samples. Figure~\ref{fig:min-max-runtimes} shows the distribution of
+minimum and maximum runtimes for each combination of scenario and
+workgroup size.
 
 \TODO{Actually demonstrate that differences in runtime between
   measured workgroup sizes are significant.}

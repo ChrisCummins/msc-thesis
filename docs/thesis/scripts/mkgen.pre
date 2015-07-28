@@ -176,6 +176,7 @@ def main():
     mktex(db.num_rows("runtimes"), "gen/num_samples.tex")
     mktex(db.num_rows("scenarios"), "gen/num_scenarios.tex")
     mktex(int(round(db.mean_samples)), "gen/avg_sample_count.tex")
+    mktex(db.min_sample_count, "gen/min_sample_count.tex")
     mktex(db.execute("SELECT Min(num_samples) FROM runtime_stats").fetchone()[0],
           "gen/min_sample_count.tex")
     mktex(db.execute("SELECT Max(num_samples) FROM runtime_stats").fetchone()[0],
@@ -266,6 +267,9 @@ def main():
     # TODO: Replace with plot of confinterval over the mean.
     visualise.runtimes_range(db, "gen/img/min_max_runtimes.pdf",
                              title="", figsize=(4, 2.5))
+
+    visualise.num_samples(db, "gen/img/num_samples.pdf", title="",
+                          figsize=figsize)
 
     # Trend plots
     trend_size=(5.8,2)
