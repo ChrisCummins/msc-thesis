@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import csv
+import json
 import re
 
 import numpy as np
@@ -150,6 +151,85 @@ def create_datasets_table(db, output=None):
     ))
 
 
+def create_results_tables(db):
+    # Number of rows to include in tables.
+    num_rows = 25
+
+    output = "gen/tab/top_params_coverage.tex"
+    data = [
+        [row[0], round(row[1] * 100, 1), round(row[2] * 100, 1)] for row in
+        db.execute(
+            "SELECT params,coverage,performance "
+            "FROM param_stats "
+            "ORDER BY coverage DESC, performance DESC "
+            "LIMIT ?",
+            (num_rows,)
+        )
+    ]
+    latex.table(data, output=output, columns=(
+        "Parameter",
+        "Legality (%)",
+        "Performance (%)",
+    ))
+
+    output = "gen/tab/top_params_perf.tex"
+    data = [
+        [row[0], round(row[1] * 100, 1), round(row[2] * 100, 1)] for row in
+        db.execute(
+            "SELECT params,coverage,performance "
+            "FROM param_stats "
+            "ORDER BY performance DESC,coverage DESC "
+            "LIMIT ?",
+            (num_rows,)
+        )
+    ]
+    latex.table(data, output=output, columns=(
+        "Parameter",
+        "Legality (%)",
+        "Performance (%)",
+    ))
+
+
+def fine_grained_runtime_histograms():
+    sample_runtimes = [
+        np.array(l) for l in
+        json.load(open(fs.path("~/data/msc-thesis/sample-runtimes.json")))
+    ]
+
+    # Found by hand:
+    indicies = [
+        601, # 2.0406245600000004
+        480, # 51.718092256000006
+        590, # 75.140274774999995
+        941, # 100.372847552
+        437, # 143.98754486299998
+        156, # 195.44022449400003
+    ]
+
+    for i,index in enumerate(indicies):
+        runtimes = sample_runtimes[index]
+        output = "gen/img/runtimes_histogram_{}.pdf".format(i+1)
+        figsize=(2, 2)
+        visualise.runtimes_histogram(runtimes, output=output, figsize=figsize)
+
+
+def num_samples_vs_variance(db):
+    data = json.load(open(fs.path("~/data/msc-thesis/ci.json")))
+    figsize=(5.8, 2)
+
+    min_samples = db.min_sample_count
+    mean_samples = int(round(db.mean_samples))
+    X, Y, _ = zip(*data)
+
+    mktex(round(Y[X.index(min_samples)] * 100, 1), "gen/max_ci.tex")
+    mktex(round(Y[X.index(mean_samples)] * 100, 1), "gen/mean_ci.tex")
+    mktex(mean_samples, "gen/avg_sample_count.tex")
+
+    output = "gen/img/ci_trend.pdf"
+    visualise.confinterval_trend(X, Y, vlines=[min_samples, mean_samples],
+                                 figsize=figsize, output=output)
+
+
 def main():
     db = migrate(_db.Database("/usr/share/omnitune/db/skelcl.db"))
 
@@ -175,10 +255,8 @@ def main():
     mktex(db.num_rows("runtime_stats"), "gen/num_runtime_stats.tex")
     mktex(db.num_rows("runtimes"), "gen/num_samples.tex")
     mktex(db.num_rows("scenarios"), "gen/num_scenarios.tex")
-    mktex(int(round(db.mean_samples)), "gen/avg_sample_count.tex")
     mktex(db.min_sample_count, "gen/min_sample_count.tex")
-    mktex(db.execute("SELECT Min(num_samples) FROM runtime_stats").fetchone()[0],
-          "gen/min_sample_count.tex")
+    mktex(db.max_sample_count, "gen/max_sample_count.tex")
     mktex(db.execute("SELECT Max(num_samples) FROM runtime_stats").fetchone()[0],
           "gen/max_sample_count.tex")
     mktex(len(db.real_kernels), "gen/num_real_kernels.tex")
@@ -250,10 +328,17 @@ def main():
     create_devices_table(db)
     create_kernels_table(db)
     create_datasets_table(db)
+    create_results_tables(db)
 
     ################
     # Export plots #
     ################
+
+    # Variance trends
+    num_samples_vs_variance(db)
+
+    # Runtime histograms
+    fine_grained_runtime_histograms()
 
     # Heatmaps
     figsize=(3.28, 2.7)
@@ -264,23 +349,24 @@ def main():
     visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf",
                           figsize=figsize, cmap="Blues", title=None)
 
-    # TODO: Replace with plot of confinterval over the mean.
-    visualise.runtimes_range(db, "gen/img/min_max_runtimes.pdf",
-                             title="", figsize=(4, 2.5))
-
+    figsize=(3.28, 2.7)
     visualise.num_samples(db, "gen/img/num_samples.pdf", title="",
                           figsize=figsize)
+    visualise.num_params(db, "gen/img/num_params.pdf", title="",
+                         figsize=figsize)
 
     # Trend plots
-    trend_size=(5.8,2)
+    figsize=(5.8,2)
     visualise.oracle_speedups(db, "gen/img/oracle_speedups.pdf", title="",
-                              figsize=trend_size)
+                              figsize=figsize)
     visualise.max_speedups(db, "gen/img/max_speedups.pdf", title="",
-                           figsize=trend_size)
+                           figsize=figsize)
+
+    figsize=(2.5,2)
     visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.pdf",
-                                     title="", figsize=trend_size)
+                                     title="", figsize=figsize)
     visualise.performance_vs_coverage(db, "gen/img/params_summary.pdf",
-                                      title="", figsize=trend_size)
+                                      title="", figsize=figsize)
 
     # Scatter plots
     figsize=(5.8,3)

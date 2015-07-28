@@ -22,7 +22,7 @@ evaluated for portability across programs, devices, and datasets.
 \end{enumerate}
 
 
-\section{Results}
+\section{Runtime Results}
 
 This section presents the results of the empirical enumeration of
 workgroup size optimisation space for SkelCL stencils. A total of
@@ -34,34 +34,42 @@ workgroup sizes each. % FIXME: (max \input{gen/num_max_params}).
 \subsection{Statistical soundness}
 
 \begin{figure}
-\centering
-\includegraphics{gen/img/num_samples}
+\input{fig/runtime-histograms}
 \caption{%
-  Number of sample counts per instance.%
+  Distribution of runtimes for 6 test cases, with increasing mean
+  runtimes between 2-200ms (shown with a horizontal dashed line). Each
+  plot shows a histogram of 1000 observations with a fitted kernel
+  density estimate.%
 }
-\label{fig:sample-counts}
+\label{fig:runtime-histograms}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics{gen/img/min_max_runtimes}
+\includegraphics{gen/img/ci_trend}
 \caption{%
-  Distribution of minimum and maximum observed runtimes for each
-  combination of scenario and workgroup size, normalised to their
-  respective mean runtimes. \FIXME{This is a weird way of getting the
-    message across. Perhaps plot the distribution of all runtimes
-    normalised to their respective mean?}%
+  % TODO: Use \input{gen/max_ci} and \input{gen/mean_ci}
+  Ratio of confidence interval to mean as a function of sample
+  count. The two dashed lines indicate the confidence interval at the
+  minimum sample count (4.6\%), and mean sample count (2.8\%).%
 }
-\label{fig:min-max-runtimes}
+\label{fig:ci-trends}
 \end{figure}
 
+
+\begin{figure}
+  \input{fig/sample-param-counts}
+\caption{Breakdown of number of}
+\label{fig:num-samples}
+\end{figure}
+
+
 A total of \input{gen/num_samples} runtimes were recorded, with an
-average of \input{gen/avg_sample_count} runtimes test case (min
+average of \input{gen/avg_sample_count} runtimes per test case (min
 \input{gen/min_sample_count}). Figure~\ref{fig:sample-counts} shows
-plots the ratio of test cases as a function of the minimum number of
-samples. Figure~\ref{fig:min-max-runtimes} shows the distribution of
-minimum and maximum runtimes for each combination of scenario and
-workgroup size.
+the sample count per test cases. Figure~\ref{fig:min-max-runtimes}
+shows the distribution of minimum and maximum runtimes for each
+combination of scenario and workgroup size.
 
 \TODO{Actually demonstrate that differences in runtime between
   measured workgroup sizes are significant.}
@@ -76,7 +84,7 @@ workgroup sizes $W_{legal}(s) \subseteq W$ that are legal for a given
 scenario $s$ can be found using:
 
 \begin{equation}
-W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\}
+  W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} - W_{refused}(s)
 \end{equation}
 
 Where $W_{max}(s)$ is the maximum workgroup size constraints imposed
@@ -234,6 +242,24 @@ legal.
 }
 \label{fig:performance-legality}
 \end{figure}
+
+\begin{table}
+  \parbox{.45\linewidth}{
+    \centering
+    \scriptsize
+    \rowcolors{2}{white}{gray!25}
+    \input{gen/tab/top_params_coverage}
+    \caption{Ranked by legality.}
+  }
+  \hfill
+  \parbox{.45\linewidth}{
+    \centering
+    \scriptsize
+    \rowcolors{2}{white}{gray!25}
+    \input{gen/tab/top_params_perf}
+    \caption{Ranked by performance.}
+  }
+\end{table}
 
 
 \subsection{Factors Influencing Workgroup Size Performance}
