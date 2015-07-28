@@ -7949,3 +7949,23 @@ Notes on data wrangling:
 * DONE: Exported 1000 sets of 1000 runtimes from the dataset for
   analysing variance as a function of the number of samples. File:
   `~/data/msc-thesis/sample-runtimes.json`.
+* Exploring the sample runtimes. Let's choose three sets of runtimes
+  with different means:
+
+```
+In [16]: means.index(195.44022449400003)
+Out[16]: 156
+
+In [18]: means.index(100.372847552)
+Out[18]: 941
+
+In [19]: means.index(51.718092256000006)
+Out[19]: 480
+
+In [25]: indices = [941,156,480]
+
+In [26]: for i in indices:
+    sns.distplot(b[i])
+    plt.title("True mean: {}".format(means[i]))
+    plt.show()
+```

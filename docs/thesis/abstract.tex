@@ -13,13 +13,15 @@ cases. This results in implementations that target the general case
 and cannot provide the performance advantages that are gained from
 tuning low level optimisation parameters.
 
-To address this, I present OmniTune - an extensible and distributed
-autotuner for stencil skeletons on CPUs and GPUs. Targeting the
-workgroup size of OpenCL kernels, I demonstrate in a comprehensive
-evaluation of \input{gen/num_runtime_stats} test cases that simple
-heuristics cannot provide portable performance across the range of
-architectures, kernels, and datasets which Algorithmic Skeletons must
-target.
+To address this, I present OmniTune --- an extensible and distributed
+framework for runtime autotuning of optimisation parameters. Targeting
+the workgroup size of OpenCL kernels, I demonstrate an implementation
+of OmniTune for stencil skeletons on CPUs and multi-GPU systems. I
+show in a comprehensive evaluation of \input{gen/num_runtime_stats}
+test cases that simple heuristics cannot provide portable performance
+across the range of architectures, kernels, and datasets which
+Algorithmic Skeletons must target. static value
+\input{gen/baseline_perf_perc}\% of the available performance.
 
 OmniTune uses procedurally generated synthetic benchmarks and machine
 learning to predict workgroup sizes for unseen programs. In an
@@ -27,12 +29,11 @@ evaluation of \input{gen/num_scenarios} combinations of programs,
 architectures, and datasets, OmniTune is able to achieve
 $\input{gen/best_avg_classification_performance}\%$ of the available
 performance, providing an average speedup of
-$\input{gen/best_avg_classification_speedup}\times$ (max
+$\input{gen/best_avg_classification_speedup_he}\times$ (max
+$\input{gen/best_max_classification_speedup_he}\times$) over human
+experts, and $\input{gen/best_avg_classification_speedup}\times$ (max
 $\input{gen/best_max_classification_speedup}\times$) over the best
 possible performance which can be achieved without autotuning.
-
-% TODO: Contrast with human expert.
-
 
 \ifdraft{
   \newpage

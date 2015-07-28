@@ -251,6 +251,7 @@ def main():
     one_r = db.one_r()
     mktex(print_params(one_r[0]), "gen/one_r.tex")
     mktex(round(one_r[2], 2), "gen/one_r_perf.tex")
+    mktex(int(round(one_r[2] * 100)), "gen/baseline_perf_perc.tex")
 
     mktex(db.num_rows("runtime_stats"), "gen/num_runtime_stats.tex")
     mktex(db.num_rows("runtimes"), "gen/num_samples.tex")
@@ -315,6 +316,13 @@ def main():
           "gen/best_avg_classification_speedup.tex")
     mktex(round(best_classification_results[4], 2),
           "gen/best_max_classification_speedup.tex")
+
+    # TODO: *actual* human expert.
+    mktex(round(best_classification_results[3], 2),
+          "gen/best_avg_classification_speedup_he.tex")
+    mktex(round(best_classification_results[4], 2),
+          "gen/best_max_classification_speedup_he.tex")
+
     mktex(int(round(best_synthetic_real_classification_results[2])),
           "gen/best_avg_synthetic_real_classification_performance.tex")
     mktex(round(best_synthetic_real_classification_results[3], 2),

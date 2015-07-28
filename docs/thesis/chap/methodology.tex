@@ -98,12 +98,10 @@ The Canny edge detection algorithm consists of four distinct stages:
 
 \subsection{Selection of Parameter Values}
 
-The parameter space is defined as the number of rows and columns in a
-workgroup. To explore this 2D space, all workgroup sizes over the set
-$\{1 \times 1, 2 \times 2, 100 \times 100\}$ were evaluated, subject
-to satisfying two hard constraints: the maximum workgroup size imposed
-by the architecture, and the maximum workgroup size imposed by a
-kernel. Exceeding either of these constraints will cause an
+During training, workgroup sizes are sampled uniformly, subject to the
+subject to satisfying two hard constraints: the maximum workgroup size
+imposed by the architecture, and the maximum workgroup size imposed by
+a kernel. Exceeding either of these constraints will cause an
 \texttt{CL\_OUT\_OF\_RESOURCES} error when the OpenCL kernel is
 enqueued.
 
@@ -127,6 +125,9 @@ include the number registers required for a kernel, and the available
 number of SIMD execution units for each type of instructions in a
 kernel.
 
+\subsubsection{Refused parameters}
+
+$w < W_{max}(s), w \not\in W_{refused}(s)$
 
 \begin{table}
 \input{tab/hosts}
