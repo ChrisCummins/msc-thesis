@@ -8,11 +8,17 @@ statistically sound comparisons of competing programs using different
 configurations, and the experimental setup.
 
 
-\section{Defining the Optimisation Space}
+\section{Experimental Setup}
 
-This section describes the benchmarks, architectures, and datasets
-used to gather performance data.
+This section describes the environment under which performance data
+was collected. Tables~\ref{tab:hw},~\ref{tab:kernels},
+and~\ref{tab:datasets} list the range of execution devices, kernels,
+and datasets used. For each unique combination of architecture,
+kernel, and dataset (hereby referred to as a \emph{scenario}),
+training data was collected by iteratively sampling the space of
+workgroup sizes.
 
+\TODO{Description of test systems. E.g. mobo, memory, \& GPUs.}
 
 \subsection{Benchmark Stencil Applications}
 
@@ -121,18 +127,6 @@ include the number registers required for a kernel, and the available
 number of SIMD execution units for each type of instructions in a
 kernel.
 
-
-\section{Experimental Setup}
-
-This section describes the environment under which performance data
-was collected. Tables~\ref{tab:hw},~\ref{tab:kernels},
-and~\ref{tab:datasets} list the range of execution devices, kernels,
-and datasets used. For each unique combination of architecture,
-kernel, and dataset (hereby referred to as a \emph{scenario}),
-training data was collected by iteratively sampling the space of
-workgroup sizes.
-
-\TODO{Description of test systems. E.g. mobo, memory, \& GPUs.}
 
 \begin{table}
 \input{tab/hosts}
