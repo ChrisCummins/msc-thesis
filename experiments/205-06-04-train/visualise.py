@@ -19,6 +19,7 @@ from labm8 import latex
 from labm8 import math as labmath
 from labm8 import ml
 from labm8 import text
+from labm8 import viz
 
 from eval import Dataset
 
@@ -27,6 +28,7 @@ from omnitune import skelcl
 from omnitune.skelcl import db as _db
 from omnitune.skelcl import space as _space
 from omnitune.skelcl import visualise
+from omnitune.skelcl import unhash_params
 
 import experiment
 
@@ -187,29 +189,81 @@ def main():
     fs.mkdir(fs.path(experiment.IMG_ROOT, "oracle/kernels"))
     fs.mkdir(fs.path(experiment.IMG_ROOT, "oracle/datasets"))
 
+    visualise.pie(db.num_scenarios_by_device,
+                  fs.path(experiment.IMG_ROOT, "num_sceanrios_by_device"))
+    visualise.pie(db.num_runtime_stats_by_device,
+                  fs.path(experiment.IMG_ROOT, "num_runtime_stats_by_device"))
+    visualise.pie(db.num_scenarios_by_dataset,
+                  fs.path(experiment.IMG_ROOT, "num_sceanrios_by_dataset"))
+    visualise.pie(db.num_runtime_stats_by_dataset,
+                  fs.path(experiment.IMG_ROOT, "num_runtime_stats_by_dataset"))
+    visualise.pie(db.num_runtime_stats_by_kernel,
+                  fs.path(experiment.IMG_ROOT, "num_runtime_stats_by_kernel"))
+    visualise.pie(db.num_runtime_stats_by_kernel,
+                  fs.path(experiment.IMG_ROOT, "num_runtime_stats_by_kernel"))
+
     # Per-scenario plots
     for row in db.scenario_properties:
-        scenario,device,kernel,north,south,east,west,width,height,tout = row
+        scenario,device,kernel,north,south,east,west,max_wgsize,width,height,tout = row
         title = ("{device}: {kernel}[{n},{s},{e},{w}]\n"
                  "{width} x {height} {type}s"
                  .format(device=text.truncate(device, 18), kernel=kernel,
                          n=north, s=south, e=east, w=west,
                          width=width, height=height, type=tout))
+        output = fs.path(experiment.IMG_ROOT,
+                         "scenarios/heatmap/{id}.png".format(id=scenario))
         space = _space.ParamSpace.from_dict(db.perf_scenario(scenario))
         max_c = min(25, len(space.c))
         max_r = min(25, len(space.r))
         space.reshape(max_c=max_c, max_r=max_r)
+
+        # Heatmaps.
+        mask = _space.ParamSpace(space.c, space.r)
+        for j in range(len(mask.r)):
+            for i in range(len(mask.c)):
+                if space.matrix[j][i] == 0:
+                    r, c = space.r[j], space.c[i]
+                    # TODO: Get values from refused_params table.
+                    if r * c >= max_wgsize:
+                        mask.matrix[j][i] = -1
+                    else:
+                        mask.matrix[j][i] = 1
+
+        new_order = list(reversed(range(space.matrix.shape[0])))
+        data = space.matrix[:][new_order]
+
+        figsize=(12,6)
+
+        _, ax = plt.subplots(1, 2, figsize=figsize, sharey=True)
+        sns.heatmap(data, ax=ax[0],
+                    xticklabels=space.c,
+                    yticklabels=list(reversed(space.r)), square=True)
+
+        ax[0].set_title(title)
+
+        new_order = list(reversed(range(mask.matrix.shape[0])))
+        data = mask.matrix[:][new_order]
+
+        sns.heatmap(data, ax=ax[1], vmin=-1, vmax=1,
+                    xticklabels=space.c,
+                    yticklabels=list(reversed(space.r)), square=True)
+
+        # Set labels.
+        ax[0].set_ylabel("Rows")
+        ax[0].set_xlabel("Columns")
+        ax[1].set_ylabel("Rows")
+        ax[1].set_xlabel("Columns")
+
+        # plt.tight_layout()
+        # plt.gcf().set_size_inches(*figsize, dpi=300)
+
+        viz.finalise(output)
 
         # 3D bars.
         output = fs.path(experiment.IMG_ROOT,
                          "scenarios/bars/{id}.png".format(id=scenario))
         space.bar3d(output=output, title=title, zlabel="Performance",
                     rotation=45)
-
-        # Heatmaps.
-        output = fs.path(experiment.IMG_ROOT,
-                         "scenarios/heatmap/{id}.png".format(id=scenario))
-        space.heatmap(output=output, title=title)
 
         # Trisurfs.
         output = fs.path(experiment.IMG_ROOT,
