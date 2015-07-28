@@ -7939,3 +7939,13 @@ Notes on data wrangling:
 * Reduced all runtimes. Copied to
   `~/data/msc-thesis/2015-07-27/all.db`. md5sum:
   `d201f18a14277003b1887850bee608ff`
+
+
+## Tuesday 28th
+
+* DONE: Moved database to `/usr/share/omnitune/db/skelcl.db`, and data
+  to `~/data/msc-thesis`.
+* DONE: Implemented ramdisk helper scripts for database and data.
+* DONE: Exported 1000 sets of 1000 runtimes from the dataset for
+  analysing variance as a function of the number of samples. File:
+  `~/data/msc-thesis/sample-runtimes.json`.
