@@ -201,6 +201,92 @@ def main():
     visualise.pie(db.num_runtime_stats_by_kernel,
                   fs.path(experiment.IMG_ROOT, "num_runtime_stats_by_kernel"))
 
+    # # Per-kernel plots
+    # for kernel,ids in db.lookup_named_kernels().iteritems():
+    #     id_wrapped = ['"' + id + '"' for id in ids]
+    #     where = ("scenario IN "
+    #              "(SELECT id from scenarios WHERE kernel IN ({0}))"
+    #              .format(",".join(id_wrapped)))
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "coverage/kernels/{0}.png".format(kernel))
+    #     visualise.coverage(db, output=output, where=where, title=kernel)
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "safety/kernels/{0}.png".format(kernel))
+    #     visualise.safety(db, output=output, where=where, title=kernel)
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "oracle/kernels/{0}.png".format(kernel))
+    #     visualise.safety(db, output=output, where=where, title=kernel)
+
+    # # Per-dataset plots
+    # for i,dataset in enumerate(db.datasets):
+    #     where = ("scenario IN "
+    #              "(SELECT id from scenarios WHERE dataset='{0}')"
+    #              .format(dataset))
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "coverage/datasets/{0}.png".format(i))
+    #     visualise.coverage(db, output, where=where, title=dataset)
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "safety/datasets/{0}.png".format(i))
+    #     visualise.safety(db, output, where=where, title=dataset)
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "oracle/datasets/{0}.png".format(i))
+    #     visualise.safety(db, output, where=where, title=dataset)
+
+    #####################
+    # ML Visualisations #
+    #####################
+    features_tab(db, experiment.TAB_ROOT)
+
+    visualise_classification_job(db, "xval")
+    visualise_classification_job(db, "arch")
+    visualise_classification_job(db, "xval_real")
+    visualise_classification_job(db, "synthetic_real")
+
+    # Runtime regression accuracy.
+    visualise_regression_job(db, "xval")
+    visualise_regression_job(db, "arch")
+    visualise_regression_job(db, "xval_real")
+    visualise_regression_job(db, "synthetic_real")
+
+    # Whole-dataset plots
+    visualise.runtimes_variance(db, fs.path(experiment.IMG_ROOT,
+                                            "runtime_variance.png"),
+                                min_samples=30)
+    visualise.num_samples(db, fs.path(experiment.IMG_ROOT,
+                                      "num_samples.png"))
+    visualise.runtimes_range(db, fs.path(experiment.IMG_ROOT,
+                                         "runtimes_range.png"))
+    visualise.max_speedups(db, fs.path(experiment.IMG_ROOT,
+                                       "max_speedups.png"))
+    visualise.kernel_performance(db, fs.path(experiment.IMG_ROOT,
+                                             "kernel_performance.png"))
+    visualise.device_performance(db, fs.path(experiment.IMG_ROOT,
+                                             "device_performance.png"))
+    visualise.dataset_performance(db, fs.path(experiment.IMG_ROOT,
+                                              "dataset_performance.png"))
+    visualise.num_params_vs_accuracy(db, fs.path(experiment.IMG_ROOT,
+                                                 "num_params_vs_accuracy.png"))
+    visualise.performance_vs_coverage(db,
+                                      fs.path(experiment.IMG_ROOT,
+                                              "performance_vs_coverage.png"))
+    visualise.performance_vs_max_wgsize(
+        db, fs.path(experiment.IMG_ROOT, "performance_vs_max_wgsize.png")
+    )
+    visualise.performance_vs_wgsize(db, fs.path(experiment.IMG_ROOT,
+                                                "performance_vs_wgsize.png"))
+    visualise.performance_vs_wg_c(db, fs.path(experiment.IMG_ROOT,
+                                              "performance_vs_wg_c.png"))
+    visualise.performance_vs_wg_r(db, fs.path(experiment.IMG_ROOT,
+                                              "performance_vs_wg_r.png"))
+    visualise.max_wgsizes(db, fs.path(experiment.IMG_ROOT, "max_wgsizes.png"))
+    visualise.oracle_speedups(db, fs.path(experiment.IMG_ROOT,
+                                          "oracle_speedups.png"))
+
+    visualise.coverage(db,
+                       fs.path(experiment.IMG_ROOT, "coverage/coverage.png"))
+    visualise.safety(db, fs.path(experiment.IMG_ROOT, "safety/safety.png"))
+    visualise.oracle_wgsizes(db, fs.path(experiment.IMG_ROOT, "oracle/all.png"))
+
     # Per-scenario plots
     for row in db.scenario_properties:
         scenario,device,kernel,north,south,east,west,max_wgsize,width,height,tout = row
@@ -327,92 +413,6 @@ def main():
                          "oracle/devices/{0}_synthetic.png".format(i))
         visualise.oracle_wgsizes(db, output, where=where,
                                  title=device + ", synthetic")
-
-    # Per-kernel plots
-    for kernel,ids in db.lookup_named_kernels().iteritems():
-        id_wrapped = ['"' + id + '"' for id in ids]
-        where = ("scenario IN "
-                 "(SELECT id from scenarios WHERE kernel IN ({0}))"
-                 .format(",".join(id_wrapped)))
-        output = fs.path(experiment.IMG_ROOT,
-                         "coverage/kernels/{0}.png".format(kernel))
-        visualise.coverage(db, output=output, where=where, title=kernel)
-        output = fs.path(experiment.IMG_ROOT,
-                         "safety/kernels/{0}.png".format(kernel))
-        visualise.safety(db, output=output, where=where, title=kernel)
-        output = fs.path(experiment.IMG_ROOT,
-                         "oracle/kernels/{0}.png".format(kernel))
-        visualise.safety(db, output=output, where=where, title=kernel)
-
-    # Per-dataset plots
-    for i,dataset in enumerate(db.datasets):
-        where = ("scenario IN "
-                 "(SELECT id from scenarios WHERE dataset='{0}')"
-                 .format(dataset))
-        output = fs.path(experiment.IMG_ROOT,
-                         "coverage/datasets/{0}.png".format(i))
-        visualise.coverage(db, output, where=where, title=dataset)
-        output = fs.path(experiment.IMG_ROOT,
-                         "safety/datasets/{0}.png".format(i))
-        visualise.safety(db, output, where=where, title=dataset)
-        output = fs.path(experiment.IMG_ROOT,
-                         "oracle/datasets/{0}.png".format(i))
-        visualise.safety(db, output, where=where, title=dataset)
-
-    #####################
-    # ML Visualisations #
-    #####################
-    features_tab(db, experiment.TAB_ROOT)
-
-    visualise_classification_job(db, "xval")
-    visualise_classification_job(db, "arch")
-    visualise_classification_job(db, "xval_real")
-    visualise_classification_job(db, "synthetic_real")
-
-    # Runtime regression accuracy.
-    visualise_regression_job(db, "xval")
-    visualise_regression_job(db, "arch")
-    visualise_regression_job(db, "xval_real")
-    visualise_regression_job(db, "synthetic_real")
-
-    # Whole-dataset plots
-    visualise.runtimes_variance(db, fs.path(experiment.IMG_ROOT,
-                                            "runtime_variance.png"),
-                                min_samples=30)
-    visualise.num_samples(db, fs.path(experiment.IMG_ROOT,
-                                      "num_samples.png"))
-    visualise.runtimes_range(db, fs.path(experiment.IMG_ROOT,
-                                         "runtimes_range.png"))
-    visualise.max_speedups(db, fs.path(experiment.IMG_ROOT,
-                                       "max_speedups.png"))
-    visualise.kernel_performance(db, fs.path(experiment.IMG_ROOT,
-                                             "kernel_performance.png"))
-    visualise.device_performance(db, fs.path(experiment.IMG_ROOT,
-                                             "device_performance.png"))
-    visualise.dataset_performance(db, fs.path(experiment.IMG_ROOT,
-                                              "dataset_performance.png"))
-    visualise.num_params_vs_accuracy(db, fs.path(experiment.IMG_ROOT,
-                                                 "num_params_vs_accuracy.png"))
-    visualise.performance_vs_coverage(db,
-                                      fs.path(experiment.IMG_ROOT,
-                                              "performance_vs_coverage.png"))
-    visualise.performance_vs_max_wgsize(
-        db, fs.path(experiment.IMG_ROOT, "performance_vs_max_wgsize.png")
-    )
-    visualise.performance_vs_wgsize(db, fs.path(experiment.IMG_ROOT,
-                                                "performance_vs_wgsize.png"))
-    visualise.performance_vs_wg_c(db, fs.path(experiment.IMG_ROOT,
-                                              "performance_vs_wg_c.png"))
-    visualise.performance_vs_wg_r(db, fs.path(experiment.IMG_ROOT,
-                                              "performance_vs_wg_r.png"))
-    visualise.max_wgsizes(db, fs.path(experiment.IMG_ROOT, "max_wgsizes.png"))
-    visualise.oracle_speedups(db, fs.path(experiment.IMG_ROOT,
-                                          "oracle_speedups.png"))
-
-    visualise.coverage(db,
-                       fs.path(experiment.IMG_ROOT, "coverage/coverage.png"))
-    visualise.safety(db, fs.path(experiment.IMG_ROOT, "safety/safety.png"))
-    visualise.oracle_wgsizes(db, fs.path(experiment.IMG_ROOT, "oracle/all.png"))
 
     ml.stop()
 
