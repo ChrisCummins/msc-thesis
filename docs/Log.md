@@ -7969,3 +7969,21 @@ In [26]: for i in indices:
     plt.title("True mean: {}".format(means[i]))
     plt.show()
 ```
+
+
+## Wednesday 29th
+
+Notes from meeting with Hugh and Pavlos:
+
+* Does a workgroup size of 1x1 work?
+* Is failing related only to dataset size?
+* Consider producing minimal test cases for failing workgroup sizes
+  and file bug reports with NVIDIA/Intel.
+* Divide the space (say per-program or per-architecture) and test for
+  baselines.
+* The reshape() and random() error handlers *don't work* for *unseen*
+  sets of features!!!
+* Think about how to apply a machine learning solution to the problem
+  of illegal parameters.
+* Does the isolating dataset size work?
+* What is the total % of *refused* parameters? ANSWER: 5%
