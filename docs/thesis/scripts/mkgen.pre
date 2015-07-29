@@ -199,9 +199,12 @@ def fine_grained_runtime_histograms():
     # Found by hand:
     indicies = [
         601, # 2.0406245600000004
+        895, # 25.012451818
         480, # 51.718092256000006
-        590, # 75.140274774999995
+        590, # 75.140274775
         941, # 100.372847552
+        939, # 100.9115374
+        312, # 119.245880346
         437, # 143.98754486299998
         156, # 195.44022449400003
     ]
@@ -318,10 +321,8 @@ def main():
           "gen/best_max_classification_speedup.tex")
 
     # TODO: *actual* human expert.
-    mktex(round(best_classification_results[3], 2),
-          "gen/best_avg_classification_speedup_he.tex")
-    mktex(round(best_classification_results[4], 2),
-          "gen/best_max_classification_speedup_he.tex")
+    mktex(int(round(best_classification_results[5] * 100) - 100),
+          "gen/best_avg_classification_speedup_he_perc.tex")
 
     mktex(int(round(best_synthetic_real_classification_results[2])),
           "gen/best_avg_synthetic_real_classification_performance.tex")
@@ -357,7 +358,7 @@ def main():
     visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf",
                           figsize=figsize, cmap="Blues", title=None)
 
-    figsize=(3.28, 2.7)
+    figsize=(2.75, 2)
     visualise.num_samples(db, "gen/img/num_samples.pdf", title="",
                           figsize=figsize)
     visualise.num_params(db, "gen/img/num_params.pdf", title="",
@@ -374,17 +375,7 @@ def main():
     visualise.performance_vs_coverage(db, "gen/img/params_summary.pdf",
                                       title="", figsize=figsize)
 
-    # Scatter plots
-    figsize=(5.8,3)
-    visualise.performance_vs_max_wgsize(db, "gen/img/performance_max_wgsize.pdf",
-                                        title="", figsize=figsize)
-    figsize=(3,2.2) # Half-width
-    visualise.performance_vs_wg_c(db, "gen/img/performance_wg_c.pdf",
-                                  title="", figsize=figsize)
-    visualise.performance_vs_wg_r(db, "gen/img/performance_wg_r.pdf",
-                                  title="", figsize=figsize)
-
-    # Boxplots
+    # Boxplots grouped by kernel,device,dataset
     figsize=(5.8,3) # Full page width
     visualise.kernel_performance(db, "gen/img/performance_kernels.pdf",
                                  title="", figsize=figsize)
@@ -393,6 +384,38 @@ def main():
                                  title="", figsize=figsize)
     visualise.dataset_performance(db, "gen/img/performance_datasets.pdf",
                                   title="", figsize=figsize)
+
+    # Boxplots grouped by wgsize
+    figsize=(5.8,3)
+    ratios = [np.array(l) for l in
+              json.load(open(fs.path(
+                  "~/data/msc-thesis/performance_wgsize.json"
+              )))]
+    visualise.performance_vs_max_wgsize(ratios,
+                                        "gen/img/performance_max_wgsize.pdf",
+                                        xlabel="Workgroup size (% max)",
+                                        figsize=figsize)
+
+    figsize=(5.8/2,3) # Half-width
+    ratios = [np.array(l) for l in
+              json.load(open(fs.path(
+                  "~/data/msc-thesis/performance_c.json"
+              )))]
+    visualise.performance_vs_max_wgsize(ratios,
+                                        "gen/img/performance_max_c.pdf",
+                                        xlabel="Workgroup columns (% max size)",
+                                        multiplier=20,
+                                        figsize=figsize)
+
+    ratios = [np.array(l) for l in
+              json.load(open(fs.path(
+                  "~/data/msc-thesis/performance_r.json"
+              )))]
+    visualise.performance_vs_max_wgsize(ratios,
+                                        "gen/img/performance_max_r.pdf",
+                                        xlabel="Workgroup rows (% max size)",
+                                        multiplier=20,
+                                        figsize=figsize)
 
     # ML Visualisations
     figsize=(5.8,2.5)

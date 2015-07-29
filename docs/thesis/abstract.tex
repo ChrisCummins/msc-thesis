@@ -28,12 +28,11 @@ learning to predict workgroup sizes for unseen programs. In an
 evaluation of \input{gen/num_scenarios} combinations of programs,
 architectures, and datasets, OmniTune is able to achieve
 $\input{gen/best_avg_classification_performance}\%$ of the available
-performance, providing an average speedup of
-$\input{gen/best_avg_classification_speedup_he}\times$ (max
-$\input{gen/best_max_classification_speedup_he}\times$) over human
-experts, and $\input{gen/best_avg_classification_speedup}\times$ (max
-$\input{gen/best_max_classification_speedup}\times$) over the best
-possible performance which can be achieved without autotuning.
+performance. This improves over the performance of human experts by
+$\input{gen/best_avg_classification_speedup_he_perc}\%$, providing an
+average speedup of $\input{gen/best_avg_classification_speedup}\times$
+(max $\input{gen/best_max_classification_speedup}\times$) over the
+best possible performance which can be achieved without autotuning.
 
 \ifdraft{
   \newpage
@@ -45,6 +44,9 @@ possible performance which can be achieved without autotuning.
   \item Chapter restructuring: after related work, explain the idea,
     the implementation, the methodology, then the results.
   \item There is significantly more data in the evaluation now.
+  \item I have a quick-and-dirty implementation of a stencil generator
+    which uses template subsitute to make synthetic training
+    benchmarks.
   \item Stuff I haven't yet done (and target deadlines):
     \begin{enumerate}
     \item Conclusions chapter, and most of the background. Deadline:
@@ -55,10 +57,6 @@ possible performance which can be achieved without autotuning.
       workgroup size using technique $x$ is $y$ --- how many
       iterations of a stencil do we need to perform before the
       benefits of the autotuning outweigh $y$? Deadline: one week.
-    \item I talk about ``procedurally generated synthetic
-      benchmarks'', but the synthetic benchmarks I use have been
-      written by hand. Either implement a stencil generator or
-      reword. Deadline: two weeks.
     \end{enumerate}
   \end{itemize}
 }

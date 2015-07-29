@@ -1,7 +1,7 @@
 Parallelism is increasingly seen as the only viable approach to
 maintaining continued performance improvements in a multicore
-world. Core counts in all types of devices from mobile to
-supercomputers are increasing, and devices are becoming increasingly
+world. Core counts are increasing in all types of devices from mobile
+to supercomputers, and devices are becoming increasingly
 heterogeneous. Despite this shift in the hardware paradigm, the
 adoption of parallel programming practises has been slow and awkward
 due to the prohibitive complexity and low level of abstractions
@@ -31,13 +31,13 @@ implementations of higher order functions~\cite{Cole1989}. Algorithmic
 Skeletons capture patterns of communication, and are parameterised by
 the programmer with ``muscle functions'' that implement problem
 specific logic. In doing so, they allow users to focus on solving the
-problem at hand, while the Algorithmic Skeletons are responsible for
-coordinating the parallel execution.
+problem at hand, affording greater ease of use than requring the
+developer to coordinate parallel resources.
 
 
 \section{The Problem}
 
-The cost of ease of use is performance. With each increase in the
+The cost of this ease of use is performance. With each increase in the
 level of the abstraction, implementation details are hidden from the
 user which can be significantly impactful on performance. In SkelCL,
 one such implementation detail which is abstracted from the user is
@@ -48,13 +48,13 @@ goal of separating problem solving logic from coordination logic, so
 it is the responsiblity of SkelCL to set the value of this parameter
 to ensure good performance automatically.
 
-Unfortunately, static values and simple heuristics fail at this
-goal. Many optimisation parameters are sensitive to the factors
-outside the influence of the developers control, such as the type of
-program, the data being operated on, and the underlying hardware. This
-makes portable performance tuning a difficult task, and it has
-tradtional been the responsibility to domain specialists to
-labourisiously hand tune hot code sections on a per-case basis.
+Static values and simple heuristics cannot reliably achieve this
+goal. Many optimisation parameters are sensitive to factors outside
+the influence of the developers control, such as the type of program,
+the data being operated on, and the underlying hardware. This makes
+portable performance tuning a difficult task, and it has tradtional
+been the responsibility to domain specialists to labourisiously hand
+tune individual programs to match the target hardware.
 
 The ambition of this thesis is to demonstrate that, using machine
 learning, we can develop self-tuning systems which closely approach

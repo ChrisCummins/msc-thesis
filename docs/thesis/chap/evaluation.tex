@@ -36,10 +36,10 @@ workgroup sizes each. % FIXME: (max \input{gen/num_max_params}).
 \begin{figure}
 \input{fig/runtime-histograms}
 \caption{%
-  Distribution of runtimes for 6 test cases, with increasing mean
-  runtimes between 2-200ms (shown with a horizontal dashed line). Each
-  plot shows a histogram of 1000 observations with a fitted kernel
-  density estimate.%
+  Distribution of runtimes for 9 test cases with increasing mean
+  runtimes between 2-200ms. Each plot contains a 35-bin histogram of
+  1000 observations, and a fitted kernel density estimate with
+  bandwidth 0.3. The true mean is shown with a vertical dashed line. %
 }
 \label{fig:runtime-histograms}
 \end{figure}
@@ -286,6 +286,7 @@ greatly across architectures, kernels, and datasets.
   workgroup size has on memory utilisation and execution unit
   occupancy.}
 
+\clearpage
 \begin{figure}
 \input{fig/performance-wgsizes}
 \caption{%
@@ -293,8 +294,7 @@ greatly across architectures, kernels, and datasets.
   of: (\subref{fig:performance-max-wgsize})~maximum legal size,
   (\subref{fig:performance-wg-c})~number of columns, and
   (\subref{fig:performance-wg-r})~ number of rows. As can be seen,
-  workgroup size alone is not indicative of performance. \FIXME{Shit
-    plots.}%
+  workgroup size alone is not indicative of performance.%
 }
 \label{fig:performance-wgsizes}
 \end{figure}
