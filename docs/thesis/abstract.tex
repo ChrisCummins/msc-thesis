@@ -20,19 +20,23 @@ of OmniTune for stencil skeletons on CPUs and multi-GPU systems. I
 show in a comprehensive evaluation of \input{gen/num_runtime_stats}
 test cases that simple heuristics cannot provide portable performance
 across the range of architectures, kernels, and datasets which
-Algorithmic Skeletons must target. static value
-\input{gen/baseline_perf_perc}\% of the available performance.
+Algorithmic Skeletons must target.
+
+% TODO: static values can achieve only
+% \input{gen/baseline_perf_perc}\% of the available performance.
 
 OmniTune uses procedurally generated synthetic benchmarks and machine
 learning to predict workgroup sizes for unseen programs. In an
 evaluation of \input{gen/num_scenarios} combinations of programs,
 architectures, and datasets, OmniTune is able to achieve
 $\input{gen/best_avg_classification_performance}\%$ of the available
-performance. This improves over the performance of human experts by
-$\input{gen/best_avg_classification_speedup_he_perc}\%$, providing an
-average speedup of $\input{gen/best_avg_classification_speedup}\times$
-(max $\input{gen/best_max_classification_speedup}\times$) over the
-best possible performance which can be achieved without autotuning.
+performance, an improvement of
+$\input{gen/best_avg_classification_speedup_he_perc}\%$ over the
+values selected by human experts, requiring no user intervention. This
+adaptive tuning provides an average speedup of
+$\input{gen/best_avg_classification_speedup}\times$ (max
+$\input{gen/best_max_classification_speedup}\times$) over the best
+possible performance which can be achieved without autotuning.
 
 \ifdraft{
   \newpage
