@@ -21,14 +21,16 @@ import labm8 as lab
 from labm8 import fs
 from labm8 import io
 from labm8 import latex
-from labm8 import system
 from labm8 import math as labmath
+from labm8 import ml
+from labm8 import system
 
 import omnitune
 from omnitune import skelcl
 from omnitune.skelcl import db as _db
 from omnitune.skelcl import unhash_params
 from omnitune.skelcl import visualise
+from omnitune.skelcl.dataset import Dataset
 from omnitune.skelcl.migrate import migrate
 
 
@@ -151,6 +153,31 @@ def create_datasets_table(db, output=None):
     ))
 
 
+def create_features_table(db, path):
+    def _attribute_type(attribute):
+        if attribute.type == 0:
+            return "numeric"
+        else:
+            return "categorical: {}".format(attribute.num_values)
+
+    def _format_name_col(name):
+        return "\\texttt{{{}}}".format(latex.escape(name))
+
+    def _table(rows, output):
+        latex.table(rows, output=output, columns=("Name", "Type"),
+                    escape=False, formatters=(_format_name_col, None))
+
+    dataset = Dataset.load("~/data/msc-thesis/csv/oracle_params.csv", db)
+
+    attributes = [[attribute.name, _attribute_type(attribute)]
+                  for attribute in dataset.instances.attributes()]
+    features = attributes[1:-1]
+    half = labmath.ceil(len(features) / 2)
+
+    _table(features[:half], fs.path(path, "features.1.tex"))
+    _table(features[half:], fs.path(path, "features.2.tex"))
+
+
 def create_results_tables(db):
     # Number of rows to include in tables.
     num_rows = 25
@@ -234,6 +261,7 @@ def num_samples_vs_variance(db):
 
 
 def main():
+    ml.start()
     db = migrate(_db.Database("/usr/share/omnitune/db/skelcl.db"))
 
     fs.rm("gen")
@@ -337,6 +365,7 @@ def main():
     create_devices_table(db)
     create_kernels_table(db)
     create_datasets_table(db)
+    create_features_table(db, "gen/tab/")
     create_results_tables(db)
 
     ################
@@ -415,8 +444,8 @@ def main():
                                         xlabel="Workgroup rows (% max size)",
                                         figsize=figsize)
 
-    # ML Visualisations
-    figsize=(5.8,2.5)
+    # Ml Visualisations
+    figsize=(5.8,4)
     visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
                              title="", figsize=figsize)
     visualise.runtime_regression(db, "gen/img/runtime-regression-xval.pdf",
@@ -424,6 +453,8 @@ def main():
     visualise.err_fn_speedups(db, "random_fn",
                               "gen/img/classification-xval-random.pdf",
                               job="xval", sort=True, title="", figsize=figsize)
+
+    ml.stop()
 
 
 if __name__ == "__main__":

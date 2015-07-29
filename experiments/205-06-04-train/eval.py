@@ -40,6 +40,7 @@ from omnitune.skelcl import db as _db
 from omnitune.skelcl import hash_params
 from omnitune.skelcl import unhash_params
 from omnitune.skelcl.migrate import migrate
+from omnitune.skelcl.dataset import Dataset
 
 import experiment
 
@@ -66,107 +67,6 @@ class ReshapeError(ErrFnError):
     Raised if the reshape_fn callback fails.
     """
     pass
-
-
-class Dataset(ml.Dataset):
-
-    def split_synthetic_real(self, db):
-        """
-        Split dataset based on whether scenario is a synthetic kernel or
-        not.
-
-        Returns:
-
-           (WekaInstances, WekaInstances): Only instances from
-             synthetic and real benchmarks, respectively.
-        """
-        real_scenarios = db.real_scenarios
-
-        synthetic = self.copy(self.instances)
-        real = self.copy(self.instances)
-
-        # Loop over all instances from last to first.
-        for i in range(self.instances.num_instances - 1, -1, -1):
-            instance = self.instances.get_instance(i)
-            scenario = instance.get_string_value(0)
-            if scenario in real_scenarios:
-                real.delete(i)
-            else:
-                synthetic.delete(i)
-
-        return synthetic, real
-
-    def arch_folds(self, db):
-        """
-        Split dataset to a list of leave-one-out instances, one for each
-        architecture.
-
-        Returns:
-
-           list of (WekaInstances, WekaInstances) tuples: A list of
-             training, testing pairs, where the training instances
-             exclude all scenarios from a specific architecture, and
-             the testing instances include only that architecture..
-        """
-        folds = []
-
-        for device in db.devices:
-            device_scenarios = db.scenarios_for_device(device)
-            testing = self.copy(self.instances)
-            training = self.copy(self.instances)
-
-            # Loop over all instances from last to first.
-            for i in range(self.instances.num_instances - 1, -1, -1):
-                instance = self.instances.get_instance(i)
-                scenario = instance.get_string_value(0)
-                if scenario in device_scenarios:
-                    training.delete(i)
-                else:
-                    testing.delete(i)
-
-            folds.append((training, testing))
-
-        return folds
-
-    @staticmethod
-    def load(path, db):
-        nominals = [
-            49,  # dev_double_fp_config
-            50,  # dev_endian_little
-            51,  # dev_execution_capabilities
-            52,  # dev_extensions
-            54,  # dev_global_mem_cache_type
-            57,  # dev_host_unified_memory
-            63,  # dev_image_support
-            65,  # dev_local_mem_type
-            96,  # dev_queue_properties
-            97,  # dev_single_fp_config
-            98,  # dev_type
-            100, # dev_vendor_id
-        ]
-        nominal_indices = ",".join([str(index) for index in nominals])
-        force_nominal = ["-N", nominal_indices]
-
-        # Load data from CSV.
-        dataset = Dataset.load_csv(path, options=force_nominal)
-        dataset.__class__ = Dataset
-
-        # Set class index and database connection.
-        dataset.class_index = -1
-        dataset.db = db
-
-        # Create string->nominal type attribute filter, ignoring the first
-        # attribute (scenario ID), since we're not classifying with it.
-        string_to_nominal = WekaFilter(classname=("weka.filters.unsupervised."
-                                                  "attribute.StringToNominal"),
-                                       options=["-R", "2-last"])
-        string_to_nominal.inputformat(dataset.instances)
-
-        # Create filtered dataset, and swap data around.
-        filtered = string_to_nominal.filter(dataset.instances)
-        dataset.instances = filtered
-
-        return dataset
 
 
 def get_one_r(db, instances):
@@ -286,12 +186,6 @@ def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
 
 def eval_classifier_instance(job, db, classifier, instance,
                              err_fn, training):
-    """
-    Returns:
-
-       (int, int, float, float): From first to last: Correct, Invalid,
-         Performance relative to oracle, Speedup over one_r.
-    """
     # Get relevant values from instance.
     oracle = instance.get_string_value(instance.class_index)
     scenario = instance.get_string_value(0)
@@ -308,9 +202,10 @@ def eval_classifier_instance(job, db, classifier, instance,
     attr = instance.dataset.attribute(instance.class_index)
     predicted = attr.value(value)
 
-    if predicted == oracle:
-        correct = 1
-        invalid = 0
+    correct = 1 if predicted == oracle else 0
+    if correct:
+        illegal = 0
+        refused = 0
         performance, speedup = perf_fn(db, scenario, predicted,
                                        oracle, baseline)
     else:
@@ -321,29 +216,28 @@ def eval_classifier_instance(job, db, classifier, instance,
         max_wgsize_attr_index = max_wgsize_attr.index
         max_wgsize = int(instance.get_value(max_wgsize_attr_index))
 
-        try:
-            db.runtime(scenario, predicted)
-            is_valid = True
-        except lab.db.Error:
-            is_valid = False
+        wg_c, wg_r = unhash_params(predicted)
 
-        if is_valid:
-            correct = 0
-            invalid = 0
-            performance, speedup = perf_fn(db, scenario, predicted,
-                                           oracle, baseline)
+        illegal = 0 if wg_c * wg_r < max_wgsize else 1
+        if illegal:
+            refused = 0
         else:
-            wg_c, wg_r = unhash_params(predicted)
-            invalid = 1
+            try:
+                db.runtime(scenario, predicted)
+                refused = 0
+            except lab.db.Error:
+                refused = 1
+
+        if illegal or refused:
             predicted = err_fn(instance, max_wgsize, wg_c, wg_r, baseline)
-            correct = 0
-            performance, speedup = perf_fn(db, scenario, predicted,
-                                           oracle, baseline)
+
+        performance, speedup = perf_fn(db, scenario, predicted,
+                                       oracle, baseline)
 
     db.add_classification_result(job, classifier,
                                  err_fn, training, scenario,
-                                 oracle, predicted, baseline, correct, invalid,
-                                 performance, speedup)
+                                 oracle, predicted, baseline, correct, illegal,
+                                 refused, performance, speedup)
 
 
 class Classifier(WekaFilteredClassifier):
@@ -604,9 +498,10 @@ def eval_linear_models(db, models):
 
             try:
                 prediction = hash_params(wg_c, wg_r)
+                illegal = 0 if wg_c * wg_r < max_wgsize else 1
                 correct = 1 if prediction == oracle else 0
                 db.runtime(scenario, prediction)
-                invalid = 0
+                refused = 0
 
                 reshape_param = prediction
                 reshape_perf, reshape_speedup = perf_fn(db, scenario,
@@ -616,7 +511,7 @@ def eval_linear_models(db, models):
                 random_param = prediction
                 random_perf, random_speedup = reshape_perf, reshape_speedup
             except lab.db.Error:
-                invalid = 1
+                refused = not illegal
                 reshape_param = reshape(db, scenario, max_wgsize, wg_c, wg_r)
                 reshape_perf, reshape_speedup = perf_fn(db, scenario,
                                                         reshape_param,
@@ -632,13 +527,13 @@ def eval_linear_models(db, models):
                                                       baseline)
 
             db.add_model_result(model.id(), "reshape_fn", scenario, oracle,
-                                reshape_param, correct, invalid,
+                                reshape_param, correct, illegal, refused,
                                 reshape_perf, reshape_speedup)
             db.add_model_result(model.id(), "default_fn", scenario, oracle,
-                                baseline, correct, invalid,
+                                baseline, correct, illegal, refused,
                                 baseline_perf, baseline_speedup)
             db.add_model_result(model.id(), "random_fn", scenario, oracle,
-                                random_param, correct, invalid,
+                                random_param, correct, illegal, refused,
                                 random_perf, random_speedup)
     db.commit()
     prof.stop("Linear models")
@@ -680,8 +575,8 @@ def main():
 
     linear_models(db)
     classification(db)
-    runtime_regression(db)
-    speedup_regression(db)
+    # runtime_regression(db)
+    # speedup_regression(db)
 
     ml.stop()
 

@@ -1,17 +1,76 @@
 \section{Introduction}
 
-In the previous chapter we
+In this chapter I apply the OmniTune framework to SkelCL. The publicly
+available implementation
+\footnote{\url{https://github.com/ChrisCummins/omnitune}} predicts
+workgroup sizes for OpenCL stencil skeleton kernels in order to
+minimise their runtime on CPUs and multi-GPU systems. The optimisation
+space presented by the workgroup size of OpenCL kernels is large,
+complex, and non-linear. Successfully applying machine learning to
+such a space requires plentiful training data, and the careful
+selection of features, model. The following sections address these
+challenges.
+
+% Anyone downloading a copy of OmniTune will instantly have access to
+% the global database of training data, including the
+% \input{gen/num_samples} runtimes which were collected to write this
+% thesis.
+
+% \texttt{cec.chlox1mra3iz.us-west-2.rds.amazonaws.com:3306}
+
+\section{Training}
+
+One challenge of performing empirical performance evaluations is
+gathering enough applications to ensure meaningful
+comparisons. Synthetic benchmarks are a popular method for
+circumventing this problem. The automatic generation of such
+benchmarks has clear benefits for reducing evaluation costs; however,
+creating meaningful benchmark programs is a difficult problem if we
+are to avoid the problems of redundant computation and produce
+provable halting benchmarks.
+
+In practise, stencil codes exhibit many common traits: they have a
+tightly constrained interface, predictable memory access patterns, and
+well defined numerical input and output data types. This can be used
+to create a confined space of possible stencil codes by enforcing
+upper and lower bounds on properties of the codes which can not
+normally be guaranteed for general-purpose programs, e.g.\ the number
+of floating point operations. In doing so, it is possible to
+programatically generate stencil workloads which share similar
+properties to those which we intend to target.
+
+Based on observations of real world stencil codes from the fields of
+cellular automata, image processing, and PDE solvers, I implemented a
+stencil generator which uses parameterised kernel templates to produce
+source codes for collecting training data. The stencil codes are
+parameterised by stencil shape (one parameter for each of the four
+directions), input and output data types (either integers, or single
+or double precision floating points), and \emph{complexity} --- a
+simple boolean metric for indicating the desired number of memory
+accesses and instructions per iteration, reflecting the relatively
+bi-modal nature of the reference stencil codes, either compute
+intensive (e.g. FDTD simulation), or lightweight (e.g. Game of Life).
+
+A total of 68 synthetic benchmarks were generated for collecting
+performance training data. Using a large number of synthetic
+benchmarks helps adress the ``small $n$, large $P$'' problem, which
+describes the difficulty of statistical inference in spaces for which
+the set of possible hypotheses $P$ is significantly larger than the
+number of observations $n$\CitationNeeded{}. By creating
+parameterised, synthetic benchmarks, it is possible to explore a much
+larger set of the space of possible stencil codes than if relying
+solely on reference applications, reducing the risk of overfitting to
+particular program features.
 
 
 \section{Feature Extraction}
 
-As demonstrated in Chapter~\ref{chap:methodology}, the performance of
-a workgroup size depends on properties of the architecture, device,
-and dataset. The success of a machine learning system depends on the
-ability to translate these properties into explanatory variables ---
-\emph{features}. For each scenario, a vector of 102 features is
-extracted to capture properties of the architecture, device, and
-dataset.
+Properties of the architecture, program, and dataset all contribute to
+the performance of a workgroup size. The success of a machine learning
+system depends on the ability to translate these properties into
+meaningful explanatory variables --- \emph{features}. For each
+scenario, a vector of 102 features is extracted to capture properties
+of the architecture, device, and dataset.
 
 
 \subsubsection{Architectural features}
@@ -72,63 +131,9 @@ types.
 \end{figure}
 
 
-\section{Training}
-
-One challenge of performing empirical performance evaluations is
-gathering enough applications to ensure meaningful
-comparisons. Synthetic benchmarks are a popular method for
-circumventing this issue, by comparing the performance of artificial
-workloads. The automatic generation of such benchmarks has clear
-benefits for reducing evaluation costs; however, creating meaningful
-benchmark programs is a difficult problem if we are to avoid the
-problems of redundant computation and produce provable halting
-benchmarks (\FIXME{Citations needed, although there will need to be a
-  more extensive review of this in the related work chapter}).
-
-In practise, stencil codes exhibit many common traits: they have a
-tightly constrained interface, predictable memory access patterns, and
-well defined input and output data types. This can be used to create a
-confined space of possible stencil codes by enforcing upper and lower
-bounds on properties of the codes which can not normally be guaranteed
-for general-purpose programs, e.g. the number of floating point
-operations. By doing so, it is possible to create a system to
-programatically generate synthetic stencil workloads which can
-\TODO{\ldots}.
-
-One motivation for the use of synthetic benchmarks is that for the
-purposes of autotuning, generating a large set of synthetic benchmarks
-can address the ``small $n$, large $P$'' problem, which describes the
-difficulty of statistical inference in spaces for which the set of
-possible hypotheses $P$ is significantly larger than the number of
-observations $n$\CitationNeeded{}. Creating parameterised, synthetic
-benchmarks, it is possible to explore a much larger set of the space
-of possible stencil codes than if relying solely on reference
-applications, for example, to evaluate the performance impact of
-highly irregular stencil shapes.
-
-\FIXME{The synthetic benchmarks I've used aren't actually
-  \emph{procedurally} generated. I'll either need to implement a
-  stencil generator, or failing that, describe my method for creating
-  the synthetic benchmarks and move the discussion of procedurally
-  generated stencils into the future work section.}
-
-The synthetic benchmarks used in this thesis are parameterised by
-stencil shape (one parameter for each of the four directions), input
-and output data types (either integers, or single or double precision
-floating points), and \emph{complexity} --- a simple metric for
-indicating the desired number of memory accesses and instructions per
-stencil.
-
-\TODO{Use template subsitution}
-
-
 \section{Predicting Workgroup Size}
 
-The optimisation space presented by selection of workgroup size is
-large, complex, and non-linear. In this section I apply the techniques
-of machine learning and statistical inference to build a system which
-is capable of predicting workgroup sizes for unseen programs, based on
-previously collected performance data.
+
 
 
 \subsection{Predicting Optimal Workgroup Sizes}
@@ -266,6 +271,17 @@ requires maximising the output of the regressor:
 \caption{Selecting workgroup size using a hybrid approach}
 \label{alg:autotune-hybrid}
 \end{algorithm}
+
+
+\section{Implementation}
+
+By design, the client-server model allows for enabling autotuning with
+a low impact on the target applications. As such, the modifications
+required to enable OmniTune support within SkelCL were minimal. The
+hard-coded workgroup size used in the stencil skeleton is replaced by
+a call to an OmniTune server, which uses classifiers
+Figure~\ref{fig:omnitune-system-flow} shows the behaviour of the
+OmniTune server.
 
 
 \section{Summary}

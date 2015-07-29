@@ -28,34 +28,10 @@ from omnitune import skelcl
 from omnitune.skelcl import db as _db
 from omnitune.skelcl import space as _space
 from omnitune.skelcl import visualise
+from omnitune.skelcl import hash_params
 from omnitune.skelcl import unhash_params
 
 import experiment
-
-
-def features_tab(db, path):
-    def _attribute_type(attribute):
-        if attribute.type == 0:
-            return "numeric"
-        else:
-            return "categorical: {}".format(attribute.num_values)
-
-    def _format_name_col(name):
-        return "\\texttt{{{}}}".format(latex.escape(name))
-
-    def _table(rows, output):
-        latex.table(rows, output=output, columns=("Name", "Type"),
-                    escape=False, formatters=(_format_name_col, None))
-
-    dataset = Dataset.load("~/data/msc-thesis/csv/oracle_params.csv", db)
-
-    attributes = [[attribute.name, _attribute_type(attribute)]
-                  for attribute in dataset.instances.attributes()]
-    features = attributes[1:-1]
-    half = labmath.ceil(len(features) / 2)
-
-    _table(features[:half], fs.path(path, "features.1.tex"))
-    _table(features[half:], fs.path(path, "features.2.tex"))
 
 
 def visualise_classification_job(db, job):
@@ -91,9 +67,9 @@ def visualise_classification_job(db, job):
     )
     results = []
     for classifier,err_fn,count in query:
-        correct, invalid, performance, speedup = zip(*[
+        correct, illegal, refused, performance, speedup = zip(*[
             row for row in db.execute(
-                "SELECT correct,invalid,performance,speedup\n"
+                "SELECT correct,illegal,refused,performance,speedup\n"
                 "FROM classification_results\n"
                 "WHERE job=? AND classifier=? AND err_fn=?",
                 (job, classifier, err_fn)
@@ -103,7 +79,8 @@ def visualise_classification_job(db, job):
             classifier,
             err_fn,
             (sum(correct) / count) * 100,
-            (sum(invalid) / count) * 100,
+            (sum(illegal) / count) * 100,
+            (sum(refused) / count) * 100,
             min(performance) * 100,
             labmath.geomean(performance) * 100,
             max(performance) * 100,
@@ -124,6 +101,7 @@ def visualise_classification_job(db, job):
         "ERR_FN",
         "ACC %",
         "INV %",
+        "REF %",
         "Omin %",
         "Oavg %",
         "Omax %",
@@ -201,41 +179,84 @@ def main():
     visualise.pie(db.num_runtime_stats_by_kernel,
                   fs.path(experiment.IMG_ROOT, "num_runtime_stats_by_kernel"))
 
-    # # Per-kernel plots
-    # for kernel,ids in db.lookup_named_kernels().iteritems():
-    #     id_wrapped = ['"' + id + '"' for id in ids]
-    #     where = ("scenario IN "
-    #              "(SELECT id from scenarios WHERE kernel IN ({0}))"
-    #              .format(",".join(id_wrapped)))
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "coverage/kernels/{0}.png".format(kernel))
-    #     visualise.coverage(db, output=output, where=where, title=kernel)
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "safety/kernels/{0}.png".format(kernel))
-    #     visualise.safety(db, output=output, where=where, title=kernel)
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "oracle/kernels/{0}.png".format(kernel))
-    #     visualise.safety(db, output=output, where=where, title=kernel)
+    # Per-scenario plots
+    for row in db.scenario_properties:
+        scenario,device,kernel,north,south,east,west,max_wgsize,width,height,tout = row
+        title = ("{device}: {kernel}[{n},{s},{e},{w}]\n"
+                 "{width} x {height} {type}s"
+                 .format(device=text.truncate(device, 18), kernel=kernel,
+                         n=north, s=south, e=east, w=west,
+                         width=width, height=height, type=tout))
+        output = fs.path(experiment.IMG_ROOT,
+                         "scenarios/heatmap/{id}.png".format(id=scenario))
+        space = _space.ParamSpace.from_dict(db.perf_scenario(scenario))
+        max_c = min(25, len(space.c))
+        max_r = min(25, len(space.r))
+        space.reshape(max_c=max_c, max_r=max_r)
 
-    # # Per-dataset plots
-    # for i,dataset in enumerate(db.datasets):
-    #     where = ("scenario IN "
-    #              "(SELECT id from scenarios WHERE dataset='{0}')"
-    #              .format(dataset))
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "coverage/datasets/{0}.png".format(i))
-    #     visualise.coverage(db, output, where=where, title=dataset)
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "safety/datasets/{0}.png".format(i))
-    #     visualise.safety(db, output, where=where, title=dataset)
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "oracle/datasets/{0}.png".format(i))
-    #     visualise.safety(db, output, where=where, title=dataset)
+        # Heatmaps.
+        mask = _space.ParamSpace(space.c, space.r)
+        for j in range(len(mask.r)):
+            for i in range(len(mask.c)):
+                if space.matrix[j][i] == 0:
+                    r, c = space.r[j], space.c[i]
+                    # TODO: Get values from refused_params table.
+                    if r * c >= max_wgsize:
+                        # Illegal
+                        mask.matrix[j][i] = -1
+                    else:
+                        # Refused
+                        db.execute("INSERT OR IGNORE INTO refused_params VALUES(?,?)",
+                                   (scenario, hash_params(c, r)))
+                        mask.matrix[j][i] = 1
+
+        db.commit()
+        new_order = list(reversed(range(space.matrix.shape[0])))
+        data = space.matrix[:][new_order]
+
+        figsize=(12,6)
+
+        _, ax = plt.subplots(1, 2, figsize=figsize, sharey=True)
+        sns.heatmap(data, ax=ax[0],
+                    xticklabels=space.c,
+                    yticklabels=list(reversed(space.r)), square=True)
+
+        ax[0].set_title(title)
+
+        new_order = list(reversed(range(mask.matrix.shape[0])))
+        data = mask.matrix[:][new_order]
+
+        sns.heatmap(data, ax=ax[1], vmin=-1, vmax=1,
+                    xticklabels=space.c,
+                    yticklabels=list(reversed(space.r)), square=True)
+
+        # Set labels.
+        ax[0].set_ylabel("Rows")
+        ax[0].set_xlabel("Columns")
+        ax[1].set_ylabel("Rows")
+        ax[1].set_xlabel("Columns")
+
+        # plt.tight_layout()
+        # plt.gcf().set_size_inches(*figsize, dpi=300)
+
+        viz.finalise(output)
+
+        # 3D bars.
+        output = fs.path(experiment.IMG_ROOT,
+                         "scenarios/bars/{id}.png".format(id=scenario))
+        space.bar3d(output=output, title=title, zlabel="Performance",
+                    rotation=45)
+
+        # Trisurfs.
+        output = fs.path(experiment.IMG_ROOT,
+                         "scenarios/trisurf/{id}.png".format(id=scenario))
+        space.trisurf(output=output, title=title, zlabel="Performance",
+                      rotation=45)
 
     #####################
     # ML Visualisations #
     #####################
-    features_tab(db, experiment.TAB_ROOT)
+    #features_tab(db, experiment.TAB_ROOT)
 
     visualise_classification_job(db, "xval")
     visualise_classification_job(db, "arch")
@@ -286,75 +307,6 @@ def main():
                        fs.path(experiment.IMG_ROOT, "coverage/coverage.png"))
     visualise.safety(db, fs.path(experiment.IMG_ROOT, "safety/safety.png"))
     visualise.oracle_wgsizes(db, fs.path(experiment.IMG_ROOT, "oracle/all.png"))
-
-    # Per-scenario plots
-    for row in db.scenario_properties:
-        scenario,device,kernel,north,south,east,west,max_wgsize,width,height,tout = row
-        title = ("{device}: {kernel}[{n},{s},{e},{w}]\n"
-                 "{width} x {height} {type}s"
-                 .format(device=text.truncate(device, 18), kernel=kernel,
-                         n=north, s=south, e=east, w=west,
-                         width=width, height=height, type=tout))
-        output = fs.path(experiment.IMG_ROOT,
-                         "scenarios/heatmap/{id}.png".format(id=scenario))
-        space = _space.ParamSpace.from_dict(db.perf_scenario(scenario))
-        max_c = min(25, len(space.c))
-        max_r = min(25, len(space.r))
-        space.reshape(max_c=max_c, max_r=max_r)
-
-        # Heatmaps.
-        mask = _space.ParamSpace(space.c, space.r)
-        for j in range(len(mask.r)):
-            for i in range(len(mask.c)):
-                if space.matrix[j][i] == 0:
-                    r, c = space.r[j], space.c[i]
-                    # TODO: Get values from refused_params table.
-                    if r * c >= max_wgsize:
-                        mask.matrix[j][i] = -1
-                    else:
-                        mask.matrix[j][i] = 1
-
-        new_order = list(reversed(range(space.matrix.shape[0])))
-        data = space.matrix[:][new_order]
-
-        figsize=(12,6)
-
-        _, ax = plt.subplots(1, 2, figsize=figsize, sharey=True)
-        sns.heatmap(data, ax=ax[0],
-                    xticklabels=space.c,
-                    yticklabels=list(reversed(space.r)), square=True)
-
-        ax[0].set_title(title)
-
-        new_order = list(reversed(range(mask.matrix.shape[0])))
-        data = mask.matrix[:][new_order]
-
-        sns.heatmap(data, ax=ax[1], vmin=-1, vmax=1,
-                    xticklabels=space.c,
-                    yticklabels=list(reversed(space.r)), square=True)
-
-        # Set labels.
-        ax[0].set_ylabel("Rows")
-        ax[0].set_xlabel("Columns")
-        ax[1].set_ylabel("Rows")
-        ax[1].set_xlabel("Columns")
-
-        # plt.tight_layout()
-        # plt.gcf().set_size_inches(*figsize, dpi=300)
-
-        viz.finalise(output)
-
-        # 3D bars.
-        output = fs.path(experiment.IMG_ROOT,
-                         "scenarios/bars/{id}.png".format(id=scenario))
-        space.bar3d(output=output, title=title, zlabel="Performance",
-                    rotation=45)
-
-        # Trisurfs.
-        output = fs.path(experiment.IMG_ROOT,
-                         "scenarios/trisurf/{id}.png".format(id=scenario))
-        space.trisurf(output=output, title=title, zlabel="Performance",
-                      rotation=45)
 
     # Per-device plots
     for i,device in enumerate(db.devices):
@@ -413,6 +365,37 @@ def main():
                          "oracle/devices/{0}_synthetic.png".format(i))
         visualise.oracle_wgsizes(db, output, where=where,
                                  title=device + ", synthetic")
+
+    # # Per-kernel plots
+    # for kernel,ids in db.lookup_named_kernels().iteritems():
+    #     id_wrapped = ['"' + id + '"' for id in ids]
+    #     where = ("scenario IN "
+    #              "(SELECT id from scenarios WHERE kernel IN ({0}))"
+    #              .format(",".join(id_wrapped)))
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "coverage/kernels/{0}.png".format(kernel))
+    #     visualise.coverage(db, output=output, where=where, title=kernel)
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "safety/kernels/{0}.png".format(kernel))
+    #     visualise.safety(db, output=output, where=where, title=kernel)
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "oracle/kernels/{0}.png".format(kernel))
+    #     visualise.safety(db, output=output, where=where, title=kernel)
+
+    # # Per-dataset plots
+    # for i,dataset in enumerate(db.datasets):
+    #     where = ("scenario IN "
+    #              "(SELECT id from scenarios WHERE dataset='{0}')"
+    #              .format(dataset))
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "coverage/datasets/{0}.png".format(i))
+    #     visualise.coverage(db, output, where=where, title=dataset)
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "safety/datasets/{0}.png".format(i))
+    #     visualise.safety(db, output, where=where, title=dataset)
+    #     output = fs.path(experiment.IMG_ROOT,
+    #                      "oracle/datasets/{0}.png".format(i))
+    #     visualise.safety(db, output, where=where, title=dataset)
 
     ml.stop()
 

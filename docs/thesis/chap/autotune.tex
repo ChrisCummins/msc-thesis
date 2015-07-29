@@ -1,102 +1,102 @@
 \section{Introduction}
 
-\TODO{Adaptive tuning of optimisation parameters\ldots}
+This chapter presents OmniTune, a set of interfaces for designing
+extensible, distributed autotuners, capable of runtime prediction of
+optimisation parameters using machine learning. OmniTune supports
+collaborative, online learning of optimisation spaces. I first
+describe the basic approaches to predicting optimisation parameters
+that OmniTune supports, followed by a description of the architecture
+and public interfaces exposed by OmniTune.
 
-In this chapter I describe the design and implementation of OmniTune,
-an extensible, dynamic autotuner, capable of runtime prediction of
-optimisation parameters using machine learning. OmniTune is designed
-to support collaborative, online learning of optimisation spaces, and
-is easily adapated to optimisation targets, by separating the
-application-specific and autotuning logic. OmniTune is publicly
-available under the GPL
-license\footnote{\url{https://github.com/ChrisCummins/omnitune}}. First,
-I describe the basic approaches to selecting optimisation parameters
-that OmniTune supports. This is followed by a description of the
-architecture and public interface exposed by OmniTune, and the last
-section describes the application of OmniTune for selecting the
-workgroup size of SkelCL stencil operations.
 
+\section{System Architecture and Interface}
 
 \begin{figure}
 \centering
 \includegraphics[width=.9\textwidth]{img/omnitune-system-overview.pdf}
 \caption{%
-  High level system overview of OmniTune.%
+  High level overview of OmniTune.%
 }
 \label{fig:omnitune-system-overview}
 \end{figure}
 
-
-\section{Predicting Optimisation Parameter Values}
-
-
-\section{System Architecture and Interface}
-
-
-Omnitune uses a three tier client-server model, illustrated in
-Figure~\ref{fig:omnitune-system-overview}. Target applications request
-optimisation parameter values from a system-wide server, which in turn
-communicates with a global database to add and receive training
-data. A set of caches in the system wide server act as a buffer
-between the client and the global database to minimise the latency of
-requests for optimisation parameter values.
-
-This design has two primary advantages: the first is that it decouples
-the autotuning logic from that of the client program, allowing
-developers to easily repurpose the autotuning framework to target
-additional optimisation parameters through a system of plugins; the
-second advantage is that this enables collective tuning, in which
-training data gathered from a range of devices can be accessed and
-added to by any OmniTune server. Anyone downloading a copy of OmniTune
-will instantly have access to the global database of training data,
-including the \input{gen/num_samples} runtimes which were collected to
-write this thesis.
-
-\FIXME{This last sentence is not currently implemented, since I'm
-  using only a system-wide database. I'll need to implement a MySQL
-  interface or reword.}
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{img/omnitune-system-flow.pdf}
-\caption{%
-  Integration of OmniTune into SkelCL stencil execution.%
-}
-\label{fig:omnitune-system-flow}
-\end{figure}
+Omnitune is built around a three tier client-server model, illustrated
+in Figure~\ref{fig:omnitune-system-overview}. The goal is to separate
+the concerns of application-specific and autotuning logic. In
+OmniTune, the applications which are to be autotuned are referred to
+as \emph{clients}. These clients commmunicate with a system-wide
+\emph{server}, which handles autotuning requests from clients. The
+server caches data sourced from a \emph{remote}, which maintains a
+global store of all training data.
 
 As discussed in \xref{related work}, common implementations of
 autotuning in the literature either: embed the autotuning logic within
-the target applications, or take a ``meta-scripting'' approach in
-which the autotuner is a standalone program which must be invoked by
-the user to tune a target application. The approach taken in this work
-aims to capture the advantages of both techniques by implementing an
-autotuning service with communication logic embedded in the target
-applications. The resulting design consists of three sets of
-components: clients, servers, and a global
-database. Figure~\ref{fig:omnitune-comms} shows a typical pattern of
-communication between the components.
+the each target application, or take a standalone approach in which
+the autotuner is a program which must be invoked by the user to tune a
+target application. Embedding the autotuner within each target
+application has the advantage of providing ``always-on'' behaviour,
+but is infeasible for complex systems in which the cost of building
+machine learning model must be added to each program run. The
+stanadlone approach separates the autotuning logic, at the expense of
+adding one additional step to the build process. The approach taken in
+OmniTune aims to capture the advantages of both techniques by
+implementing an autotuning service with communication logic embedded
+in the target applications. The resulting design consists of three
+sets of components: clients, servers, and a remote data-store.
+
+There is a many to one relationship between clients, servers, and
+remotes, such that a single remote may handle connections to multiple
+servers, which in turn may accept connections from multiple
+clients. This design has two primary advantages: the first is that it
+decouples the autotuning logic from that of the client program,
+allowing developers to easily repurpose the autotuning framework to
+target additional optimisation parameters without a significant
+development overhead for the target applications; the second advantage
+is that this enables collective tuning, in which training data
+gathered from a range of devices can be accessed and added to by any
+OmniTune server.
+
+OmniTune supports autotuning using a separate offline training phase,
+online training, or a mixture of both. Figure~\ref{fig:omnitune-comms}
+shows an example pattern of communication between the three tiers of
+an OmniTune system, showing a distinct training phase. Note that this
+training phase is enforced only by the client. The following sections
+describe the interfaces between the three components.
+
 
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{img/omnitune-comms.pdf}
 \caption{%
-  Communication pattern between OmniTune components.%
+  An example communication pattern between OmniTune components,
+  showing an offline training phase.%
 }
 \label{fig:omnitune-comms}
 \end{figure}
 
-\TODO{Advantages: asynchronous communication with ``the
-  cloud''. Expensive tasks such as model building aren't bound by the
-  lifespan of the client application. Lightweight handling of multiple
-  connections.}
 
+\subsection{Client Interface: Lightweight Communication}
 
-\subsection{Database: Distributed Training Data}
+Client applications communicate with an OmniTune server through four
+operations:
 
-A master server maintains a common store of all performance
-data. \TODO{Write-up schemas, table normal forms, checksum IDs,
-  \ldots}
+\begin{itemize}
+\item \textsc{Request}$(x) \to p$ Given a set of explanatory variables
+  $x$, request a set of parameter values $p$ to maximise performance.
+\item \textsc{RequestTraining}$(x) \to p$ Given a set of explanatory
+  variables $x$, allow the server to select a set of parameter values
+  $p$ for evaluating their fitness.
+\item \textsc{Submit}$(x, p, y)$ Submit an observed measurement of
+  fitness $y$ of parameters $p$, given explantory variables $x$.
+\item \textsc{Refuse}$(x, p)$ Refuse a set of parameters $p$ given a
+  set of explanatory variables $x$. Once refused, those parameters
+  will not be returned by any subsequent calls to \textsc{Request()}
+  or \textsc{RequestTraining()}.
+\end{itemize}
+
+This set of operations enables the core functionality of an autotuner,
+while providing flexibility for the client to control how and when
+training data is collected.
 
 
 \subsection{Server: Autotuning Engine}
@@ -105,91 +105,66 @@ For each autotuning-capable machine, a system-level daemon hosts a
 DBus session bus which client processes communicate with. This daemon
 acts as an intermediate between the training data and the client
 applications, \emph{serving} requests for optimisation parameter
-values. The server is implemented as a standalone Python program. On
-launch, the server requests the latest training data from the master
-database, it then builds the relevant models for performing prediction
-of optimisation parameter values. \TODO{Synchronisation, local caching
-  and of global DB state.}
+values. Servers operations are application-specific, so there is a set
+of operations to implement autotuning of each supported optimisation
+target.
 
-OmniTune servers use a plugin system to host proxies that interface
-with target applications. Proxies are application-specific, for
-example, there is a proxy which implements autotuning of workgroup
-size for SkelCL stencils. This proxy exposes two public methods,
-\texttt{RequestWgsize} and \texttt{RequestTrainingWgsize}, shown in
-Listing~\ref{lst:omnitune-proxy}.
-
-In addition to interfacing with client applications and the database,
-OmniTune servers contains a library of generic machine learning tools,
+The server is implemented as a standalone Python program, and contains
+a library of machine learning tools to perform parameter prediction,
 interfacing with Weka\footnote{http://www.cs.waikato.ac.nz/ml/weka/}
-using the JNI to perform classification. Each proxy performs feature
-extraction of incoming client requests and uses the common machine
-learning tools to predict optimal parameter values. \TODO{Plugins
-  allow separation of concerns.}
+using the JNI. Servers may perform additional feature extraction of
+explanatory variables supplied by incoming client requests. The reason
+for performing feature extraction on the server as opposed to on the
+client side is that this allows the results of expensive operations
+(for example, analysing source code of target applications) to be
+cached for use across the lifespan of client applications. These
+caches are synced with the remote to
 
-\lstinputlisting[
-  language=Python,
-  float,
-  floatplacement=t,
-  label=lst:omnitune-proxy,
-  caption={%
-    Public OmniTune proxy interface for SkelCL autotuning.%
-  }
-]{dat/omnitune-skelcl-proxy.py}
+On launch, the server requests the latest training data from the
+remote, which it uses to build the relevant models for performing
+prediction of optimisation parameter values. Servers communicate with
+remotes by submitting or requesting training data in batches, using
+two operations:
+
+\begin{itemize}
+\item \textsc{Push}$(\bf{f}, \bf{c})$ Submit a set of labelled training
+  points as pairs $(f,c)$.
+\item \textsc{Pull}$() \to (\bf{f}, \bf{c})$ Request training data as a
+  set of labelled $(f,c)$ pairs.
+\end{itemize}
 
 
-\subsection{Client Interface: Lightweight Communication}
+\subsection{Remote: Distributed Training Data}
 
-By design, the client-server model allows for enabling autotuning with
-a low impact on the target applications. As such, the modifications
-required to enable OmniTune support within SkelCL were minimal. The
-stencil implementation was modified to use an OmniTune client
-interface to suggest workgroup sizes, instead of the hardcoded value
-which was previously present
-(Listing~\ref{lst:skelcl-set-wgsize}). When a SkelCL stencil is
-executed, the client interface synchronously calls the
-\texttt{RequestWgsize()} method of the OmniTune server, passing as
-arguments the required parameters for feature extraction
-(Listing~\ref{lst:omnitune-client}). Feature extraction occurs within
-the server, which then classifies the extracted features and returns
-the suggested workgroup size to the client SkelCL process.
+\TODO{\ldots}
 
-\note{This is a very low latency operation, and the system daemon can
-  handle multiple connections from separate SkelCL processes
-  simultaneously (although this is an admittedly unlikely use-case
-  given that most GPGPU programs expect to be run in isolation).}
 
-\lstinputlisting[
-  language=C++,
-  float,
-  floatplacement=t,
-  label=lst:skelcl-set-wgsize,
-  caption={
-    %
-    An extract from the SkelCL stencil implementation, showing the
-    call to omnitune client to request workgroup size.
-    %
-  }
-]{dat/skelcl-set-wgsize.cpp}
+\section{Predicting Optimisation Parameter Values}
 
-\lstinputlisting[
-  language=C++,
-  float,
-  floatplacement=t,
-  label=lst:omnitune-client,
-  caption={
-    Implementation of SkeCL's client interface to OmniTune proxy.
-  }
-]{dat/skelcl-omnitune-client.cpp}
+Figure~\ref{fig:omnitune-system-flow} shows the \TODO{\ldots}
+
+% Predicting values for optimisation parameters
+
+% separate training phase
+
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{img/omnitune-system-flow.pdf}
+\caption{%
+  Selecting optimisation parameter values with OmniTune.%
+}
+\label{fig:omnitune-system-flow}
+\end{figure}
 
 
 \section{Summary}
 
-This chapter has described the design and implementation of OmniTune,
-a distributed autotuner which is capable of performing runtime
-prediction of optimal workgroup sizes for SkelCL stencils using a
-variety of machine learning approaches. OmniTune uses a client-server
-model to decouple the autotuning logic from target programs and to
-maintain separation of concerns. It uses lightweight inter-process
-communication to achieve low latency autotuning, and uses caches and
-lookup tables to minimise the one-off costs of feature
-extraction. \TODO{Summarise ML approaches\ldots}
+This chapter has described the architecture of of OmniTune, a
+distributed autotuner which is capable of performing runtime
+prediction of optimal workgroup sizes using a variety of machine
+learning approaches. OmniTune uses a client-server model to decouple
+the autotuning logic from target programs and to maintain separation
+of concerns. It uses lightweight inter-process communication to
+achieve low latency autotuning, and uses caches and lookup tables to
+minimise the one-off costs of feature extraction.
