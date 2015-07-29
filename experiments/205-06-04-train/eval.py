@@ -234,6 +234,24 @@ def perf_fn(db, scenario, predicted, oracle, baseline):
 ####################
 # err_fn callbacks #
 ####################
+def reshape(db, scenario, max_wgsize, wg_c, wg_r):
+    W_legal = db.W_legal(scenario)
+
+    min_distance = float("inf")
+    min_param = None
+
+    # Find the *legal* parameter which is closest to the predicted by
+    # calculating the distance to each and returning the smallest.
+    for param in W_legal:
+        p_c, p_r = unhash_params(param)
+        distance = math.sqrt((wg_c - p_c) ** 2 + (wg_r - p_r) ** 2)
+        if distance < min_distance:
+            min_distance = distance
+            min_param = param
+
+    return min_param
+
+
 def default_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
     """
     Default value parameter callback.
@@ -251,8 +269,7 @@ def random_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
     smaller than or equal to the max workgroup size.
     """
     scenario = instance.get_string_value(0)
-    W_legal = db.W_legal(scenario)
-    return random.choice(W_legal)
+    return random.choice(db.W_legal(scenario))
 
 
 def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
@@ -263,21 +280,8 @@ def reshape_fn(db, instance, max_wgsize, wg_c, wg_r, baseline):
     fits within the maximum.
     """
     scenario = instance.get_string_value(0)
-    W_legal = db.W_legal(scenario)
 
-    min_distance = float("inf")
-    min_param = None
-
-    # Find the *legal* parameter which is closest to the predicted by
-    # calculating the distance to each and returning the smallest.
-    for param in W_legal:
-        p_c, p_r = unhash_params(param)
-        distance = math.sqrt((wg_c - p_c) ** 2 + (wg_r - p_r) ** 2)
-        if distance < min_distance:
-            min_distance = distance
-            min_param = param
-
-    return min_param
+    return reshape(db, scenario, max_wgsize, wg_c, wg_r)
 
 
 def eval_classifier_instance(job, db, classifier, instance,
