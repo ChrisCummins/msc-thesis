@@ -334,9 +334,9 @@ def eval_classifier_instance(job, db, classifier, instance,
                                            oracle, baseline)
         else:
             wg_c, wg_r = unhash_params(predicted)
-            correct = 0
             invalid = 1
             predicted = err_fn(instance, max_wgsize, wg_c, wg_r, baseline)
+            correct = 0
             performance, speedup = perf_fn(db, scenario, predicted,
                                            oracle, baseline)
 
@@ -541,6 +541,7 @@ def classification(db, nfolds=10):
         partial(reshape_fn, db),
     )
 
+    db.empty_table("classification_results")
     eval_fn = partial(eval_classifiers, db, classifiers, err_fns)
     run_eval(db, dataset, eval_fn, "classification")
 
@@ -564,6 +565,8 @@ def regression(db, path, add_cb, get_prediction, add_classification_cb):
 
 
 def runtime_regression(db):
+    db.empty_table("runtime_regression_results")
+    db.empty_table("classification_runtime_regression_results")
     regression(db, "~/data/msc-thesis/csv/runtime_stats.csv",
                db.add_runtime_regression_result,
                get_best_runtime_regression,
@@ -571,10 +574,101 @@ def runtime_regression(db):
 
 
 def speedup_regression(db):
+    db.empty_table("speedup_regression_results")
+    db.empty_table("classifcation_speedup_regression_results")
     regression(db, "~/data/msc-thesis/csv/speedup_stats.csv",
                db.add_speedup_regression_result,
                get_best_speedup_regression,
                db.add_speedup_classification_result)
+
+
+def eval_linear_models(db, models):
+    rows = db.execute(
+        "SELECT "
+        "    scenario_stats.scenario, "
+        "    kernels.max_wg_size, "
+        "    scenario_stats.oracle_param "
+        "FROM scenarios "
+        "LEFT JOIN scenario_stats "
+        "  ON scenarios.id=scenario_stats.scenario "
+        "LEFT JOIN kernels "
+        "  ON scenarios.kernel=kernels.id"
+    ).fetchall()
+
+    baseline = db.one_r()[0]
+
+    prof.start("Linear models")
+    for scenario,max_wgsize,oracle in rows:
+        for model in models:
+            wg_c, wg_r = model.predict(scenario, max_wgsize, oracle)
+
+            try:
+                prediction = hash_params(wg_c, wg_r)
+                correct = 1 if prediction == oracle else 0
+                db.runtime(scenario, prediction)
+                invalid = 0
+
+                reshape_param = prediction
+                reshape_perf, reshape_speedup = perf_fn(db, scenario,
+                                                        prediction, oracle,
+                                                        baseline)
+                baseline_perf, baseline_speedup = reshape_perf, reshape_speedup
+                random_param = prediction
+                random_perf, random_speedup = reshape_perf, reshape_speedup
+            except lab.db.Error:
+                invalid = 1
+                reshape_param = reshape(db, scenario, max_wgsize, wg_c, wg_r)
+                reshape_perf, reshape_speedup = perf_fn(db, scenario,
+                                                        reshape_param,
+                                                        oracle, baseline)
+
+                baseline_perf, baseline_speedup = perf_fn(db, scenario,
+                                                          baseline, oracle,
+                                                          baseline)
+
+                random_param = random.choice(db.W_legal(scenario))
+                random_perf, random_speedup = perf_fn(db, scenario,
+                                                      random_param, oracle,
+                                                      baseline)
+
+            db.add_model_result(model.id(), "reshape_fn", scenario, oracle,
+                                reshape_param, correct, invalid,
+                                reshape_perf, reshape_speedup)
+            db.add_model_result(model.id(), "default_fn", scenario, oracle,
+                                baseline, correct, invalid,
+                                baseline_perf, baseline_speedup)
+            db.add_model_result(model.id(), "random_fn", scenario, oracle,
+                                random_param, correct, invalid,
+                                random_perf, random_speedup)
+    db.commit()
+    prof.stop("Linear models")
+
+
+class Model(object):
+    def predict(self, *args, **kwargs):
+        pass
+    def id(self, ):
+        pass
+
+
+class LinearModel(Model):
+    def __init__(self, c_multiplier, r_multiplier):
+        self.c = c_multiplier
+        self.r = r_multiplier
+
+    def predict(self, scenario, max_wgsize, *args, **kwargs):
+        return max_wgsize * self.c, max_wgsize * self.r
+
+    def id(self):
+        return "l-{}-{}".format(self.c, self.r)
+
+
+def linear_models(db):
+    models = [
+        LinearModel(0.15, 0.05),
+    ]
+    db.empty_table("model_results")
+    eval_linear_models(db, models)
 
 
 def main():
@@ -582,26 +676,9 @@ def main():
     Evaluate dataset and omnitune performance.
     """
     ml.start()
-
-    # Get the latest dataset from the oracle.
     db = migrate(_db.Database(experiment.ORACLE_PATH))
 
-    # Empty old data.
-    tables = [
-        "classifiers",
-        "err_fns",
-        "ml_datasets",
-        "ml_jobs",
-        "classification_results",
-        "runtime_regression_results",
-        "speedup_regression_results",
-        "classification_runtime_regression_results",
-        "classification_speedup_regression_results",
-    ]
-    for table in tables:
-        db.empty_table(table)
-
-
+    linear_models(db)
     classification(db)
     runtime_regression(db)
     speedup_regression(db)
