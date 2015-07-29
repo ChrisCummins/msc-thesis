@@ -524,7 +524,7 @@ def get_best_speedup_regression(db, scenario, job):
 
 
 def classification(db, nfolds=10):
-    dataset = Dataset.load("/tmp/omnitune/csv/oracle_params.csv", db)
+    dataset = Dataset.load("~/data/msc-thesis/csv/oracle_params.csv", db)
 
     classifiers = (
         ml.J48(),
@@ -564,14 +564,14 @@ def regression(db, path, add_cb, get_prediction, add_classification_cb):
 
 
 def runtime_regression(db):
-    regression(db, "/tmp/omnitune/csv/runtime_stats.csv",
+    regression(db, "~/data/msc-thesis/csv/runtime_stats.csv",
                db.add_runtime_regression_result,
                get_best_runtime_regression,
                db.add_runtime_classification_result)
 
 
 def speedup_regression(db):
-    regression(db, "/tmp/omnitune/csv/speedup_stats.csv",
+    regression(db, "~/data/msc-thesis/csv/speedup_stats.csv",
                db.add_speedup_regression_result,
                get_best_speedup_regression,
                db.add_speedup_classification_result)
@@ -585,7 +585,6 @@ def main():
 
     # Get the latest dataset from the oracle.
     db = migrate(_db.Database(experiment.ORACLE_PATH))
-    db.dump_csvs("/tmp/omnitune/csv")
 
     # Empty old data.
     tables = [

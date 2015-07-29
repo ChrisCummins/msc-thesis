@@ -47,8 +47,7 @@ def features_tab(db, path):
         latex.table(rows, output=output, columns=("Name", "Type"),
                     escape=False, formatters=(_format_name_col, None))
 
-    db.dump_csvs("/tmp/omnitune/visualise")
-    dataset = Dataset.load("/tmp/omnitune/visualise/oracle_params.csv", db)
+    dataset = Dataset.load("~/data/msc-thesis/csv/oracle_params.csv", db)
 
     attributes = [[attribute.name, _attribute_type(attribute)]
                   for attribute in dataset.instances.attributes()]
