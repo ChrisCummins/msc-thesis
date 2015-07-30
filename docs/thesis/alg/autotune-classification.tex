@@ -1,11 +1,11 @@
 \begin{algorithmic}[1]
-\Require kernel features $k$, hardware features $h$, dataset features
+\Require scenario $s$
 $d$.
 \Ensure workgroup size $w$
 
-\Procedure{Default}{w, a, k, d}
-\Comment Use the best safe param.
-\State $w \leftarrow \text{classify}(a, k, d)$
+\Procedure{Baseline}{s}
+\Comment Select the best $w$ from $W_{safe}$.
+\State $w \leftarrow \text{classify}(f(s))$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
@@ -15,22 +15,22 @@ $d$.
 \right)^{1/|S_{training}|}$
 \EndIf
 \EndProcedure
-\item[]
+\item[] % line break
 
-\Procedure{Random}{w, a, k, d}
-\Comment Use a random param from $W_{legal}$.
-\State $w \leftarrow \text{classify}(a, k, d)$
+\Procedure{Random}{s}
+\Comment Select a random $w$ from $W_{legal}(s)$.
+\State $w \leftarrow \text{classify}(f(s))$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else
-  \State \textbf{return} random choice $w \in W_{legal}$
+  \State \textbf{return} random choice $w \in W_{legal}(s)$
 \EndIf
 \EndProcedure
-\item[]
+\item[] % line break
 
-\Procedure{Reshape}{w, a, k, d}
-\Comment Coerce params to be legal.
-\State $w \leftarrow \text{classify}(a, k, d)$
+\Procedure{Nearest Neighbour}{s}
+\Comment Select the closest $w$ from $W_{legal}(s)$.
+\State $w \leftarrow \text{classify}(f(s))$
 \If{$w \in W_{legal}(s)$}
     \State \textbf{return} $w$
 \Else

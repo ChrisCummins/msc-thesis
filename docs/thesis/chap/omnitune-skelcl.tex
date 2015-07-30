@@ -12,77 +12,6 @@ selection of features, and classification approach. The following
 sections address these challenges.
 
 
-\section{Understanding the Space}
-
-SkelCL stencil kernels are parameterised by a workgroup size $w$,
-which consists of two integer values to denote the number of rows and
-columns (where we need to distinguish the individual components, we
-will use symbols $w_r$ and $w_c$ to denote rows and columns,
-respectively).
-
-
-\subsection{Constraints}
-
-Unlike in many autotuning applications, the space of possible
-parameter values $W$ is subject to hard constraints, and these
-constraints cannot conviently be statically determined.
-
-\subsubsection{Architectural constraints}
-
-Each OpenCL device imposes a maximum workgroup size which can be
-statically checked by querying the \texttt{clGetDeviceInfo()}
-API. These are defined by the limits of the hardware, typically the
-number of execution units which have access to a shared memory pool.
-
-
-\subsubsection{Kernel constraints}
-
-At runtime, once an OpenCL program has been compiled to a kernel,
-users can query the maximum workgroup size supported by that kernel
-using the \texttt{clGetKernelInfo()} API. Crucially, this value cannot
-easily be obtained statically, as there is no mechanism to determine
-the maximum workgroup size for a given source code and device without
-first compiling it, which in OpenCL does not occur until
-runtime. Factors which affect a kernel's maximum workgroup size
-include the number registers required for a kernel, and the available
-number of SIMD execution units for each type of instructions in a
-kernel.
-
-
-\subsubsection{Refused parameters}
-
-$w < W_{max}(s), w \not\in W_{refused}(s)$
-
-
-The subject to satisfying two hard constraints: the maximum workgroup
-size imposed by the architecture, and the maximum workgroup size
-imposed by a kernel. Exceeding either of these constraints will cause
-an \texttt{CL\_OUT\_OF\_RESOURCES} error when the OpenCL kernel is
-enqueued.
-
-For a given \emph{scenario} $s$ (a combination of program, device, and
-dataset), the subset of workgroup sizes $W_{legal}(s) \subsetq W$
-(where $W$ is the set of all possible workgroup sizes) that are legal
-is defined as:
-
-\begin{equation}
-  W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} - W_{refused}(s)
-\end{equation}
-
-
-
-
-From the set of all workgroup sizes $W$, the subset of workgroup sizes
-$W_{legal}(s) \subseteq W$ that are legal for a given scenario $s$ can
-be found using:
-
-\begin{equation}
-  W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} - W_{refused}(s)
-\end{equation}
-
-
-
-
 % Anyone downloading a copy of OmniTune will instantly have access to
 % the global database of training data, including the
 % \input{gen/num_samples} runtimes which were collected to write this
@@ -90,7 +19,7 @@ be found using:
 
 % \texttt{cec.chlox1mra3iz.us-west-2.rds.amazonaws.com:3306}
 
-\section{Training}
+\section{Training}\label{sec:training}
 
 One challenge of performing empirical performance evaluations is
 gathering enough applications to ensure meaningful
@@ -190,58 +119,180 @@ performed in the relevant table, meaning that the cost of feature
 extraction is amortised over time.
 
 
-\section{Predicting Workgroup Sizes}
+\section{Optimisation Parameters}
 
-The OmniTune server supports three methods of predicting workgroup
-size. The first approach to selecting workgroup sizes is to convert
-the set of oracle workgroup sizes into a hypothesis space and then use
-a classifier to predict for a given set of features the workgroup size
-which will provide the best performance.
+SkelCL stencil kernels are parameterised by a workgroup size $w$,
+which consists of two integer values to denote the number of rows and
+columns (where we need to distinguish the individual components, we
+will use symbols $w_r$ and $w_c$ to denote rows and columns,
+respectively).
 
 
-\subsubsection{Satisfying Constraints}
+\subsection{Constraints}
 
-The set of workgroup sizes which a classifier may predict is defined
-by the oracle workgroup sizes of the training data:
+Unlike in many autotuning applications, the space of optimisation
+parameter values is subject to hard constraints, and these constraints
+cannot conviently be statically determined. Contributing factors are
+architectural limitations, kernel constraints, and refused parameters.
+
+
+\subsubsection{Architectural constraints}
+
+Each OpenCL device imposes a maximum workgroup size which can be
+statically checked by querying the \texttt{clGetDeviceInfo()} API for
+that device. These are defined by archiectural limitations of how code
+is mapped to the underlying execution hardware. Typical values are
+powers of two, e.g.\ 1024, 4096, 8192.
+
+
+\subsubsection{Kernel constraints}
+
+At runtime, once an OpenCL program has been compiled to a kernel,
+users can query the maximum workgroup size supported by that kernel
+using the \texttt{clGetKernelInfo()} API. This value cannot easily be
+obtained statically as there is no mechanism to determine the maximum
+workgroup size for a given source code and device without first
+compiling it, which in OpenCL does not occur until runtime. Factors
+which affect a kernel's maximum workgroup size include the number
+registers required for a kernel, and the available number of SIMD
+execution units for each type of instructions in a kernel.
+
+
+\subsubsection{Refused parameters}
+
+\TODO{\ldots}
+
+
+\subsubsection{Legality}
+
+We define a \emph{legal} workgroup size as one which, for a given
+\emph{scenario} (a combination of program, device, and dataset),
+satisfies the architectural and kernel constraints, and is not
+refused. The subset of all possible workgroup sizes
+$W_{legal}(s) \subset W$ that are legal for a given sceanario $s$ is
+then:
 
 \begin{equation}
-W_{training} = \{ \Omega(s) | s \in S_{training} \}
+  W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} - W_{refused}(s)
 \end{equation}
 
-This does not guarantee that the set of workgroup sizes which may be
-predicted is within the set of legal workgroup sizes for each tested
-scenario:
+Where $W_{max}(s)$ can be determined at runtime prior to the kernels
+execution, but the set $W_{refused}(s)$ can only be determined
+experimentally. Exceeding either of these constraints will cause an
+\texttt{CL\_OUT\_OF\_RESOURCES} error when the OpenCL kernel is
+enqueued.
+
+
+\subsection{Assessing Relative Performance}
+
+Given a set of observations of observed runtime for $(s,w)$ pairs, and
+a function $t(s,w)$ which returns the arithmetic mean of the observed
+runtimes for a pair, we can calculate the speedup $r(s, w_1, w_2)$ of
+competing workgroup sizes $w_1$ over $w_2$ using:
 
 \begin{equation}
-W_{training} \nsubseteq \cup \{ W_{legal}(s) | s \in S_{testing} \}
+  r(s, w_1, w_2) = \frac{t(s,w_2)}{t(s,w_1)}\\
 \end{equation}
 
-\TODO{2 solutions: satisfy constraint at classification time
-  (i.e. error handlers), or at training time (i.e. one classifier per
-  max-wg-size)\ldots}
 
-As a result, it is possible that a classifier will predict a workgroup
-size that is invalid for a given scenario, $w \not\in W_{legal}(s)$.
-For these cases, I evaluate the effective of three fallback strategies
-to select a legal workgroup size:
+\subsubsection{Oracle Workgroup Size}
+
+The \emph{oracle} workgroup size $\Omega(s) \in W_{legal}(s)$ of a
+sceanrio $s$ is the $w$ value which provides the lowest mean
+runtime. This allows for comparing the performance $p(s,w)$ of a
+particular workgroup against the maximum available performance for
+that scenario, within the range $0 \le p(s,w) \le 1$:
+
+\begin{align}
+  \Omega(s) &= \argmin_{w \in W_{legal}(s)} t(s,w)\\
+  p(s,w) &= r(s, w, \Omega(s))
+\end{align}
+
+
+\subsubsection{Establishing a Baseline}
+
+The geometric mean is used to aggregate normalised relative
+performances due to its multiplicative
+property~\cite{Fleming1986}. For a given workgroup size, the average
+performance $\bar{p}(w)$ across the set of all scenarios $S$ can be
+found using the geometric mean of performance relative to the oracle:
+
+\begin{equation}
+\bar{p}(w) =
+\left(
+  \prod_{s \in S} r(s, w, \Omega(s))
+\right)^{1/|S|}
+\end{equation}
+
+The \emph{baseline} workgroup size $\bar{w}$ is the value which
+provides the best average case performance across all scenarios. Such
+a baseline value represents the \emph{best} possible performance which
+can be achieved using a single, statically chosen workgroup size. By
+defining $W_{safe} \in W$ as the intersection of legal workgroup
+sizes, the baseline can be found using:
+
+\begin{align}
+W_{safe} &= \cap \left\{ W_{legal}(s) | s \in S \right\}\\
+\bar{w} &= \argmax_{w \in W_{safe}} \bar{p}(w)
+\end{align}
+
+
+\section{Machine Learning}
+
+The challenge is to design a system which, given a set of prior
+observations of the empirical performance of stencil codes with
+different workgroup sizes, predict workgroup sizes for \emph{unseen}
+stencils which will maximise the performance. The OmniTune server
+supports three methods for achieving this.
+
+
+\subsection{Predicting Oracle Workgroup Size}
+
+The first approach to predicting workgroup sizes is to consider the
+set of possible workgroup sizes as a hypothesis space, and to use a
+classifier to predict, for a given set of features, the workgroup size
+which will provide the best performance. The classifier takes a set of
+training scenarios $S_{training}$, and generates labelled training
+data as pairs of scenario features $f(s)$ and observed oracle
+workgroup sizes:
+
+\begin{equation}
+  T = \left\{ \left(f(s), \Omega(s)\right) | s \in S_{training} \right\}
+\end{equation}
+
+During testing, the classifier predicts workgroup sizes from the set
+of oracle workgroup sizes from the training set:
+
+\begin{equation}
+  W_{training} = \left\{ \Omega(s) | s \in S_{training} \right\}
+\end{equation}
+
+This approach presents the problem that after training, there is no
+guarantee that the set of workgroup sizes which may be predicted is
+within the set of legal workgroup sizes for future scenarios:
+
+\begin{equation}
+  \cup \{ W_{legal}(s) | s \in S_{testing} \} \nsubseteq W_{training}
+\end{equation}
+
+This may result in a classifier predicting a workgroup size which is
+not legal for a scenario, $w \not\in W_{legal}(s)$, either because it
+exceeds $W_{max}(s)$, or because the parameter is refused. For these
+cases, I evaluate the effective of three fallback strategies to select
+a legal workgroup size:
 
 \begin{enumerate}
 \item \emph{Baseline} --- select the workgroup size which is known to
-  be safe and provides the highest average case performance on
-  training data.
+  be safe $w < W_{safe}$, and provides the highest average case
+  performance on training data.
 \item \emph{Random} --- select a random workgroup size which is known
-  to be legal $w \in W_{legal}(s)$.
-\item \emph{Reshape} --- scale the predicted workgroup size
-  proportionally so that it fits within the space of legal workgroup
-  sizes, $w < W_{max}(s)$. This attempts to preserve ``shape'' of the
-  predicted workgroup size.
+  from prior observations to be legal $w \in W_{legal}(s)$.
+\item \emph{Nearest Neighbour} --- select the workgroup size which
+  from prior observations is known to be legal, and has the lowest
+  Euclidian distance to the prediction.
 \end{enumerate}
 
-See Algorithm~\ref{alg:autotune-classification} for definitions. The
-evaluation compares the average performance achieved using each
-fallback strategy, along with the percentage of cases for which these
-fallback strategies were required.
-
+See Algorithm~\ref{alg:autotune-classification} for definitions.
 
 \begin{algorithm}
 \input{alg/autotune-classification}
@@ -249,39 +300,37 @@ fallback strategies were required.
 \label{alg:autotune-classification}
 \end{algorithm}
 
+% \begin{algorithm}
+% \input{alg/autotune-classification2}
+% \caption{Select optimal workgroup size using multiple classifiers}
+% \label{alg:autotune-classification2}
+% \end{algorithm}
 
-\begin{algorithm}
-\input{alg/autotune-classification2}
-\caption{Select optimal workgroup size using multiple classifiers}
-\label{alg:autotune-classification2}
-\end{algorithm}
-
-
-\TODO{Implement and evaluate classification using one classifier for
-  each unique $w \in \cup \{ W_{max}(s) | s \in S_{training} \}$. This
-  would be an alternative method of overcoming the invalid prediction
-  problem.}
 
 \subsection{Predicting Stencil Code Runtime}
 
-\TODO{The first approach requires very expensive training and isn't
-  amenable to online tuning\ldots} A second approach to selecting the
-workgroup size is to attempt to directly predict the runtime of a
-given workload. Given a regressor $f(a,k,d,w)$ which predicts the
-runtime of a program given a set of architecture, kernel, and dataset
-features $a,k,d$, and workgroup size $w$, the predicted optimal
-workgroup size is the $w$ value which minimises the output of the
-regressor:
+A problem of predicting oracle workgroup sizes is that it requires
+each training point to be labelled with the oracle workgroup size
+which can be only be evaluated using an exhaustive search. An
+alternative approach is to build a model to attempt to predict the
+\emph{runtime} of a stencil given a specific workgroup size. This
+allows for training on data for which the oracle workgroup size is
+unknown. Given training data consisting of $(f(s),w,t)$ tuples, where
+$s$ is scenario, $w$ is the workgroup size, and $t$ is the observered
+mean runtime, we can train a regressor $g(f(s), w)$ which predicts the
+mean runtime of an unseen scenario. The predicted oracle workgroup
+size $\bar{\Omega}(s)$ is then $w$ value which minimises the output of
+the regressor:
 
 \begin{equation}
-  \underset{w \in W_{legal}(s)}{\argmin} f(a,k,d,w)
+  \bar{\Omega}(s) = \underset{w \in W_{legal}(s)}{\argmin} g(f(s), w)
 \end{equation}
 
 By predicting the runtimes of only the workgroup sizes from within
-$W_{legal}(s)$, we overcome the issue of predicting invalid workgroup
-sizes. Training a regressor to predict runtimes requires a set of
-training data which contains workgroup sizes as an additional feature,
-and the measured mean runtime as the label.
+$W_{legal}(s)$, we overcome the issue of predicting workgroup sizes
+which exceed $W_{max}(s)$, although note that since $W_{refused}(s)$
+is immergent, it may still be possible predict invalid workgroup sizes
+unseen programs.
 
 % \begin{algorithm}
 % \input{alg/autotune-runtime-regression}
@@ -289,19 +338,19 @@ and the measured mean runtime as the label.
 % \label{alg:autotune-runtime-regression}
 % \end{algorithm}
 
-\subsection{Predicting Relative Performance}
+\subsection{Predicting Relative Performance of Workgroup Sizes}
 
 Accurately predicting the runtime of an arbitrary program is a
-difficult problem due to the impacts of flow control. It may be
-effective to instead predict the \emph{relative} performance of two
-different workgroup sizes for the same program. To do this, we select
-a baseline workgroup size $w_b \in W_{safe}$, and train a regressor
-$g(a,k,d,w)$ with training data labelled with the relative performance
-over the baseline $r(w, w_b)$. Predicting the optimal workgroup
-requires maximising the output of the regressor:
+difficult problem due to the impacts of flow control. In such cases,
+it may be more effective to instead predict the \emph{relative}
+performance of two different workgroup sizes for the same program. To
+do this, we select a baseline workgroup size $w_b \in W_{safe}$, and
+train a regressor $g(f(s),w,w_b)$ with training data labelled with the
+relative performance over the baseline $r(w, w_b)$. Predicting the
+optimal workgroup requires maximising the output of the regressor:
 
 \begin{equation}
-  \underset{w \in W_{legal}(s)}{\argmax} g(a,k,d,w)
+  \bar{\Omega}(s) = \underset{w \in W_{legal}(s)}{\argmax} g(f(s),w,w_b)
 \end{equation}
 
 % \begin{algorithm}
@@ -324,18 +373,21 @@ requires maximising the output of the regressor:
 
 \section{Implementation}
 
-By design, the client-server model allows for enabling autotuning with
-a low impact on the target applications. As such, the modifications
-required to enable OmniTune support within SkelCL were minimal. The
-hard-coded workgroup size used in the stencil skeleton is replaced by
-a call to an OmniTune server, which uses classifiers
-Figure~\ref{fig:omnitune-system-flow} shows the behaviour of the
-OmniTune server.
+By design, the client-server model minimises the impact of number of
+modifications that are required to enable autotuning in client
+applications. The only modification required is to replace the
+hardcoded values for workgroup size with a subroutine to request a
+workgroup size from the OmniTune server over a DBUS connection.
 
+The server is implemented as a standalone Python program, and uses
+sqlite to maintain local data caches. See
+Figure~\ref{fig:omnitune-system-flow} for a sectino of the database
+schema. The OmniTune remote is an Amazon Web Services virtual machine
+instance running MySQL.
 
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{img/omnitune-data-schema.pdf}
+\includegraphics[width=.75\textwidth]{img/omnitune-data-schema.pdf}
 \caption{%
   OmniTune SkelCL schema.%
 }
@@ -344,3 +396,5 @@ OmniTune server.
 
 
 \section{Summary}
+
+\TODO{\ldots}

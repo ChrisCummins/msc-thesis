@@ -61,6 +61,7 @@ def create_hosts_table(output=None):
     rows = [row for row in reader]
     latex.table(rows, output=output, columns=header, escape=False)
 
+
 def create_stencil_runtime_components_table(output=None):
     output = output or "gen/tab/stencil-runtime-components.tex"
     reader = csv.reader(open("dat/stencil-runtime-components.csv"),
@@ -184,7 +185,8 @@ def create_results_tables(db):
 
     output = "gen/tab/top_params_coverage.tex"
     data = [
-        [row[0], round(row[1] * 100, 1), round(row[2] * 100, 1)] for row in
+        [print_params(row[0]), round(row[1] * 100, 1), round(row[2] * 100, 1)]
+        for row in
         db.execute(
             "SELECT params,coverage,performance "
             "FROM param_stats "
@@ -193,15 +195,16 @@ def create_results_tables(db):
             (num_rows,)
         )
     ]
-    latex.table(data, output=output, columns=(
+    latex.table(data, output=output, escape=False, columns=(
         "Parameter",
-        "Legality (%)",
-        "Performance (%)",
+        "Legality (\\%)",
+        "Performance (\\%)",
     ))
 
     output = "gen/tab/top_params_perf.tex"
     data = [
-        [row[0], round(row[1] * 100, 1), round(row[2] * 100, 1)] for row in
+        [print_params(row[0]), round(row[1] * 100, 1), round(row[2] * 100, 1)]
+        for row in
         db.execute(
             "SELECT params,coverage,performance "
             "FROM param_stats "
@@ -210,11 +213,37 @@ def create_results_tables(db):
             (num_rows,)
         )
     ]
-    latex.table(data, output=output, columns=(
+    latex.table(data, output=output, escape=False, columns=(
         "Parameter",
-        "Legality (%)",
-        "Performance (%)",
+        "Legality (\\%)",
+        "Performance (\\%)",
     ))
+
+
+def create_refused_params_tables(db):
+    num_rows = 10
+
+    for i in range(3):
+        output = "gen/tab/top_refused_params_{}.tex".format(i+1)
+        data = [
+            [print_params(row[0]), round(row[1], 2)] for row in
+            db.execute(
+                "SELECT "
+                "    params,"
+                "    (Count(*) * 1.0 / (SELECT Count(*) FROM refused_params)) "
+                "       * 100 AS ratio "
+                "FROM refused_params "
+                "GROUP BY params "
+                "ORDER BY ratio DESC "
+                "LIMIT ? "
+                "OFFSET ? ",
+                (num_rows, i*10)
+            )
+        ]
+        latex.table(data, output=output, escape=False, columns=(
+            "Parameter",
+            "Refused (\\%)"
+        ))
 
 
 def fine_grained_runtime_histograms():
@@ -275,14 +304,14 @@ def main():
     ##################
     # Dynamic values #
     ##################
-    param_counts = db.num_params_for_scenarios().values()
-    mktex(int(round(labmath.mean(param_counts))), "gen/num_avg_params.tex")
-    mktex(max(param_counts), "gen/num_max_params.tex")
-
     one_r = db.one_r()
     mktex(print_params(one_r[0]), "gen/one_r.tex")
     mktex(round(one_r[2], 2), "gen/one_r_perf.tex")
     mktex(int(round(one_r[2] * 100)), "gen/baseline_perf_perc.tex")
+
+    mktex(int(round(db.min_num_params)), "gen/min_num_params.tex")
+    mktex(int(round(db.max_num_params)), "gen/max_num_params.tex")
+    mktex(int(round(db.avg_num_params)), "gen/avg_num_params.tex")
 
     mktex(db.num_rows("runtime_stats"), "gen/num_runtime_stats.tex")
     mktex(db.num_rows("runtimes"), "gen/num_samples.tex")
@@ -348,7 +377,6 @@ def main():
     mktex(round(best_classification_results[4], 2),
           "gen/best_max_classification_speedup.tex")
 
-    # TODO: *actual* human expert.
     mktex(int(round(best_classification_results[5] * 100) - 100),
           "gen/best_avg_classification_speedup_he_perc.tex")
 
@@ -359,6 +387,11 @@ def main():
     mktex(int(round(db.biggest_synthetic_real_classification_performance_drop)),
           "gen/biggest_synthetic_real_classification_performance_drop.tex")
 
+    mktex(round(db.ratio_refused_params * 100, 1),
+          "gen/ratio_refused_params.tex")
+    mktex(round(db.ratio_refused_test_cases * 100, 1),
+          "gen/ratio_refused_test_cases.tex")
+
     # Tables.
     create_hosts_table()
     create_stencil_runtime_components_table()
@@ -367,6 +400,7 @@ def main():
     create_datasets_table(db)
     create_features_table(db, "gen/tab/")
     create_results_tables(db)
+    create_refused_params_tables(db)
 
     ################
     # Export plots #
@@ -394,9 +428,7 @@ def main():
                          figsize=figsize)
 
     # Trend plots
-    figsize=(5.8,2)
-    visualise.oracle_speedups(db, "gen/img/oracle_speedups.pdf", title="",
-                              figsize=figsize)
+    figsize=(5.8,3)
     visualise.max_speedups(db, "gen/img/max_speedups.pdf", title="",
                            figsize=figsize)
     visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.pdf",
@@ -432,7 +464,7 @@ def main():
               )))]
     visualise.performance_vs_max_wgsize(ratios,
                                         "gen/img/performance_max_c.pdf",
-                                        xlabel="Workgroup columns (% max size)",
+                                        xlabel="Workgroup columns (% max)",
                                         figsize=figsize)
 
     ratios = [np.array(l) for l in
@@ -441,7 +473,7 @@ def main():
               )))]
     visualise.performance_vs_max_wgsize(ratios,
                                         "gen/img/performance_max_r.pdf",
-                                        xlabel="Workgroup rows (% max size)",
+                                        xlabel="Workgroup rows (% max)",
                                         figsize=figsize)
 
     # Ml Visualisations

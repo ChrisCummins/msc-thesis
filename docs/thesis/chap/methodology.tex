@@ -1,31 +1,51 @@
 \section{Introduction}
 
-This chapter describes an experiment to explore the performance
-influence of implementation-independent factors (architecture,
-programs, and datasets) on the performance of Stencil programs using
-different workgroup sizes. It contains the methodology used to achieve
+This chapter describes an exhaustive enumeration of the optimisation
+space for \input{gen/num_scenarios} combinations of architecture,
+program, and dataset. It contains the methodology used to achieve
 statistically sound comparisons of competing programs using different
-configurations, and the experimental setup.
+configurations, and the steps necessary to obtain repeatble results.
 
 
 \section{Experimental Setup}
 
-This section describes the environment under which performance data
-was collected. Tables~\ref{tab:hw},~\ref{tab:kernels},
-and~\ref{tab:datasets} list the range of execution devices, kernels,
-and datasets used. For each unique combination of architecture,
-kernel, and dataset (hereby referred to as a \emph{scenario}),
-training data was collected by iteratively sampling the space of
-workgroup sizes.
+\begin{table}
+\input{tab/hosts}
+\caption{%
+  Specification of experimental platforms.%
+}
+\label{tab:hosts}
+\end{table}
 
-\TODO{Description of test systems. E.g. mobo, memory, \& GPUs.}
+Table~\ref{tab:hosts} describes the experimental platforms used.  All
+runtimes were recorded with millisecond precision using either the
+system clock or OpenCL's Profiling API. Measurement noise was
+minimised by reducing system load through disabling all unwanted
+services and graphical environments, and exclusive single-user access
+was ensured for each platform. Frequency governors for each CPU were
+disabled, and the benchmark processes were set to the highest priority
+available to the task scheduler. Datasets and programs were stored in
+an in-memory file system.
 
-\subsection{Benchmark Stencil Applications}
+\subsection{Devices}
 
-To explore the effect of workgroup size across different stencils,
-reference implementations of standard stencil applications from the
-fields of image processing, cellular automata, and partial
-differential equation solvers are used.
+\begin{table}
+\input{tab/devices}
+\caption{%
+  Specification of experimental OpenCL devices.%
+}
+\label{tab:hw}
+\end{table}
+
+Table~\ref{tab:hw} describes the OpenCL devices used for testing, as
+available on the experimental platforms.
+
+\subsection{Benchmark Applications}
+
+In addition to the synthetic stencil benchmarks described in
+Section~\ref{sec:training}, five reference implementations of standard
+stencil applications from the fields of image processing, cellular
+automata, and partial differential equation solvers are used:
 
 % \begin{table}
 % \footnotesize
@@ -51,36 +71,33 @@ differential equation solvers are used.
 
 \TODO{Descriptions (with diagrams) for each application:}
 
-\subsubsection{Finite Difference Time Domain}
-
-\subsubsection{Heat Equation}
-
-\subsubsection{Gaussian Blur}
-
-\TODO{Reword this to be more clear}
-
-The Gaussian blur is a common image processing algorithm, used to
-reduce noise and detail in an image. A two dimensional Gaussian blur
-defines a function to compute a pixel value $f(x,y)$ using a standard
-deviation $\sigma$ using:
-
-\begin{equation}
-f(x,y) = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2 + y^2}{2\sigma^2}}
-\end{equation}
-
-Gaussian blurs are parameterised by a radius $r$ which define
-symmetric, square stencil regions about the centre
-pixel. \TODO{Describe the range of blur radius' used.} Unlike the
-previous two applications, the Gaussian blur is not an iterative
-stencil.
-
-\subsubsection{Game of Life}
-
-Conway's Game of Life~\cite{Conway1970} is a cellular automaton which
-models the evolution of a regular grid of cells over discrete time
-steps. At each time step, each cell value is updated to be either
-\emph{live} or \emph{dead} based on it's current value and the value
-of the nearest neighbouring elements (Algorithm~\ref{alg:gol}).
+\begin{itemize}
+\item \textbf{Finite Difference Time Domain}
+\item \textbf{Heat Equation}
+\item \textbf{Gaussian Blur} \TODO{Reword this to be more clear} The
+  Gaussian blur is a common image processing algorithm, used to reduce
+  noise and detail in an image. A two dimensional Gaussian blur
+  defines a function to compute a pixel value $f(x,y)$ using a
+  standard deviation $\sigma$ using:
+  \begin{equation}
+    f(x,y) = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2 + y^2}{2\sigma^2}}
+  \end{equation}
+  Gaussian blurs are parameterised by a radius $r$ which define
+  symmetric, square stencil regions about the centre
+  pixel. \TODO{Describe the range of blur radius' used.} Unlike the
+  previous two applications, the Gaussian blur is not an iterative
+  stencil.
+\item \textbf{Game of Life} Conway's Game of Life~\cite{Conway1970} is
+  a cellular automaton which models the evolution of a regular grid of
+  cells over discrete time steps. At each time step, each cell value
+  is updated to be either \emph{live} or \emph{dead} based on it's
+  current value and the value of the nearest neighbouring elements
+  (Algorithm~\ref{alg:gol}). The stencil shape for Game of Life is
+  always 1 in each direction.
+\item \textbf{Canny Edge Detection} The Canny edge detection algorithm
+  consists of four distinct stages: \TODO{4 separate stencils, with
+    different behaviours.}
+\end{itemize}
 
 \begin{algorithm}[b]
 \caption{Conway's Game of Life}
@@ -88,52 +105,24 @@ of the nearest neighbouring elements (Algorithm~\ref{alg:gol}).
 \input{alg/gol}
 \end{algorithm}
 
-The stencil shape for Game of Life is always 1 in each direction.
-
-\subsubsection{Canny Edge Detection}
-
-The Canny edge detection algorithm consists of four distinct stages:
-\TODO{4 separate stencils, with different behaviours.}
-
-
-\subsection{Selection of Parameter Values}
-
-During training, workgroup sizes are sampled uniformly, subject to the
-subject to satisfying two hard constraints: the maximum workgroup size
-imposed by the architecture, and the maximum workgroup size imposed by
-a kernel. Exceeding either of these constraints will cause an
-\texttt{CL\_OUT\_OF\_RESOURCES} error when the OpenCL kernel is
-enqueued.
-
-\begin{table}
-\input{tab/hosts}
-\caption{%
-  Specification of experimental platforms.%
-}
-\label{tab:hosts}
-\end{table}
-
-\begin{table}
-\input{tab/devices}
-\caption{%
-  Specification of experimental OpenCL devices.%
-}
-\label{tab:hw}
-\end{table}
-
 \begin{table}
 \input{tab/kernels}
 \caption{%
-  Benchmark applications, border sizes, and static instruction counts.
-  The ``simple'' and ``complex'' kernels are synthetic training
-  programs. \FIXME{There's some suspicious duplicate entries
-    here\ldots} \TODO{Add a ``stencil shape'' label above north
-    south east west columns.}%
-  % \FIXME{I also have a FDTD benchmark which I have yet to
-  % collect results for.}
+  Stencil kernels, border sizes (north, south, east, and west),
+  and static instruction counts. \FIXME{Tidy up the duplicate entries\ldots}
 }
 \label{tab:kernels}
 \end{table}
+
+Table~\ref{tab:kernels} shows the details of the stencils kernels for
+these reference implementations, and the synthetic training benchmarks
+used.
+
+
+\subsection{Datasets}
+
+For each benchmark, multiple dataset sizes were used, as shown in
+table~\ref{tab:datasets}.
 
 \begin{table}
 \input{tab/datasets}
@@ -144,7 +133,7 @@ enqueued.
 \end{table}
 
 
-\subsection{Sampling Runtimes}
+\subsection{Sampling Strategy}
 
 The number of ``moving parts'' in the modern software stack provides
 multiple sources of noise when measuring program execution times. As
@@ -153,13 +142,7 @@ programs requires a judicious approach to isolate the appropriate
 performance metrics and to take a statistically rigorous approach to
 collecting data.
 
-
 \subsubsection{Isolating the Impact of Workgroup Size}
-
-The execution of a SkelCL stencil application can be divided into 6
-distinct phases, shown in Table~\ref{tab:stencil-runtime-components}.
-
-\TODO{Include a flow diagram}
 
 \begin{table}
 \include{tab/stencil-runtime-components}
@@ -170,30 +153,32 @@ distinct phases, shown in Table~\ref{tab:stencil-runtime-components}.
 \label{tab:stencil-runtime-components}
 \end{table}
 
-\paragraph{Kernel compilation times} Upon invocation, template
-substitution is performed of the user code into the stencil skeleton
-implementation, then compiled into an OpenCL program. Once compiled,
-the program binary is cached for the lifetime of the host program.
+The execution of a SkelCL stencil application can be divided into 6
+distinct phases, shown in Table~\ref{tab:stencil-runtime-components}.
 
-\paragraph{Skeleton prepare times} Before a kernel is executed, a
-preparation phase is required to allocate buffers for the input and
-output data on each execution device.
-
-\paragraph{Host $\rightarrow$ Device and Device $\rightarrow$ Host
-  transfers} Data must be copied to and from the execution devices
-before and after execution of the stencils, respectively. Note that
-this is performed lazily, so iterative stencils do not require
-repeated transfers between host and device memory.
-
-\paragraph{Kernel execution times} This is the time elapsed executing
-the stencil kernel, and is representative of ``work done''.
-
-\paragraph{Devices $\leftrightarrow$ Host (sync) transfers} For
-iterative stencils on multiple execution devices, an overlapping halo
-region is shared at the border between the devices' grids. This must
-be synchronised between iterations, requiring an intermediate transfer
-to host memory, since device to device memory is not currently
-supported by OpenCL.
+\begin{itemize}
+\item \textbf{Kernel compilation times} Upon invocation, template
+  substitution is performed of the user code into the stencil skeleton
+  implementation, then compiled into an OpenCL program. Once compiled,
+  the program binary is cached for the lifetime of the host program.
+\item \textbf{Skeleton prepare times} Before a kernel is executed, a
+  preparation phase is required to allocate buffers for the input and
+  output data on each execution device.
+\item \textbf{Host $\rightarrow$ Device and Device $\rightarrow$ Host
+    transfers} Data must be copied to and from the execution devices
+  before and after execution of the stencils, respectively. Note that
+  this is performed lazily, so iterative stencils do not require
+  repeated transfers between host and device memory.
+\item \textbf{Kernel execution times} This is the time elapsed
+  executing the stencil kernel, and is representative of ``work
+  done''.
+\item \textbf{Devices $\leftrightarrow$ Host (sync) transfers} For
+  iterative stencils on multiple execution devices, an overlapping
+  halo region is shared at the border between the devices' grids. This
+  must be synchronised between iterations, requiring an intermediate
+  transfer to host memory, since device to device memory is not
+  currently supported by OpenCL.
+\end{itemize}
 
 For each of the six distinct phases of execution, accurate runtime
 information can be gathered either through timers embedded in the host
@@ -216,9 +201,6 @@ t \approx \sum_{i=1}^n{(\bm{1c}_{i})} + \bm{1p} + \bm{1s} +
   \frac{\sum_{i=1}^n{\bm{1u}_{i} + \bm{1k}_{i} + \bm{1d}_{i}}}{n}
 \end{equation}
 
-\TODO{Compare against empirical runtime information, showing how
-  accurate this estimation is.}
-
 The purpose of tuning workgroup size is to maximise the throughput of
 stencil kernels. For this reason, isolating the kernel execution times
 $\bm{k}$ produces the most accurate performance comparisons, as it
@@ -235,27 +217,13 @@ location of the data in the system's memory as it is has no bearing on
 the execution time of a stencil kernel.
 
 
-\subsubsection{Sampling plan and technique}
+\subsubsection{Validating Program Behaviour}
 
-All runtimes were recorded with millisecond precision using either the
-system clock or OpenCL's Profiling API. Measurement noise was
-minimised by reducing system load through disabling all unwanted
-services and graphical environments, and exclusive single-user access
-was ensured for each machine. Frequency governors for each CPU were
-disabled, and the benchmark processes were set to the highest priority
-available to the task scheduler. Datasets and programs were stored in
-an in-memory file system. Samples were collected during a training
-phase in which OmniTune uniformly repeatedly samples the space of
-legal workgroup sizes.
-
-
-\subsection{Validating Program Behaviour}
-
-\TODO{Check output against gold standard}
+\TODO{Checking output against gold standard from $W_{safe}$}
 
 
 \section{Summary}
 
-This section describes the methodology for collecting performance data
-of \input{gen/num_runtime_stats} combinations of architectures,
-programs, datasets, and workgroup sizes.
+This section describes the methodology for collecting relative
+performance data of SkelCL stencil benchmarks under different
+combinations of architecture, program, dataset, and workgroup size.
