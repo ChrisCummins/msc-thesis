@@ -105,30 +105,6 @@ a kernel. Exceeding either of these constraints will cause an
 \texttt{CL\_OUT\_OF\_RESOURCES} error when the OpenCL kernel is
 enqueued.
 
-\subsubsection{Architecture constraints}
-
-Each OpenCL device imposes a maximum workgroup size which can be
-statically checked by querying the \texttt{clGetDeviceInfo()}
-API. These are defined by the limits of the hardware, typically the
-number of execution units which have access to a shared memory pool.
-
-\subsubsection{Kernel constraints}
-
-At runtime, once an OpenCL program has been compiled to a kernel,
-users can query the maximum workgroup size supported by that kernel
-using the \texttt{clGetKernelInfo()} API. Crucially, this value cannot
-easily be obtained statically, as there is no mechanism to determine
-the maximum workgroup size for a given source code and device without
-first compiling it, which in OpenCL does not occur until
-runtime. Factors which affect a kernel's maximum workgroup size
-include the number registers required for a kernel, and the available
-number of SIMD execution units for each type of instructions in a
-kernel.
-
-\subsubsection{Refused parameters}
-
-$w < W_{max}(s), w \not\in W_{refused}(s)$
-
 \begin{table}
 \input{tab/hosts}
 \caption{%
@@ -276,6 +252,7 @@ legal workgroup sizes.
 \subsection{Validating Program Behaviour}
 
 \TODO{Check output against gold standard}
+
 
 \section{Summary}
 

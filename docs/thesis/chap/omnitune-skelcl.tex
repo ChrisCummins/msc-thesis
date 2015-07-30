@@ -8,8 +8,80 @@ minimise their runtime on CPUs and multi-GPU systems. The optimisation
 space presented by the workgroup size of OpenCL kernels is large,
 complex, and non-linear. Successfully applying machine learning to
 such a space requires plentiful training data, and the careful
-selection of features, model. The following sections address these
-challenges.
+selection of features, and classification approach. The following
+sections address these challenges.
+
+
+\section{Understanding the Space}
+
+SkelCL stencil kernels are parameterised by a workgroup size $w$,
+which consists of two integer values to denote the number of rows and
+columns (where we need to distinguish the individual components, we
+will use symbols $w_r$ and $w_c$ to denote rows and columns,
+respectively).
+
+
+\subsection{Constraints}
+
+Unlike in many autotuning applications, the space of possible
+parameter values $W$ is subject to hard constraints, and these
+constraints cannot conviently be statically determined.
+
+\subsubsection{Architectural constraints}
+
+Each OpenCL device imposes a maximum workgroup size which can be
+statically checked by querying the \texttt{clGetDeviceInfo()}
+API. These are defined by the limits of the hardware, typically the
+number of execution units which have access to a shared memory pool.
+
+
+\subsubsection{Kernel constraints}
+
+At runtime, once an OpenCL program has been compiled to a kernel,
+users can query the maximum workgroup size supported by that kernel
+using the \texttt{clGetKernelInfo()} API. Crucially, this value cannot
+easily be obtained statically, as there is no mechanism to determine
+the maximum workgroup size for a given source code and device without
+first compiling it, which in OpenCL does not occur until
+runtime. Factors which affect a kernel's maximum workgroup size
+include the number registers required for a kernel, and the available
+number of SIMD execution units for each type of instructions in a
+kernel.
+
+
+\subsubsection{Refused parameters}
+
+$w < W_{max}(s), w \not\in W_{refused}(s)$
+
+
+The subject to satisfying two hard constraints: the maximum workgroup
+size imposed by the architecture, and the maximum workgroup size
+imposed by a kernel. Exceeding either of these constraints will cause
+an \texttt{CL\_OUT\_OF\_RESOURCES} error when the OpenCL kernel is
+enqueued.
+
+For a given \emph{scenario} $s$ (a combination of program, device, and
+dataset), the subset of workgroup sizes $W_{legal}(s) \subsetq W$
+(where $W$ is the set of all possible workgroup sizes) that are legal
+is defined as:
+
+\begin{equation}
+  W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} - W_{refused}(s)
+\end{equation}
+
+
+
+
+From the set of all workgroup sizes $W$, the subset of workgroup sizes
+$W_{legal}(s) \subseteq W$ that are legal for a given scenario $s$ can
+be found using:
+
+\begin{equation}
+  W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} - W_{refused}(s)
+\end{equation}
+
+
+
 
 % Anyone downloading a copy of OmniTune will instantly have access to
 % the global database of training data, including the
@@ -63,91 +135,68 @@ solely on reference applications, reducing the risk of overfitting to
 particular program features.
 
 
-\section{Feature Extraction}
+\section{Stencil Features}
 
-Properties of the architecture, program, and dataset all contribute to
-the performance of a workgroup size. The success of a machine learning
-system depends on the ability to translate these properties into
-meaningful explanatory variables --- \emph{features}. For each
-scenario, a vector of 102 features is extracted to capture properties
-of the architecture, device, and dataset.
-
-
-\subsubsection{Architectural features}
-
-OmniTune use the OpenCL \texttt{clGetDeviceInfo()} API to query a
-number of properties about the target execution device. Examples
-include the size of local memory, maximum work group size, number of
-compute units, etc.
-
-
-\subsubsection{Kernel features}
-
-To extract features of the kernel, the user code for the stencil is
-passed to the OmniTune server, which compiles the OpenCL kernel to
-LLVM IR bitcode. The \texttt{opt} \texttt{InstCount} statistics pass
-is used to obtain instruction counts for each type present in the
-kernel, and the total number of instructions. The instruction counts
-for each type are divided by the total number of instructions to
-produce a \emph{ratio} of instruction for that type. Examples include
-total static instruction count, ratio of instructions per type, ratio
-of basic blocks per instruction, etc.
-
-\TODO{Write an experiment for which static instruction counts fall
-  down. For example, two programs with similar instruction counts, one
-  with a huge loop, the other with straight line code.}
-
-
-\subsubsection{Dataset features}
-
-Dataset features are extracted from the SkelCL container type. The
-extracted features are the input and output data types, and the 2D
-grid size.
-
-See Table~\ref{tab:features} for a full list of features and
-types.
-
-\subsubsection{Cost of Feature Extraction}
-
-\TODO{Report feature extraction cost. Note that feature vectors are
-  cached so this cost is a one-off, subsequent iterations are just a
-  table lookup.}
 
 \begin{table}
 \input{tab/features}
-\caption{Feature names and types, describing the dataset, kernel,
+\caption{Stencil features and their types, describing the dataset, kernel,
   and device.}
 \label{tab:features}
 \end{table}
 
 
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{img/omnitune-data-schema.pdf}
-\caption{%
-  OmniTune SkelCL schema.%
-}
-\label{fig:omnitune-system-flow}
-\end{figure}
+Properties of the architecture, program, and dataset all contribute to
+the performance of a workgroup size. The success of a machine learning
+system depends on the ability to translate these properties into
+meaningful explanatory variables --- \emph{features}. To capture this
+in OmniTune, requests for paramters are packed with a copy of the
+OpenCL kernel and attributes of the dataset and device to extract
+vectors of 102 features describing hte architecture, kernel, and
+dataset. Table~\ref{tab:features} includes a full list of features and
+types.
 
 
-\section{Predicting Workgroup Size}
+\begin{itemize}
+\item \textbf{Device} --- OmniTune uses the OpenCL
+  \texttt{clGetDeviceInfo()} API to query a number of properties about
+  the target execution device. Examples include the size of local
+  memory, maximum work group size, number of compute units, etc.
+\item \textbf{Kernel} --- The user code for a stencil is passed to the
+  OmniTune server, which compiles the OpenCL kernel to LLVM IR
+  bitcode. The \texttt{opt} \texttt{InstCount} statistics pass is used
+  to obtain static counts for each type of instruction present in the
+  kernel, as well as the total number of instructions. The instruction
+  counts for each type are divided by the total number of instructions
+  to produce a \emph{density} of instruction for that type. Examples
+  include total static instruction count, ratio of instructions per
+  type, ratio of basic blocks per instruction, etc.
+\item \textbf{Dataset} --- The SkelCL container type is used to
+  extract the input and output data types, and the 2D grid size.
+\end{itemize}
 
 
+\subsection{Reducing Feature Extraction Overhead}
 
 
-\subsection{Predicting Optimal Workgroup Sizes}
+Feature extraction (particularlly compilation to LLVM IR) introduces a
+runtime overhead to the classification process (\TODO{How much?}). To
+minimise this, lookup tables for device and dataset features are used,
+and cached locally in the OmniTune server and pushed to the remote
+data store. The device ID is used to index the devices table, and the
+checksum of an OpenCL source is used to index the kernel features
+table. Before feature extraction occurs for either, a lookup is
+performed in the relevant table, meaning that the cost of feature
+extraction is amortised over time.
 
-The first approach to selecting workgroup sizes is to convert the set
-of oracle workgroup sizes into a hypothesis space and then use a
-classifier to predict the oracle workgroup size for a given set of
-features. To evaluate this approach, a subset of scenarios
-$S_{training} \subset S$ are labelled with their oracle workgroup
-size. The classifier is trained on this labelled training data, and
-tested using a set of unseen scenarios
-$S_{testing} = S - S_{training}$. The performance of each predicted
-oracle workgroup size is compared against the true oracles for that
-set.
+
+\section{Predicting Workgroup Sizes}
+
+The OmniTune server supports three methods of predicting workgroup
+size. The first approach to selecting workgroup sizes is to convert
+the set of oracle workgroup sizes into a hypothesis space and then use
+a classifier to predict for a given set of features the workgroup size
+which will provide the best performance.
 
 
 \subsubsection{Satisfying Constraints}
@@ -282,6 +331,16 @@ hard-coded workgroup size used in the stencil skeleton is replaced by
 a call to an OmniTune server, which uses classifiers
 Figure~\ref{fig:omnitune-system-flow} shows the behaviour of the
 OmniTune server.
+
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{img/omnitune-data-schema.pdf}
+\caption{%
+  OmniTune SkelCL schema.%
+}
+\label{fig:omnitune-system-flow}
+\end{figure}
 
 
 \section{Summary}

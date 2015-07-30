@@ -334,7 +334,20 @@ I believe this presents a compelling case for the development of an
 autotuner which can select the optimal workgroup size at runtime.
 
 
+\section{Feature Accuracy}
+
+\TODO{Explore}
+
+
 \section{Classification Performance}
+
+To evaluate the performance of a classifier, a subset of scenarios
+$S_{training} \subset S$ are labelled with the workgroup size which
+gave the best performance for each. The classifier is trained on this
+labelled training data, and tested using a set of unseen scenarios
+$S_{testing} = S - S_{training}$. The performance of each predicted
+oracle workgroup size is compared against the true oracles for that
+set. Several selections of $S_{training}$ have been used:
 
 \begin{enumerate}
 \item How often does it select \emph{invalid} workgroup sizes?
