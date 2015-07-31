@@ -274,7 +274,7 @@ def fine_grained_runtime_histograms():
 
 def num_samples_vs_variance(db):
     data = json.load(open(fs.path("~/data/msc-thesis/ci.json")))
-    figsize=(5.8, 2)
+    figsize=(5.8, 1.8)
 
     min_samples = db.min_sample_count
     mean_samples = int(round(db.mean_samples))
@@ -421,7 +421,7 @@ def main():
     visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf",
                           figsize=figsize, cmap="Blues", title=None)
 
-    figsize=(2.75, 2)
+    figsize=(3, 2)
     visualise.num_samples(db, "gen/img/num_samples.pdf", title="",
                           figsize=figsize)
     visualise.num_params(db, "gen/img/num_params.pdf", title="",

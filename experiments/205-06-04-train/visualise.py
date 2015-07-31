@@ -208,6 +208,7 @@ def main():
                         # Refused
                         db.execute("INSERT OR IGNORE INTO refused_params VALUES(?,?)",
                                    (scenario, hash_params(c, r)))
+                        space.matrix[j][i] = -1
                         mask.matrix[j][i] = 1
 
         db.commit()
@@ -217,7 +218,7 @@ def main():
         figsize=(12,6)
 
         _, ax = plt.subplots(1, 2, figsize=figsize, sharey=True)
-        sns.heatmap(data, ax=ax[0],
+        sns.heatmap(data, ax=ax[0], vmin=-1, vmax=1,
                     xticklabels=space.c,
                     yticklabels=list(reversed(space.r)), square=True)
 

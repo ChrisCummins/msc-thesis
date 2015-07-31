@@ -1,21 +1,16 @@
 \section{Introduction}
 
-This chapter presents experimental results, and an evaluation of the
+This chapter presents experimental results and an evaluation of the
 performance of OmniTune when tasked with selecting workgroup size of
 SkelCL stencil codes. The effectiveness of each of the autotuning
-techniques described in the previous chapters are scrutinised and
-evaluated using multiple different machine learning algorithms, and
-the prediction quality is evaluated for portability across programs,
-devices, and datasets.
+techniques described in the previous chapters are evaluated using
+multiple different machine learning algorithms, and the prediction
+quality is scrutinised for portability across programs, devices, and
+datasets.
 
 
 % \subsubsection{Questions to ask of each approach to autotuning}
 %
-% \begin{enumerate}
-% \item How successful is it at selecting optimal workgroup sizes?
-% \item How successful is it at selecting \emph{good} workgroup sizes?
-% \item What is the performance when training on synthetic benchmarks
-%   and testing on real?
 % \item What is the performance when testing on an unseen:
 %   architecture, kernel, dataset? (leave one out evaluation)
 % \item How well does it perform as a function of the number of
@@ -25,41 +20,30 @@ devices, and datasets.
 
 \section{Runtime Results}
 
+
+\begin{figure}
+  \input{fig/sample-param-counts}
+  \caption{%
+    Coverage reports for: (\subref{fig:sample-counts}) the number
+    samples per test case; (\subref{fig:param-counts}) the number of
+    parameters per scenario.%
+  }
+\label{fig:num-samples}
+\end{figure}
+
+
 This section presents the results of the empirical enumeration of
 workgroup size optimisation space for SkelCL stencils. A total of
 \input{gen/num_runtime_stats} combinations of scenario and workgroup
 size (referred to as \emph{test cases}) were evaluated, distributed
 across \input{gen/num_scenarios} scenarios, with an average of
 \input{gen/avg_num_params} (max \input{gen/max_num_params}) unique
-workgroup sizes each.
+workgroup sizes each. Figures~\ref{fig:sample-counts}
+and~\ref{fig:param-counts} show the number of samples per test case
+and unique parameters per scenario respectively.
 
-\subsection{Statistical soundness}
 
-A total of \input{gen/num_samples} runtimes were recorded, with an
-average of \input{gen/avg_sample_count} runtimes per test case (min
-\input{gen/min_sample_count}). Figures~\ref{fig:sample-counts}
-and~\ref{fig:param-counts} give an indication of the number of samples
-and unique parameters for each.
-
-\begin{figure}
-  \input{fig/sample-param-counts}
-\caption{\TODO{\ldots}}
-\label{fig:num-samples}
-\end{figure}
-
-Figure~\ref{fig:ci-trends} plots
-
-\begin{figure}
-\centering
-\includegraphics{gen/img/ci_trend}
-\caption{%
-  % TODO: Use \input{gen/max_ci} and \input{gen/mean_ci}
-  Ratio of confidence interval to mean as a function of sample
-  count. The two dashed lines indicate the confidence interval at the
-  minimum sample count (4.6\%), and mean sample count (2.8\%).%
-}
-\label{fig:ci-trends}
-\end{figure}
+\subsection{Runtime Noise}
 
 
 \begin{figure}
@@ -68,16 +52,51 @@ Figure~\ref{fig:ci-trends} plots
   Distribution of runtimes for 9 test cases with increasing mean
   runtimes between 2-200ms. Each plot contains a 35-bin histogram of
   1000 observations, and a fitted kernel density estimate with
-  bandwidth 0.3. The true mean is shown with a vertical dashed line. %
+  bandwidth 0.3. The computed mean is shown with a vertical dashed
+  line. %
 }
 \label{fig:runtime-histograms}
 \end{figure}
 
 
+\begin{figure}
+\centering
+\includegraphics{gen/img/ci_trend}
+\caption{%
+  % TODO: Use \input{gen/max_ci} and \input{gen/mean_ci}
+  Ratio of confidence interval to mean as a function of sample
+  count. The two dashed lines indicate the confidence interval at the
+  minimum sample count (\fixme{4.5}\%), and mean sample count
+  (\fixme{2.6}\%).%
+}
+\label{fig:ci-trends}
+\end{figure}
+
+
+\input{gen/num_samples} runtime observations were recorded, averaging
+\input{gen/avg_sample_count} per test case (min
+\input{gen/min_sample_count}). To assess the stastical signficance of
+these results, 95\% condifence intervals are used. A random subset of
+1000 test cases were chosen and 1000 samples recorded for
+each. Figure~\ref{fig:runtime-histograms} shows fine-grained
+histograms of all sampled runtimes for 9 test
+cases. Figure~\ref{fig:ci-trends} plots 95\% confidence intervals
+(normalised to their means) as a function of the number of samples for
+these 1000 test cases, showing diminishing returns as the number of
+samples increase. The average number of samples recorded per test case
+is \input{gen/avg_sample_count}. With this, we can assert that with
+95\% confidence that the true mean for each test case is within
+\input{gen/mean_ci}\% of our sample mean, or \input{gen/max_ci}\% in
+the worst case.
+
+
 \subsection{Refused Parameters}
 
-\input{gen/ratio_refused_test_cases}
-\input{gen/ratio_refused_params}
+
+
+\input{gen/ratio_refused_test_cases}\%
+
+\input{gen/ratio_refused_params}\%
 
 \begin{table}
 \parbox{.32\linewidth}{
@@ -104,7 +123,11 @@ Figure~\ref{fig:ci-trends} plots
 \end{table}
 
 
-\subsubsection{Performance Upper Bounds}
+\TODO{Is this dependend on program, architecture, or dataset?}
+
+
+\subsection{Performance Upper Bounds}
+
 
 \begin{figure}
 \includegraphics{gen/img/max_speedups}
@@ -132,8 +155,8 @@ $\input{gen/max_possible_speedup}\times$ (geometric mean
 $\input{gen/avg_possible_speedup}\times$). Figure~\ref{fig:oracle-speedups-worst}
 shows the maximum attainable speedups achieved for all scenarios.
 
-
 \subsubsection{Establishing a Baseline}
+
 
 From the experimental results, the baseline workgroup size $\bar{w}$
 is found to be \input{gen/one_r}, with a geometric mean performance
@@ -146,7 +169,14 @@ reasonable upper bound on the attainable improvements of an autotuner
 for workgroup size over that of a static choice.
 
 
+\subsubsection{Distribution of Oracle Workgroup Sizes}
+
+
+\subsection{Static Tuning Performance}
+
+
 \subsubsection{Human Expert}
+
 
 The stencil workgroup size as chosen by a human expert is
 $32 \times 4$.
@@ -155,7 +185,8 @@ $32 \times 4$.
 \subsubsection{Linear Model}
 
 
-\subsection{Distribution of Oracle Workgroup Sizes}
+\subsection{Classification Performance}
+
 
 \begin{figure}
 \input{fig/heatmaps}
@@ -240,6 +271,7 @@ legal.
 
 \subsection{Factors Influencing Workgroup Size Performance}
 
+
 A common approach taken by application developers is to set the
 workgroup size for a kernel based on the maximum legal workgroup size,
 for example to use the square root of the maximum to set the number of
@@ -302,6 +334,7 @@ autotuner which can select the optimal workgroup size at runtime.
 
 \section{Feature Accuracy}
 
+
 \TODO{Explore}
 
 
@@ -348,26 +381,31 @@ set. Several selections of $S_{training}$ have been used:
 % \TODO{Evaluate the effectiveness of training with synthetic
 %   benchmarks.}
 
-
-\section{Predicting Stencil Runtime}
-
-\begin{enumerate}
-\item How accurately does it predict the runtime of a stencil?
-\item What is the relationship between \emph{classification} accuracy,
-  and the accuracy of predicted runtimes? Does it really matter if the
-  predicted runtime is inaccurate?
-\end{enumerate}
-
-\begin{figure}
-\centering
-\includegraphics{gen/img/runtime-regression-xval.pdf}
-\caption{%
-  Performance of regressors at predicting program runtime.%
-}
-\end{figure}
+\subsection{Selection of Features}
 
 
-\section{Predicting Relative Performance}
+\subsection{Ratio of Training Data}
+
+
+% \section{Predicting Stencil Runtime}
+
+% \begin{enumerate}
+% \item How accurately does it predict the runtime of a stencil?
+% \item What is the relationship between \emph{classification} accuracy,
+%   and the accuracy of predicted runtimes? Does it really matter if the
+%   predicted runtime is inaccurate?
+% \end{enumerate}
+
+% \begin{figure}
+% \centering
+% \includegraphics{gen/img/runtime-regression-xval.pdf}
+% \caption{%
+%   Performance of regressors at predicting program runtime.%
+% }
+% \end{figure}
+
+
+% \section{Predicting Relative Performance}
 
 
 \section{Summary}
