@@ -361,7 +361,7 @@ def main():
           "gen/min_possible_speedup.tex")
     mktex(int(round((1 - 1 / max_speedups[-1]) * 100)),
           "gen/min_possible_speedup_perc.tex")
-    mean_possible_speedup = labmath.geomean(max_speedups)
+    mean_possible_speedup = labmath.mean(max_speedups)
     mktex(round(mean_possible_speedup, 1),
           "gen/avg_possible_speedup.tex")
     mktex(int(round((1 - 1 / mean_possible_speedup) * 100)),

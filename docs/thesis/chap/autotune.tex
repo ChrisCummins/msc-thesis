@@ -1,12 +1,32 @@
 \section{Introduction}
 
-This chapter presents OmniTune, a set of interfaces for designing
-extensible, distributed autotuners, capable of runtime prediction of
-optimisation parameters using machine learning. OmniTune supports
-collaborative, online learning of optimisation spaces. I first
-describe the basic approaches to predicting optimisation parameters
-that OmniTune supports, followed by a description of the architecture
-and public interfaces exposed by OmniTune.
+This chapter presents OmniTune, a set of interfaces for extensible,
+distributed autotuning. OmniTune provides a replacement for the kinds
+of ad hoc tuning typically performed by expert programmers by
+providing runtime prediction of tunable parameters using
+collaborative, online learning of optimisation spaces. First I
+describe the high level overview of the approach to autotuning, then I
+describe the system architecture and set of interfaces exposed by
+Omnitune.
+
+
+\section{Predicting Optimisation Parameter Values}
+
+\begin{figure}[b]
+\centering
+\includegraphics[width=\textwidth]{img/omnitune-system-flow.pdf}
+\caption{%
+  Selecting optimisation parameter values with OmniTune.%
+}
+\label{fig:omnitune-system-flow}
+\end{figure}
+
+The goal of machine learning-enabled autotuning is to \emph{predict}
+the values for optimisation parameters to maximise some measure of
+profit based on models built from prior observations. In OmniTune,
+user programs request parameter values for either training purposes,
+or performance, as illustrated in
+Figure~\ref{fig:omnitune-system-flow}.
 
 
 \section{System Architecture and Interface}
@@ -20,11 +40,11 @@ and public interfaces exposed by OmniTune.
 \label{fig:omnitune-system-overview}
 \end{figure}
 
-Omnitune is built around a three tier client-server model, illustrated
-in Figure~\ref{fig:omnitune-system-overview}. The goal is to separate
-the concerns of application-specific and autotuning logic. In
-OmniTune, the applications which are to be autotuned are referred to
-as \emph{clients}. These clients commmunicate with a system-wide
+Omnitune is built around a three tier client-server model, shown in
+Figure~\ref{fig:omnitune-system-overview}. The goal is to separate the
+concerns of application-specific and autotuning logic. In OmniTune,
+the applications which are to be autotuned are referred to as
+\emph{clients}. These clients commmunicate with a system-wide
 \emph{server}, which handles autotuning requests from clients. The
 server caches data sourced from a \emph{remote}, which maintains a
 global store of all training data.
@@ -36,7 +56,7 @@ the autotuner is a program which must be invoked by the user to tune a
 target application. Embedding the autotuner within each target
 application has the advantage of providing ``always-on'' behaviour,
 but is infeasible for complex systems in which the cost of building
-machine learning model must be added to each program run. The
+machine learning models must be added to each program run. The
 stanadlone approach separates the autotuning logic, at the expense of
 adding one additional step to the build process. The approach taken in
 OmniTune aims to capture the advantages of both techniques by
@@ -137,25 +157,6 @@ two operations:
 \subsection{Remote: Distributed Training Data}
 
 \TODO{\ldots}
-
-
-\section{Predicting Optimisation Parameter Values}
-
-Figure~\ref{fig:omnitune-system-flow} shows the \TODO{\ldots}
-
-% Predicting values for optimisation parameters
-
-% separate training phase
-
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{img/omnitune-system-flow.pdf}
-\caption{%
-  Selecting optimisation parameter values with OmniTune.%
-}
-\label{fig:omnitune-system-flow}
-\end{figure}
 
 
 \section{Summary}

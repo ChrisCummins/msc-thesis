@@ -43,9 +43,6 @@ and~\ref{fig:param-counts} show the number of samples per test case
 and unique parameters per scenario respectively.
 
 
-\subsection{Runtime Noise}
-
-
 \begin{figure}
 \input{fig/runtime-histograms}
 \caption{%
@@ -89,14 +86,69 @@ is \input{gen/avg_sample_count}. With this, we can assert that with
 \input{gen/mean_ci}\% of our sample mean, or \input{gen/max_ci}\% in
 the worst case.
 
+\TODO{What is the distribution of runtimes?}
+
+\TODO{Is the number of samples I have enough?}
+
+\TODO{How does variance change with architecture, program, or
+  dataset.}
+
+
+\section{Optimising Workgroup Sizes}
+
+% To begin to get a feel for the
+%
+% Figure~\ref{fig:performance-wgsizes}. Furthermore, the performance of
+% workgroup sizes is shown in Figure~\ref{fig:performances} to be vary
+% greatly across architectures, kernels, and datasets.
+
+\TODO{What is the distribution of relative performance across
+  architectures, programs, and datasets?}
+
+\begin{table}
+  \parbox{.45\linewidth}{
+    \centering
+    \scriptsize
+    \rowcolors{2}{white}{gray!25}
+    \input{gen/tab/top_params_coverage}
+    \caption{Parameters ranked by legality.}
+  }
+  \hfill
+  \parbox{.45\linewidth}{
+    \centering
+    \scriptsize
+    \rowcolors{2}{white}{gray!25}
+    \input{gen/tab/top_params_perf}
+    \caption{Parameters ranked by performance.}
+  }
+\end{table}
+
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/params_summary.pdf}
+\caption{%
+  The red line shows the ``legality'' of workgroup sizes, i.e.\ the
+  ratio of scenarios for which that workgroup size is legal.  The
+  green lines show the geometric mean of the performance relative to
+  the oracle for all scenarios for which the workgroup size is legal.%
+}
+\label{fig:performance-legality}
+\end{figure}
 
 \subsection{Refused Parameters}
 
+A total of \input{gen/ratio_refused_test_cases}\% test cases failed
+due to refused parameters, with \input{gen/ratio_refused_params}\% of
+parameters being refused one or more
+times. Table~\ref{tab:top-refused-params} lists the most frequently
+refused parameters, and the percentage of test cases for which they
+were refused.
 
+\TODO{Is there a correlation between refused parameters and program,
+  architecture, or dataset?}
 
-\input{gen/ratio_refused_test_cases}\%
-
-\input{gen/ratio_refused_params}\%
+\TODO{What does the space of refused params look like?}
 
 \begin{table}
 \parbox{.32\linewidth}{
@@ -119,15 +171,36 @@ the worst case.
     \rowcolors{2}{white}{gray!25}
     \input{gen/tab/top_refused_params_3}
   }
-  \caption{The thirty most refused parameters, ranked in descending order.}
+  \caption{The thirty most refused parameters, ranked in descending
+    order.}
+  \label{tab:top-refused-params}
 \end{table}
 
+\cleardoublepage
+\begin{figure}
+\input{fig/performance-wgsizes}
+\caption{%
+  Comparing workgroup performance relative to the oracle as function
+  of: (\subref{fig:performance-max-wgsize})~maximum legal size,
+  (\subref{fig:performance-wg-c})~number of columns, and
+  (\subref{fig:performance-wg-r})~ number of rows.%
+}
+\label{fig:performance-wgsizes}
+\end{figure}
 
-\TODO{Is this dependend on program, architecture, or dataset?}
+\begin{figure}
+\input{fig/performances}
+\caption{%
+  Performance relative to the oracle of workgroup sizes across all
+  test cases, grouped by: (\subref{fig:performance-kernels})~kernels,
+  (\subref{fig:performance-devices})~devices, and
+  (\subref{fig:performance-datasets})~datasets.%
+}
+\label{fig:performances}
+\end{figure}
 
 
 \subsection{Performance Upper Bounds}
-
 
 \begin{figure}
 \includegraphics{gen/img/max_speedups}
@@ -140,8 +213,8 @@ the worst case.
 \end{figure}
 
 For a given scenario $s$, the ratio of the workgroups sizes from
-$W_{legal}(s)$ which provide the longest and shortest mean runtimes
-can be used to calculate the upper bound of the possible performance
+$W_{legal}(s)$ which provide the longest and shortest mean runtimes is
+used to calculate an upper bound for the possible performance
 influence of workgroup size:
 
 \begin{equation}
@@ -149,44 +222,29 @@ r_{max}(s) = r(s, \argmax_{w \in W_{legal}(s)} t(s,w), \Omega(s))
 \end{equation}
 
 When applied to each scenario $s \in S$ from the experimental results,
-the range of performance upper bounds is found to be
+the average performance upper bound is found to be
+$\input{gen/avg_possible_speedup}\times$ (range:
 $\input{gen/min_possible_speedup}\times$ -
-$\input{gen/max_possible_speedup}\times$ (geometric mean
-$\input{gen/avg_possible_speedup}\times$). Figure~\ref{fig:oracle-speedups-worst}
-shows the maximum attainable speedups achieved for all scenarios.
+$\input{gen/max_possible_speedup}\times$).
 
-\subsubsection{Establishing a Baseline}
+\TODO{T-test to demonstrate confidence in differences between best and
+  worst params.}
 
+
+\subsection{Baseline Parameters}
 
 From the experimental results, the baseline workgroup size $\bar{w}$
 is found to be \input{gen/one_r}, with a geometric mean performance
 $\bar{p}(\bar{w})$ of
-\input{gen/one_r_perf}. Figure~\ref{fig:oracle-speedups-baseline}
-shows the average speedup of the oracle over this baseline for all
-scenarios. If we assume that a pragmatic developer with enough time
-would eventually find this static optimal, then this provides a
-reasonable upper bound on the attainable improvements of an autotuner
-for workgroup size over that of a static choice.
+\input{gen/one_r_perf}. Figure~\ref{fig:speedups} shows the speedup of
+the oracle over this baseline parameter for all scenarios. If we
+assume that a pragmatic developer with enough time would eventually
+find this static optimal, then this provides a reasonable upper bound
+on the attainable improvements of an autotuner for workgroup size over
+that of a static choice.
 
 
-\subsubsection{Distribution of Oracle Workgroup Sizes}
-
-
-\subsection{Static Tuning Performance}
-
-
-\subsubsection{Human Expert}
-
-
-The stencil workgroup size as chosen by a human expert is
-$32 \times 4$.
-
-
-\subsubsection{Linear Model}
-
-
-\subsection{Classification Performance}
-
+\subsection{Oracle Workgroup Sizes}
 
 \begin{figure}
 \input{fig/heatmaps}
@@ -194,7 +252,8 @@ $32 \times 4$.
   The distribution of: (\subref{fig:max-wgsizes}) maximum legal
   workgroup sizes, and (\subref{fig:oracle-wgsizes}) for all
   scenarios. The distribution of oracle workgroup sizes is uneven and
-  spread across the space.%
+  spread across the space. \FIXME{These figures don't use the same
+    scales.}%
 }
 \label{fig:heatmaps}
 \end{figure}
@@ -206,8 +265,7 @@ there is clearly no ``silver bullet'' workgroup size which works for
 all scenarios. As Figure~\ref{fig:oracle-accuracy} shows,
 \input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
 required in order to achieve oracle performance just 50\% of the
-time. \FIXME{These values are going to change massively once I'd
-  incorporated the CPU data\ldots}
+time.
 
 \begin{figure}
 \centering
@@ -233,83 +291,52 @@ plotting the geometric mean performance across workgroup sizes for:
 all scenarios, and only the scenarios for which the workgroup size is
 legal.
 
-\TODO{Partial baseline. How much performance could we get if we lock
-  one of the parameters and twiddle the other?}
+\TODO{How many distinct oracle workgroup sizes are there?}
 
-\begin{figure}
-\centering
-\includegraphics{gen/img/params_summary.pdf}
-\caption{%
-  The red line shows the ``legality'' of workgroup sizes, i.e.\ the
-  ratio of scenarios for which that workgroup size is legal.  The blue
-  and green lines show the geometric mean of the performance relative
-  to the oracle for: all scenarios, and only the scenarios for which
-  the workgroup size is legal.%
+\TODO{What does the distribution of oracle workgroup sizes look like?}
+
+
+\subsection{Human Expert}
+
+
+The stencil workgroup size as chosen by a human expert is
+$32 \times 4$.
+
+\TODO{How often does this parameter fail?}
+
+\TODO{When it is legal, how much of the available performance does
+  this attain?}
+
+
+\subsection{Heuristics}
+
+\subsubsection{Per-device workgroup sizes}
+
+\TODO{%
+  What is the performance of picking one value per: architecture,
+  dataset, and program?%
 }
-\label{fig:performance-legality}
-\end{figure}
 
-
-\begin{table}
-  \parbox{.45\linewidth}{
-    \centering
-    \scriptsize
-    \rowcolors{2}{white}{gray!25}
-    \input{gen/tab/top_params_coverage}
-    \caption{Ranked by legality.}
-  }
-  \hfill
-  \parbox{.45\linewidth}{
-    \centering
-    \scriptsize
-    \rowcolors{2}{white}{gray!25}
-    \input{gen/tab/top_params_perf}
-    \caption{Ranked by performance.}
-  }
-\end{table}
-
-
-\subsection{Factors Influencing Workgroup Size Performance}
-
+\subsubsection{Using maximum legal size}
 
 A common approach taken by application developers is to set the
 workgroup size for a kernel based on the maximum legal workgroup size,
 for example to use the square root of the maximum to set the number of
-columns and rows. While the reasoning for this approach is perfectly
-intuitive, these results indicate that there no useful correlation
-between the ratio of a particular workgroup size to the maximum legal
-workgroup and the observed performance, as shown in
-Figure~\ref{fig:performance-wgsizes}. Furthermore, the performance of
-workgroup sizes is shown in Figure~\ref{fig:performances} to be vary
-greatly across architectures, kernels, and datasets.
+columns and rows.
 
-\TODO{Go into some detail here about the knock-on effect that changing
-  workgroup size has on memory utilisation and execution unit
-  occupancy.}
+\TODO{What is the perforamnce of always picking the max legal value?}
 
-\clearpage
-\begin{figure}
-\input{fig/performance-wgsizes}
-\caption{%
-  Comparing workgroup performance relative to the oracle as function
-  of: (\subref{fig:performance-max-wgsize})~maximum legal size,
-  (\subref{fig:performance-wg-c})~number of columns, and
-  (\subref{fig:performance-wg-r})~ number of rows. As can be seen,
-  workgroup size alone is not indicative of performance.%
-}
-\label{fig:performance-wgsizes}
-\end{figure}
+\subsubsection{Scaling with maximum legal size}
 
-\begin{figure}
-\input{fig/performances}
-\caption{%
-  Performance relative to the oracle of workgroup sizes across all
-  test cases, grouped by: (\subref{fig:performance-kernels})~kernels,
-  (\subref{fig:performance-devices})~devices, and
-  (\subref{fig:performance-datasets})~datasets.%
-}
-\label{fig:performances}
-\end{figure}
+% \TODO{Partial baseline. How much performance could we get if we lock
+%   one of the parameters and twiddle the other?}
+
+% While the reasoning for this approach is perfectly intuitive, these
+% results indicate that there no useful correlation between the ratio
+% of a particular workgroup size to the maximum legal workgroup and
+% the observed performance.
+
+\subsection{Summary}
 
 By comparing the relative performance of an average of
 \input{gen/avg_num_params} workgroup sizes for each workload, the
@@ -328,21 +355,12 @@ following conclusions can be drawn:
   workloads.
 \end{enumerate}
 
-I believe this presents a compelling case for the development of an
-autotuner which can select the optimal workgroup size at runtime.
-
-
-\section{Feature Accuracy}
-
-
-\TODO{Explore}
+% I believe this presents a compelling case for the development of an
+% autotuner which can select the optimal workgroup size at runtime.
 
 
 \section{Classification Performance}
 
-The evaluation compares the average performance achieved using each
-fallback strategy, along with the percentage of cases for which these
-fallback strategies were required.
 
 To evaluate the performance of a classifier, a subset of scenarios
 $S_{training} \subset S$ are labelled with the workgroup size which
@@ -350,30 +368,30 @@ gave the best performance for each. The classifier is trained on this
 labelled training data, and tested using a set of unseen scenarios
 $S_{testing} = S - S_{training}$. The performance of each predicted
 oracle workgroup size is compared against the true oracles for that
-set. Several selections of $S_{training}$ have been used:
+set. % Several selections of $S_{training}$ have been used:
 
-\begin{enumerate}
-\item How often does it select \emph{invalid} workgroup sizes?
-\item How does the three different techniques of handling invalid
-  workgroup sizes perform?
-\end{enumerate}
+\TODO{What is the average speedup achieved using different
+  classifiers?}
 
-\begin{figure}
-\centering
-\includegraphics{gen/img/classification-xval.pdf}
-\caption{%
-  Classification performance using cross-validation.%
-}
-\end{figure}
+\TODO{What percentage of the maximum performance do the classifiers
+  achieve?}
 
-\begin{figure}
-\centering
-\includegraphics{gen/img/classification-xval-random.pdf}
-\caption{%
-  Per-instance performances of classification using cross-validation
-  and the ``random'' error handler.%
-}
-\end{figure}
+% \begin{figure}
+% \centering
+% \includegraphics{gen/img/classification-xval.pdf}
+% \caption{%
+%   Classification performance using cross-validation.%
+% }
+% \end{figure}
+
+% \begin{figure}
+% \centering
+% \includegraphics{gen/img/classification-xval-random.pdf}
+% \caption{%
+%   Per-instance performances of classification using cross-validation
+%   and the ``random'' error handler.%
+% }
+% \end{figure}
 
 
 % \TODO{Rank eigenvectors of PCA on features.}
@@ -383,9 +401,23 @@ set. Several selections of $S_{training}$ have been used:
 
 \subsection{Selection of Features}
 
+\TODO{How does the selection of features affect performance? Show a
+  plot of performance vs number of features.}
 
-\subsection{Ratio of Training Data}
 
+\subsection{Effectiveness of Synthetic Benchmarks}
+
+\TODO{How well does classification perform when trained solely on
+  synthetic benchmarks, and tested soley on real benchmarks?}
+
+\TODO{Repeat the above, but with incremtally fewere benchmarks.}
+
+
+\subsection{Autotuning Overheads}
+
+\TODO{What is the costs of auto-tuning?}
+
+\TODO{How many iterations do we need to do before we ``break even''?}
 
 % \section{Predicting Stencil Runtime}
 
@@ -407,18 +439,25 @@ set. Several selections of $S_{training}$ have been used:
 
 % \section{Predicting Relative Performance}
 
+\section{Comparison with hand tuned implementations}
+
+\TODO{%
+  Compare performance against some hand-crafted implementation of one
+  of the real benchmarks.%
+}
+
 
 \section{Summary}
 
-\begin{table}
-\scriptsize
-\input{\DataDir/tab/xval.tex}
-\caption{Results of 10 fold cross-validation.}
-\end{table}
+% \begin{table}
+% \scriptsize
+% \input{\DataDir/tab/xval.tex}
+% \caption{Results of 10 fold cross-validation.}
+% \end{table}
 
-\begin{table}
-\scriptsize
-\input{\DataDir/tab/synthetic_real.tex}
-\caption{Results of training using synthetic benchmarks and testing on
-  real.}
-\end{table}
+% \begin{table}
+% \scriptsize
+% \input{\DataDir/tab/synthetic_real.tex}
+% \caption{Results of training using synthetic benchmarks and testing on
+%   real.}
+% \end{table}

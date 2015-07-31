@@ -7,9 +7,9 @@ workgroup sizes for OpenCL stencil skeleton kernels in order to
 minimise their runtime on CPUs and multi-GPU systems. The optimisation
 space presented by the workgroup size of OpenCL kernels is large,
 complex, and non-linear. Successfully applying machine learning to
-such a space requires plentiful training data, and the careful
-selection of features, and classification approach. The following
-sections address these challenges.
+such a space requires plentiful training data, the careful selection
+of features, and classification approach. The following sections
+address these challenges.
 
 
 % Anyone downloading a copy of OmniTune will instantly have access to
@@ -52,16 +52,14 @@ accesses and instructions per iteration, reflecting the relatively
 bi-modal nature of the reference stencil codes, either compute
 intensive (e.g. FDTD simulation), or lightweight (e.g. Game of Life).
 
-A total of 68 synthetic benchmarks were generated for collecting
-performance training data. Using a large number of synthetic
-benchmarks helps adress the ``small $n$, large $P$'' problem, which
-describes the difficulty of statistical inference in spaces for which
-the set of possible hypotheses $P$ is significantly larger than the
-number of observations $n$\CitationNeeded{}. By creating
-parameterised, synthetic benchmarks, it is possible to explore a much
-larger set of the space of possible stencil codes than if relying
-solely on reference applications, reducing the risk of overfitting to
-particular program features.
+Using a large number of synthetic benchmarks helps adress the ``small
+$n$, large $P$'' problem, which describes the difficulty of
+statistical inference in spaces for which the set of possible
+hypotheses $P$ is significantly larger than the number of observations
+$n$\CitationNeeded{}. By creating parameterised, synthetic benchmarks,
+it is possible to explore a much larger set of the space of possible
+stencil codes than if relying solely on reference applications,
+reducing the risk of overfitting to particular program features.
 
 
 \section{Stencil Features}
@@ -109,12 +107,12 @@ types.
 
 
 Feature extraction (particularlly compilation to LLVM IR) introduces a
-runtime overhead to the classification process (\TODO{How much?}). To
-minimise this, lookup tables for device and dataset features are used,
-and cached locally in the OmniTune server and pushed to the remote
-data store. The device ID is used to index the devices table, and the
+runtime overhead to the classification process. To minimise this,
+lookup tables for device and dataset features are used, and cached
+locally in the OmniTune server and pushed to the remote data
+store. The device ID is used to index the devices table, and the
 checksum of an OpenCL source is used to index the kernel features
-table. Before feature extraction occurs for either, a lookup is
+table. Before feature extraction for either occurs, a lookup is
 performed in the relevant table, meaning that the cost of feature
 extraction is amortised over time.
 
