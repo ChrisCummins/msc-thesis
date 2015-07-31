@@ -7987,3 +7987,35 @@ Notes from meeting with Hugh and Pavlos:
   of illegal parameters.
 * Does the isolating dataset size work?
 * What is the total % of *refused* parameters? ANSWER: 5%
+
+
+## Friday 31st
+
+Questions to ask in evaluation section:
+
+* What is the distribution of runtimes? Is the number of samples I
+  have enough?
+  * How does this change with architecture, program, or dataset?
+    Consider 3D histograms.
+* How many parameters were refused?
+  * Is this dependent on dataset size? Kernel? Architecture?
+* How much room is there for improvement?
+  * What is the ratio of runtimes with best and worst params?
+  * How well does a human expert perform?
+* What is the distribution of oracle workgroup sizes?
+* How well does classification work?
+  * % available performance, per type of classifier.
+  * How does the selection of features impact this?
+  * How does the *amount* of training data impact this?
+* What is the overhead of autotuning?
+  * What are the break-even points? (i.e. number of iterations
+    required)
+* Performance relative to expert hand-coded programs?
+
+Notes from meeting with Hugh:
+
+* Over the next half a year or so I should learn about statistical
+  testing: T-test, ANOVA, equivalent testing, standard error bars vs
+  confidence intervals, log normal transformations, etc.
+* It would be nice if in my thesis I could refer to open bug reports
+  about the refused params test cases.
