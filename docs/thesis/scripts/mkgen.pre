@@ -325,6 +325,16 @@ def main():
 
     mktex(db.num_params, "gen/num_params.tex")
 
+    num_oracle_params = db.execute("SELECT Count(*) FROM ("
+                                   "SELECT DISTINCT oracle_param "
+                                   "FROM scenario_stats)").fetchone()[0]
+
+    mktex(num_oracle_params, "gen/num_oracle_params.tex")
+    mktex(round(db.execute("SELECT (1.0 * {} / "
+                           "(select count(*) from scenario_stats)) * 100"
+                           .format(num_oracle_params)).fetchone()[0], 1),
+          "gen/oracle_params_per_scenario_perc.tex")
+
     # Oracle param frequencies
     oracle_params = sorted(db.oracle_param_frequencies(normalise=True).items(),
                            reverse=True, key=lambda x: x[1])
@@ -345,6 +355,7 @@ def main():
           "gen/max_oracle_param_w.tex")
     mktex("${}\\%$".format(int(round(max_oracle_param[1] * 100))),
           "gen/max_oracle_param_frequency.tex")
+
 
     # Max speedups
     max_speedups = sorted(db.max_speedups().values(), reverse=True)
