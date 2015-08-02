@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 """
-Parse the output of texcount, printing a table of <file>: <wc>
+Parse the output of texcount, printing a table of <file> <wc>
 pairs. Example usage:
 
     $ parse_texcount.py < texcout.txt
