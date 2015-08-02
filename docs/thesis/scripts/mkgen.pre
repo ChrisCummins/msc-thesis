@@ -32,6 +32,7 @@ from omnitune.skelcl import unhash_params
 from omnitune.skelcl import visualise
 from omnitune.skelcl.dataset import Dataset
 from omnitune.skelcl.migrate import migrate
+from omnitune.skelcl.visualise import fmtdevid
 
 
 def mktex(string, path):
@@ -322,13 +323,7 @@ def main():
           "gen/max_sample_count.tex")
     mktex(len(db.real_kernels), "gen/num_real_kernels.tex")
 
-    wg_c = [str(row[0]) for row in
-            db.execute("SELECT DISTINCT wg_c FROM params order by wg_c asc")]
-    wg_r = [str(row[0]) for row in
-            db.execute("SELECT DISTINCT wg_r FROM params order by wg_r asc")]
-    mktex(", ".join(wg_c), "gen/wg_c.tex")
-    mktex(", ".join(wg_r), "gen/wg_r.tex")
-    mktex(len(wg_c) * len(wg_r), "gen/num_params.tex")
+    mktex(db.num_params, "gen/num_params.tex")
 
     # Oracle param frequencies
     oracle_params = sorted(db.oracle_param_frequencies(normalise=True).items(),
@@ -426,6 +421,17 @@ def main():
                           figsize=figsize)
     visualise.num_params(db, "gen/img/num_params.pdf", title="",
                          figsize=figsize)
+
+    figsize=(3, 3)
+    visualise.refused_params_by_device(db,
+                                       "gen/img/refused_params_by_device.pdf",
+                                       figsize=figsize)
+    visualise.refused_params_by_vendor(db,
+                                       "gen/img/refused_params_by_vendor.pdf",
+                                       figsize=figsize)
+    visualise.refused_param_space(db,
+                                  "gen/img/refused_param_space.pdf",
+                                  figsize=figsize)
 
     # Trend plots
     figsize=(5.8,3)
