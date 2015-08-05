@@ -39,8 +39,9 @@ import omnitune
 from omnitune.skelcl import db as _db
 from omnitune.skelcl import hash_params
 from omnitune.skelcl import unhash_params
+from omnitune.skelcl import space
 from omnitune.skelcl.migrate import migrate
-from omnitune.skelcl.dataset import Dataset
+from omnitune.skelcl.dataset import Dataset, RegressionDataset
 
 import experiment
 
@@ -299,34 +300,37 @@ def run_eval(db, dataset, eval_fn, eval_type="", nfolds=10):
     io.info("Size of testing set: ", testing.num_instances)
     eval_fn("synthetic_real", training, testing)
 
-    # Cross validation using only real data.
-    real_only = Dataset(testing)
-    folds = real_only.folds(nfolds, SEED)
-    print()
-    io.info("CROSS VALIDATION: REAL ONLY")
-    io.info("Size of training set:", folds[0][0].num_instances)
-    io.info("Size of testing set: ", folds[0][1].num_instances)
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        io.debug("Cross-validating classifiers, fold", i + 1, "of", nfolds)
-        eval_fn("xval_real", training, testing)
+    # # Cross validation using only real data.
+    # real_only = Dataset(testing)
+    # folds = real_only.folds(nfolds, SEED)
+    # print()
+    # io.info("CROSS VALIDATION: REAL ONLY")
+    # io.info("Size of training set:", folds[0][0].num_instances)
+    # io.info("Size of testing set: ", folds[0][1].num_instances)
+    # for i,fold in enumerate(folds):
+    #     training, testing = fold
+    #     io.debug("Cross-validating classifiers, fold", i + 1, "of", nfolds)
+    #     eval_fn("xval_real", training, testing)
 
-    # Leave-one-out validation across architectures.
-    folds = dataset.arch_folds(db)
-    nfolds = len(folds)
-    print()
-    io.info("CROSS-ARCHITECTURE VALIDATION:")
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        io.debug("Cross-architecture validating classifiers, fold", i + 1,
-                 "of", nfolds)
-        eval_fn("arch", training, testing)
+    # # Leave-one-out validation across architectures.
+    # folds = dataset.arch_folds(db)
+    # nfolds = len(folds)
+    # print()
+    # io.info("CROSS-ARCHITECTURE VALIDATION:")
+    # for i,fold in enumerate(folds):
+    #     training, testing = fold
+    #     io.debug("Cross-architecture validating classifiers, fold", i + 1,
+    #              "of", nfolds)
+    #     eval_fn("arch", training, testing)
 
 
 def eval_regression(job, db, classifier, instance, dataset, add_cb):
     actual = instance.get_value(instance.class_index)
     scenario = instance.get_string_value(0)
-    params = instance.get_string_value(102)
+
+    wg_c = int(instance.get_value(instance.num_attributes - 3))
+    wg_r = int(instance.get_value(instance.num_attributes - 2))
+    params = hash_params(wg_c, wg_r)
 
     predicted = classifier.classify_instance(instance)
     norm_predicted = predicted / actual
@@ -342,8 +346,8 @@ def eval_regressors(db, classifiers, add_cb, job, training, testing):
         meta.build_classifier(training)
         basename = ml.classifier_basename(classifier.classname)
 
-        for j,instance in enumerate(testing):
-            io.debug(job, basename, j + 1, "of", testing.num_instances)
+        io.debug("   ", job, basename, testing.num_instances, "instances")
+        for instance in testing:
             eval_regression(job, db, meta, instance, training, add_cb)
         db.commit()
 
@@ -395,8 +399,8 @@ def eval_regressor_classifiers(db, classifiers, get_prediction, add_cb,
         db.commit()
 
 
-def get_best_runtime_regression(db, scenario, job):
-    predictions = db.runtime_predictions(scenario, job)
+def get_best_runtime_regression(db, scenario, classifier, job):
+    predictions = db.runtime_predictions(scenario, classifier, job)
     try:
         best = min(predictions, key=lambda x: x[1])
         return best[0]
@@ -405,9 +409,8 @@ def get_best_runtime_regression(db, scenario, job):
         print(e)
         lab.exit(1)
 
-
-def get_best_speedup_regression(db, scenario, job):
-    predictions = db.speedup_predictions(scenario, job)
+def get_best_speedup_regression(db, scenario, classifier, job):
+    predictions = db.speedup_predictions(scenario, classifier, job)
     try:
         best = max(predictions, key=lambda x: x[1])
         return best[0]
@@ -441,21 +444,117 @@ def classification(db, nfolds=10):
 
 
 def regression(db, path, add_cb, get_prediction, add_classification_cb):
-    dataset = Dataset.load(path, db)
+    dataset = RegressionDataset.load(path, db)
+
+    db.empty_table("runtime_classification_results")
+    job = "xval"
+    baseline = "4x4"
+
+    # Convert nominal to binary.
+    n2b = WekaFilter(classname="weka.filters.unsupervised.attribute.NominalToBinary",
+                     options=["-R", "2-last"])
+    n2b.inputformat(dataset.instances)
+    dataset.instances = n2b.filter(dataset.instances)
 
     classifiers = (
-        ml.LinearRegression(),
+        # ml.LinearRegression(),
         ml.RandomForest(),
-        #ml.SMOreg(),
-        ml.ZeroR(),
+        # ml.SMOreg(),
+        # ml.ZeroR(),
     )
 
-    eval_fn = partial(eval_regressors, db, classifiers, add_cb)
-    run_eval(db, dataset, eval_fn, "regressors")
+    folds = dataset.folds(10, seed=SEED)
+    for i,fold in enumerate(folds):
+        training, testing = fold
 
-    eval_fn = partial(eval_regressor_classifiers, db, classifiers,
-                      get_prediction, add_classification_cb)
-    run_eval(db, dataset, eval_fn, "regressor classifiers")
+        maxwgsize_index = testing.attribute_by_name("kern_max_wg_size").index
+        wg_c_index = testing.attribute_by_name("wg_c").index
+        wg_r_index = testing.attribute_by_name("wg_r").index
+
+        io.debug("Fold", i+1, "of", len(folds))
+
+        for classifier in classifiers:
+            meta = Classifier(classifier)
+            meta.build_classifier(training)
+            basename = ml.classifier_basename(classifier.classname)
+            classifier_id = db.classifier_id(classifier)
+
+            scenarios = set([instance.get_string_value(0)
+                             for instance in testing])
+            instances = zip(scenarios, [
+                (instance for instance in testing if
+                 instance.get_string_value(0) == scenario).next()
+                for scenario in scenarios
+            ])
+
+            for scenario,instance in instances:
+                maxwgsize = int(instance.get_value(maxwgsize_index))
+                wlegal = space.enumerate_wlegal_params(maxwgsize)
+                predictions = []
+
+                for params in wlegal:
+                    wg_c, wg_r = unhash_params(params)
+
+                    instance.set_value(wg_c_index, wg_c)
+                    instance.set_value(wg_r_index, wg_r)
+
+                    predicted = meta.classify_instance(instance)
+                    predictions.append((params, predicted))
+
+                # For speedups, we'd invert this search:
+                predictions = sorted(predictions, key=lambda x: x[1])
+
+                row = db.execute(
+                    "SELECT "
+                    "    oracle_param,"
+                    "    oracle_runtime,"
+                    "    worst_runtime "
+                    "FROM scenario_stats "
+                    "WHERE scenario=?",
+                    (scenario,)).fetchone()
+                actual = row[:2]
+
+                predicted_range = predictions[-1][1] - predictions[0][1]
+                actual_range = row[2] - row[1]
+
+                io.debug("actual best   ", actual[0],
+                         round(actual[1], 1), "ms")
+
+                num_instances = 1
+                while True:
+                    predicted = predictions.pop(0)
+
+                    io.debug("predicted best", predicted[0],
+                             round(predicted[1], 1), "ms")
+
+                    try:
+                        actual_runtime_of_predicted = db.runtime(scenario,
+                                                                 predicted[0])
+
+                        io.debug("prediction inaccuracy", round(abs(predicted[1] - actual_runtime_of_predicted) / actual_runtime_of_predicted, 2))
+
+                        perf = actual[1] / actual_runtime_of_predicted
+                        speedup = db.speedup(scenario, baseline, predicted[0])
+                        io.debug("performance", round(perf, 2))
+
+                        db.execute("INSERT INTO runtime_classification_results "
+                                   "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                                   (job, classifier_id, scenario, actual[0],
+                                    actual[1], predicted[0], predicted[1],
+                                    actual_range, predicted_range,
+                                    num_instances,
+                                    1 if predicted[0] == actual[0] else 0,
+                                    perf, speedup))
+                        break
+
+                    except _db.MissingDataError:
+                        num_instances += 1
+                        pass
+
+                db.commit()
+                print()
+                #lab.exit()
+            #db.commit()
 
 
 def runtime_regression(db):
@@ -573,9 +672,9 @@ def main():
     ml.start()
     db = migrate(_db.Database(experiment.ORACLE_PATH))
 
-    linear_models(db)
-    classification(db)
-    # runtime_regression(db)
+    # linear_models(db)
+    # classification(db)
+    runtime_regression(db)
     # speedup_regression(db)
 
     ml.stop()
