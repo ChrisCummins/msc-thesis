@@ -472,7 +472,8 @@ def main():
     visualise.performance_vs_max_wgsize(ratios,
                                         "gen/img/performance_max_wgsize.pdf",
                                         xlabel="Workgroup size (% max)",
-                                        figsize=figsize)
+                                        figsize=figsize,
+                                        color=sns.color_palette("Greens"))
 
     figsize=(5.8/2,3) # Half-width
     ratios = [np.array(l) for l in
@@ -482,7 +483,8 @@ def main():
     visualise.performance_vs_max_wgsize(ratios,
                                         "gen/img/performance_max_c.pdf",
                                         xlabel="Workgroup columns (% max)",
-                                        figsize=figsize)
+                                        figsize=figsize,
+                                        color=sns.color_palette("Blues"))
 
     ratios = [np.array(l) for l in
               json.load(open(fs.path(
@@ -491,7 +493,8 @@ def main():
     visualise.performance_vs_max_wgsize(ratios,
                                         "gen/img/performance_max_r.pdf",
                                         xlabel="Workgroup rows (% max)",
-                                        figsize=figsize)
+                                        figsize=figsize,
+                                        color=sns.color_palette("Reds"))
 
     # Ml Visualisations
     figsize=(5.8,4)
