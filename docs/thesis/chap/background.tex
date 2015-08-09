@@ -1,10 +1,30 @@
 \TODO{Challenges of parallel programming.}
 
+To fully harness the processing power of a modern machine, programmers
+must be equipped with an intimate knowledge of the operating system or
+language-specific threading model and synchronisation primitives, and
+at least one system for programming heterogeneous devices (almost
+certainly using an entirely different programming language to the host
+device). Coupled with the inherent cognitive overhead of reasoning
+about and debugging parallel programs, this has led to the
+understandable belief that parallel programming is only for the
+elite. More than ever, tools are needed to make parallel programming
+accessible, without sacrificing performance.
 
 \section{Parallel Programming with Algorithmic Skeletons}
 
 \TODO{Intro to alg skel. Murray's thesis~\cite{Cole1989}. Algorithmic
   Skeletons in academia~\cite{Cole2004}.}
+
+Introduced by \citeauthor{Cole1989} in \citeyear{Cole1989},
+Algorithmic Skeletons simplify the task of parallel programming by
+abstracting common patterns of communication, providing parallel
+implementations of higher order functions~\cite{Cole1989}. Algorithmic
+Skeletons capture patterns of communication, and are parameterised by
+the programmer with \emph{muscle functions} that implement problem
+specific logic. In doing so, they allow users to focus on solving the
+problem at hand, affording greater ease of use than requring the
+developer to coordinate parallel resources.
 
 % Striegnitz, J. (2000). Making C ++ Ready for Algorithmic Skeletons
 % (Vol. 2000). Retrieved from http://www.fz-juelich.de/zam/FACT
@@ -130,15 +150,25 @@ results still hold for subsequent generations of devices.
 Introduced in~\cite{Steuwer2011}, SkelCL is an object oriented C++
 library that provides OpenCL implementations of data parallel
 algorithmic skeletons for heterogeneous parallelism using CPUs or
-multi-GPUs. Skeletons are parameterised with muscle functions by the
-user, which are compiled into OpenCL kernels for execution on device
-hardware. The Vector and Matrix container types transparently handle
-communication between the host and device memory, and support
-partitioning for multi-GPU execution.
+multi-GPUs. SkelCL addresses the parallel programmability challenge by
+allowing users to easily harness the power of GPUs and CPUs for data
+parallel computing~\cite{Steuwer2011}. To achieve this, SkelCL
+separates the concerns of problem solving and coordinating
+heterogeneous devices, achieving this abstraction using Algorithmic
+Skeletons.
+
+
+Skeletons are parameterised with muscle functions by the user, which
+are compiled into OpenCL kernels for execution on device hardware. The
+Vector and Matrix container types transparently handle communication
+between the host and device memory, and support partitioning for
+multi-GPU execution.
 
 SkelCL is freely
 available\footnote{\url{http://skelcl.uni-muenster.de}} and
 distributed under dual GPL and academic licenses.
+
+
 
 \TODO{%
   Towards high-level programming~\cite{Steuwer2012}. Support for

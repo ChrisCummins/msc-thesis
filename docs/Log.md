@@ -8132,3 +8132,15 @@ Reduced features for regression:
   vendor_id                      as  dev_vendor_id,
   -- version                        as  dev_version,
 ```
+
+
+## Sunday 9th
+
+Chapter deadlines:
+
+* Monday: Background
+* Tuesday: Related Work
+* Wednesday: OmniTune & SkelCL + OmniTune
+* Thursday: Methodology
+* Friday: Evaluation
+* Sunday: Conclusions

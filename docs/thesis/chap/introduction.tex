@@ -1,52 +1,158 @@
 Parallelism is increasingly seen as the only viable approach to
-maintaining continued performance improvements in a multicore
-world. Core counts are increasing in all types of devices from mobile
-to supercomputers, and these devices are becoming increasingly
-heterogeneous. Despite this shift in the hardware paradigm, the
-adoption of parallel programming practises has been slow and awkward
-due to the prohibitive complexity and low level of abstractions
-available to developers.
+maintaining continued performance improvements in a multicore world.
+Despite this, the adoption of parallel programming practises has been
+slow and awkward, leading to a growing disparity between the levels of
+available performance and the ability for application developers to
+exploit it.
 
-To fully harness the processing power of a modern machine, programmers
-must be equipped with an intimate knowledge of the operating system or
-language-specific threading model and synchronisation primitives, and
-at least one system for programming heterogeneous devices (almost
-certainly using an entirely different programming language to the host
-device). Coupled with the inherent cognitive overhead of reasoning
-about and debugging parallel programs, this has led to the
-understandable belief that parallel programming is only for the
-elite. More than ever, tools are needed to make parallel programming
-accessible, without sacrificing performance.
+The multicore processors of modern devices offer many opportunities
+for parallelism, but fully harnessing this processing power requires
+an intimate knowledge of both the parallel programming semantics of
+the language and performance characteristics of the underlying
+hardware. In recent years, general purpose programming with GPUs
+promises even greater data parallel throughput, but is a significantly
+greater challenge to tame, forcing developers to master an entirely
+alien programming model (such as provided by CUDA or OpenCL) and
+architecture (SIMD with a multi-level memory hierarchy). As such,
+GPGPU programming is often considered beyond the realm of all but the
+most power demanding of expert programmers. If steps are not taken to
+increase the accessibility of such parallelism, this will only serve
+to widen the gap between available and utilised performance as the
+core counts of hardware continue to increase.
 
-SkelCL addresses this programmability challenge by allowing users to
-easily harness the power of GPUs and CPUs for data parallel
-computing~\cite{Steuwer2011}. To achieve this, SkelCL separates the
-concerns of problem solving and coordinating heterogeneous devices,
-achieving this abstraction using Algorithmic Skeletons.
-
-Introduced by \citeauthor{Cole1989} in \citeyear{Cole1989},
-Algorithmic Skeletons simplify the task of parallel programming by
-abstracting common patterns of communication, providing parallel
-implementations of higher order functions~\cite{Cole1989}. Algorithmic
-Skeletons capture patterns of communication, and are parameterised by
-the programmer with ``muscle functions'' that implement problem
-specific logic. In doing so, they allow users to focus on solving the
-problem at hand, affording greater ease of use than requring the
-developer to coordinate parallel resources.
+One possible solution for this \emph{programmability challenge} comes
+in the form of Algorithmic Skeletons, which offer to simplify parallel
+programming by raising the level of abstraction so that developers can
+focus on solving problems, rather than coordinating parallel
+resources. They achieve this by by providing robust parallel
+implementations of common patterns of computation which developers
+parameterise with their application-specific code. This greatly
+reduces the challenge of parallel programming, allowing users to
+structure their problem solving logic sequentially, while offloading
+the cost of parallel coordination to the skeleton author.
 
 
 \section{The Problem}
 
-The cost of this ease of use is performance. With each increase in the
-level of the abstraction, implementation details are hidden from the
-user which can be significantly impactful on performance. In SkelCL,
-one such implementation detail which is abstracted from the user is
-the selection of workgroup size --- a parameter of OpenCL kernels
-which controls the mapping of threads to parallel execution
-devices. Hiding such low level details from the user is key to the
-goal of separating problem solving logic from coordination logic, so
-it is the responsiblity of SkelCL to set the value of this parameter
-to ensure good performance automatically.
+Unfortunately, when tuning parallel programs, one size \emph{cannot}
+fit all, as the parameters which affect the performance of a parallel
+program are architecture specific, program specific, and even
+\emph{dataset} specific. This is especially problematic for
+Algorithmic Skeletons, as skeleton author cannot tune the performance
+of an implementation across the breadth of these three dimensions, and
+this results in programs which forgo the performance advantages that
+can be achieved with the low level tuning of hand written parallel
+code.
+
+
+% First prong: standardise autotuning
+
+If the performance of Algorithmic Skeletons is to be competitive with
+that of hand crafted parallel programs, then these skeletons must be
+capable of adapting to their environments. The development of such
+\emph{autotuning} software is an entire research field unto itself ---
+and understandably so: there is an irresistible appeal to the idea of
+software which is capable of maximising its own efficiency without the
+need for human intervention. The unfortunate reality is that while
+these autotuning systems share the unified goal of improving the
+performance of their respective optimisation targets, the range of
+competing approaches and implementations has resulted in a fragmented
+state in which no one system has been able to achieve mainstream
+traction. This is the first aim of this thesis: to tackle the issue of
+providing a unified interface for autotuning which reduces the amount
+of redundant and overlapping work needed to implement autotuning for
+different optimisation targets.
+
+% Second prong: machine learning to cut down cost
+
+The second aim of this thesis is to explore the techniques for
+reducing the \emph{cost} of autotuning for use in Algorithmic
+Skeletons. Typically, autotuning using iterative compilation requires
+enumerating some portion of the optimisation space for each program
+being tuned; however, the cost of such an exploration is prohibitively
+expensive when summed across the broad range of uses cases targeted by
+Algorithmic Skeletons. As such, successfully autotuning Algorithmic
+Skeletons will require a method for \emph{predicting} the values of
+parameters which will maximise performance, without the need for trial
+and error. To succeed, such a method of tuning does not need to
+provide perfectly accurate predictions, but simply sufficiently
+estimates so that, when combined with the vast accessibility
+improvements offered by Algorithmic Skeletons, it provides a
+convincing argument for Algorithmic Skeletons as the solution to the
+parallel programmability crisis.
+
+
+\section{Contributions}
+
+The key contributions of this thesis are:
+
+\begin{itemize}
+\item The development of \emph{OmniTune} --- a novel and extensible
+  framework for autotuning of optimisation parameters during a
+  program's runtime.
+\item The application of OmniTune for tuning of the SkelCL Algorithmic
+  Skeleton library. When tasked with predicting the workgroup sizes of
+  Stencil skeletons on both GPUs and CPUs, OmniTune achieves
+  $\input{gen/best_avg_classification_performance}\%$ of the available
+  performance, providing an average
+  $\input{gen/best_avg_classification_speedup}\times$ speedup over the
+  best possible statically chosen parameter.
+\item The novel application of procedurally generated benchmark
+  programs for collecting autotuning training data. This reduces the
+  cost of training while increasing the size of the space which can be
+  explored. The effectiveness of this approach is demonstrated by
+  testing an autotuner trained using synthetic benchmarks against
+  \input{gen/num_real_kernels} real world stencil codes, achieving a
+  worst case
+  $\input{gen/biggest_synthetic_real_classification_performance_drop}\%$
+  loss in achieved performance.
+\item An empirical evaluation of the performance of workgroup size to
+  parameterise high-level parallel patterns. I enumerate the
+  optimisation space of workgroup size for SkelCL stencil kernels
+  across \input{gen/num_runtime_stats} test cases, demonstrating an
+  average performance loss of
+  $\input{gen/avg_possible_speedup_perc}\%$ (max
+  $\input{gen/max_possible_speedup_perc}\%$) if workgroup size is not
+  correctly tuned. % \TODO{Unexpected results. By exploring a much
+    % larger space than is traditionally used, we find that workgroup
+    % sizes outside the expected norm (i.e. not a multiple of 32) can
+    % bring huge performance bonuses.}
+\item A comparison of multiple approaches to minimise the cost of
+  effective autotuning. \TODO{flesh out: compare cost of full
+    enumeration with that of classification and regression.}
+\item An evaluation of several approaches to performing machine
+  learning classification in which the hypothesis space has hard
+  constraints on legality. \TODO{flesh out: why is this important?}
+\end{itemize}
+
+
+\section{Motivating Example}
+
+In this section I present the case for autotuning the workgroup size
+of SkelCL stencil skeletons. The workgroup size is a two dimensional
+parameter space, consisting of a number of rows and columns. It is
+constrained by the underlying architecture and properties of the
+stencil code. For a detailed discussion of the parameter space and
+experimental methodology, see Chapters~\ref{background}
+and~\ref{chap:methodology}.
+
+Figure~\TODO{} plots the relative performance of a subspace of
+workgroup sizes for a stencil code on an \TODO{}. The two horizontal
+axes represent the number of rows and columns, and height of each bar
+shows the performance of the program at that point in the space
+(higher is better).
+
+% TODO: Show human expert vs. actual oracle for each choice.
+
+% With each increase in the level of the abstraction, implementation
+% details are hidden from the user which can be significantly impactful
+% on performance. In SkelCL, one such implementation detail which is
+% abstracted from the user is the selection of workgroup size --- a
+% parameter of OpenCL kernels which controls the mapping of threads to
+% parallel execution devices. Hiding such low level details from the
+% user is key to the goal of separating problem solving logic from
+% coordination logic, so it is the responsiblity of SkelCL to set the
+% value of this parameter to ensure good performance automatically.
 
 Static values and simple heuristics cannot reliably achieve this
 goal. Many optimisation parameters are sensitive to factors outside
@@ -63,54 +169,6 @@ approach --- and in some cases, outperform --- the kinds of ad hoc
 hand tuning which traditionally came at the cost of hundreds of man
 hours of work from expert programmers to develop.
 
-
-\section{Motivating Example}
-
-\TODO{3D trisurfs of performance of wgsizes across different programs,
-  devices, and datasets.}
-
-
-\section{Contributions}
-
-The key contributions of this work are:
-
-\begin{itemize}
-\item The development of \emph{OmniTune} --- an extensible,
-  distributed system for runtime adaptive tuning of optimisation
-  parameters.
-\item An empirical evaluation of the performance of workgroup size to
-  parameterise high-level parallel patterns. We enumerate the
-  optimisation space of workgroup size for SkelCL stencil kernels
-  across \input{gen/num_runtime_stats} test instances, demonstrating
-  an average performance loss of
-  $\input{gen/avg_possible_speedup_perc}\%$ (max
-  $\input{gen/max_possible_speedup_perc}\%$) if workgroup size is not
-  correctly tuned. % \TODO{Unexpected results. By exploring a much
-    % larger space than is traditionally used, we find that workgroup
-    % sizes outside the expected norm (i.e. not a multiple of 32) can
-    % bring huge performance bonuses.}
-\item The application of OmniTune for predicting workgroup sizes of
-  unseen stencil codes in SkelCL. OmniTune achieves
-  $\input{gen/best_avg_classification_performance}\%$ of the available
-  performance, providing an average
-  $\input{gen/best_avg_classification_speedup}\times$ speedup over the
-  best possible statically chosen value.
-\item The novel application of procedurally generating stencil codes
-  for collecting autotuning training data. This reduces the cost of
-  training while increasing the size of the space which can be
-  explored. The effectiveness of this approach is demonstrated by
-  testing an autotuner trained using synthetic benchmarks against
-  \input{gen/num_real_kernels} real world stencil codes, achieving a
-  worst case
-  $\input{gen/biggest_synthetic_real_classification_performance_drop}\%$
-  loss in achieved performance.
-\item A comparison of multiple approaches to minimise the cost of
-  effective autotuning. \TODO{flesh out: compare cost of full
-    enumeration with that of classification and regression.}
-\item An evaluation of several approaches to performing machine
-  learning classification in which the hypothesis space has hard
-  constraints on legality.
-\end{itemize}
 
 \section{Structure}
 
