@@ -125,49 +125,124 @@ The key contributions of this thesis are:
 \end{itemize}
 
 
-\section{Motivating Example}
+\section{Motivation}
+
+\begin{figure}
+\centering
+\begin{subfigure}[h]{.49\textwidth}
+\centering
+\includegraphics[width=1.0\textwidth]{gen/img/motivation_1}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:motivation-1}
+\end{subfigure}
+~%
+\begin{subfigure}[h]{.49\textwidth}
+\centering
+\includegraphics[width=1.0\textwidth]{gen/img/motivation_2}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:motivation-2}
+\end{subfigure}
+\caption{%
+  Workgroup size optimisation space of a stencil benchmark across
+  devices: (\subref{fig:motivation-1}) Intel CPU,
+  (\subref{fig:motivation-2}) NVIDIA GPU. This shows that stencil
+  performance is dependent on properties of the underlying
+  architecture, with different optimal workgroup sizes ($56 \times 20$
+  vs.\ $64 \times 4$) for the two devices shown.%
+}
+\label{fig:motivation-arch}
+\end{figure}
+
+\begin{figure}
+\begin{subfigure}[h]{.49\textwidth}
+\centering
+\includegraphics[width=1.0\textwidth]{gen/img/motivation_3}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:motivation-3}
+\end{subfigure}
+~%
+\begin{subfigure}[h]{.49\textwidth}
+\centering
+\includegraphics[width=1.0\textwidth]{gen/img/motivation_4}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:motivation-4}
+\end{subfigure}
+\caption{%
+  Workgroup size optimisation space of two stencils on the same
+  device. Despite both programs executing on the same device, the
+  relative performance of workgroup sizes varies greatly between the
+  two programs. The optimal workgroup sizes are $128\times2$ and
+  $256\times4$ respectively.%
+}
+\label{fig:motivation-prog}
+\end{figure}
 
 In this section I present the case for autotuning the workgroup size
-of SkelCL stencil skeletons. The workgroup size is a two dimensional
-parameter space, consisting of a number of rows and columns. It is
-constrained by the underlying architecture and properties of the
-stencil code. For a detailed discussion of the parameter space and
-experimental methodology, see Chapters~\ref{background}
-and~\ref{chap:methodology}.
+of SkelCL stencil skeletons. Stencil workgroup sizes presents a two
+dimensional parameter space consisting of a number of rows and
+columns. It is constrained by the underlying architecture and
+properties of the stencil code. For a detailed discussion of the
+parameter space and experimental methodology, see
+Chapters~\ref{chap:background} and~\ref{chap:methodology}.
 
-\TODO{\ldots}
-% Figure~\TODO{} plots the relative performance of a subspace of
-% workgroup sizes for a stencil code on an \TODO{}. The two horizontal
-% axes represent the number of rows and columns, and height of each bar
-% shows the performance of the program at that point in the space
-% (higher is better).
+By comparing the mean runtime of a stencil program using different
+workgroup sizes while keeping all other conditions constant, we can
+assess the relative performance of different points in the
+optimisation space. Plotting this two dimensional optimisation space
+using a three dimensional bar chart provides a quick visual overview
+of the optimisation space, in which the two horizontal axes represent
+the number of rows and columns in a workgroup, and height of each bar
+shows the performance of at that point in the space (higher is
+better).
 
-% % TODO: Show human expert vs. actual oracle for each choice.
+If the performance of workgroup sizes were not dependent on the
+execution device, we would expect the relative performance of points
+in the optimisation space to be consistent across devices. As shown in
+Figure~\ref{fig:motivation-arch}, this is not the case, with the
+optimisation space of the same benchmark on different devices being
+radically different. Not only does the optimal workgroup size change
+between devices, but the performance of suboptimal workgroup sizes is
+equally dissimilar.
 
-% % With each increase in the level of the abstraction, implementation
-% % details are hidden from the user which can be significantly impactful
-% % on performance. In SkelCL, one such implementation detail which is
-% % abstracted from the user is the selection of workgroup size --- a
-% % parameter of OpenCL kernels which controls the mapping of threads to
-% % parallel execution devices. Hiding such low level details from the
-% % user is key to the goal of separating problem solving logic from
-% % coordination logic, so it is the responsiblity of SkelCL to set the
-% % value of this parameter to ensure good performance automatically.
+The optimisation space of~\ref{fig:motivation-1} has a grid-like
+structure, with clear performance advantages of workgroup sizes at
+multiples of 8 columns. A developer specifically targeting this device
+would learn to select workgroup sizes which follow this pattern. This
+domain specific knowledge does not transfer to the optimisation space
+of~\ref{fig:motivation-2}, where the relatively simple optimisation
+space is amenable to a stochastic hill climbing search.
 
-% Static values and simple heuristics cannot reliably achieve this
-% goal. Many optimisation parameters are sensitive to factors outside
-% the influence of the developers control, such as the type of program,
-% the data being operated on, and the underlying hardware. This makes
-% portable performance tuning a difficult task, and it has tradtional
-% been the responsibility to domain specialists to labourisiously hand
-% tune individual programs to match the target problem and underlying
-% hardware.
+The optimal workgroup size is different for each of the four examples,
+and the difference between the maximum and minimum performance
+workgroup sizes provides an average $37.0\times$ speedup. The existing
+SkelCL stencil implementation uses a statically chosen workgroup size
+of $32\times4$, and this provides an average of only 63\% of the
+available performance when compared to the best workgroup size for
+these four examples. Even for this small set of examples, static
+values and simple heuristics cannot provide portable performance. The
+workgroup size parameter is sensitive to factors outside the influence
+of the developers control, such as the type of program, the data being
+operated on, and the underlying hardware. This makes portable
+performance tuning a difficult task, and it has traditional been the
+responsibility to domain specialists to labourisiously hand tune
+individual programs to match the target problem and underlying
+hardware.
 
-% The ambition of this thesis is to demonstrate that, using machine
-% learning, we can develop predictive tuning systems which closely
-% approach --- and in some cases, outperform --- the kinds of ad hoc
-% hand tuning which traditionally came at the cost of hundreds of man
-% hours of work from expert programmers to develop.
+Given the important role that stencil codes play in many fields of
+computer science and simulation, and their computationally intensive
+nature, I believe that there is a compelling case for the development
+of an autotuner which can accommodate for these differences of
+workgroup size performance between devices, and programs.
+
+The ambition of this thesis is to demonstrate that, using machine
+learning, we can develop predictive tuning systems which closely
+approach --- and in some cases, outperform --- the kinds of ad hoc
+hand tuning which traditionally came at the cost of many man hours of
+work from expert programmers to perform.
 
 
 \section{Structure}

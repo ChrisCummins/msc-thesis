@@ -367,36 +367,36 @@ def main():
         visualise.oracle_wgsizes(db, output, where=where,
                                  title=device + ", synthetic")
 
-    # # Per-kernel plots
-    # for kernel,ids in db.lookup_named_kernels().iteritems():
-    #     id_wrapped = ['"' + id + '"' for id in ids]
-    #     where = ("scenario IN "
-    #              "(SELECT id from scenarios WHERE kernel IN ({0}))"
-    #              .format(",".join(id_wrapped)))
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "coverage/kernels/{0}.png".format(kernel))
-    #     visualise.coverage(db, output=output, where=where, title=kernel)
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "safety/kernels/{0}.png".format(kernel))
-    #     visualise.safety(db, output=output, where=where, title=kernel)
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "oracle/kernels/{0}.png".format(kernel))
-    #     visualise.safety(db, output=output, where=where, title=kernel)
+    # Per-kernel plots
+    for kernel,ids in db.lookup_named_kernels().iteritems():
+        id_wrapped = ['"' + id + '"' for id in ids]
+        where = ("scenario IN "
+                 "(SELECT id from scenarios WHERE kernel IN ({0}))"
+                 .format(",".join(id_wrapped)))
+        output = fs.path(experiment.IMG_ROOT,
+                         "coverage/kernels/{0}.png".format(kernel))
+        visualise.coverage(db, output=output, where=where, title=kernel)
+        output = fs.path(experiment.IMG_ROOT,
+                         "safety/kernels/{0}.png".format(kernel))
+        visualise.safety(db, output=output, where=where, title=kernel)
+        output = fs.path(experiment.IMG_ROOT,
+                         "oracle/kernels/{0}.png".format(kernel))
+        visualise.safety(db, output=output, where=where, title=kernel)
 
-    # # Per-dataset plots
-    # for i,dataset in enumerate(db.datasets):
-    #     where = ("scenario IN "
-    #              "(SELECT id from scenarios WHERE dataset='{0}')"
-    #              .format(dataset))
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "coverage/datasets/{0}.png".format(i))
-    #     visualise.coverage(db, output, where=where, title=dataset)
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "safety/datasets/{0}.png".format(i))
-    #     visualise.safety(db, output, where=where, title=dataset)
-    #     output = fs.path(experiment.IMG_ROOT,
-    #                      "oracle/datasets/{0}.png".format(i))
-    #     visualise.safety(db, output, where=where, title=dataset)
+    # Per-dataset plots
+    for i,dataset in enumerate(db.datasets):
+        where = ("scenario IN "
+                 "(SELECT id from scenarios WHERE dataset='{0}')"
+                 .format(dataset))
+        output = fs.path(experiment.IMG_ROOT,
+                         "coverage/datasets/{0}.png".format(i))
+        visualise.coverage(db, output, where=where, title=dataset)
+        output = fs.path(experiment.IMG_ROOT,
+                         "safety/datasets/{0}.png".format(i))
+        visualise.safety(db, output, where=where, title=dataset)
+        output = fs.path(experiment.IMG_ROOT,
+                         "oracle/datasets/{0}.png".format(i))
+        visualise.safety(db, output, where=where, title=dataset)
 
     ml.stop()
 

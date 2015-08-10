@@ -6,6 +6,8 @@ import csv
 import json
 import re
 
+from itertools import product
+
 import numpy as np
 import matplotlib
 
@@ -24,6 +26,7 @@ from labm8 import latex
 from labm8 import math as labmath
 from labm8 import ml
 from labm8 import system
+from labm8 import viz
 
 import omnitune
 from omnitune import skelcl
@@ -33,6 +36,7 @@ from omnitune.skelcl import visualise
 from omnitune.skelcl.dataset import Dataset
 from omnitune.skelcl.migrate import migrate
 from omnitune.skelcl.visualise import fmtdevid
+from omnitune.skelcl import space as _space
 
 
 def mktex(string, path):
@@ -290,17 +294,89 @@ def num_samples_vs_variance(db):
                                  figsize=figsize, output=output)
 
 
+def motivating_examples(db):
+    import matplotlib.cm as cm
+    from mpl_toolkits.mplot3d import Axes3D
+
+    scenarios = [
+        "1bb3496330190941d56f5d549c5f11e5ffb25358",
+        "6a0f45a9adbd797d40487dac9cbab5979041eaad",
+        "7d57091f444292afbc9b79d6d0cb78ef96ada489",
+        "75121e48a776fde6d2885b3a1b551f0da7e20b88",
+    ]
+
+    for i,scenario in enumerate(scenarios):
+        output = fs.path("gen/img/motivation_{}.png".format(i+1))
+        space = _space.ParamSpace.from_dict(db.perf_scenario(scenario))
+        max_c = min(20, len(space.c))
+        max_r = min(20, len(space.r))
+        space.reshape(max_c=max_c, max_r=max_r)
+
+        X, Y, dZ = [], [], []
+
+        # Iterate over every point in space.
+        for j,i in product(range(space.matrix.shape[0]),
+                           range(space.matrix.shape[1])):
+            if space.matrix[j][i] > 0:
+                element = space.matrix[j][i]
+
+                X.append(i)
+                Y.append(j)
+                dZ.append(element)
+
+        io.info(db.perf(scenario, "32x4"))
+
+        num_vals = len(X)
+        Z = np.zeros((num_vals,))
+        dX = np.ones((num_vals,))
+        dY = np.ones((num_vals,))
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.bar3d(X, Y, Z, dX, dY, dZ)
+
+        # Set X axis labels
+        if len(space.c) > 10:
+            c = [x if i % 2 else "" for i,x in enumerate(space.c)]
+        else:
+            c = space.c
+        ax.set_xticks(np.arange(len(space.c)))
+        ax.set_xticklabels(c)
+        ax.set_xlabel("Columns")
+
+        # Set Y axis labels
+        if len(space.r) > 10:
+            r = [x if i % 2 else "" for i,x in enumerate(space.r)]
+        else:
+            r = space.r
+        ax.set_yticks(np.arange(len(space.r)))
+        ax.set_yticklabels(r)
+        ax.set_ylabel("Rows")
+
+        # Set Z axis labels
+        ax.set_zlabel("Performance")
+
+        # Set plot rotation.
+        ax.view_init(azim=45)
+
+        plt.tight_layout()
+        figsize=(3.333,2.667)
+        plt.gcf().set_size_inches(*figsize, dpi=300)
+        viz.finalise(output)
+
+
 def main():
     ml.start()
     db = migrate(_db.Database("/usr/share/omnitune/db/skelcl.db"))
 
-    fs.rm("gen")
-    fs.mkdir("gen/img")
-    fs.mkdir("gen/tab")
-
     # Set plot style.
     sns.set_context("notebook", font_scale=.8, rc={"lines.linewidth": 2})
     sns.set_style("whitegrid")
+
+    # Delete existing files.
+    fs.rm("gen")
+    fs.mkdir("gen/img")
+    fs.mkdir("gen/tab")
 
     ##################
     # Dynamic values #
@@ -401,6 +477,7 @@ def main():
     # Tables.
     create_hosts_table()
     create_stencil_runtime_components_table()
+
     create_devices_table(db)
     create_kernels_table(db)
     create_datasets_table(db)
@@ -495,6 +572,9 @@ def main():
                                         xlabel="Workgroup rows (% max)",
                                         figsize=figsize,
                                         color=sns.color_palette("Reds"))
+
+    # Motivating example plots
+    motivating_examples(db)
 
     # Ml Visualisations
     figsize=(5.8,4)
