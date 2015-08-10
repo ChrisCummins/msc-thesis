@@ -476,16 +476,16 @@ def eval_speedup_regressors(db, classifiers, baseline, rank_fn,
 
 def run_eval(db, dataset, eval_fn, eval_type="", nfolds=10):
     # Cross validation using both synthetic and real data.
-    # folds = dataset.folds(nfolds, seed=SEED)
-    # print()
-    # io.info("CROSS VALIDATION")
-    # io.info("Size of training set:", folds[0][0].num_instances)
-    # io.info("Size of testing set: ", folds[0][1].num_instances)
+    folds = dataset.folds(nfolds, seed=SEED)
+    print()
+    io.info("CROSS VALIDATION")
+    io.info("Size of training set:", folds[0][0].num_instances)
+    io.info("Size of testing set: ", folds[0][1].num_instances)
 
-    # for i,fold in enumerate(folds):
-    #     training, testing = fold
-    #     io.debug("Cross-validating", eval_type, "- fold", i + 1, "of", nfolds)
-    #     eval_fn("xval", training, testing)
+    for i,fold in enumerate(folds):
+        training, testing = fold
+        io.debug("Cross-validating", eval_type, "- fold", i + 1, "of", nfolds)
+        eval_fn("xval", training, testing)
 
     # Training on synthetic data, testing on real data.
     training, testing = dataset.split_synthetic_real(db)
