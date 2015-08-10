@@ -487,58 +487,58 @@ def run_eval(db, dataset, eval_fn, eval_type="", nfolds=10):
         io.debug("Cross-validating", eval_type, "- fold", i + 1, "of", nfolds)
         eval_fn("xval", training, testing)
 
-    # Training on synthetic data, testing on real data.
-    training, testing = dataset.split_synthetic_real(db)
-    print()
-    io.info("VALIDATION: REAL ONLY")
-    io.info("Size of training set:", training.num_instances)
-    io.info("Size of testing set: ", testing.num_instances)
-    eval_fn("synthetic_real", training, testing)
+    # # Training on synthetic data, testing on real data.
+    # training, testing = dataset.split_synthetic_real(db)
+    # print()
+    # io.info("VALIDATION: REAL ONLY")
+    # io.info("Size of training set:", training.num_instances)
+    # io.info("Size of testing set: ", testing.num_instances)
+    # eval_fn("synthetic_real", training, testing)
 
-    # Cross validation using only real data.
-    real_only = Dataset(testing)
-    folds = real_only.folds(nfolds, SEED)
-    print()
-    io.info("CROSS VALIDATION: REAL ONLY")
-    io.info("Size of training set:", folds[0][0].num_instances)
-    io.info("Size of testing set: ", folds[0][1].num_instances)
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        io.debug("Cross-validating classifiers, fold", i + 1, "of", nfolds)
-        eval_fn("xval_real", training, testing)
+    # # Cross validation using only real data.
+    # real_only = Dataset(testing)
+    # folds = real_only.folds(nfolds, SEED)
+    # print()
+    # io.info("CROSS VALIDATION: REAL ONLY")
+    # io.info("Size of training set:", folds[0][0].num_instances)
+    # io.info("Size of testing set: ", folds[0][1].num_instances)
+    # for i,fold in enumerate(folds):
+    #     training, testing = fold
+    #     io.debug("Cross-validating classifiers, fold", i + 1, "of", nfolds)
+    #     eval_fn("xval_real", training, testing)
 
-    # Leave-one-out validation across architectures.
-    folds = dataset.arch_folds(db)
-    nfolds = len(folds)
-    print()
-    io.info("CROSS-ARCHITECTURE VALIDATION:")
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        io.debug("Cross-architecture validating classifiers, fold", i + 1,
-                 "of", nfolds)
-        eval_fn("arch", training, testing)
+    # # Leave-one-out validation across architectures.
+    # folds = dataset.arch_folds(db)
+    # nfolds = len(folds)
+    # print()
+    # io.info("CROSS-ARCHITECTURE VALIDATION:")
+    # for i,fold in enumerate(folds):
+    #     training, testing = fold
+    #     io.debug("Cross-architecture validating classifiers, fold", i + 1,
+    #              "of", nfolds)
+    #     eval_fn("arch", training, testing)
 
-    # Leave-one-out validation across kernels.
-    folds = dataset.kernel_folds(db)
-    nfolds = len(folds)
-    print()
-    io.info("CROSS-KERNEL VALIDATION:")
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        io.debug("Cross-kernel validating classifiers, fold", i + 1,
-                 "of", nfolds)
-        eval_fn("kern", training, testing)
+    # # Leave-one-out validation across kernels.
+    # folds = dataset.kernel_folds(db)
+    # nfolds = len(folds)
+    # print()
+    # io.info("CROSS-KERNEL VALIDATION:")
+    # for i,fold in enumerate(folds):
+    #     training, testing = fold
+    #     io.debug("Cross-kernel validating classifiers, fold", i + 1,
+    #              "of", nfolds)
+    #     eval_fn("kern", training, testing)
 
-    # Leave-one-out validation across datasets.
-    folds = dataset.dataset_folds(db)
-    nfolds = len(folds)
-    print()
-    io.info("CROSS-DATASET VALIDATION:")
-    for i,fold in enumerate(folds):
-        training, testing = fold
-        io.debug("Cross-dataset validating classifiers, fold", i + 1,
-                 "of", nfolds)
-        eval_fn("data", training, testing)
+    # # Leave-one-out validation across datasets.
+    # folds = dataset.dataset_folds(db)
+    # nfolds = len(folds)
+    # print()
+    # io.info("CROSS-DATASET VALIDATION:")
+    # for i,fold in enumerate(folds):
+    #     training, testing = fold
+    #     io.debug("Cross-dataset validating classifiers, fold", i + 1,
+    #              "of", nfolds)
+    #     eval_fn("data", training, testing)
 
 
 def classification(db, nfolds=10):
@@ -559,7 +559,7 @@ def classification(db, nfolds=10):
         partial(reshape_fn, db),
     )
 
-    db.empty_table("classification_results")
+    # db.empty_table("classification_results")
     eval_fn = partial(eval_classifiers, db, classifiers, err_fns)
     run_eval(db, dataset, eval_fn, "classification")
 
@@ -571,7 +571,7 @@ def runtime_regression(db):
     path = fs.path("~/data/msc-thesis/csv/runtime_stats.csv")
     dataset = RegressionDataset.load(path, db)
 
-    db.empty_table("runtime_classification_results")
+    # db.empty_table("runtime_classification_results")
     baseline = "4x4"
 
     classifiers = (
@@ -593,7 +593,7 @@ def speedup_regression(db):
     path = fs.path("~/data/msc-thesis/csv/speedup_stats.csv")
     dataset = RegressionDataset.load(path, db)
 
-    db.empty_table("speedup_classification_results")
+    # db.empty_table("speedup_classification_results")
     baseline = "4x4"
 
     classifiers = (
@@ -694,7 +694,7 @@ def linear_models(db):
     models = [
         LinearModel(0.15, 0.05),
     ]
-    db.empty_table("model_results")
+    # db.empty_table("model_results")
     eval_linear_models(db, models)
 
 
