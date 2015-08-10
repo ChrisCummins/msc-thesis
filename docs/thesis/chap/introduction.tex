@@ -110,9 +110,8 @@ The key contributions of this thesis are:
   parameterise high-level parallel patterns. I enumerate the
   optimisation space of workgroup size for SkelCL stencil kernels
   across \input{gen/num_runtime_stats} test cases, demonstrating an
-  average performance loss of
-  $\input{gen/avg_possible_speedup_perc}\%$ (max
-  $\input{gen/max_possible_speedup_perc}\%$) if workgroup size is not
+  average performance loss of up to
+  $\input{gen/avg_possible_speedup_perc}\%$ if workgroup size is not
   correctly tuned. % \TODO{Unexpected results. By exploring a much
     % larger space than is traditionally used, we find that workgroup
     % sizes outside the expected norm (i.e. not a multiple of 32) can
@@ -136,38 +135,39 @@ stencil code. For a detailed discussion of the parameter space and
 experimental methodology, see Chapters~\ref{background}
 and~\ref{chap:methodology}.
 
-Figure~\TODO{} plots the relative performance of a subspace of
-workgroup sizes for a stencil code on an \TODO{}. The two horizontal
-axes represent the number of rows and columns, and height of each bar
-shows the performance of the program at that point in the space
-(higher is better).
+\TODO{\ldots}
+% Figure~\TODO{} plots the relative performance of a subspace of
+% workgroup sizes for a stencil code on an \TODO{}. The two horizontal
+% axes represent the number of rows and columns, and height of each bar
+% shows the performance of the program at that point in the space
+% (higher is better).
 
-% TODO: Show human expert vs. actual oracle for each choice.
+% % TODO: Show human expert vs. actual oracle for each choice.
 
-% With each increase in the level of the abstraction, implementation
-% details are hidden from the user which can be significantly impactful
-% on performance. In SkelCL, one such implementation detail which is
-% abstracted from the user is the selection of workgroup size --- a
-% parameter of OpenCL kernels which controls the mapping of threads to
-% parallel execution devices. Hiding such low level details from the
-% user is key to the goal of separating problem solving logic from
-% coordination logic, so it is the responsiblity of SkelCL to set the
-% value of this parameter to ensure good performance automatically.
+% % With each increase in the level of the abstraction, implementation
+% % details are hidden from the user which can be significantly impactful
+% % on performance. In SkelCL, one such implementation detail which is
+% % abstracted from the user is the selection of workgroup size --- a
+% % parameter of OpenCL kernels which controls the mapping of threads to
+% % parallel execution devices. Hiding such low level details from the
+% % user is key to the goal of separating problem solving logic from
+% % coordination logic, so it is the responsiblity of SkelCL to set the
+% % value of this parameter to ensure good performance automatically.
 
-Static values and simple heuristics cannot reliably achieve this
-goal. Many optimisation parameters are sensitive to factors outside
-the influence of the developers control, such as the type of program,
-the data being operated on, and the underlying hardware. This makes
-portable performance tuning a difficult task, and it has tradtional
-been the responsibility to domain specialists to labourisiously hand
-tune individual programs to match the target problem and underlying
-hardware.
+% Static values and simple heuristics cannot reliably achieve this
+% goal. Many optimisation parameters are sensitive to factors outside
+% the influence of the developers control, such as the type of program,
+% the data being operated on, and the underlying hardware. This makes
+% portable performance tuning a difficult task, and it has tradtional
+% been the responsibility to domain specialists to labourisiously hand
+% tune individual programs to match the target problem and underlying
+% hardware.
 
-The ambition of this thesis is to demonstrate that, using machine
-learning, we can develop predictive tuning systems which closely
-approach --- and in some cases, outperform --- the kinds of ad hoc
-hand tuning which traditionally came at the cost of hundreds of man
-hours of work from expert programmers to develop.
+% The ambition of this thesis is to demonstrate that, using machine
+% learning, we can develop predictive tuning systems which closely
+% approach --- and in some cases, outperform --- the kinds of ad hoc
+% hand tuning which traditionally came at the cost of hundreds of man
+% hours of work from expert programmers to develop.
 
 
 \section{Structure}
