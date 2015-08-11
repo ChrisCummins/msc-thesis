@@ -16,6 +16,7 @@ include $(top_srcdir)/Makefile.common
 # Build configuration.
 #------------------------------------------------------------------------
 DocumentPDF = $(Document).pdf
+DocumentTxt = $(Document).txt
 DocumentTex = $(Document).tex
 DocumentAux = $(Document).aux
 DocumentBuildLog = make.log
@@ -220,6 +221,7 @@ help-local:
 	@echo "Build targets:"
 	@echo
 	@echo "  make all       Compile $(DocumentPDF)"
+	@echo "  make txt       Export plaintext to $(DocumentTxt)"
 	@echo "  make clean     Remove all build files"
 if HAVE_XDG_OPEN
 	@echo "  make open      Open $(DocumentPDF) in default PDF viewer"
@@ -309,3 +311,11 @@ endef
 		if ! $(AM_V_P); then echo "  EXEC     $$post"; fi;      \
 		$(call hook,./$$post);                                  \
 	done
+
+# Compile a plaintext version of the document.
+#
+txt: $(DocumentTxt)
+
+$(DocumentTxt): $(DocumentTex)
+	@if ! $(AM_V_P); then echo '  TEXT     $@'; fi
+	$(AM_V_at)detex $< > $@
