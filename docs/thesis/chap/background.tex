@@ -522,6 +522,13 @@ of workgroups which may be simultaneously active. \TODO{Explain (or
 
 \section{Statistics}
 
+A number of statistical tools are used throughout this thesis to
+ensure.
+
+\subsubsection{Statistical Testing}
+
+Student's \emph{t}-test
+
 
 \subsubsection{Confidence Intervals}
 
@@ -530,19 +537,33 @@ distribution of runtimes (given our sample size of
 $n \ge 30$~\cite{Georges2007}):
 
 \begin{align}
-\sigma &= \sqrt{\frac{\sum_{i=1}^{n}(t_i - \bar{t})^2}{n - 1}}\\
-c_1 &= \bar{t} - z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}\\
-c_2 &= \bar{t} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
+\bar{x} &= \frac{1}{n}\sum_{i=1}^{n} x_i\\
+\sigma &= \sqrt{\frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{n - 1}}\\
+c_1 &= \bar{x} - z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}\\
+c_2 &= \bar{x} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
 \end{align}
 
 
 \subsubsection{Kernel Density Estimate}
 
+A Kernel Density Estimate is an approximation of the probability
+density function of a random variable.
+
+\begin{equation}
+  \hat{f}_h(x) = \frac{1}{nh} \sum^{n}_{i=1} K\left( \frac{x - x_i}{h} \right)
+\end{equation}
+
+
 \subsubsection{Histogram}
 
-\subsubsection{Boxplot}
+Histograms are widely used statistical visualisations which show the
+distribution of numerical data.
 
-Boxplots contain the following features:
+
+\subsubsection{Box plot}
+
+Box plots are used to show the distribution of quartile ranges for
+groups of data. The contain the following features:
 
 \begin{itemize}
 \item Horizontal lines at the lower quartile, median and upper
@@ -550,7 +571,12 @@ Boxplots contain the following features:
 \item Vertical lines above and below the upper and lower quartiles to
   the most extreme data point within 1.5 IQR of the upper/lower
   quartile, with horizontal whiskers at the end of the vertical lines.
-\item Dots beyond the ends of the vertical lines to denote outliers.
+\item Dots beyond the ends of the vertical lines to show outliers.
 \end{itemize}
 
-\subsubsection{Violin plot}
+A variation of box plots used in this thesis is the violin plot, which
+extends the box plot with a fitted Kernel Density Estimate plot to
+show the probability density of data at different values.
+
+
+\section{Summary}

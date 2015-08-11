@@ -1,24 +1,14 @@
 \section{Introduction}
 
-This chapter presents experimental results and an evaluation of the
-performance of OmniTune when tasked with selecting workgroup size of
-SkelCL stencil codes. First I evaluate the noise present in the
-program runtime measurements and this is accommodated for. Then I
-examine the effect that workgroup size has on the performance of
-SkelCL stencils. The effectiveness of each of the autotuning
-techniques described in the previous chapters are evaluated using
-multiple different machine learning algorithms, and the prediction
-quality is scrutinised for portability across programs, devices, and
-datasets.
-
-
-% \subsubsection{Questions to ask of each approach to autotuning}
-%
-% \item What is the performance when testing on an unseen:
-%   architecture, kernel, dataset? (leave one out evaluation)
-% \item How well does it perform as a function of the number of
-%   training points?
-% \end{enumerate}
+This chapter evaluates the performance of OmniTune when tasked with
+selecting workgroup sizes for SkelCL stencil codes. First I discuss
+the noise present in the program runtime measurements and how this is
+accommodated for. Then I examine the effect that workgroup size has on
+the performance of SkelCL stencils. The effectiveness of each of the
+autotuning techniques described in the previous chapters are evaluated
+using multiple different machine learning algorithms, and the
+prediction quality is scrutinised for portability across programs,
+devices, and datasets.
 
 
 \section{Statistical Soundness}
@@ -34,6 +24,10 @@ datasets.
 \label{fig:num-samples}
 \end{figure}
 
+The methodology for enumerating the optimisation space of a set of
+scenarios was described in the previous chapter,
+
+A test case $t_i$ is a scenario, workgroup size pair $t_i = (s_i,w_i)$
 
 A total of \input{gen/num_runtime_stats} \emph{test cases} were
 evaluated, where a test case $t_i$ is a scenario, workgroup size pair

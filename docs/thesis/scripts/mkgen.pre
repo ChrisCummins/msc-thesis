@@ -531,17 +531,19 @@ def main():
                                       title="", figsize=figsize)
 
     # Boxplots grouped by kernel,device,dataset
-    figsize=(5.8,3) # Full page width
+    boxplot_height = 3.5
+
+    figsize=(5.8, boxplot_height) # Full page width
     visualise.kernel_performance(db, "gen/img/performance_kernels.pdf",
                                  title="", figsize=figsize)
-    figsize=(5.8/2,3) # Half-width
+    figsize=(5.8/2, boxplot_height) # Half-width
     visualise.device_performance(db, "gen/img/performance_devices.pdf",
                                  title="", figsize=figsize)
     visualise.dataset_performance(db, "gen/img/performance_datasets.pdf",
                                   title="", figsize=figsize)
 
     # Boxplots grouped by wgsize
-    figsize=(5.8,3)
+    figsize=(5.8, boxplot_height)
     ratios = [np.array(l) for l in
               json.load(open(fs.path(
                   "~/data/msc-thesis/performance_wgsize.json"
@@ -552,7 +554,7 @@ def main():
                                         figsize=figsize,
                                         color=sns.color_palette("Greens"))
 
-    figsize=(5.8/2,3) # Half-width
+    figsize=(5.8/2, boxplot_height) # Half-width
     ratios = [np.array(l) for l in
               json.load(open(fs.path(
                   "~/data/msc-thesis/performance_c.json"
