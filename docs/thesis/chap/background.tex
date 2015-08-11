@@ -1,45 +1,42 @@
-\TODO{Challenges of parallel programming.}
+\section{Introduction}
 
-To fully harness the processing power of a modern machine, programmers
-must be equipped with an intimate knowledge of the operating system or
-language-specific threading model and synchronisation primitives, and
-at least one system for programming heterogeneous devices (almost
-certainly using an entirely different programming language to the host
-device). Coupled with the inherent cognitive overhead of reasoning
-about and debugging parallel programs, this has led to the
-understandable belief that parallel programming is only for the
-elite. More than ever, tools are needed to make parallel programming
-accessible, without sacrificing performance.
+This chapter provides a detailed though non-exhaustive description of
+the theory and techniques used in this thesis. First is an overview of
+Algorithmic Skeletons, GPGPU programming, and the combination of the
+two in SkelCL. Second is a description of the machine learning
+techniques used in this thesis, followed by the tools and
+methodologies used in the evaluation.
+
 
 \section{Parallel Programming with Algorithmic Skeletons}
-
-\TODO{Intro to alg skel. Murray's thesis~\cite{Cole1989}. Algorithmic
-  Skeletons in academia~\cite{Cole2004}.}
 
 Introduced by \citeauthor{Cole1989} in \citeyear{Cole1989},
 Algorithmic Skeletons simplify the task of parallel programming by
 abstracting common patterns of communication, providing parallel
-implementations of higher order functions~\cite{Cole1989}. Algorithmic
-Skeletons capture patterns of communication, and are parameterised by
-the programmer with \emph{muscle functions} that implement problem
-specific logic. In doing so, they allow users to focus on solving the
-problem at hand, affording greater ease of use than requring the
-developer to coordinate parallel resources.
-
-% Striegnitz, J. (2000). Making C ++ Ready for Algorithmic Skeletons
-% (Vol. 2000). Retrieved from http://www.fz-juelich.de/zam/FACT
-% \TODO{Early work towards C++ Alg. Skeletons\cite{Striegnitz2000}}
+implementations of higher order functions~\cite{Cole1989}. The
+interfaces to generic parallel algorithms exposed by Algorithmic
+Skeletons are parameterised by the user with \emph{muscle functions}
+that implement problem specific logic. The idea is that this allows
+the user to focus on solving the problem at hand, affording greater
+ease of use by automating the coordination of parallel resources.
 
 
 \subsection{Abstracting Task and Data Parallelism}
 
-Algorithmic Skeletons are categorised as either data parallel or task
-parallel. \TODO{Explain the difference} Examples of data parallel
-Algorithmic Skeletons include \emph{map}, \emph{zip}, and
-\emph{reduce}. Examples of task parallel Algorithmic Skeletons include
-\emph{pipe}, \emph{farm}, and \emph{for loops}. The data parallel
-operations supplied by SkelCL are described in detail in
-Section~\ref{sec:skelcl-intro}.
+Algorithmic Skeletons are categorised as either \emph{data} parallel
+or \emph{task} parallel. In data parallel skeletons, data is
+distributed across nodes for parallel processing across multiple
+devices executing a single task. That is, each parallel node executes
+the same code, on a unique subset of the data. Examples of data
+parallel Algorithmic Skeletons include \emph{map}, \emph{zip}, and
+\emph{reduce}. The data parallel operations provided by SkelCL are
+described in detail in Section~\ref{sec:skelcl-intro}.
+
+Task parallel skeletons treat the data as a singular object and
+instead parallelise the execution of multiple tasks. Tasks are
+assigned to threads, which can communicate with each other by passing
+data between threads. Examples of task parallel Algorithmic Skeletons
+include \emph{pipe}, \emph{task farm}, and \emph{for loops}.
 
 
 \subsection{Algorithmic Skeleton Frameworks}
@@ -48,24 +45,66 @@ Algorithmic Skeleton Frameworks (ASkFs) provide concrete parallel
 implementations of a set of parallel patterns, which are parameterised
 by the user to generate specific problem solving programs. The
 interfaces exposed by frameworks must be sufficiently generic to allow
-users to express a range of specific problems. For example, Google's
-MapReduce~\cite{Dean2008} provides a generic template for computation
-using a \emph{map} and \emph{reduce} skeletons, and a robust
-implementation for distributed processing.  See~\cite{Gonzalez2010}
-for a broad review of frameworks in the literature.
+users to express a range of problems.
+
+Implementations of Algorithmic Skeletons abound, targeting a range of
+different use cases and host languages. Notable examples include:
+eSkel~\cite{Benoit2005a}, Skandium~\cite{Leyton2010}, and
+FastFlow~\cite{Aldinucci2011}. See~\cite{Gonzalez2010} for a more
+exhaustive review of ASkFs in the research literature.
+
+In industry, Google's MapReduce~\cite{Dean2008} and Intel's Thread
+Building Blocks~\cite{IntelTBB} have utilised a similar approach to
+abstracting the coordination of parallel resources as in Algorithmic
+Skeletons, to great commercial success, although they do not advertise
+themselves as such.
 
 \TODO{Add a system diagram, a la.~\cite{Gonzalez2010}, p.1136}
 
 
-\section{Heterogeneous parallelism and GPUs}
+\section{GPGPU Programming}
 
-\TODO{%
-  Start with a description of GPU hardware, i.e. SIMD EUs, many simple
-  cores, lockstep execution. Describe the historical reasoning for
-  this and how it influences the types of programs which are well
-  suited for GPUs. GPUs offer huge throughput, but are even more
-  challenging to program and debug. Give concrete examples.%
-}
+General purpose programming with graphics hardware is a nascent field,
+but has shown to enable massive data parallel throughput by
+re-purposing the hardware traditionally dedicated to the rendering of
+3D graphics for generic computation. This was enabled by hardware
+support for programmable shaders replacing the fixed function graphics
+pipeline, and support for floating point operations in 2001.
+
+In the ensuing progress towards increasingly programmable graphics
+hardware, two dominant programming models have emerged: CUDA and
+OpenCL, which both abstract the graphics primitives of GPU hardware
+and provide a platform for GPGPU programming. CUDA is a language
+developed by NVIDIA for programming their GPUs using a proprietary SDK
+and API~\cite{Nvidia2007}, while OpenCL is a vendor-independent open
+standard based on a subset of the C99 programming language, with
+implementations for devices from most major GPU
+manufactures~\cite{Stone2010}. A quantitative evaluation of the
+performance of CUDA and OpenCL programs in~\cite{Komatsu2010} suggests
+that performance is comparable between the two systems, although the
+wider range of target architectures for OpenCL means that appropriate
+optimisations must be made by hand or by the compiler.
+
+
+\subsection{The OpenCL Programming Model}
+
+OpenCL is a parallel programming framework which targets CPUs, GPUs,
+and other parallel processors such as Field-Programmable Gate
+Arrays. It provides a set of APIs and a language (based on an extended
+subset of C) for controlling heterogeneous \emph{compute devices} from
+a central host. Programs written for these devices are called
+\emph{kernels}, and are compiled by platform-specific toolchains. When
+a kernel is to be executed, each unit of computation is referred to as
+a \emph{workitem}, and these work items are bunched into
+\emph{workgroups}. For GPUs, workgroups execute on the Single
+Instruction Multiple Data (SIMD) processing units in lockstep. This
+can cause a severe performance penalty for flow control across
+workgroups, as ``thread masks'' must be used to stall the execution of
+workitems across diverging branches.
+
+The wide range of supported execution devices and differing
+standard-compliant implementations makes portable performance tuning
+of OpenCL programs a difficult task~\cite{Rul2010}.
 
 % S. Ryoo, C. I. Rodrigues, S. S. Stone, S. S. Baghsorkhi, S.-Z. Ueng,
 % J. a. Stratton, and W. W. Hwu, “Program optimization space pruning
@@ -77,22 +116,10 @@ for a broad review of frameworks in the literature.
   optimization metrics~\cite{Ryoo2008}.%
 }
 
-
-\subsection{GPGPU Programming}
-
-\TODO{Introduction to popular GPU programming models: OpenCL and
-  CUDA.}
-
-% K. Komatsu, K. Sato, Y. Arai, K. Koyama, H. Takizawa, and
-% H. Kobayashi, “Evaluating performance and portability of OpenCL
-% programs,” in The fifth international workshop on automatic
-% performance tuning, 2010, p. 7.
 \citeauthor{Komatsu2010} provide quantitative comparisons between the
 performance of CUDA and OpenCL kernels
-in~\cite{Komatsu2010}. \TODO{This paper is deserving of close
-  scrutiny, as they perform an in-depth evaluation of the effect of
-  workgroup size on the performance of kernels across devices and
-  programs.}
+in~.
+
 
 % J. Fang, A. L. Varbanescu, and H. Sips, “A Comprehensive Performance
 % Comparison of CUDA and OpenCL,” in Parallel Processing (ICPP), 2011
@@ -135,16 +162,6 @@ the target architectures. It is unclear whether their performance
 results still hold for subsequent generations of devices.
 
 
-\subsection{The OpenCL Programming Model}
-
-\TODO{Technical details of OpenCL model. Describe the memory model.}
-
-% Rul, S., Vandierendonck, H., Haene, J. D., & Bosschere,
-% K. De. (2010). An Experimental Study on Performance Portability of
-% OpenCL Kernels. In 2010 Symposium on Application Accelerators in
-% High Performance Computing (SAAHPC’10) (pp. 4–6).
-\TODO{Portability of OpenCL kernels~\cite{Rul2010}}
-
 \section{High-Level GPU Programming with SkelCL}\label{sec:skelcl-intro}
 
 Introduced in~\cite{Steuwer2011}, SkelCL is an object oriented C++
@@ -156,7 +173,6 @@ parallel computing~\cite{Steuwer2011}. To achieve this, SkelCL
 separates the concerns of problem solving and coordinating
 heterogeneous devices, achieving this abstraction using Algorithmic
 Skeletons.
-
 
 Skeletons are parameterised with muscle functions by the user, which
 are compiled into OpenCL kernels for execution on device hardware. The
@@ -465,48 +481,6 @@ of workgroups which may be simultaneously active. \TODO{Explain (or
 \TODO{Add diagram showing workgroup decomposition.}
 
 
-\section{Statistics}
-
-For a given scenario $s$ and workgroup size $w$, the arithmetic mean
-of $n$ measured runtimes $\bar{t}$ is calculated using:
-
-\begin{equation}
-\bar{t} = \frac{\sum_{i=1}^{n}t_i}{n}
-\end{equation}
-
-\subsubsection{Confidence Intervals}
-
-95\% confidence intervals are calculated assuming a Gaussian
-distribution of runtimes (given our sample size of
-$n \ge 30$~\cite{Georges2007}):
-
-\begin{align}
-\sigma &= \sqrt{\frac{\sum_{i=1}^{n}(t_i - \bar{t})^2}{n - 1}}\\
-c_1 &= \bar{t} - z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}\\
-c_2 &= \bar{t} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
-\end{align}
-
-
-\subsubsection{Kernel Density Estimate}
-
-\subsubsection{Histogram}
-
-\subsubsection{Boxplot}
-
-Boxplots contain the following features:
-
-\begin{itemize}
-\item Horizontal lines at the lower quartile, median and upper
-  quartile.
-\item Vertical lines above and below the upper and lower quartiles to
-  the most extreme data point within 1.5 IQR of the upper/lower
-  quartile, with horizontal whiskers at the end of the vertical lines.
-\item Dots beyond the ends of the vertical lines to denote outliers.
-\end{itemize}
-
-\subsubsection{Violin plot}
-
-
 \section{Machine Learning}
 
 
@@ -544,3 +518,39 @@ Boxplots contain the following features:
 
 
 \subsubsection{Cross-validation}
+
+
+\section{Statistics}
+
+
+\subsubsection{Confidence Intervals}
+
+95\% confidence intervals are calculated assuming a Gaussian
+distribution of runtimes (given our sample size of
+$n \ge 30$~\cite{Georges2007}):
+
+\begin{align}
+\sigma &= \sqrt{\frac{\sum_{i=1}^{n}(t_i - \bar{t})^2}{n - 1}}\\
+c_1 &= \bar{t} - z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}\\
+c_2 &= \bar{t} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
+\end{align}
+
+
+\subsubsection{Kernel Density Estimate}
+
+\subsubsection{Histogram}
+
+\subsubsection{Boxplot}
+
+Boxplots contain the following features:
+
+\begin{itemize}
+\item Horizontal lines at the lower quartile, median and upper
+  quartile.
+\item Vertical lines above and below the upper and lower quartiles to
+  the most extreme data point within 1.5 IQR of the upper/lower
+  quartile, with horizontal whiskers at the end of the vertical lines.
+\item Dots beyond the ends of the vertical lines to denote outliers.
+\end{itemize}
+
+\subsubsection{Violin plot}
