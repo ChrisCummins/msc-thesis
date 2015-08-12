@@ -41,6 +41,19 @@ include \emph{pipe}, \emph{task farm}, and \emph{for loops}.
 
 \subsection{Algorithmic Skeleton Frameworks}
 
+\begin{figure}
+\centering
+\includegraphics[width=0.99\textwidth]{img/askf}
+\caption{%
+  Typical usage of a library based Algorithmic Skeleton
+  Framework. Other approaches to Algorithmic Skeletons involve
+  embedding the API into the core language itself, or using template
+  and macro substitution to remove the need for linking with a
+  library.%
+}
+\label{fig:askf}
+\end{figure}
+
 Algorithmic Skeleton Frameworks (ASkFs) provide concrete parallel
 implementations of a set of parallel patterns, which are parameterised
 by the user to generate specific problem solving programs. The
@@ -50,16 +63,16 @@ users to express a range of problems.
 Implementations of Algorithmic Skeletons abound, targeting a range of
 different use cases and host languages. Notable examples include:
 eSkel~\cite{Benoit2005a}, Skandium~\cite{Leyton2010}, and
-FastFlow~\cite{Aldinucci2011}. See~\cite{Gonzalez2010} for a more
-exhaustive review of ASkFs in the research literature.
+FastFlow~\cite{Aldinucci2011}. The most prevalent form of ASkF is as a
+standalone library built within a host library, which exposes a set of
+APIs, shown in Figure~\ref{fig:askf}. See~\cite{Gonzalez2010} for a
+more exhaustive review of ASkFs in the research literature.
 
 In industry, Google's MapReduce~\cite{Dean2008} and Intel's Thread
 Building Blocks~\cite{IntelTBB} have utilised a similar approach to
 abstracting the coordination of parallel resources as in Algorithmic
 Skeletons, to great commercial success, although they do not advertise
 themselves as such.
-
-\TODO{Add a system diagram, a la.~\cite{Gonzalez2010}, p.1136}
 
 
 \section{GPGPU Programming}
@@ -69,7 +82,10 @@ but has shown to enable massive data parallel throughput by
 re-purposing the hardware traditionally dedicated to the rendering of
 3D graphics for generic computation. This was enabled by hardware
 support for programmable shaders replacing the fixed function graphics
-pipeline, and support for floating point operations in 2001.
+pipeline, and support for floating point operations in
+2001. \citeauthor{Owens2006} provide a review of the first five years
+of general purpose computation on graphics hardware
+in~\cite{Owens2006}.
 
 In the ensuing progress towards increasingly programmable graphics
 hardware, two dominant programming models have emerged: CUDA and
@@ -77,16 +93,30 @@ OpenCL, which both abstract the graphics primitives of GPU hardware
 and provide a platform for GPGPU programming. CUDA is a language
 developed by NVIDIA for programming their GPUs using a proprietary SDK
 and API~\cite{Nvidia2007}, while OpenCL is a vendor-independent open
-standard based on a subset of the C99 programming language, with
+standard based on a subset of the ISO C99 programming language, with
 implementations for devices from most major GPU
-manufactures~\cite{Stone2010}. A quantitative evaluation of the
-performance of CUDA and OpenCL programs in~\cite{Komatsu2010} suggests
-that performance is comparable between the two systems, although the
-wider range of target architectures for OpenCL means that appropriate
-optimisations must be made by hand or by the compiler.
+manufactures~\cite{Stone2010}. Quantitative evaluations of the
+performance of CUDA and OpenCL programs suggest that performance is
+comparable between the two systems, although the wider range of target
+architectures for OpenCL means that appropriate optimisations must be
+made by hand or by the compiler~\cite{Komatsu2010,Karimi2010}.
 
 
 \subsection{The OpenCL Programming Model}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5
+\textwidth]{img/opencl-memory}
+\caption{%
+  The OpenCL memory model. The host communicates with each device
+  through transfers between global memory spaces. The capacity of each
+  type of memory is dependent on the device hardware. In general,
+  private memory is the fastest and smallest, and global memory is the
+  largest and slowest.%
+}
+\label{fig:opencl-memory}
+\end{figure}
 
 OpenCL is a parallel programming framework which targets CPUs, GPUs,
 and other parallel processors such as Field-Programmable Gate
@@ -104,39 +134,31 @@ workitems across diverging branches.
 
 The wide range of supported execution devices and differing
 standard-compliant implementations makes portable performance tuning
-of OpenCL programs a difficult task~\cite{Rul2010}.
-
-% S. Ryoo, C. I. Rodrigues, S. S. Stone, S. S. Baghsorkhi, S.-Z. Ueng,
-% J. a. Stratton, and W. W. Hwu, “Program optimization space pruning
-% for a multithreaded GPU,” in Proceedings of the 6th annual IEEE/ACM
-% international symposium on Code generation and optimization, 2008,
-% pp. 195–204.
-\TODO{%
-  Background info about optimizing for GPUs, including a checklist of
-  optimization metrics~\cite{Ryoo2008}.%
-}
-
-\citeauthor{Komatsu2010} provide quantitative comparisons between the
-performance of CUDA and OpenCL kernels
-in~.
+of OpenCL programs a difficult task~\cite{Rul2010}, and the
+interactions between optimisations and the hardware are complex and
+sometimes counter-intuitive~\cite{Ryoo2008}.
 
 
-% J. Fang, A. L. Varbanescu, and H. Sips, “A Comprehensive Performance
-% Comparison of CUDA and OpenCL,” in Parallel Processing (ICPP), 2011
-% International Conference on, 2011, pp. 216–225.
-\TODO{Comparing OpenCL and CUDA performance: \cite{Karimi2010}}
+\subsubsection{Memory Model}
 
-% Enmyren, J., & Kessler, C. (2010). SkePU: a multi-backend skeleton
-% programming library for multi-GPU systems. In Proceedings of the
-% fourth international workshop on High-level parallel programming and
-% applications (pp. 5–14). ACM. Retrieved from
-% http://dl.acm.org/citation.cfm?id=1863487
-\subsubsection{Skeletal Programming for GPUs}
+Unlike the flat memory model of CPUs, OpenCL uses a hierarchical
+memory model. The host and each OpenCL device has a single global
+memory address space. Each workgroup has a local memory space, and
+each workitem has a region of private memory.
 
-\TODO{%
-  SkePU Similar to SkelCL in scope and ambition, alternative
-  implementation with C++ macros and CUDA~\cite{Enmyren2010}.%
-}
+Workgroups cannot access the memory of neighbouring workgroups, nor
+can workitems access the private memory of other workitems. OpenCL
+provides synchronisation barriers to allow for communication between
+workitems within a single workgroup via the local memory, but not
+global barriers. Memory transfers between the host and devices occurs
+between global memory regions. In the case of programming
+heterogeneous devices, these transfers must occur over the connection
+bus between the CPU and device (e.g.\ PCIe for discrete GPUs), which
+typically creates a performance bottleneck by introducing a
+performance overhead to transfer data to the device for processing,
+than back to the device afterwards. Direct transfers of data between
+devices is not supported, requiring an intermediate transfer to the
+host memory.
 
 \subsubsection{GPU vs CPU performance analysis}
 
@@ -160,6 +182,19 @@ costs, and exploiting local shared memory. In all cases, the programs
 were optimised and hand-tuned by programmers with expert knowledge of
 the target architectures. It is unclear whether their performance
 results still hold for subsequent generations of devices.
+
+
+% Enmyren, J., & Kessler, C. (2010). SkePU: a multi-backend skeleton
+% programming library for multi-GPU systems. In Proceedings of the
+% fourth international workshop on High-level parallel programming and
+% applications (pp. 5–14). ACM. Retrieved from
+% http://dl.acm.org/citation.cfm?id=1863487
+\subsubsection{Skeletal Programming for GPUs}
+
+\TODO{%
+  SkePU Similar to SkelCL in scope and ambition, alternative
+  implementation with C++ macros and CUDA~\cite{Enmyren2010}.%
+}
 
 
 \section{High-Level GPU Programming with SkelCL}\label{sec:skelcl-intro}
@@ -559,7 +594,7 @@ Density estimation is a technique for showing the distribution of data
 which circumvents some of these issues.
 
 
-\subsubsection{Kernel Density Estimate}
+\subsubsection{Kernel Density Estimation}
 
 A Kernel Density Estimate (KDE) is an approximation of the probability
 density function of a random variable. Given a random variable $x$,

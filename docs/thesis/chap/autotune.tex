@@ -1,13 +1,14 @@
 \section{Introduction}
 
-This chapter presents OmniTune, a set of interfaces for extensible,
-distributed autotuning. OmniTune provides a replacement for the kinds
-of ad hoc tuning typically performed by expert programmers by
-providing runtime prediction of tunable parameters using
-collaborative, online learning of optimisation spaces. First I
-describe the high level overview of the approach to autotuning, then I
-describe the system architecture and set of interfaces exposed by
-Omnitune.
+In previous chapters I have advocated the use of machine learning for
+autotuning. In this chapter, I present OmniTune, a framework for
+extensible, distributed autotuning using machine learning. OmniTune
+provides a replacement for the kinds of ad hoc tuning typically
+performed by expert programmers by providing runtime prediction of
+tunable parameters using collaborative, online learning of
+optimisation spaces. First I describe the high level overview of the
+approach to autotuning, then I describe the system architecture and
+set of interfaces exposed by Omnitune.
 
 
 \section{Predicting Optimisation Parameter Values}
@@ -23,10 +24,15 @@ Omnitune.
 
 The goal of machine learning-enabled autotuning is to \emph{predict}
 the values for optimisation parameters to maximise some measure of
-profit based on models built from prior observations. In OmniTune,
-user programs request parameter values for either training purposes,
-or performance, as illustrated in
-Figure~\ref{fig:omnitune-system-flow}.
+profit. These predictions are based on models built from prior
+observations. The prediction quality is influenced by the number of
+prior observations. OmniTune supports both prediction of parameters
+based on prior observations, and a method for collecting these
+observations. When a client program requests parameter values, it
+indicates whether the request for training or performance purposes,
+and uses a different backend to select parameter values for each. New
+observations can then be added once parameters have been evaluated.
+Figure~\ref{fig:omnitune-system-flow} shows this process.
 
 
 \section{System Architecture and Interface}
@@ -40,16 +46,7 @@ Figure~\ref{fig:omnitune-system-flow}.
 \label{fig:omnitune-system-overview}
 \end{figure}
 
-Omnitune is built around a three tier client-server model, shown in
-Figure~\ref{fig:omnitune-system-overview}. The goal is to separate the
-concerns of application-specific and autotuning logic. In OmniTune,
-the applications which are to be autotuned are referred to as
-\emph{clients}. These clients commmunicate with a system-wide
-\emph{server}, which handles autotuning requests from clients. The
-server caches data sourced from a \emph{remote}, which maintains a
-global store of all training data.
-
-As discussed in \xref{related work}, common implementations of
+As discussed in Chapter~\ref{chap:related}, common implementations of
 autotuning in the literature either: embed the autotuning logic within
 the each target application, or take a standalone approach in which
 the autotuner is a program which must be invoked by the user to tune a
@@ -57,12 +54,18 @@ target application. Embedding the autotuner within each target
 application has the advantage of providing ``always-on'' behaviour,
 but is infeasible for complex systems in which the cost of building
 machine learning models must be added to each program run. The
-stanadlone approach separates the autotuning logic, at the expense of
+standalone approach separates the autotuning logic, at the expense of
 adding one additional step to the build process. The approach taken in
 OmniTune aims to capture the advantages of both techniques by
-implementing an autotuning service with communication logic embedded
-in the target applications. The resulting design consists of three
-sets of components: clients, servers, and a remote data-store.
+implementing a autotuning \emph{as a service}, with only the
+lightweight communication logic embedded in the target applications.
+
+Omnitune is built around a three tier client-server model. The
+applications which are to be autotuned are the \emph{clients}. These
+clients commmunicate with a system-wide \emph{server}, which handles
+autotuning requests. The server communicates and caches data sourced
+from a \emph{remote}, which maintains a global store of all autotuning
+data. Figure~\ref{fig:omnitune-system-overview} shows this structure.
 
 There is a many to one relationship between clients, servers, and
 remotes, such that a single remote may handle connections to multiple
@@ -86,7 +89,7 @@ describe the interfaces between the three components.
 
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{img/omnitune-comms.pdf}
+\includegraphics[width=.7\textwidth]{img/omnitune-comms.pdf}
 \caption{%
   An example communication pattern between OmniTune components,
   showing an offline training phase.%
