@@ -169,11 +169,11 @@ satisfies the architectural and kernel constraints, and is not
 refused. The subset of all possible workgroup sizes
 $W_{legal}(s) \subset W$ that are legal for a given sceanario $s$ is
 then:
-
+%
 \begin{equation}
   W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} - W_{refused}(s)
 \end{equation}
-
+%
 Where $W_{max}(s)$ can be determined at runtime prior to the kernels
 execution, but the set $W_{refused}(s)$ can only be determined
 experimentally. Exceeding either of these constraints will cause an
@@ -187,11 +187,11 @@ Given a set of observations of observed runtime for $(s,w)$ pairs, and
 a function $t(s,w)$ which returns the arithmetic mean of the observed
 runtimes for a pair, we can calculate the speedup $r(s, w_1, w_2)$ of
 competing workgroup sizes $w_1$ over $w_2$ using:
-
+%
 \begin{equation}
   r(s, w_1, w_2) = \frac{t(s,w_2)}{t(s,w_1)}\\
 \end{equation}
-
+%
 
 \subsubsection{Oracle Workgroup Size}
 
@@ -214,14 +214,14 @@ performances due to its multiplicative
 property~\cite{Fleming1986}. For a given workgroup size, the average
 performance $\bar{p}(w)$ across the set of all scenarios $S$ can be
 found using the geometric mean of performance relative to the oracle:
-
+%
 \begin{equation}
 \bar{p}(w) =
 \left(
   \prod_{s \in S} r(s, w, \Omega(s))
 \right)^{1/|S|}
 \end{equation}
-
+%
 The \emph{baseline} workgroup size $\bar{w}$ is the value which
 provides the best average case performance across all scenarios. Such
 a baseline value represents the \emph{best} possible performance which
@@ -253,26 +253,26 @@ which will provide the best performance. The classifier takes a set of
 training scenarios $S_{training}$, and generates labelled training
 data as pairs of scenario features $f(s)$ and observed oracle
 workgroup sizes:
-
+%
 \begin{equation}
   T = \left\{ \left(f(s), \Omega(s)\right) | s \in S_{training} \right\}
 \end{equation}
-
+%
 During testing, the classifier predicts workgroup sizes from the set
 of oracle workgroup sizes from the training set:
-
+%
 \begin{equation}
   W_{training} = \left\{ \Omega(s) | s \in S_{training} \right\}
 \end{equation}
-
+%
 This approach presents the problem that after training, there is no
 guarantee that the set of workgroup sizes which may be predicted is
 within the set of legal workgroup sizes for future scenarios:
-
+%
 \begin{equation}
   \cup \{ W_{legal}(s) | s \in S_{testing} \} \nsubseteq W_{training}
 \end{equation}
-
+%
 This may result in a classifier predicting a workgroup size which is
 not legal for a scenario, $w \not\in W_{legal}(s)$, either because it
 exceeds $W_{max}(s)$, or because the parameter is refused. For these
@@ -319,11 +319,11 @@ mean runtime, we can train a regressor $g(f(s), w)$ which predicts the
 mean runtime of an unseen scenario. The predicted oracle workgroup
 size $\bar{\Omega}(s)$ is then $w$ value which minimises the output of
 the regressor:
-
+%
 \begin{equation}
   \bar{\Omega}(s) = \underset{w \in W_{legal}(s)}{\argmin} g(f(s), w)
 \end{equation}
-
+%
 By predicting the runtimes of only the workgroup sizes from within
 $W_{legal}(s)$, we overcome the issue of predicting workgroup sizes
 which exceed $W_{max}(s)$, although note that since $W_{refused}(s)$
@@ -346,10 +346,11 @@ do this, we select a baseline workgroup size $w_b \in W_{safe}$, and
 train a regressor $g(f(s),w,w_b)$ with training data labelled with the
 relative performance over the baseline $r(w, w_b)$. Predicting the
 optimal workgroup requires maximising the output of the regressor:
-
+%
 \begin{equation}
   \bar{\Omega}(s) = \underset{w \in W_{legal}(s)}{\argmax} g(f(s),w,w_b)
 \end{equation}
+%
 
 % \begin{algorithm}
 % \input{alg/autotune-speedup-regression}

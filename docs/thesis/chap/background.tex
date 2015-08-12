@@ -123,20 +123,17 @@ and other parallel processors such as Field-Programmable Gate
 Arrays. It provides a set of APIs and a language (based on an extended
 subset of C) for controlling heterogeneous \emph{compute devices} from
 a central host. Programs written for these devices are called
-\emph{kernels}, and are compiled by platform-specific toolchains. When
-a kernel is to be executed, each unit of computation is referred to as
-a \emph{workitem}, and these work items are bunched into
-\emph{workgroups}. For GPUs, workgroups execute on the Single
-Instruction Multiple Data (SIMD) processing units in lockstep. This
-can cause a severe performance penalty for flow control across
-workgroups, as ``thread masks'' must be used to stall the execution of
-workitems across diverging branches.
-
-The wide range of supported execution devices and differing
-standard-compliant implementations makes portable performance tuning
-of OpenCL programs a difficult task~\cite{Rul2010}, and the
-interactions between optimisations and the hardware are complex and
-sometimes counter-intuitive~\cite{Ryoo2008}.
+\emph{kernels}, and are compiled by platform-specific tool chains. At
+runtime, an OpenCL \emph{platform} is selected and a \emph{context}
+object is created which exposes access to each supported compute
+device through \emph{command queues}.  When a kernel is executed, each
+unit of computation is referred to as a \emph{workitem}, and these
+work items are grouped into \emph{workgroups}. The sum of all
+workgroup dimensions defines the \emph{global size}. For GPUs,
+workgroups execute on the Single Instruction Multiple Data (SIMD)
+processing units in lockstep. This can cause a severe performance
+penalty for flow control across workgroups, as ``thread masks'' must
+be used to stall the execution of workitems across diverging branches.
 
 
 \subsubsection{Memory Model}
@@ -160,88 +157,91 @@ than back to the device afterwards. Direct transfers of data between
 devices is not supported, requiring an intermediate transfer to the
 host memory.
 
-\subsubsection{GPU vs CPU performance analysis}
 
-% V. W. Lee, P. Hammarlund, R. Singhal, P. Dubey, C. Kim, J. Chhugani,
-% M. Deisher, D. Kim, A. D. Nguyen, N. Satish, M. Smelyanskiy, and
-% S. Chennupaty, “Debunking the 100X GPU vs. CPU myth,” ACM SIGARCH
-% Comput. Archit. News, vol. 38, p. 451, 2010.
-In~\cite{Lee2010}, \citeauthor{Lee2010} present a performance analysis
-of optimised throughput computing applications for GPUs and CPUs. Of
-the 14 applications tested, they found GPU performance to be
+\subsubsection{Performance Optimisations}
+
+The wide range of supported execution devices and differing
+standard-compliant implementations makes portable performance tuning
+of OpenCL programs a difficult task~\cite{Rul2010}, and the
+interactions between optimisations and the hardware are complex and
+sometimes counter-intuitive~\cite{Ryoo2008}.
+
+The overhead introduced by memory transfers between host and compute
+devices further complicates comparisons of OpenCL performance on
+different devices. The conclusion of~\cite{Gregg2011} is that this
+overhead can account for $2\times-50\times$ difference of GPU program
+runtime. In~\cite{Lee2010}, \citeauthor{Lee2010} present a performance
+analysis of optimised throughput computing applications for GPUs and
+CPUs. Of the 14 applications tested, they found GPU performance to be
 $0.7\times$-$14.9\times$ that of multi-threaded CPU code, with an
 average of only 2.5$\times$. This is much lower than the
-$100\times$-$1000\times$ values reported by other studies,
-% TODO: ^^ Citation needed!
-a fact that they attribute to uneven comparison of optimised GPU code
-to unoptimised CPU code, or vice versa. \citeauthor{Lee2010} found
-that multithreading, cache blocking, reordering of memory accesses and
-use of SIMD instructions to contribute most to CPU performance. For
-GPUs, the most effective optimisations are reducing synchronization
-costs, and exploiting local shared memory. In all cases, the programs
-were optimised and hand-tuned by programmers with expert knowledge of
-the target architectures. It is unclear whether their performance
-results still hold for subsequent generations of devices.
+$100\times$-$1000\times$ values reported by other studies, a fact that
+they attribute to uneven comparison of optimised GPU code to
+unoptimised CPU code, or vice versa. \citeauthor{Lee2010} found that
+multithreading, cache blocking, reordering of memory accesses and use
+of SIMD instructions to contribute most to CPU performance. For GPUs,
+the most effective optimisations are reducing synchronization costs,
+and exploiting local shared memory. In all cases, the programs were
+optimised and hand-tuned by programmers with expert knowledge of the
+target architectures. It is unclear whether their performance results
+still hold for subsequent generations of devices.
 
+The potential for high performance coupled with the complexity and low
+levels of abstraction provided by OpenCL make it an ideal target for
+skeletal abstractions. SkelCL and SkePU are two such examples which
+add a layer of abstraction above OpenCL and CUDA respectively in order
+to simplify GPGPU programming~\cite{Enmyren2010}.
 
-% Enmyren, J., & Kessler, C. (2010). SkePU: a multi-backend skeleton
-% programming library for multi-GPU systems. In Proceedings of the
-% fourth international workshop on High-level parallel programming and
-% applications (pp. 5–14). ACM. Retrieved from
-% http://dl.acm.org/citation.cfm?id=1863487
-\subsubsection{Skeletal Programming for GPUs}
-
-\TODO{%
-  SkePU Similar to SkelCL in scope and ambition, alternative
-  implementation with C++ macros and CUDA~\cite{Enmyren2010}.%
-}
-
-
-\section{High-Level GPU Programming with SkelCL}\label{sec:skelcl-intro}
+\section{High-Level GPU Programming with
+  SkelCL}\label{sec:skelcl-intro}
 
 Introduced in~\cite{Steuwer2011}, SkelCL is an object oriented C++
 library that provides OpenCL implementations of data parallel
 algorithmic skeletons for heterogeneous parallelism using CPUs or
 multi-GPUs. SkelCL addresses the parallel programmability challenge by
 allowing users to easily harness the power of GPUs and CPUs for data
-parallel computing~\cite{Steuwer2011}. To achieve this, SkelCL
-separates the concerns of problem solving and coordinating
-heterogeneous devices, achieving this abstraction using Algorithmic
-Skeletons.
+parallel computing.
 
-Skeletons are parameterised with muscle functions by the user, which
-are compiled into OpenCL kernels for execution on device hardware. The
-Vector and Matrix container types transparently handle communication
-between the host and device memory, and support partitioning for
-multi-GPU execution.
+The goal of SkelCL is to enable the transition towards higher-level
+programming of GPUS, without requiring users to be intimately
+knowledgeable of the concepts unique to OpenCL programming, such as
+the memory or execution model~\cite{Steuwer2012}. SkelCL has been
+shown to reduce programmer effort for developing real applications
+through the use of robust pattern implementations and automated memory
+management, with performance is within 5\% of equivalent
+implementations hand written in OpenCL~\cite{Steuwer2013}.
 
-SkelCL is freely
+OpenCL skeletons are parameterised with muscle functions by the user,
+which are compiled into kernels for execution on device
+hardware. SkelCL supports operations on one or two dimensional arrays
+of data, with the Vector and Matrix container types transparently
+handling communication between the host and device memory, and
+supporting partitioning for multi-GPU
+execution~\cite{Steuwer2013a}. SkelCL is freely
 available\footnote{\url{http://skelcl.uni-muenster.de}} and
 distributed under dual GPL and academic licenses.
 
 
-
-\TODO{%
-  Towards high-level programming~\cite{Steuwer2012}. Support for
-  multi-GPU systems~\cite{Steuwer2013a}. Stencil
-  computations~\cite{Breuer2014}. Allpairs
-  skeleton~\cite{Steuwer2014}. An example of reduced programmer effort
-  for real world application using SkelCL: \cite{Steuwer2013}%
-}
-
-
 \subsection{Pattern definitions}
 
-\TODO{Brief descriptions and example uses of patterns.}
+SkelCL provides six skeletons for data parallel operations: $\map$,
+$\zip$, $\reduce$, $\scan$, $\allpairs$, and $\stencil$. This
+subsection gives a brief overview of their behaviour.
+
 
 \subsubsection{Map}
 
+The $\map$ operation is a basic building block of data parallel
+algorithms. Given a customising function $f$ and a vector $x$ of $n$
+elements, the $\map$ operation applies the function $f$ to each
+element $x_1, x_2, \ldots, x_n$, return a vector of the same length:
+%
 \begin{equation}
 \map\left(f, [x_1,x_2,\ldots,x_n]\right) \to [f(x_1),f(x_2),\ldots,f(x_n)]
 \end{equation}
-
-When applied to an $n \times m$ matrix:
-
+%
+The process is the same for an $n \times m$ matrix:
+%
 \begin{equation}
 \map\left(f,
 \begin{bmatrix}
@@ -256,15 +256,25 @@ When applied to an $n \times m$ matrix:
   f(x_{n1}) & \cdots & f(x_{nm})
 \end{bmatrix}
 \end{equation}
+%
+Execution of the customising function can be parallelised as each are
+independent of each. There is no guarantees on execution on ordering.
+
 
 \subsubsection{Zip}
 
+The $\zip$ operation combines elements of containers pairwise. Given a
+binary operator $\oplus$ and two vectors $x$ and $y$ of $n$ elements
+each:
+%
 \begin{equation}
 \zip\left( \oplus, [x_1,x_2,\ldots,x_n], [y_1,y_2,\ldots,y_n] \right)
 \to
 \left[ x_1 \oplus y_1, x_2 \oplus y_2, \ldots, x_n \oplus y_n \right]
 \end{equation}
-
+%
+For two matrices of $n \times m$ elements each:
+%
 \begin{equation}
 \begin{split}
 \zip \left( \oplus,
@@ -286,15 +296,24 @@ When applied to an $n \times m$ matrix:
 \end{bmatrix}
 \end{split}
 \end{equation}
+%
+It is parallelised in the same manner as $\map$.
+
 
 \subsubsection{Reduce}
 
+The $\reduce$ operator combines all elements of an input vector and
+returns a scalar. Given a binary operator $\oplus$, its identity
+$\bm{i}$ and a vector $x$ of $n$ elements:
+%
 \begin{equation}
-\reduce \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
-\to
-x_1 \oplus x_2 \oplus \ldots \oplus x_n
+  \reduce \left( \oplus, \bm{i}, [x_1,x_2,\ldots,x_n] \right)
+  \to
+  x_1 \oplus x_2 \oplus \ldots \oplus x_n
 \end{equation}
-
+%
+For a $n \times m$ matrix:
+%
 \begin{equation}
 \reduce \left( \oplus, i,
 \begin{bmatrix}
@@ -305,17 +324,36 @@ x_1 \oplus x_2 \oplus \ldots \oplus x_n
 \to
 x_{11} \oplus x_{12} \oplus \ldots \oplus x_{nm}
 \end{equation}
+%
+Reduction operates recursively combines elements, storing intermediate
+results in fast local memory. No guarantee is made on execution
+ordering, so the binary operator must be associative.
+
 
 \subsubsection{Scan}
 
+The $\scan$ operator applies a binary function $\oplus$ to each member
+of an input array $x$ of $n$ elements, such that element $x_i$ at the
+$i$th position is calculated by applying the binary function to all
+elements $x_1,x_2, \ldots x_{i-1}$. For the first element $x_i$, the
+value is the identify $\bm{i}$ of the $\oplus$ operator:
+%
 \begin{equation}
-\scan \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
-\to
-\left[ i, x_1, x_1 \oplus x_2, \ldots, x_1 \oplus x_2 \oplus \ldots \oplus x_n \right]
+  \scan \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
+  \to
+  \left[ \bm{i}, x_1, x_1 \oplus x_2, \ldots, x_1 \oplus x_2 \oplus \ldots \oplus x_n \right]
 \end{equation}
+%
+The SkelCL scan implementation is heavily optimised to make use of
+local memory, based on the design from~\cite{Harris2007a}.
+
 
 \subsubsection{AllPairs}
 
+The AllPairs skeleton is a specialised pattern for Matrix Matrix
+operations, introduced in~\cite{Steuwer2014}. Given an two matrices of
+size $n \times d$ and $n \times m$, a binary operator $\oplus$:
+%
 \begin{equation}
 \allpairs \left( \oplus,
 \begin{bmatrix}
@@ -335,50 +373,61 @@ x_{11} \oplus x_{12} \oplus \ldots \oplus x_{nm}
   z_{n1} & \cdots & z_{nm}
 \end{bmatrix}
 \end{equation}
-
+%
 where:
-
+%
 \begin{equation}
 z_{ij} =
 \left[ x_{i1}, x_{i2}, \ldots, x_{id} \right] \oplus
 \left[ y_{j1}, y_{j2}, \ldots, y_{jd} \right]
 \end{equation}
-
+%
 An additional implementation is provided for when the $\oplus$
 operator is known to match that of a zip pattern:
-
+%
 \begin{equation}
 z_{ij} =
 \left[
   x_{i1}, \oplus y_{j1}, x_{i2} \oplus y_{j2}, \ldots, x_{id} \oplus y_{jd}
 \right]
 \end{equation}
+%
+This pattern has applications from bioinformatics to matrix
+multiplication, and uses fast local memory to reduce data access times
+for repeated reads.
 
 
 \subsubsection{Stencil}
 
-\TODO{Define border region (sometimes referred to as halo region).}
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{img/stencil-shape}
+\caption{%
+  The border region of a stencil is defined using a stencil shape $S$,
+  consisting of the four independent components for the number of
+  elements north $S_n$, east $S_e$, west $S_w$, and south $S_s$.%
+}
+\label{fig:stencil-shape}
+\end{figure}
 
 Stencils are patterns of computation which operate on uniform grids of
 data, where the value of each cell is updated based on its current
 value and the value of one or more neighbouring elements, called the
-border region. In SkelCL, a 2D stencil skeleton allows users to
-provide a function which updates a cell's value, and SkelCL
-orchestrates the parallel execution of this function across all
-cells. Each cell maps to a single work item; and this collection of
-work items is then divided into \emph{workgroups} for execution on the
-target hardware.
+\emph{border region}. Introduced in~\cite{Breuer2014}, SkelCL provides
+a 2D stencil skeleton which allows users to provide a function which
+updates a cell's value; while SkelCL orchestrates the parallel
+execution of this function across all cells.
 
-In SkelCL, the border region is described by a \emph{stencil shape},
-which defines an $i \times j$ rectangular region about each cell which
-is used to update the cell value. Stencil shapes may be asymmetrical,
-and a defined in terms of the number of cells in the border region to
+The border region is described by a \emph{stencil shape}, which
+defines an $i \times j$ rectangular region about each cell which is
+used to update the cell value. Stencil shapes may be asymmetrical, and
+are defined in terms of the number of cells in the border region to
 the north, east, south, and west of each cell, shown in
-Figure~\xref{\TODO{Diagram of 3 stencil shapes.}}
+Figure~\ref{fig:stencil-shape}.
 
 Given a customising function $f$, a stencil shape $S$, and an
 $n \times m$ matrix:
-
+%
 \begin{equation}
 \stencil \left( f, S,
 \begin{bmatrix}
@@ -393,9 +442,9 @@ $n \times m$ matrix:
   z_{n1} & \cdots & z_{nm}
 \end{bmatrix}
 \end{equation}
-
+%
 where:
-
+%
 \begin{equation}
 z_{ij} = f \left(
 \begin{bmatrix}
@@ -404,11 +453,21 @@ z_{ij} = f \left(
   z_{i+S_s,j-S_w} & \cdots & z_{i+S_s,j+S_e}
 \end{bmatrix} \right)
 \end{equation}
+%
+Note that a stencil operation in which the size of the stencil shape
+$S$ is zero in every direction is functionally equivalent to a $\map$
+operation. Where the a border region includes elements outside of the
+matrix, values are substituted from either a predefined padding value,
+or the value of the nearest cell within the matrix. The choice of
+which is determined by the user.
 
-A popular application of Stencil codes is for iterative problems, in
-which \todo{\ldots} discrete time steps $0 <= t <= t_{max}$, and
-$t \in \mathbb{Z}$
-
+A popular usage of Stencil codes is for solving problems iteratively,
+whereby a stencil operation is repeated over a range of discrete time
+steps $0 \le t \le t_{max}$, and $t \in \mathbb{Z}$. An iterative
+stencil operation $g$ accepts a customising function $f$, a Stencil
+shape $S$, and a matrix $M$ with initial values $M_{init}$. The
+iterative stencil can be defined recursively as:
+%
 \begin{equation}
 g(f, S, M, t) =
 \begin{cases}
@@ -416,104 +475,58 @@ g(f, S, M, t) =
   M_{init}, & \text{otherwise}
 \end{cases}
 \end{equation}
-
-A Stencil operation in which the size of the stencil shape $S$ is zero
-in every direction is functionally equivalent to a Map operation.
-
-\TODO{Explain border handling logic\ldots Add a diagram of the 3
-  border handling techniques.}
-
-
-\subsection{Container Types}
-
-\TODO{Description of vector and matrices, supported data types, lazy
-  data transfer \ldots}
-
-\subsubsection{Data distributions}
-
-\TODO{Description and diagrams for single, block, copy, and overlap
-  distributions.}
+%
+Examples of iterative stencils are cellular automata. Another
+extension of the stencil operation accepts an ordered list of
+customising functions which are applied sequentially for each
+iteration. This has applications for multi-stage stencil operations
+such as Canny Edge Detection, in which four distinct stencil
+operations are performed as a sequence.
 
 
 \subsection{Implementation Details}
 
 Each skeleton is represented by a template class, declared in a header
 file detailing the public API. A private header file contains the
-template definition. E.g. \texttt{SkelCL/Map.h} contains the Map
-class, and \texttt{SkelCL/detail/MapDef.h} contains the
-implementation. Non-trivial kernels are stored in separate source
-files, e.g. \texttt{SkelCL/detail/MapKernel.cl}.
+template definition. E.g.\ \texttt{SkelCL/Stencil.h} contains the
+template class declaration of the $\stencil$ skeleton, and
+\texttt{SkelCL/detail/StencilDef.h} contains the template
+definition. Small OpenCL kernels are stored as inline strings inside
+the definition headers. Non-trivial OpenCL kernels are stored in
+separate source files,
+e.g. \texttt{SkelCL/detail/StencilKernel.cl}. Muscle functions are
+passed as OpenCL strings to the skeleton template classes, and the
+LLVM API is used to perform argument and function name substitution.
 
-\TODO{Description of OpenCL skeleton templates, and the compilation
-  process - i.e. substitution of user functions, handling additional
-  arguments  \ldots}
+For the stencil skeleton, each cell maps to a single work item; and
+this collection of work items is then divided into \emph{workgroups}
+for execution on the target hardware. In a stencil code, each
+work-item reads the value of the corresponding grid elements, and the
+surrounding elements defined by the border region. Since the border
+regions of neighbouring elements overlap, the value of all elements
+within a workgroup are stored in a \emph{tile}, which is a region of
+local memory. As local memory access times are much smaller than that
+of global memory, this greatly reduces the latency of the border
+region reads performed by each workitem. Changing the workgroup size
+thus affects the amount of local memory required for each workgroup,
+which in turn affects the number of workgroups which may be
+simultaneously active. So while the user defines the size, type, and
+border region of the of the grid being operated upon, it is the
+responsibility of the SkelCL stencil implementation to select an
+appropriate workgroup size to use.
 
-\TODO{Algorithm listing for stencil}
-
-
-\subsubsection{Stencil}
-
-% TODO: This listing isn't required.
-\lstinputlisting[
-  language=C++,
-  float,
-  floatplacement=t,
-  label=lst:skelcl-stencil-interface,
-  caption={
-    Interface for SkelCL stencil skeleton.
-  }
-]{dat/skelcl-stencil-interface.cpp}
-
-
-\subsubsection{StencilSequence}
-
-\TODO{Iterative stencils, and sequences of stencils}
-
-
-\subsection{Example Application}
-
-\TODO{%
-  Provide definition of an example stencil program, a code listing for
-  SkelCL implementation, and a comparison of runtimes using a decent
-  GPU vs. sequential CPU. Preferably also hand coded OpenCL?%
+\begin{figure}
+\centering
+\includegraphics[width=.75\textwidth]{img/stencil-wg}
+\caption{%
+  The components of a stencil: a grid of cells is decomposed into
+  workgroups, consisting of multiple workitems. Each work item
+  operates on a border region, and the size of the workgroup and outer
+  border region defines a tile, which is a region of local memory
+  allocated to each workgroup.%
 }
-
-
-\subsection{Workgroup size and Stencil Codes}
-
-% TODO:
-
-In OpenCL, kernels are mapped to work-items for execution on the
-processing units of GPUs and CPUs. These work-items are then grouped
-into one or more workgroups. The choice of workgroup size is left to
-the developer, but with two sets of constraints. The first set of
-constraints is the maximum workgroup size which an execution device
-supports. This value cannot be exceeded, irrespective of the kernel
-being executed. The second constraint is the maximum workgroup size a
-kernel supports, and can only be queried at runtime once a kernel has
-been compiled. The selection of workgroup size for stencil skeletons
-is particularly relevant to the performance of the stencil as it
-affects utilisation of fast local memory. In a stencil code, each
-work-item reads the values of multiple neighbouring elements. To
-facilitate this, the value of all elements within a workgroup are
-stored in fast local memory, which greatly reduces the read latency
-for GPUs. Changing the workgroup size affects the amount of local
-memory required for each workgroup, which in turn affects the number
-of workgroups which may be simultaneously active. \TODO{Explain (or
-  rephrase) why this isn't a curve that gets better as the memory size
-  goes up until a threshold after which it falls off. Would binary
-  search work?}
-
-\TODO{%
-  While the user is clearly in control of the type of work which is
-  executed, the size of the grid, and the size of the border region,
-  it is very much the responsibility of the skeleton implementation to
-  select what workgroup size to use. As such I designed an experiment
-  to explore just what effect changing workgroup sizes has on the
-  performance of Stencil skeletons.%
-}
-
-\TODO{Add diagram showing workgroup decomposition.}
+\label{fig:stencil-wg}
+\end{figure}
 
 
 \section{Machine Learning}
@@ -598,13 +611,13 @@ which circumvents some of these issues.
 
 A Kernel Density Estimate (KDE) is an approximation of the probability
 density function of a random variable. Given a random variable $x$,
-and bandwidth $h$ and a kernel $K$, the KDE $\hat{f}_h(x)$ can be
-found using:
-
+and bandwidth $h$ and a kernel $K$, the Kernel Density Estimate
+$\hat{f}_h(x)$ can be found using:
+%
 \begin{equation}
   \hat{f}_h(x) = \frac{1}{nh} \sum^{n}_{i=1} K\left( \frac{x - x_i}{h} \right)
 \end{equation}
-
+%
 Using a smooth kernel such as a Gaussian distribution for the kernel
 produced a smooth density estimated, unlike histograms. However, like
 histograms, the appearance of a Kernel Density Estimate plot is
@@ -637,3 +650,11 @@ to generate a smoothed visualisation of the distribution.
 
 
 \section{Summary}
+
+This chapter gave a brief introduction to general-purpose computing
+using graphics hardware, the OpenCL framework, and SkelCL. It was
+followed by a description of the machine learning techniques used
+throughout this thesis, and the statistical tools used for the
+evaluation. In the next chapter, I review the state of the art in the
+field of autotuning, and provide context for the contributions of this
+thesis.

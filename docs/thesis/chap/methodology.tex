@@ -79,9 +79,11 @@ automata, and partial differential equation solvers are used:
   noise and detail in an image. A two dimensional Gaussian blur
   defines a function to compute a pixel value $f(x,y)$ using a
   standard deviation $\sigma$ using:
+  %
   \begin{equation}
     f(x,y) = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2 + y^2}{2\sigma^2}}
   \end{equation}
+  %
   Gaussian blurs are parameterised by a radius $r$ which define
   symmetric, square stencil regions about the centre
   pixel. \TODO{Describe the range of blur radius' used.} Unlike the
@@ -186,21 +188,21 @@ code, or using the OpenCL \texttt{clGetEventProfilingInfo()} API for
 operations on the execution devices. For single-device stencils, the
 total time $t$ of a SkelCL stencil application is simply the sum of
 all times recorded for each distinct phase:
-
+%
 \begin{equation}
 t = \bm{1c} + \bm{1p} + \bm{1u} + \bm{1k} + \bm{1d}
 \end{equation}
-
+%
 Note that there are no synchronisation costs $s$. For applications
 with $n$ execution devices, the runtime can be approximate as the sum
 of the sequential host-side phases, and the sum of the device-side
 phases divided by the number of devices:
-
+%
 \begin{equation}
 t \approx \sum_{i=1}^n{(\bm{1c}_{i})} + \bm{1p} + \bm{1s} +
   \frac{\sum_{i=1}^n{\bm{1u}_{i} + \bm{1k}_{i} + \bm{1d}_{i}}}{n}
 \end{equation}
-
+%
 The purpose of tuning workgroup size is to maximise the throughput of
 stencil kernels. For this reason, isolating the kernel execution times
 $\bm{k}$ produces the most accurate performance comparisons, as it
