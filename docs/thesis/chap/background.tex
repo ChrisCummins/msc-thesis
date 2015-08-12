@@ -544,26 +544,46 @@ c_2 &= \bar{x} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
 \end{align}
 
 
+\subsubsection{Histogram}
+
+Histograms are a widely used statistical visualisation which shows the
+distribution of numerical data. The data is first divided into a set
+of discrete, equally sized sub-intervals, or \emph{bins}. The number
+of data points in each bin is used to show visualise the density
+distribution. The shortcoming of histograms is that their appearance
+is heavily influenced by three user-selected parameters: the number of
+bins, the width of bins (binwidth), and the endpoints chosen. As such,
+they may provide a misleading representation of the data if
+inappropriate values for any of these parameters are chosen. Kernel
+Density estimation is a technique for showing the distribution of data
+which circumvents some of these issues.
+
+
 \subsubsection{Kernel Density Estimate}
 
-A Kernel Density Estimate is an approximation of the probability
-density function of a random variable.
+A Kernel Density Estimate (KDE) is an approximation of the probability
+density function of a random variable. Given a random variable $x$,
+and bandwidth $h$ and a kernel $K$, the KDE $\hat{f}_h(x)$ can be
+found using:
 
 \begin{equation}
   \hat{f}_h(x) = \frac{1}{nh} \sum^{n}_{i=1} K\left( \frac{x - x_i}{h} \right)
 \end{equation}
 
-
-\subsubsection{Histogram}
-
-Histograms are widely used statistical visualisations which show the
-distribution of numerical data.
+Using a smooth kernel such as a Gaussian distribution for the kernel
+produced a smooth density estimated, unlike histograms. However, like
+histograms, the appearance of a Kernel Density Estimate plot is
+dependent on the value of the bandwidth parameter $h$ (equivalent to
+binwidth in histograms), so care must be taken to select a value to
+minimise over or under smoothing. Grouped data can be shown by
+plotting multiple KDEs on the same axes, although if the number of
+groups is large, a box plot or violin plot may be more appropriate.
 
 
 \subsubsection{Box plot}
 
 Box plots are used to show the distribution of quartile ranges for
-groups of data. The contain the following features:
+grouped data. The contain the following features:
 
 \begin{itemize}
 \item Horizontal lines at the lower quartile, median and upper
@@ -576,7 +596,9 @@ groups of data. The contain the following features:
 
 A variation of box plots used in this thesis is the violin plot, which
 extends the box plot with a fitted Kernel Density Estimate plot to
-show the probability density of data at different values.
+show the probability \emph{density} of data at different values. To
+construct a violin plot, KDEs for each group are rotated and mirrored
+to generate a smoothed visualisation of the distribution.
 
 
 \section{Summary}
