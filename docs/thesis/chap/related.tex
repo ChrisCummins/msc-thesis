@@ -90,6 +90,33 @@ these patterns on the skeleton author.
 
 \section{Iterative Compilation}
 
+Iterative compilation is the method of performance tuning in which a
+program is compiled and profiled iteratively using different
+configurations of optimisations in order to find the configuration
+which maximises performance. First presented by \citeauthor{Bodin1998}
+in \citeyear{Bodin1998}, iterative compilation has been demonstrated
+to be a highly successful form of empirical performance tuning for
+selecting compiler optimisations~\cite{Bodin1998}. Given the huge
+number of possible compiler optimisations (as great as $10^{400}$ in
+modern optimising compilers), it is often unfeasible to perform an
+exhaustive search of the entire optimisation space, leading to the
+development of many methods for reducing the cost of evaluating
+configurations, either by reducing the size or dimensionality of the
+optimisation space, or by using a directed search to traverse a subset
+of the space.
+
+Machine learning has been successfully applied to this problem by
+predicting~\cite{Stephenson2003}
+
+% G. Fursin, Y. Kashnikov, A. W. Memon, Z. Chamski, O. Temam,
+% M. Namolaru, E. Yom-Tov, B. Mendelson, A. Zaks, E. Courtois,
+% F. Bodin, P. Barnard, E. Ashton, E. Bonilla, J. Thomson,
+% C. K. I. Williams, and M. O’Boyle, “Milepost GCC: Machine Learning
+% Enabled Self-tuning Compiler,” Int. J. Parallel Program., vol. 39,
+% no. 3, pp. 296–327, Jan. 2011.
+\TODO{Milepost GCC is a machine learning enabled self-tuning
+  compiler~\cite{Fursin2011}.}
+
 % SUPEROPTIMISERS:
 %
 % H. Massalin, “Superoptimizer -- A Look at the Smallest Program,” ACM
@@ -130,15 +157,6 @@ these patterns on the skeleton author.
 \TODO{Artificial Neural Networks for resource allocation of CMPS:
 \cite{Bitirgen2008}}
 
-% G. Fursin, Y. Kashnikov, A. W. Memon, Z. Chamski, O. Temam,
-% M. Namolaru, E. Yom-Tov, B. Mendelson, A. Zaks, E. Courtois,
-% F. Bodin, P. Barnard, E. Ashton, E. Bonilla, J. Thomson,
-% C. K. I. Williams, and M. O’Boyle, “Milepost GCC: Machine Learning
-% Enabled Self-tuning Compiler,” Int. J. Parallel Program., vol. 39,
-% no. 3, pp. 296–327, Jan. 2011.
-\TODO{Milepost GCC is a machine learning enabled self-tuning
-  compiler~\cite{Fursin2011}.}
-
 % Z. Wang and M. F. P. O. Boyle, “Partitioning Streaming Parallelism
 % for Multi-cores: A Machine Learning Based Approach,” in Proceedings
 % of the 19th international conference on Parallel architectures and
@@ -178,10 +196,9 @@ these patterns on the skeleton author.
 
 \section{Performance Tuning for Heterogeneous Parallelism}
 
-Performance tuning of GPGPU programming is a nascent field,
-\todo{\ldots}
+GPGPU computing \cite{Owens2008}
 
-\cite{Owens2006, Owens2008}
+
 
 % S. Ryoo, C. I. Rodrigues, S. S. Baghsorkhi, S. S. Stone, D. B. Kirk,
 % and W. W. Hwu, “Optimization principles and application performance
@@ -202,8 +219,7 @@ Performance tuning of GPGPU programming is a nascent field,
 
 Prior research has shown that the performance of a GPGPU program is
 heavily influenced by proper exploitation of local shared memory and
-synchronisation costs~\cite{Ryoo2008a, Lee2010} \TODO{``Where's the
-  data?'' paper}
+synchronisation costs~\cite{Ryoo2008a, Lee2010}.
 
 % Ryoo, S., Rodrigues, C. I., Stone, S. S., Baghsorkhi, S. S., Ueng,
 % S.-Z., Stratton, J. a., & Hwu, W. W. (2008). Program optimization
@@ -217,9 +233,9 @@ synchronisation costs~\cite{Ryoo2008a, Lee2010} \TODO{``Where's the
 % Data Placement on GPU,” in Microarchitecture (MICRO), 2014 47th
 % Annual IEEE/ACM International Symposium on, 2014, pp. 88–100.
 \TODO{Optimising data placement on GPUs using a description of the
-hardware and a memory-placement-agnostic compiler. Shows impressive
-speedups (2.08x max, 1.59x avg) from just optimising data
-placement. \cite{Chen2014}}
+  hardware and a memory-placement-agnostic compiler. Shows impressive
+  speedups (2.08x max, 1.59x avg) from just optimising data
+  placement. \cite{Chen2014}}
 
 % Lee, H., Brown, K. J., Sujeeth, A. K., Rompf, T., & Olukotun,
 % K. (2014). Locality-Aware Mapping of Nested Parallel Patterns on
