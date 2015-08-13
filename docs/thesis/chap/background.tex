@@ -540,23 +540,77 @@ appropriate workgroup size to use.
 
 \subsubsection{Naive Bayes}
 
+% assume strong independence between features
+
+Given a prior probability for each class $P(y)$, a class-conditional
+model $P(x|y)$, and a normalizer $P(x) = \sum_{y'}P(x|y')P(y')$:
+
+\begin{equation}
+P(y|x) = \frac{P(x|y)P(y)}{\sum_{y'}P(x|y')P(y')}
+\end{equation}
+
+Note that the normaliser $P(x)$ does not affect the class which is
+most likely.
+
+
+\subsubsection{Decision Trees}
+
+Given a set of examples $S$, and $p_{(+)}$ and $p_{(-)}$ are the
+number of positive and negative examples in $S$:
+
+\begin{equation}
+  H(S) = - p_{(+)}\log_2p_{(+)} - p_{(-)}\log_2p_{(-)}
+\end{equation}
+
+\begin{equation}
+  \gain(S, A) = H(S) - \sum_{V \in \text{Values}(A)}\frac{|S_V|}{|S|}H(S_V)
+\end{equation}
+
 
 \subsubsection{Random Forest}
 
 
-\subsubsection{Logistic Regression}
-
-
 \subsubsection{Support Vector Machines}
 
+Given a set of training data $S$ of size $n$, where $p$-dimensionality
+vectors of features $x$ are labelled with a class $y$:
 
-\subsubsection{Decision Trees}
+\begin{equation}
+  S = \left\{ (x_i,y_i) | x_i \in \mathbb{R}^p, y_i \in \left\{ -1, 1 \right\} \right\}_{i=1}^{n}
+\end{equation}
+
+\begin{equation}
+  \min_{\bm{w}} || w^2 ||
+\end{equation}
+
+\begin{equation}
+  y_i(\bm{w}^T\bm{x}_i + w_0) \ge +1 \forall i
+\end{equation}
 
 
 \subsection{Regression}
 
 
 \subsubsection{Linear Regression}
+
+\begin{equation}
+  f(\bm{x}; \bm{w}) = w_0 + w_1x_1 + \ldots + w_Dx_D = \phi(\bm{x})\bm{w}
+\end{equation}
+
+\begin{equation}
+  \phi(\bm{x}) = (1, x_1, \ldots, x_D) = (1, \bm{x}^T)
+\end{equation}
+
+
+\subsubsection{Logistic Regression}
+
+\begin{equation}
+  f(\bm{x}; \bm{w}) = \bm{w}^{T}\bm{x} + w_0
+\end{equation}
+
+\begin{equation}
+  \left\{ \bm{x} | \bm{w}^T\bm{x} + w_0 = 0 \right\}
+\end{equation}
 
 
 \subsubsection{Random Forest}
