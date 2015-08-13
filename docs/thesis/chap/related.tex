@@ -6,82 +6,89 @@ stencil codes. It presents the context and rationale for the research
 undertaken for this thesis.
 
 
-\section{Approaches to Parallelism}
+\section{Automating Parallelism}
 
 It is widely accepted that parallel programming is difficult, and the
 continued repetition of this claim has become something of a trite
 mantra for the parallelism research community. An interesting
-digression is to discuss the ways in which researchers have attempted
-to tackle this difficult problem, and why, despite years of research,
-it is still an ongoing challenge.
+digression is to discuss some of the ways in which researchers have
+attempted to tackle this difficult problem, and why, despite years of
+research, it remains an ongoing challenge.
 
 
-\subsubsection{Automatically Parallelising Compilers}
+% \subsubsection{Automatically Parallelising Compilers}
 
-
-
-% Banerjee, U., Eigenmann, R., & Nicolau, A. (1993). Automatic program
-% parallelization. Proceedings of the IEEE, 81,
-% 211–243. http://doi.org/10.1109/5.214548
-Algorithmic Skeletons are presented as a technique for separating
-problem solving logic from the coordination of parallel
-resources. This automatic --- from the user's perspective ---
-parallelisation is similar in spirit to ongoing research in
-automatically parallelising compilers. By providing patterns of
-computation for users to frame their algorithms, the burden of
-extracting parallelism is placed on the skeleton author, as opposed to
-the compiler. This overcomes the difficult problem of identifying
-opportunities for parallelism in arbitrary programs, which is an
-ongoing research challenge with many open problems, such as dynamic
-dependency and alias analysis~\cite{Banerjee1993}. As a result of
-these challenges, automatically parallelising compilers typically
-reduce the problem by either restricting the supported constructs or
-targetting a single class of applications.
-
+The most ambitious and perhaps daring field of parallelism research is
+that of automatic parallelisation, where the goal is to develop
+methods and systems to transform arbitrary sequential code into
+parallelised code. This is a well studied subject, with the typical
+approach being to perform these code transformations at the
+compilation stage. In \citeauthor{Banerjee1993}'s thorough
+review~\cite{Banerjee1993} on the subject, they outline the key
+challenges of automatic parallelisation:
+%
 \begin{itemize}
 \item determining whether sequential code can be legally transformed
   for parallel execution; and
 \item identifying the transformation which will provide the highest
   performance improvement for a given piece of code.
 \end{itemize}
+%
+Both of these challenges are extremely hard to tackle. For the former,
+the difficulties lie in performing accurate analysis of code
+behaviour. Obtaining accurate dynamic dependency analysis at compile
+time is an unsolved problem, as is resolving pointers and points-to
+analysis~\cite{Atkin-granville2013, Hind2001,Ghiya2001}.
 
-\TODO{Pointer and points-to analysis: \cite{Hind2001} \cite{Ghiya2001}
-  \cite{Wilson1995}}
+The result of these challenges is that reliably performant, automatic
+parallelisation of arbitrary programs remains a far from reached goal;
+however, there are many note worthy variations on the theme which have
+been able to achieve some measure of success.
+
+One such example is speculative parallelism, which circumvents the
+issue of having incomplete dependency information by speculatively
+executing code regions in parallel while performing dependency tests
+at runtime, with the possibility to fall back to ``safe'' sequential
+execution if correctness guarantees are not
+met~\cite{Prabhu2010,Trachsel2010}.  In~\cite{Jimborean2014},
+\citeauthor{Jimborean2014} present a system which combines polyhedral
+transformations of user code with binary algorithmic skeleton
+implementations for speculative parallelisation, reporting speedups
+over sequential code of up to $15.62\times$ on a 24 core processor.
+
+Another example is PetaBricks, which is a language and compiler
+enabling parallelism through ``algorithmic choice''~\cite{Ansel2009,
+  Ansel2010}. With PetaBricks, users provide multiple implementations
+of algorithms, optimised for different parameters or use cases. This
+creates a search space of possible execution paths for a given
+program. This has been combined with autotuning techniques for
+enabling optimised multigrid programs~\cite{Chan2009}, with the wider
+ambition that these autotuning techniques may be applied to all
+algorithmic choice programs~\cite{Ansel2014}. While this helps produce
+efficient parallel programs, it places a great burden on the
+developer, requiring them to provide enough contrasting
+implementations to make a search of the optimisation space fruitful.
+
+Annotation-driven parallelism takes a similar approach. The user
+annotates their code to provide ``hints'' to the compiler, which can
+then perform parallelising transformations. A popular example of this
+is OpenMP, which uses compiler pragmas to mark code sections for
+parallel or vectorised execution~\cite{Dagum1998}. Previous work has
+demonstrated code generators for translating OpenMP to
+OpenCL~\cite{Grewe2013} and CUDA~\cite{Lee2009}. Again,
+annotation-driven parallelism suffers from placing a burden on the
+developer to identify the potential areas for parallelism, and lacks
+the structure that algorithmic skeletons provide.
+
+Algorithmic skeletons contrast the goals of automatic parallelisation
+by removing the challenge of identifying potential parallelism from
+compilers or users, instead allowing users to frame their problems in
+terms of well defined patterns of computation. This places the
+responsibility of providing performant, optimised implementations for
+these patterns on the skeleton author.
 
 
-\subsubsection{Annotation-driven parallelism}
-\todo{Requiring the programmer to give ``hints'' to the compiler by
-  annotating their source programs. Bad due to extra effort for the
-  programmer and bit-rot of annotations. Straddles the border of
-  ``automatic'' parallelisation, in the case of something like
-  OpenMP.}
-
-
-
-
-% IF auto-parallelisation was a solved problem, none of this would be
-% necessary.
-
-
-% D. Grewe, Z. Wang, and M. F. P. M. O’Boyle, “Portable mapping of
-% data parallel programs to OpenCL for heterogeneous systems,” in Code
-% Generation and Optimization (CGO), 2013 IEEE/ACM International
-% Symposium on, 2013, pp. 1–10.
-\TODO{Vaguely ``autopar''-esque: automatic translation from OpenMP to
-  OpenCL~\cite{Grewe2013}.}
-
-% O. Jeffrey and M. David, “The Vision of Autonomic Computing,”
-%Computer (Long. Beach. Calif)., vol. 36, no. 1, pp. 41–50, 2003.
-\TODO{The ideal vision of self-governing agents in complex
-environments. We can draw a parallel to the use of self-optimizing
-agents: \cite{Jeffrey2003}}
-
-% J. Bilmes, K. Asanovic, C.-W. Chin, and J. Demmel, “Optimizing
-% Matrix Multiply Using PHiPAC: A Portable, High-performance, ANSI C
-% Coding Methodology,” in Proceedings of the 11th International
-% Conference on Supercomputing, 1997, pp. 340–347.
-\TODO{Guidelines for optimising, using an automatic code generator and
-a search engine to optimise parameters: \cite{Bilmes1997}}
+\section{Iterative Compilation}
 
 % SUPEROPTIMISERS:
 %
@@ -90,43 +97,22 @@ a search engine to optimise parameters: \cite{Bilmes1997}}
 %
 % R. Joshi, G. Nelson, and K. Randall, “Denali: a goal-directed
 % superoptimizer,” ACM SIGPLAN Not., vol. 37, no. 5, p. 304, 2002.
-\TODO{Super-optimisers: provably~\cite{Joshi2002} or
-  demonstrably~\cite{Massalin1987} optimal, but unbelievably
-  costly. Can ML help?}
+\TODO{%
+  Super-optimisers: demonstrably~\cite{Massalin1987} or
+  provably~\cite{Joshi2002} optimal, but unbelievably costly. Can ML
+  help?%
+}
 
-\paragraph{PETABRICKS}
-
-% Ansel, J. (2009). PetaBricks: a language and compiler for
-% algorithmic choice. MIT.
-\TODO{\cite{Ansel2009}}
-
-% Ansel, J., & Chan, C. (2010). PetaBricks. XRDS: Crossroads, The ACM
-% Magazine for Students, 17(1), 32. doi:10.1145/1836543.1836554
-\TODO{\cite{Ansel2010}}
-
-% Chan, C., Ansel, J., Wong, Y. L., Amarasinghe, S., & Edelman,
-% A. (2009). Autotuning multigrid with PetaBricks. In ACM/IEEE
-% Conference on Supercomputing. New York, New York, USA: ACM
-% Press. doi:10.1145/1654059.1654065
-\TODO{\cite{Chan2009}}
-
-% Ansel, J. (2014). Autotuning Programs with Algorithmic
-% Choice. Massachusetts Institute of Technology.
-\TODO{\cite{Ansel2014}}
-
-
-\section{Iterative Compilation}
-
-% J. M. C. Trilla and C. Runciman, “An Iterative Compiler for Implicit
-% Parallelism,” in IFL, 2014, pp. 1–5.  IFL, 2014.
-\cite{Runciman2014}
-
-\subsection{Machine Learning in Compilers}
+% MACHINE LEARNING
 
 % M. Stephenson, M. Martin, and U. O. Reilly, “Meta Optimization:
 % Improving Compiler Heuristics with Machine Learning,” ACM SIGPLAN
 % Not., vol. 38, no. 5, pp. 77–90, 2003.
 \TODO{Using ML to improve compiler heuristics~\cite{Stephenson2003}}
+
+% J. M. C. Trilla and C. Runciman, “An Iterative Compiler for Implicit
+% Parallelism,” in IFL, 2014, pp. 1–5.  IFL, 2014.
+\cite{Runciman2014}
 
 % E. K. Burke, M. Gendreau, M. Hyde, G. Kendall, G. Ochoa, E. Özcan,
 % and R. Qu, “Hyper-heuristics: a survey of the state of the art,”
