@@ -496,13 +496,13 @@ def main():
     fine_grained_runtime_histograms()
 
     # Heatmaps
-    figsize=(3.28, 2.7)
+    figsize=(5.5, 4.0)
     visualise.oracle_wgsizes(db, "gen/img/oracle_param_space.pdf",
-                             figsize=figsize, cmap="Reds", title=None,
-                             vmax=0.10 # clamp range
+                             figsize=figsize, clip=50,
+                             title=None, rotation=45,
     )
-    visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf",
-                          figsize=figsize, cmap="Blues", title=None)
+    visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf", trisurf=True,
+                          figsize=figsize, rotation=45, title=None)
 
     figsize=(3, 2)
     visualise.num_samples(db, "gen/img/num_samples.pdf", title="",

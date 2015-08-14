@@ -2,63 +2,76 @@
 
 This chapter evaluates the performance of OmniTune when tasked with
 selecting workgroup sizes for SkelCL stencil codes. First I discuss
-the measurement noise and the methods used to accommodate for it. Then
-I examine the effect that workgroup size has on the performance of
-SkelCL stencils. The effectiveness of each of the autotuning
-techniques described in the previous chapters are evaluated using
-multiple different machine learning algorithms, and the prediction
-quality is scrutinised for portability across programs, devices, and
-datasets.
+measurement noise present in the experimental results, and the methods
+used to accommodate for it. Then I examine the observed effect that
+workgroup size has on the performance of SkelCL stencils. The
+effectiveness of each of the autotuning techniques described in the
+previous chapters are evaluated using multiple different machine
+learning algorithms, and the prediction quality is scrutinised for
+portability across programs, devices, and datasets.
+
+
+\subsubsection{Overview of Experimental Results}
+
+The experimental results consist of measured runtimes for a set of
+\emph{test cases}, collected using the methodology explained int he
+previous chapter. Each test case $\tau_i$ consists of a scenario,
+workgroup size pair $\tau_i = (s_i,w_i)$, and is associated with a
+\emph{sample} of observed runtimes from multiple runs of the
+program. A total of \input{gen/num_runtime_stats} test cases were
+evaluated, which represents an exhaustive enumeration of the workgroup
+size optimisation space for \input{gen/num_scenarios} scenarios. For
+each scenario, runtimes for an average of \input{gen/avg_num_params}
+(max \input{gen/max_num_params}) unique workgroup sizes were
+measured. The average sample size of runtimes for each test case is
+\input{gen/avg_sample_count} (min \input{gen/min_sample_count}, total
+\input{gen/num_samples}).
 
 
 \section{Statistical Soundness}
 
 \begin{figure}
-  \input{fig/sample-param-counts}
-  \caption{%
-    Coverage reports for the first 100: (\subref{fig:sample-counts})
-    samples per test case; (\subref{fig:param-counts}) workgroup sizes
-    per scenario.%
-  }
-\label{fig:num-samples}
-\end{figure}
-
-Before evaluating the relative performance of different runtime
-measurements, we must establish the level of noise present in the
-measurements.
-
-
-The results consist of runtimes for a set of \emph{test cases}, where
-a test case $t_i$ is a scenario, workgroup size pair
-$t_i = (s_i,w_i)$. The methodology for collecting this data was
-explained in the previous chapter. A total of
-\input{gen/num_runtime_stats} test cases were evaluated, which
-represents an exhaustive enumeration of the workgroup size
-optimisation space for \input{gen/num_scenarios} scenarios, with an
-average of \input{gen/avg_num_params} (max \input{gen/max_num_params})
-unique workgroup sizes each. Figures~\ref{fig:sample-counts}
-and~\ref{fig:param-counts} show the number of samples per test case
-and unique workgroup sizes per scenario respectively.
-
-
-\begin{figure}
 \input{fig/runtime-histograms}
 \caption{%
   Distribution of runtime samples for 9 test cases with average
-  runtimes between 2-200ms. Each plot contains a 35-bin histogram of
+  runtimes between 2--200ms. Each plot contains a 35-bin histogram of
   1000 samples, and a fitted kernel density estimate with bandwidth
   0.3. The sample mean is shown as a vertical dashed line. In some of
   the plots, the distribution of runtimes is bimodal, and skewed to
   the lower end of the runtimes range. The long tail in some
   distributions suggests delays in program execution caused by other
   processes on the test systems. The similarity between arithmetic
-  mean runtimes and peak density estimates suggests that the
-  arithmetic mean of a large number of observations provides an
-  accurate estimation of the true mean.%
+  mean runtimes and peak density estimates suggests that a
+  sufficiently accurate estimation of the true mean can be found using
+  the arithmetic mean of a large number of observations.%
 }
 \label{fig:runtime-histograms}
 \end{figure}
 
+The complex interaction between processes competing for the finite
+resources of a system introduce many sources for noise in program
+runtime measurements. Before making any judgements about the relative
+performance of program configurations, we must establish the level of
+noise present in runtimes observations. To do this, we evaluate the
+distribution of runtimes for a selection of test cases. A random
+subset of 1000 test cases was chosen and 1000 runtimes observations
+were recorded for each. We can then produce fine-grained histograms of
+runtimes for individual test
+cases. Figure~\ref{fig:runtime-histograms} shows an example nine of
+these, for test cases with mean runtimes between 2--200ms.
+
+The central limit theorem allows the assumption of an underlying
+Gaussian distribution for samples of size $\ge 30$~\cite{Georges2007}.
+Given our minimum sample size of \input{gen/min_sample_count}, we can
+use 95\% confidence intervals to provide statistical confidence that
+the arithmetic mean of observed runtimes with respect to the true
+mean. Figure~\ref{fig:ci-trends} plots the average size of 95\%
+confidence intervals across the 1000 test cases, normalised to their
+respective means, as a function of sample size. It shows the
+diminishing returns that increasing sample size provides. For example,
+increasing the sample count from 10 to 30 results in an approximate
+50\% reduction in confidence interval size. Increasing the sample size
+from 30 to 50 results in only a 25\% reduction.
 
 \begin{figure}
 \centering
@@ -67,35 +80,24 @@ and unique workgroup sizes per scenario respectively.
   % FIXME: Check against \input{gen/max_ci} and \input{gen/mean_ci}
   Ratio of confidence interval to mean as a function of sample
   count. The two dashed lines indicate the confidence interval at the
-  minimum sample count (\fixme{4.5}\%), and mean sample count
-  (\fixme{2.6}\%).%
+  minimum sample count (\fixme{3.7}\%), and mean sample count
+  (\fixme{2.5}\%).%
 }
 \label{fig:ci-trends}
 \end{figure}
 
-
-For each test case, an average of \input{gen/avg_sample_count} samples
-were recorded (min \input{gen/min_sample_count}, total
-\input{gen/num_samples}). Applying the central limit theorem allows us
-to assume an underlying Gaussian distribution of
-samples~\cite{Georges2007}. To test this, a random subset of 1000 test
-cases was chosen and 1000 samples recorded for
-each. Figure~\ref{fig:runtime-histograms} shows fine-grained
-histograms of all sampled runtimes for 9 of those test cases, with
-mean runtimes between 2-200ms. Assuming a normal distribution, 95\%
-confidence intervals can be used to provide statistical confidence of
-a sample mean with respect to the true
-mean. Figure~\ref{fig:ci-trends} plots 95\% confidence intervals
-(normalised to their respective means) as a function of the number of
-samples for these 1000 test cases, showing diminishing returns as the
-number of samples increase. By comparing the average confidence
-interval at different sample counts against the complete dataset of
+By comparing the average confidence interval at different sample
+counts against the full experiment results of
 \input{gen/num_runtime_stats} test cases, we can assert with 95\%
 confidence that the true mean for each test case is within
-\input{gen/mean_ci}\% of our sample mean (given the average number of
+\input{gen/mean_ci}\% of the sample mean (given the average number of
 samples per test case), or \input{gen/max_ci}\% in the worst case (at
-the minimum number of samples). \FIXME{It seems like it'd be a good
-  idea to add a normality test.}
+the minimum number of samples).
+
+\TODO{Is the number of samples I have enough?}
+
+\TODO{How does variance change with architecture, program, or
+  dataset.}
 
 
 \section{Optimising Workgroup Sizes}
@@ -425,28 +427,6 @@ labelled training data, and tested using a set of unseen scenarios
 $S_{testing} = S - S_{training}$. The performance of each predicted
 oracle workgroup size is compared against the true oracles for that
 set. % Several selections of $S_{training}$ have been used:
-
-
-\begin{figure}
-\centering
-\includegraphics{gen/img/ci_trend}
-\caption{%
-  % TODO: Use \input{gen/max_ci} and \input{gen/mean_ci}
-  Ratio of confidence interval to mean as a function of sample
-  count. The two dashed lines indicate the confidence interval at the
-  minimum sample count (\fixme{4.5}\%), and mean sample count
-  (\fixme{2.6}\%).%
-}
-\label{fig:ci-trends}
-\end{figure}
-
-
-\TODO{What is the distribution of runtimes?}
-
-\TODO{Is the number of samples I have enough?}
-
-\TODO{How does variance change with architecture, program, or
-  dataset.}
 
 
 \section{Optimising Workgroup Sizes}
