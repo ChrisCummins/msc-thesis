@@ -164,7 +164,7 @@ def create_features_table(db, path):
         if attribute.type == 0:
             return "numeric"
         else:
-            return "categorical: {}".format(attribute.num_values)
+            return "categorical"
 
     def _format_name_col(name):
         return "\\texttt{{{}}}".format(latex.escape(name))

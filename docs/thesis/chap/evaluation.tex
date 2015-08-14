@@ -2,17 +2,16 @@
 
 This chapter evaluates the performance of OmniTune when tasked with
 selecting workgroup sizes for SkelCL stencil codes. First I discuss
-the noise present in the program runtime measurements and how this is
-accommodated for. Then I examine the effect that workgroup size has on
-the performance of SkelCL stencils. The effectiveness of each of the
-autotuning techniques described in the previous chapters are evaluated
-using multiple different machine learning algorithms, and the
-prediction quality is scrutinised for portability across programs,
-devices, and datasets.
+the measurement noise and the methods used to accommodate for it. Then
+I examine the effect that workgroup size has on the performance of
+SkelCL stencils. The effectiveness of each of the autotuning
+techniques described in the previous chapters are evaluated using
+multiple different machine learning algorithms, and the prediction
+quality is scrutinised for portability across programs, devices, and
+datasets.
 
 
 \section{Statistical Soundness}
-
 
 \begin{figure}
   \input{fig/sample-param-counts}
@@ -24,15 +23,18 @@ devices, and datasets.
 \label{fig:num-samples}
 \end{figure}
 
-The methodology for enumerating the optimisation space of a set of
-scenarios was described in the previous chapter,
+Before evaluating the relative performance of different runtime
+measurements, we must establish the level of noise present in the
+measurements.
 
-A test case $t_i$ is a scenario, workgroup size pair $t_i = (s_i,w_i)$
 
-A total of \input{gen/num_runtime_stats} \emph{test cases} were
-evaluated, where a test case $t_i$ is a scenario, workgroup size pair
-$t_i = (s_i,w_i)$. This represents an exhaustive enumeration of the
-legal workgroup sizes for \input{gen/num_scenarios} scenarios, with an
+The results consist of runtimes for a set of \emph{test cases}, where
+a test case $t_i$ is a scenario, workgroup size pair
+$t_i = (s_i,w_i)$. The methodology for collecting this data was
+explained in the previous chapter. A total of
+\input{gen/num_runtime_stats} test cases were evaluated, which
+represents an exhaustive enumeration of the workgroup size
+optimisation space for \input{gen/num_scenarios} scenarios, with an
 average of \input{gen/avg_num_params} (max \input{gen/max_num_params})
 unique workgroup sizes each. Figures~\ref{fig:sample-counts}
 and~\ref{fig:param-counts} show the number of samples per test case

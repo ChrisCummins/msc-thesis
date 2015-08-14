@@ -88,47 +88,27 @@ these patterns on the skeleton author.
 \section{Iterative Compilation}\label{sec:iterative-compilation}
 
 Iterative compilation is the method of performance tuning in which a
-program is compiled and profiled iteratively using different
+program is compiled and profiled using multiple different
 configurations of optimisations in order to find the configuration
 which maximises performance. First presented by \citeauthor{Bodin1998}
 in \citeyear{Bodin1998}, iterative compilation has been demonstrated
 to be a highly effective form of empirical performance tuning for
 selecting compiler optimisations~\cite{Bodin1998}.
 
-% SUPEROPTIMISERS:
-%
-% H. Massalin, “Superoptimizer -- A Look at the Smallest Program,” ACM
-% SIGPLAN Not., vol. 22, no. 10, pp. 122–126, 1987.
-%
-% R. Joshi, G. Nelson, and K. Randall, “Denali: a goal-directed
-% superoptimizer,” ACM SIGPLAN Not., vol. 37, no. 5, p. 304, 2002.
-\TODO{%
-  Super-optimisers: demonstrably~\cite{Massalin1987} or
-  provably~\cite{Joshi2002} optimal, but unbelievably costly. Can ML
-  help?%
-}
+Given the huge number of possible compiler optimisations (as many as
+207 as of GCC v4.9), it is often unfeasible to perform an exhaustive
+search of the entire optimisation space, leading to the development
+methods for reducing the cost of evaluating configurations. These
+methods reduce evaluation costs either by shrinking the dimensionality
+or size of the optimisation space, or by guiding a directed search to
+traverse a subset of the space.
 
-Given the huge number of possible compiler optimisations (as great as
-$10^{200}$ in modern optimising compilers), it is often unfeasible to
-perform an exhaustive search of the entire optimisation space, leading
-to the development methods for reducing the cost of evaluating
-configurations. These methods reduce evaluation costs either by
-shrinking the size or dimensionality of the optimisation space, or by
-using a directed search to traverse a subset of the space.
-
-Machine learning has been successful applied to this problem by
-predicting
-
-Meta Optimisation~\cite{Stephenson2003}
-
-% G. Fursin, Y. Kashnikov, A. W. Memon, Z. Chamski, O. Temam,
-% M. Namolaru, E. Yom-Tov, B. Mendelson, A. Zaks, E. Courtois,
-% F. Bodin, P. Barnard, E. Ashton, E. Bonilla, J. Thomson,
-% C. K. I. Williams, and M. O’Boyle, “Milepost GCC: Machine Learning
-% Enabled Self-tuning Compiler,” Int. J. Parallel Program., vol. 39,
-% no. 3, pp. 296–327, Jan. 2011.
-Milepost GCC is a machine learning enabled self-tuning compiler which
-uses ~\cite{Fursin2011}.
+Machine learning has been successful applied to this problem,
+in~\cite{Stephenson2003}, using ``meta optimisation'' to tune compiler
+heuristics through an evolutionary algorithm to automate the search of
+the optimisation space. \citeauthor{Fursin2011} continued this with
+Milepost GCC, the first machine learning enabled self-tuning
+compiler~\cite{Fursin2011}.
 
 Static analysis combined with iterative compilation~\cite{Runciman2014}.
 
@@ -182,6 +162,29 @@ heuristics XXX generalisation~\cite{Burke2013}.
 % compilation techniques, 2010, pp. 307–318.
 \TODO{Offline ML for partitioning streaming applications:
 \cite{Wang2010}}
+
+An interesting related tangent to iterative compilation is the
+development of so-called ``superoptimisers''. In~\cite{Massalin1987},
+the smallest possible program which performs a specific function is
+found through a brute force enumeration of the entire instruction
+set. Starting with a program of a single instruction, the
+superoptimiser tests to see if any possible instruction passes a set
+of conformity tests. If not, the program length is increased by a
+single instruction and the process repeats. The exponential growth in
+the size of the search space is far too expensive for all but the
+smallest of hot path codes, typically less than 13 instructions. The
+optimiser is limited to register to register memory transfers, with no
+support for pointers, a limitation which is addressed
+in~\cite{Joshi2002}. Denali is a superoptimiser which uses constraint
+satisfaction and rewrite rules to generate programs which are
+\emph{provably} optimal, instead of \emph{searching} for the optimal
+program through empirical testing. Denali first translate a low level
+machine code into guarded multi-assignment form, then uses a matching
+algorithm to build a graph of all of a set of logical axioms which
+match parts of the graph, before using boolean satisfiability to
+disprove the conjecture that a program cannot be written in $n$
+instructions. If the conjecture cannot be disproved, the size of $n$
+is increased and the process repeats.
 
 
 \section{Performance Tuning for Heterogeneous Parallelism}
@@ -392,16 +395,16 @@ determines problem decomposition and swapping strategy offline, and
 performs an online search for the optimal halo size. The selection of
 overlapping halo region size compliments the selection of workgroup
 size which is the subject of this thesis. However, PARTANS uses a
-custom DSL rather than a the generic interface provided by SkelCL, and
-PARTANS does not learn the results of tuning across similar programs,
-or across multiple runs of the same program.
+custom DSL rather than the generic interface provided by SkelCL, and
+PARTANS does not learn the results of tuning across programs, or
+across multiple runs of the same program.
 
 
 \section{Summary}
 
 There is already a wealth of research literature on the topic
 autotuning which begs the question, why isn't the majority of software
-autotuned? This chapter has attempted to answer this question by
+autotuned? In this chapter I attempted to answer the question by
 reviewing the state of the art in the autotuning literature, with
 specific reference to auotuning for GPUs and stencil codes. The bulk
 of this research falls prey of one of two shortcomings. Either they
