@@ -117,7 +117,7 @@ performed in the relevant table, meaning that the cost of feature
 extraction is amortised over time.
 
 
-\section{Optimisation Parameters}
+\section{Optimisation Parameters}\label{sec:op-params}
 
 SkelCL stencil kernels are parameterised by a workgroup size $w$,
 which consists of two integer values to denote the number of rows and
@@ -171,10 +171,10 @@ $W_{legal}(s) \subset W$ that are legal for a given sceanario $s$ is
 then:
 %
 \begin{equation}
-  W_{legal}(s) = \left\{w | w \in W, w < W_{max}(s) \right\} - W_{refused}(s)
+  W_{legal}(s) = \left\{w | w \in W, w < W_{\max}(s) \right\} - W_{refused}(s)
 \end{equation}
 %
-Where $W_{max}(s)$ can be determined at runtime prior to the kernels
+Where $W_{\max}(s)$ can be determined at runtime prior to the kernels
 execution, but the set $W_{refused}(s)$ can only be determined
 experimentally. Exceeding either of these constraints will cause an
 \texttt{CL\_OUT\_OF\_RESOURCES} error when the OpenCL kernel is
@@ -275,7 +275,7 @@ within the set of legal workgroup sizes for future scenarios:
 %
 This may result in a classifier predicting a workgroup size which is
 not legal for a scenario, $w \not\in W_{legal}(s)$, either because it
-exceeds $W_{max}(s)$, or because the parameter is refused. For these
+exceeds $W_{\max}(s)$, or because the parameter is refused. For these
 cases, I evaluate the effective of three fallback strategies to select
 a legal workgroup size:
 
@@ -326,7 +326,7 @@ the regressor:
 %
 By predicting the runtimes of only the workgroup sizes from within
 $W_{legal}(s)$, we overcome the issue of predicting workgroup sizes
-which exceed $W_{max}(s)$, although note that since $W_{refused}(s)$
+which exceed $W_{\max}(s)$, although note that since $W_{refused}(s)$
 is immergent, it may still be possible predict invalid workgroup sizes
 unseen programs.
 
