@@ -49,11 +49,11 @@ measured. The average sample size of runtimes for each test case is
 \end{figure}
 
 The complex interaction between processes competing for the finite
-resources of a system introduce many sources for noise in program
+resources of a system introduces many sources for noise in program
 runtime measurements. Before making any judgements about the relative
-performance of program configurations, we must establish the level of
-noise present in runtimes observations. To do this, we evaluate the
-distribution of runtimes for a selection of test cases. A random
+performance of optimisation configurations, we must establish the
+level of noise present in these measurements. To do this, we evaluate
+the distribution of runtimes for a selection of test cases. A random
 subset of 1000 test cases was chosen and 1000 runtimes observations
 were recorded for each. We can then produce fine-grained histograms of
 runtimes for individual test
@@ -110,13 +110,78 @@ techniques to tune it.
 
 
 \begin{figure}
-\input{fig/heatmaps}
+\centering
+\includegraphics{gen/img/max_wgsizes.pdf}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{Foo bar}
+\label{fig:max-wgsizes}
+\end{figure}
+
+
+\begin{figure}
+% \begin{subfigure}[t]{0.45\textwidth}
+% \centering
+% \includegraphics{gen/img/1.pdf}
+% \vspace{-1.5em} % Shrink vertical padding
+% \caption{}
+% \label{fig:max-wgsizes}
+% \end{subfigure}
+% ~%
+% \begin{subfigure}[t]{0.45\textwidth}
+% \centering
+% \includegraphics{gen/img/2.pdf}
+% \vspace{-1.5em} % Shrink vertical padding
+% \caption{}
+% \label{fig:coverage}
+% \end{subfigure}
+% \\
+% \begin{subfigure}[t]{0.45\textwidth}
+% \centering
+% \includegraphics{gen/img/3.pdf}
+% \vspace{-1.5em} % Shrink vertical padding
+% \caption{}
+% \label{fig:max-wgsizes}
+% \end{subfigure}
+% ~%
+% \begin{subfigure}[t]{0.45\textwidth}
+% \centering
+% \includegraphics{gen/img/4.pdf}
+% \vspace{-1.5em} % Shrink vertical padding
+% \caption{}
+% \label{fig:coverage}
+% \end{subfigure}
+%
+% \begin{subfigure}[t]{0.98\textwidth}
+% \centering
+% \includegraphics{gen/img/max_wgsizes.pdf}
+% \vspace{-1.5em} % Shrink vertical padding
+% \caption{}
+% \label{fig:max-wgsizes}
+% \end{subfigure}
+% \\
+\begin{subfigure}[t]{0.98\textwidth}
+\centering
+\includegraphics{gen/img/coverage_space.pdf}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:coverage}
+\end{subfigure}
+\\
+\begin{subfigure}[t]{0.98\textwidth}
+\centering
+\includegraphics{gen/img/oracle_param_space.pdf}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:oracle-wgsizes}
+\end{subfigure}
 \caption{%
-  In~(\subref{fig:max-wgsizes}), a heatmap of space of legal workgroup
-  sizes for $w_c \le 100, w_r \le 100$. Darker cells are more
-  frequently legal. In~(\subref{fig:oracle-wgsizes}), the distribution
-  of oracle workgroup sizes, using the same scale.  \FIXME{Add refused
-    params to heatmap.} \FIXME{Add cbar to heatmap.}%
+  A subset of the workgroup size optimisation space,
+  $w_c \le 100, w_r \le 100$.  In~(\subref{fig:max-wgsizes}), the
+  ratio of scenarios for which workgroup sizes are less than
+  $W_{max}(s)$. (\subref{fig:coverage}) and
+  (\subref{fig:oracle-wgsizes}) show log transformations of the
+  frequency at which parameters were \emph{legal}, or the
+  \emph{oracle}.%
 }
 \label{fig:heatmaps}
 \end{figure}
@@ -621,18 +686,6 @@ that of a static choice.
 
 
 \subsection{Oracle Workgroup Sizes}
-
-\begin{figure}
-\input{fig/heatmaps}
-\caption{%
-  The distribution of: (\subref{fig:max-wgsizes}) maximum legal
-  workgroup sizes, and (\subref{fig:oracle-wgsizes}) for all
-  scenarios. The distribution of oracle workgroup sizes is uneven and
-  spread across the space. \FIXME{These figures don't use the same
-    scales.}%
-}
-\label{fig:heatmaps}
-\end{figure}
 
 Figure~\ref{fig:max-wgsizes} shows the distribution of maximum
 workgroup sizes across all scenarios. Figure~\ref{fig:oracle-wgsizes}

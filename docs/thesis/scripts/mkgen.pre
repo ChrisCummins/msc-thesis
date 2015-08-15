@@ -496,13 +496,34 @@ def main():
     fine_grained_runtime_histograms()
 
     # Heatmaps
-    figsize=(5.5, 4.0)
+    figsize=(5, 4)
     visualise.oracle_wgsizes(db, "gen/img/oracle_param_space.pdf",
-                             figsize=figsize, clip=50,
+                             figsize=figsize, trisurf=True, clip=50,
                              title=None, rotation=45,
+    )
+    visualise.coverage(db, "gen/img/coverage_space.pdf",
+                       figsize=figsize, clip=100, trisurf=True,
+                       title=None, rotation=45,
     )
     visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf", trisurf=True,
                           figsize=figsize, rotation=45, title=None)
+
+    # figsize=(2.5, 2.5)
+    # visualise.oracle_wgsizes(db, "gen/img/1.pdf",
+    #                          figsize=figsize, clip=50,
+    #                          title=None
+    # )
+    # visualise.performance(db, "gen/img/2.pdf",
+    #                       figsize=figsize, clip=100,
+    #                       title=None,
+    # )
+    # visualise.coverage(db, "gen/img/3.pdf",
+    #                    figsize=figsize, clip=100,
+    #                    title=None,
+    # )
+    # visualise.max_wgsizes(db, "gen/img/4.pdf",
+    #                       figsize=figsize, title=None
+    # )
 
     figsize=(3, 2)
     visualise.num_samples(db, "gen/img/num_samples.pdf", title="",
@@ -522,7 +543,7 @@ def main():
                                   figsize=figsize)
 
     # Trend plots
-    figsize=(5.8,3)
+    figsize=(5.8,2)
     visualise.max_speedups(db, "gen/img/max_speedups.pdf", title="",
                            figsize=figsize)
     visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.pdf",
