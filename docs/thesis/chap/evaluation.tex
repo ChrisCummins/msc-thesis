@@ -53,19 +53,27 @@ resources of a system introduces many sources for noise in program
 runtime measurements. Before making any judgements about the relative
 performance of optimisation configurations, we must establish the
 level of noise present in these measurements. To do this, we evaluate
-the distribution of runtimes for a selection of test cases. A random
-subset of 1000 test cases was chosen and 1000 runtimes observations
-were recorded for each. We can then produce fine-grained histograms of
-runtimes for individual test
+the distribution of runtimes for a randomly selected 1000 test cases,
+recording 1000 1000 runtime observations for each. We can then produce
+fine-grained histograms of runtimes for individual test
 cases. Figure~\ref{fig:runtime-histograms} shows an example nine of
-these, for test cases with mean runtimes between 2--200ms.
+these, for test cases with mean runtimes between 2--200ms. The plots
+show that the distribution of runtimes is not always Gaussian; rather,
+it is sometimes bimodal, and generally skewed to the lower end of the
+runtime range, with a long ``tail'' to the right. This fits our
+intuition that programs have a hard \emph{minimum} runtime enforced by
+the time taken to execute the instructions of a program, and that
+noise introduced to the system extends this runtime by, for example,
+preempting a process so that another may run.
 
 The central limit theorem allows the assumption of an underlying
 Gaussian distribution for samples of size $\ge 30$~\cite{Georges2007}.
 Given our minimum sample size of \input{gen/min_sample_count}, we can
 use 95\% confidence intervals to provide statistical confidence that
 the arithmetic mean of observed runtimes with respect to the true
-mean. Figure~\ref{fig:ci-trends} plots the average size of 95\%
+mean. As the number or samples increases, we should expect the size of
+the confidence interval to shrink. This is illustrated in
+Figure~\ref{fig:ci-trends}, which plots the average size of 95\%
 confidence intervals across the 1000 test cases, normalised to their
 respective means, as a function of sample size. It shows the
 diminishing returns that increasing sample size provides. For example,
@@ -92,22 +100,15 @@ counts against the full experiment results of
 confidence that the true mean for each test case is within
 \input{gen/mean_ci}\% of the sample mean (given the average number of
 samples per test case), or \input{gen/max_ci}\% in the worst case (at
-the minimum number of samples).
-
-\TODO{Is the number of samples I have enough?}
-
-\TODO{How does variance change with architecture, program, or
-  dataset.}
+the minimum number of samples). This demonstrates a sufficiently low
+level of noise that meaningful comparisons can be made the performance
+of different configurations
 
 
 \section{Optimising Workgroup Sizes}
 
-In this section we explore the impact that workgroup size has on the
-performance of stencil codes, and the effectiveness of simple
-techniques to tune it.
-
-\subsection{Oracle Workgroup Sizes}
-
+In this section we explore the impact that the workgroup size
+optimisation space has on the performance of stencil codes.
 
 \begin{figure}
 \centering
@@ -116,7 +117,6 @@ techniques to tune it.
 \caption{Foo bar}
 \label{fig:max-wgsizes}
 \end{figure}
-
 
 \begin{figure}
 % \begin{subfigure}[t]{0.45\textwidth}
@@ -175,16 +175,21 @@ techniques to tune it.
 \label{fig:oracle-wgsizes}
 \end{subfigure}
 \caption{%
-  A subset of the workgroup size optimisation space,
-  $w_c \le 100, w_r \le 100$.  In~(\subref{fig:max-wgsizes}), the
-  ratio of scenarios for which workgroup sizes are less than
-  $W_{max}(s)$. (\subref{fig:coverage}) and
-  (\subref{fig:oracle-wgsizes}) show log transformations of the
-  frequency at which parameters were \emph{legal}, or the
-  \emph{oracle}.%
+  Log frequency counts for (\subref{fig:coverage}) legality, and
+  (\subref{fig:oracle-wgsizes}) optimality, for a subset of the
+  workgroup size optimisation space, $w_c \le 100, w_r \le 100$.
+  Legality frequencies are highest for smaller row and column counts
+  (where $w < W_{max}(s) \forall S$), and higher for $w_r $ and $w_r$
+  values which are multiples of 8. The space of oracle workgroup size
+  frequencies is uneven and distributed.%
 }
 \label{fig:heatmaps}
 \end{figure}
+
+\subsection{Workgroup Size Legality}
+
+\subsection{Oracle Workgroup Sizes}
+
 
 For each scenario $s$, the oracle workgroup size $\Omega(s)$ is the
 workgroup size which resulted in the lowest mean runtime. If the
@@ -239,8 +244,6 @@ distinct workgroup sizes.
 \label{fig:performance-legality}
 \end{figure}
 
-
-\subsection{Workgroup Size Legality}
 
 
 \cleardoublepage

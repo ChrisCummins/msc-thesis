@@ -342,7 +342,7 @@ def motivating_examples(db):
             c = space.c
         ax.set_xticks(np.arange(len(space.c)))
         ax.set_xticklabels(c)
-        ax.set_xlabel("Columns")
+        ax.set_xlabel("$w_c$")
 
         # Set Y axis labels
         if len(space.r) > 10:
@@ -351,7 +351,7 @@ def motivating_examples(db):
             r = space.r
         ax.set_yticks(np.arange(len(space.r)))
         ax.set_yticklabels(r)
-        ax.set_ylabel("Rows")
+        ax.set_ylabel("$w_r$")
 
         # Set Z axis labels
         ax.set_zlabel("Performance")
@@ -372,6 +372,9 @@ def main():
     # Set plot style.
     sns.set_context("notebook", font_scale=.8, rc={"lines.linewidth": 2})
     sns.set_style("whitegrid")
+
+    from matplotlib import rc
+    rc('text', usetex=True)
 
     # Delete existing files.
     fs.rm("gen")
