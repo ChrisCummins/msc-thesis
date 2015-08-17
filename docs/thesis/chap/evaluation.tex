@@ -118,13 +118,143 @@ optimisation space has on the performance of stencil codes.
   A subset of the workgroup size optimisation space,
   $w_c \le 100, w_r \le 100$, showing, for each workgroup size, the
   ratio of scenarios for which the workgroup size satisfies
-  architecture and kernel enforced constraints
-  ($W_{\max}(s)$). Workgroup sizes with a coverage of $< 1$ fail to
-  satisfy these constraints in one or more scenarios. For static
-  tuning, only workgroup sizes with a coverage of 1 are acceptable.%
+  architecture and kernel enforced constraints ($W_{\max}(s)$).
+  Workgroup sizes with a coverage of $< 1$ fail to satisfy these
+  constraints in one or more scenarios.  For static tuning, only
+  workgroup sizes with a coverage of 1 are acceptable.%
 }
 \label{fig:max-wgsizes}
 \end{figure}
+
+\subsection{Workgroup Size Legality}
+
+As explained in Section~\ref{sec:op-params}, the space of legal
+workgroup sizes $W_{legal}(s)$ for a given scenario $s$ comprises all
+workgroup sizes which neither: exceed the maximum allowed by the
+OpenCL device and kernel $W_{\max}(s)$, and are not refused by the
+OpenCL runtime.
+
+\subsubsection{Maximum workgroup sizes}
+
+We define the \emph{coverage} of a workgroup size to be the ratio
+$0 \le x \le 1$ between the number of scenarios for which the
+workgroup size was less than $W_{\max}(s)$, normalised to the total
+number of workgroup sizes. A coverage of 1 implies a workgroup size
+which is always legal for all combinations of stencil and
+architecture. A workgroup size with a coverage of 0 is never
+legal. Figure~\ref{fig:max-wgsizes} plots the coverage of a subset of
+the workgroup size optimisation space.
+
+Note that since $W_{\max}(s)$ defines a hard limit for a given $s$, if
+statically selecting a workgroup size, one must limit the optimisation
+space to the smallest $W_{\max}(s)$ value, i.e.\ only the workgroup
+sizes with a coverage of 1. The observed $W_{\max}(s)$ values range
+from 256--8192, which results in up to a 97\% reduction in the size of
+the optimisation space when $W_{\max}(s) = 8192$, even though only
+14\% of scenarios have this minimum value of $W_{\max}(s) = 256$.
+
+% Size of optimisation space for Wmax =  256: 273
+% Size of optimisation space for Wmax = 8192: 15925
+
+\subsubsection{Refused Parameters}
+
+\begin{table}
+\parbox{.32\linewidth}{
+  \centering
+  \scriptsize
+  \rowcolors{2}{white}{gray!25}
+  \input{gen/tab/top_refused_params_1}
+}
+\hfill
+\parbox{.32\linewidth}{
+  \centering
+  \scriptsize
+  \rowcolors{2}{white}{gray!25}
+  \input{gen/tab/top_refused_params_2}
+}
+\hfill
+\parbox{.32\linewidth}{
+  \centering
+  \scriptsize
+  \rowcolors{2}{white}{gray!25}
+  \input{gen/tab/top_refused_params_3}
+}
+\caption{%
+  The thirty most refused parameters, ranked in descending
+  order. There is little correlation between the size of workgroup and the
+  likelihood that is refused, suggesting that the cause of refused
+  parameters is not a resource constraint, but a behavioural issue.%
+}
+\label{tab:top-refused-params}
+\end{table}
+
+\begin{figure}
+\centering
+\begin{subfigure}[h]{.45\textwidth}
+  \centering
+  \includegraphics{gen/img/refused_params_by_device}
+  \caption{}
+  \label{fig:refused-params-by-device}
+\end{subfigure}
+\hfill
+\begin{subfigure}[h]{.45\textwidth}
+  \centering
+  \includegraphics{gen/img/refused_params_by_vendor}
+  \caption{}
+  \label{fig:refused-params-by-vendor}
+\end{subfigure}
+\caption{%
+  The ratio of test cases with refused workgroup sizes, grouped by:
+  (\subref{fig:refused-params-by-device}) OpenCL device ID;\
+  (\subref{fig:refused-params-by-vendor}) device vendor ID. Parameters
+  were refused most frequently by Intel i5 CPUs, then by
+  previous-generation NVIDIA GPUs. No parameters were refused by AMD
+  devices.%
+}
+\label{fig:refused-params-by-dev-vendor}
+\end{figure}
+
+In addition to the hard constraints imposed by the maximum workgroup
+size, there are also refused parameters, which are workgroup sizes
+which are rejected by the OpenCL runtime and do not provide a
+functioning program. Of the \input{gen/num_params} unique workgroup
+sizes tested, \input{gen/ratio_refused_params}\% were refused in one
+or more test cases. An average of
+\input{gen/ratio_refused_test_cases}\% of all test cases lead to
+refused parameters. For a workgroup size to be refused, it must
+satisfy the architectural and program-specific constraints which are
+exposed by OpenCL, but still lead to a \texttt{CL\_OUT\_OF\_RESOURCES}
+error when the kernel is enqueued. Table~\ref{tab:top-refused-params}
+lists the most frequently refused parameters, and the percentage of
+test cases for which they were refused. While uncommon, a refused
+parameters is an obvious inconvenience to the user, as one would
+expect that any workgroup size within the specified maximum should
+behave \emph{correctly}, if not efficiently. Figure~\ref{fig:coverage}
+visualises the space of legal workgroup sizes by showing the frequency
+counts that a workgroup size is legal. Smaller workgroup sizes are
+legal most frequently due to the $W_{\max}(s)$ constraints. Beyond
+that, workgroup sizes which contain $w_c$ and $w_r$ values which are
+multiples of 8 are more frequently legal.
+
+Experimental results suggest that the problem is vendor --- or at
+least device --- specific. By grouping the refused test cases by
+device and vendor, we see a much greater quantity of refused
+parameters for test cases on Intel CPU devices than any other type,
+while no workgroup sizes were refused by the AMD
+GPU. Figure~\ref{fig:refused-params-by-dev-vendor} shows these
+groupings. The underlying cause for these refused parameters is
+unknown, but can likely by explained by inconsistencies or errors in
+specific OpenCL driver implementations. As these OpenCL
+implementations are still in active development, it is anticipated
+that errors caused by unexpected behaviour will become more infrequent
+as the technology matures. For now, it is imperative that any
+autotuning system is capable of adapting to these refused parameters
+by suggesting alternatives when they occur.
+
+% \TODO{Bug reports\ldots}
+
+
+\subsection{Oracle Workgroup Sizes}
 
 \begin{figure}
 \begin{subfigure}[t]{0.98\textwidth}
@@ -154,134 +284,32 @@ optimisation space has on the performance of stencil codes.
 \label{fig:heatmaps}
 \end{figure}
 
-\subsection{Workgroup Size Legality}
-
-As explained in Section~\ref{sec:op-params}, the space of legal
-workgroup sizes $W_{legal}(s)$ for a given scenario $s$ comprises all
-workgroup sizes which neither: exceed the maximum allowed by the
-OpenCL device or kernel ($W_{\max}(s)$), and are not refused at
-runtime by the OpenCL runtime.
-
-\subsubsection{Maximum workgroup sizes}
-
-Figure~\ref{fig:max-wgsizes} shows the \emph{coverage} of a subset of
-the workgroup size optimisation space, where coverage is the ratio of
-scenarios for which a workgroup size was less than $W_{\max}(s)$,
-normalised to the total number of workgroup sizes. A coverage of 1
-implies a workgroup size which is always legal for all combinations of
-stencil and architecture. A workgroup size with a coverage of 0 is
-never legal.
-
-The observed $W_{\max}(s)$ values range from 256--8192. Note that
-since workgroup sizes exceeding $W_{\max}(s)$ will always fail to run,
-this means that if statically selecting a workgroup size, one must
-limit the optimisation space to the smallest $W_{\max}(s)$ value, even
-though only 14\% of scenarios has such a low maximum value. This
-reduces the range of workgroup sizes by up to 97\%, reducing the
-chance of selecting a performant workgroup size.
-
-% Size of optimisation space for Wmax =  256: 273
-% Size of optimisation space for Wmax = 8192: 15925
-
-\subsubsection{Refused Parameters}
-
-In addition to the hard constraints imposed by the maximum workgroup
-size, there are also refused parameters, which are workgroup sizes
-which are rejected by the OpenCL runtime and do not provide a
-functioning program. Of the \input{gen/num_params} unique workgroup
-sizes tested, \input{gen/ratio_refused_params}\% were refused in one
-or more test cases. An average \input{gen/ratio_refused_test_cases}\%
-of all test cases lead to refused parameters. For a workgroup size to
-be refused, it must satisfy the architectural and program-specific
-constraints which are exposed by OpenCL, but still lead to a
-\texttt{CL\_OUT\_OF\_RESOURCES} error when the kernel is
-enqueued. Table~\ref{tab:top-refused-params} lists the most frequently
-refused parameters, and the percentage of test cases for which they
-were refused. While uncommon, a refused parameters is an obvious
-inconvenience to the user, as one would expect that any workgroup size
-within the specified maximum should behave \emph{correctly} if not
-performantly.
-
-Figure~\ref{fig:refused-params-by-dev-vendor} suggests that the
-problem is vendor --- or at least device --- specific. The
-distribution of refused parameters is skewed towards the Intel CPU
-devices, while no workgroup sizes were refused by the AMD
-GPU. \TODO{Bug reports\ldots} For now, it is imperative that the
-autotuning system be capable of adapting to these refused parameters
-by suggesting alternatives when they occur.
-
-\begin{figure}
-\centering
-\begin{subfigure}[h]{.45\textwidth}
-  \centering
-  \includegraphics{gen/img/refused_params_by_device}
-  \caption{}
-  \label{fig:refused-params-by-device}
-\end{subfigure}
-\hfill
-\begin{subfigure}[h]{.45\textwidth}
-  \centering
-  \includegraphics{gen/img/refused_params_by_vendor}
-  \caption{}
-  \label{fig:refused-params-by-vendor}
-\end{subfigure}
-\caption{%
-  The ratio of test cases with refused workgroup sizes, grouped by:
-  (\subref{fig:refused-params-by-device}) OpenCL device ID;
-  (\subref{fig:refused-params-by-vendor}) device vendor ID. Parameters
-  were refused most frequently by Intel i5 CPUs, then by
-  previous-generation NVIDIA GPUs. No parameters were refused by AMD
-  devices%
-}
-\label{fig:refused-params-by-dev-vendor}
-\end{figure}
-
-\begin{table}
-\parbox{.32\linewidth}{
-    \centering
-    \scriptsize
-    \rowcolors{2}{white}{gray!25}
-    \input{gen/tab/top_refused_params_1}
-  }
-  \hfill
-  \parbox{.32\linewidth}{
-    \centering
-    \scriptsize
-    \rowcolors{2}{white}{gray!25}
-    \input{gen/tab/top_refused_params_2}
-  }
-  \hfill
-  \parbox{.32\linewidth}{
-    \centering
-    \scriptsize
-    \rowcolors{2}{white}{gray!25}
-    \input{gen/tab/top_refused_params_3}
-  }
-  \caption{The thirty most refused parameters, ranked in descending
-    order.}
-  \label{tab:top-refused-params}
-\end{table}
-
-
-\subsection{Oracle Workgroup Sizes}
-
 For each scenario $s$, the oracle workgroup size $\Omega(s)$ is the
 workgroup size which resulted in the lowest mean runtime. If the
 performance of stencils were independent of workgroup size, we would
-expect that the oracle workgroup size would remain constant across
+expect that the oracle workgroup size would remain constant across all
 scenarios $s \in S$. Instead, we find that there are
 \input{gen/num_oracle_params} unique oracle workgroup sizes, with
 \input{gen/oracle_params_per_scenario_perc}\% of scenarios having a
 unique workgroup size. This indicates that tuning for optimal
-performance is a non-trivial task. As Figure~\ref{fig:oracle-accuracy}
-shows, \input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
-required in order to achieve oracle performance just 50\% of the time.
-
-Figure~\ref{fig:max-wgsizes} shows the distribution of maximum
-workgroup sizes across all scenarios. Figure~\ref{fig:oracle-wgsizes}
+workgroup size is a non-trivial task. Figure~\ref{fig:oracle-wgsizes}
 shows the distribution of oracle workgroup sizes, demonstrating that
 there is clearly no ``silver bullet'' workgroup size which works for
-all scenarios.
+all scenarios, and that the space of oracle workgroup sizes is non
+linear and complex. As Figure~\ref{fig:oracle-accuracy} shows,
+\input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
+required in order to achieve oracle performance just 50\% of the time.
+
+The workgroup size which is most frequently optimal is
+\input{gen/max_oracle_param}, which is optimal for
+\input{gen/max_oracle_param_frequency} of scenarios. Note that this is
+not adequate to use as a baseline for comparing relative performance,
+as it does not respect legality constraints that, that is
+$\input{gen/max_oracle_param_w} \not\in W_{safe}$.
+Figure~\ref{fig:performance-legality} illustrates this point by
+plotting the legality of different workgroup sizes and their mean
+performance relative to the oracle.
+
 
 \begin{figure}
 \centering
@@ -295,53 +323,18 @@ all scenarios.
 \label{fig:oracle-accuracy}
 \end{figure}
 
-The mode of the oracle workgroup sizes is
-\input{gen/max_oracle_param}, which is optimal for
-\input{gen/max_oracle_param_frequency} of scenarios. Note that this is
-not adequate to use as a baseline for comparing relative performance,
-as it does not respect legality constraints that, that is
-$\input{gen/max_oracle_param_w} \not\in W_{safe}$.
-Figure~\ref{fig:performance-legality} illustrates this point by
-plotting both the legality, and performance relative to the oracle, of
-distinct workgroup sizes.
-
-
 \begin{figure}
 \centering
 \includegraphics{gen/img/params_summary.pdf}
 \caption{%
-  The red line shows the ``legality'' of workgroup sizes, i.e.\ the
-  ratio of scenarios for which that workgroup size is legal.  The
-  green lines show the geometric mean of the performance relative to
-  the oracle for all scenarios for which the workgroup size is legal.%
+  The dashed line shows the \emph{legality} of workgroup sizes, i.e.\
+  the ratio of scenarios for which that workgroup size is legal. The
+  solid line shows the geometric mean of performance relative to the
+  oracle for all scenarios for which the workgroup size is legal.%
 }
 \label{fig:performance-legality}
 \end{figure}
 
-
-
-\cleardoublepage
-\begin{figure}
-\input{fig/performance-wgsizes}
-\caption{%
-  Comparing workgroup performance relative to the oracle as function
-  of: (\subref{fig:performance-max-wgsize})~maximum legal size,
-  (\subref{fig:performance-wg-c})~number of columns, and
-  (\subref{fig:performance-wg-r})~ number of rows.%
-}
-\label{fig:performance-wgsizes}
-\end{figure}
-\newpage
-\begin{figure}
-\input{fig/performances}
-\caption{%
-  Performance relative to the oracle of workgroup sizes across all
-  test cases, grouped by: (\subref{fig:performance-kernels})~kernels,
-  (\subref{fig:performance-devices})~devices, and
-  (\subref{fig:performance-datasets})~datasets.%
-}
-\label{fig:performances}
-\end{figure}
 
 % To begin to get a feel for the
 %
@@ -400,6 +393,30 @@ $\input{gen/max_possible_speedup}\times$).
 
 \TODO{T-test to demonstrate confidence in differences between best and
   worst params.}
+
+
+\cleardoublepage
+\begin{figure}
+\input{fig/performance-wgsizes}
+\caption{%
+  Comparing workgroup performance relative to the oracle as function
+  of: (\subref{fig:performance-max-wgsize})~maximum legal size,
+  (\subref{fig:performance-wg-c})~number of columns, and
+  (\subref{fig:performance-wg-r})~ number of rows.%
+}
+\label{fig:performance-wgsizes}
+\end{figure}
+\newpage
+\begin{figure}
+\input{fig/performances}
+\caption{%
+  Performance relative to the oracle of workgroup sizes across all
+  test cases, grouped by: (\subref{fig:performance-kernels})~kernels,
+  (\subref{fig:performance-devices})~devices, and
+  (\subref{fig:performance-datasets})~datasets.%
+}
+\label{fig:performances}
+\end{figure}
 
 
 \subsection{Baseline Parameters}
@@ -478,7 +495,7 @@ following conclusions can be drawn:
 % autotuner which can select the optimal workgroup size at runtime.
 
 
-\section{Predicting Optimal Workgroup Size}
+\section{Predicting Optimal Workgroup Sizes}
 
 
 To evaluate the performance of a classifier, a subset of scenarios

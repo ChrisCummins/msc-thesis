@@ -120,6 +120,43 @@ heuristics XXX generalisation~\cite{Burke2013}.
 % TOWARDS ONLINE TUNING:
 %
 
+Whereas iterative compilation requires an expensive offline training
+phase to search an optimisation space, dynamic optimisers perform this
+optimisation space exploration at runtime, allowing programs to
+respond to dynamic features ``online''. This is a challenging task, as
+a random search of the optimisation space will result in many
+configurations with vastly suboptimal performance. In a real world
+system, evaluating many suboptimal configurations will cause a
+significant slowdown of the program. Thus a requirement of dynamic
+optimisers is that convergence time towards optimal parameters is
+minimal.
+
+Existing dynamic optimisation research has typically taken a low level
+approach to performing optimisations. Dynamo is a dynamic optimiser
+which performs binary level transformations of programs using
+information gathered from runtime profiling and tracing. While this
+provides the ability to respond to dynamic features, it restricts the
+range of optimisations that can be applied to binary
+transformations. These low level transformations cannot match the
+performance gains that higher level parameter tuning produces.
+
+One of the biggest challenges facing the implementation of dynamic
+optimisers is to minimise the runtime overhead so that it does not
+outweigh the performance advantages of the optimisations. A
+significant contributor to this runtime overhead is the requirement to
+compile code dynamically. Previous research has negated this cost by
+compiling multiple versions of a target subroutine ahead of time. At
+runtime, execution switches between the available versions, selecting
+the version with the best performance. In practice, this technique
+massively reduces the optimisation space which can be searched as it
+is unfeasible to insert the thousands of different versions of a
+subroutine that are tested using offline autotuning.
+
+The novelty of the approach taken in this thesis is to combine the
+advantages of offline training phases and online parameter tuning by
+implementing a dynamic autotuner which maintains persistent data
+in-between SkelCL program executions.
+
 % Ansel, J., & Reilly, U. O. (2012). SiblingRivalry: Online Autotuning
 % Through Local Competitions. In Proceedings of the 2012 International
 % Conference on Compilers, Architectures and Synthesis for Embedded

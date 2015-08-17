@@ -218,7 +218,7 @@ space is more amenable to a stochastic hill climbing search.
 
 Similarly, the optimisation space of two different stencils for the
 same device is shown in~\ref{fig:motivation-prog}, demonstrating that
-
+\TODO{\ldots}
 
 The optimal workgroup size is different for each of the four examples,
 and the difference between the maximum and minimum performance
@@ -240,7 +240,14 @@ Given the important role that stencil codes play in many fields of
 computer science and simulation, and their computationally intensive
 nature, I believe that there is a compelling case for the development
 of an autotuner which can accommodate for these differences of
-workgroup size performance between devices and programs.
+workgroup size performance between devices and programs. It is my
+hypothesis that the performance of algorithmic skeletons will be
+improved by developing an autotuner which considers dynamic features
+which cannot be determined at compile time. The premise is that the
+optimisation spaces of algorithmic skeletons such as stencils are
+shaped by features which can only be determined at runtime. Effective
+searching of these spaces can only be performed by collecting
+empirical data rather than building predictive models.
 
 The ambition of this thesis is to demonstrate that, using machine
 learning, we can develop predictive tuning systems which closely
