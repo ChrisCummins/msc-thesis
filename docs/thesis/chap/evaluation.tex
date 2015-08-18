@@ -368,12 +368,12 @@ the possible performance which can be expected from autotuning.
 \centering
 \includegraphics{gen/img/params_summary.pdf}
 \caption{%
-  Average legality and performance of all workgroup sizes. Clearly,
-  the relationship between legality and performance is not
-  linear. Distinct vertical ``bands'' appear between regions of
-  legality caused by the different $W_{\max}(s)$ values of
-  devices. The irregular jitter between these vertical bands is caused
-  by refused parameters.%
+  Average legality and performance relative to the oracle of all
+  workgroup sizes. Clearly, the relationship between legality and
+  performance is not linear. Distinct vertical ``bands'' appear
+  between regions of legality caused by the different $W_{\max}(s)$
+  values of devices. The irregular jitter between these vertical bands
+  is caused by refused parameters.%
 }
 \label{fig:performance-legality}
 \end{figure}
@@ -621,15 +621,53 @@ for selecting workgroup sizes.
 
 \section{Predicting Optimal Workgroup Sizes}
 
+In this section we evaluate the performance of OmniTune at predicting
+the oracle workgroup size of scenarios. To evaluate the performance of
+a classifier, a subset of scenarios $S_{training} \subset S$ are
+labelled with the workgroup size which gave the best performance for
+each. The classifier is trained on this labelled training data, and
+tested using a set of unseen scenarios
+$S_{testing} = S - S_{training}$. Each classifier is evaluated using
+the three different classification techniques: \textsc{Baseline},
+\textsc{Random}, and \textsc{NearestNeighbour}, which differ in the
+way in which they handle illegal predictions, either because the
+classifier has suggested a parameter which does not satisfy the
+maximum workgroup size constraints, or because the workgroup size is
+refused by OpenCL. Workgroup sizes are predicted for each scenario in
+the testing set, and the quality of the prediction is evaluated using
+the following metrics:
 
-To evaluate the performance of a classifier, a subset of scenarios
-$S_{training} \subset S$ are labelled with the workgroup size which
-gave the best performance for each. The classifier is trained on this
-labelled training data, and tested using a set of unseen scenarios
-$S_{testing} = S - S_{training}$. The performance of each predicted
-oracle workgroup size is compared against the true oracles for that
-seTODO{What is the average speedup achieved using different
-  classifiers?}
+\begin{itemize}
+\item accuracy (binary) --- whether the predicted workgroup size is the
+  true oracle, $p(f(s)) = \Omega(s)$.
+\item validity (binary) --- whether the classifier predicted a workgroup
+  size which satisfies the workgroup size constraints constraints,
+  $p(f(s)) < W_{\max}(s)$.
+\item refused (binary) --- whether the classifier predicted a workgroup
+  size which is refused, $p(f(s)) \in W_{refused}(s)$.
+\item performance (real) --- the relative performance of the predicted
+  workgroup size relative to the oracle, $r(p(f(s)), \Omega(s))$.
+\item speedups (real) --- the relative performance of the predicted
+  workgroup size relative to the baseline workgroup size
+  $w_{(4 \times 4)}$, and human expert workgroup size
+  $w_{(32 \times 4)}$ (where applicable).
+\item attempts (integer) --- the number of attempts which are made
+  before predicting a workgroup is legal, $w \in W_{legal}(s)$.
+  Repeated attempts are caused by predictions which exceed
+  $W_{\max}(s)$, or refused parameters.
+\item time (real) --- the round trip time (measured by the OmniTune
+  client) between requesting a workgroup size and receiving a valid
+  response. This include the cost of classification, communication
+  overheads, and the cost of repeated attempts.
+\end{itemize}
+
+The
+
+cross-validation
+
+\TODO{%
+  What is the average speedup achieved using different classifiers?%
+}
 
 \TODO{What percentage of the maximum performance do the classifiers
   achieve?}
@@ -639,6 +677,38 @@ seTODO{What is the average speedup achieved using different
 \includegraphics{gen/img/classification-xval.pdf}
 \caption{%
   Classification performance using cross-validation.%
+}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/classification-syn-real.pdf}
+\caption{%
+  Classification performance using synthetic-real.%
+}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/classification-arch.pdf}
+\caption{%
+  Classification performance using cross-arch.%
+}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/classification-kern.pdf}
+\caption{%
+  Classification performance using cross-kern.%
+}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/classification-data.pdf}
+\caption{%
+  Classification performance using cross-data.%
 }
 \end{figure}
 

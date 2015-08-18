@@ -384,240 +384,253 @@ def main():
     from matplotlib import rc
     rc('text', usetex=True)
 
-    # Delete existing files.
-    fs.rm("gen")
-    fs.mkdir("gen/img")
-    fs.mkdir("gen/tab")
+    # # Delete existing files.
+    # fs.rm("gen")
+    # fs.mkdir("gen/img")
+    # fs.mkdir("gen/tab")
 
-    ##################
-    # Dynamic values #
-    ##################
-    one_r = db.one_r()
-    mktex(print_params(one_r[0]), "gen/one_r.tex")
-    mktex(round(one_r[2], 2), "gen/one_r_perf.tex")
-    mktex(int(round(one_r[2] * 100)), "gen/baseline_perf_perc.tex")
+    # ##################
+    # # Dynamic values #
+    # ##################
+    # one_r = db.one_r()
+    # mktex(print_params(one_r[0]), "gen/one_r.tex")
+    # mktex(round(one_r[2], 2), "gen/one_r_perf.tex")
+    # mktex(int(round(one_r[2] * 100)), "gen/baseline_perf_perc.tex")
 
-    mktex(int(round(db.min_num_params)), "gen/min_num_params.tex")
-    mktex(int(round(db.max_num_params)), "gen/max_num_params.tex")
-    mktex(int(round(db.avg_num_params)), "gen/avg_num_params.tex")
+    # mktex(int(round(db.min_num_params)), "gen/min_num_params.tex")
+    # mktex(int(round(db.max_num_params)), "gen/max_num_params.tex")
+    # mktex(int(round(db.avg_num_params)), "gen/avg_num_params.tex")
 
-    mktex(db.num_rows("runtime_stats"), "gen/num_runtime_stats.tex")
-    mktex(db.num_rows("runtimes"), "gen/num_samples.tex")
-    mktex(db.num_rows("scenarios"), "gen/num_scenarios.tex")
-    mktex(db.min_sample_count, "gen/min_sample_count.tex")
-    mktex(db.max_sample_count, "gen/max_sample_count.tex")
-    mktex(db.execute("SELECT Max(num_samples) FROM runtime_stats").fetchone()[0],
-          "gen/max_sample_count.tex")
-    mktex(len(db.real_kernels), "gen/num_real_kernels.tex")
+    # mktex(db.num_rows("runtime_stats"), "gen/num_runtime_stats.tex")
+    # mktex(db.num_rows("runtimes"), "gen/num_samples.tex")
+    # mktex(db.num_rows("scenarios"), "gen/num_scenarios.tex")
+    # mktex(db.min_sample_count, "gen/min_sample_count.tex")
+    # mktex(db.max_sample_count, "gen/max_sample_count.tex")
+    # mktex(db.execute("SELECT Max(num_samples) FROM runtime_stats").fetchone()[0],
+    #       "gen/max_sample_count.tex")
+    # mktex(len(db.real_kernels), "gen/num_real_kernels.tex")
 
-    mktex(db.num_params, "gen/num_params.tex")
+    # mktex(db.num_params, "gen/num_params.tex")
 
-    num_oracle_params = db.execute("SELECT Count(*) FROM ("
-                                   "SELECT DISTINCT oracle_param "
-                                   "FROM scenario_stats)").fetchone()[0]
+    # num_oracle_params = db.execute("SELECT Count(*) FROM ("
+    #                                "SELECT DISTINCT oracle_param "
+    #                                "FROM scenario_stats)").fetchone()[0]
 
-    mktex(num_oracle_params, "gen/num_oracle_params.tex")
-    mktex(round(db.execute("SELECT (1.0 * {} / "
-                           "(select count(*) from scenario_stats)) * 100"
-                           .format(num_oracle_params)).fetchone()[0], 1),
-          "gen/oracle_params_per_scenario_perc.tex")
+    # mktex(num_oracle_params, "gen/num_oracle_params.tex")
+    # mktex(round(db.execute("SELECT (1.0 * {} / "
+    #                        "(select count(*) from scenario_stats)) * 100"
+    #                        .format(num_oracle_params)).fetchone()[0], 1),
+    #       "gen/oracle_params_per_scenario_perc.tex")
 
-    # Oracle param frequencies
-    oracle_params = sorted(db.oracle_param_frequencies(normalise=True).items(),
-                           reverse=True, key=lambda x: x[1])
-    freqs = [x[1] for x in oracle_params]
+    # # Oracle param frequencies
+    # oracle_params = sorted(db.oracle_param_frequencies(normalise=True).items(),
+    #                        reverse=True, key=lambda x: x[1])
+    # freqs = [x[1] for x in oracle_params]
 
-    acc = 0
-    acc_freqs = []
-    for i,freq in enumerate(freqs):
-        acc += freq
-        acc_freqs.append(acc)
-        if acc > .5:
-            mktex(i + 1, "gen/num_wgsizes_50_accuracy.tex")
-            break
-    max_oracle_param = oracle_params[0]
-    mktex(print_params(max_oracle_param[0]),
-          "gen/max_oracle_param.tex")
-    mktex(print_w(max_oracle_param[0]),
-          "gen/max_oracle_param_w.tex")
-    mktex("${}\\%$".format(int(round(max_oracle_param[1] * 100))),
-          "gen/max_oracle_param_frequency.tex")
+    # acc = 0
+    # acc_freqs = []
+    # for i,freq in enumerate(freqs):
+    #     acc += freq
+    #     acc_freqs.append(acc)
+    #     if acc > .5:
+    #         mktex(i + 1, "gen/num_wgsizes_50_accuracy.tex")
+    #         break
+    # max_oracle_param = oracle_params[0]
+    # mktex(print_params(max_oracle_param[0]),
+    #       "gen/max_oracle_param.tex")
+    # mktex(print_w(max_oracle_param[0]),
+    #       "gen/max_oracle_param_w.tex")
+    # mktex("${}\\%$".format(int(round(max_oracle_param[1] * 100))),
+    #       "gen/max_oracle_param_frequency.tex")
 
 
-    # Max speedups
-    max_speedups = sorted(db.max_speedups().values(), reverse=True)
-    mktex(round(max_speedups[0], 2),
-          "gen/max_possible_speedup.tex")
-    mktex(int(round((1 - 1 / max_speedups[0]) * 100)),
-          "gen/max_possible_speedup_perc.tex")
-    mktex(round(max_speedups[-1], 2),
-          "gen/min_possible_speedup.tex")
-    mktex(int(round((1 - 1 / max_speedups[-1]) * 100)),
-          "gen/min_possible_speedup_perc.tex")
-    mean_possible_speedup = labmath.mean(max_speedups)
-    mktex(round(mean_possible_speedup, 2),
-          "gen/avg_possible_speedup.tex")
-    mktex(int(round((1 - 1 / mean_possible_speedup) * 100)),
-          "gen/avg_possible_speedup_perc.tex")
+    # # Max speedups
+    # max_speedups = sorted(db.max_speedups().values(), reverse=True)
+    # mktex(round(max_speedups[0], 2),
+    #       "gen/max_possible_speedup.tex")
+    # mktex(int(round((1 - 1 / max_speedups[0]) * 100)),
+    #       "gen/max_possible_speedup_perc.tex")
+    # mktex(round(max_speedups[-1], 2),
+    #       "gen/min_possible_speedup.tex")
+    # mktex(int(round((1 - 1 / max_speedups[-1]) * 100)),
+    #       "gen/min_possible_speedup_perc.tex")
+    # mean_possible_speedup = labmath.mean(max_speedups)
+    # mktex(round(mean_possible_speedup, 2),
+    #       "gen/avg_possible_speedup.tex")
+    # mktex(int(round((1 - 1 / mean_possible_speedup) * 100)),
+    #       "gen/avg_possible_speedup_perc.tex")
 
-    # ML speedups
-    best_classification_results = db.best_classification_results
-    best_synthetic_real_classification_results = db.best_synthetic_real_classification_results
-    mktex(int(round(best_classification_results[2])),
-          "gen/best_avg_classification_performance.tex")
-    mktex(round(best_classification_results[3], 2),
-          "gen/best_avg_classification_speedup.tex")
-    mktex(round(best_classification_results[4], 2),
-          "gen/best_max_classification_speedup.tex")
+    # # ML speedups
+    # best_classification_results = db.best_classification_results
+    # best_synthetic_real_classification_results = db.best_synthetic_real_classification_results
+    # mktex(int(round(best_classification_results[2])),
+    #       "gen/best_avg_classification_performance.tex")
+    # mktex(round(best_classification_results[3], 2),
+    #       "gen/best_avg_classification_speedup.tex")
+    # mktex(round(best_classification_results[4], 2),
+    #       "gen/best_max_classification_speedup.tex")
 
-    mktex(int(round(best_classification_results[5] * 100) - 100),
-          "gen/best_avg_classification_speedup_he_perc.tex")
+    # mktex(int(round(best_classification_results[5] * 100) - 100),
+    #       "gen/best_avg_classification_speedup_he_perc.tex")
 
-    mktex(int(round(best_synthetic_real_classification_results[2])),
-          "gen/best_avg_synthetic_real_classification_performance.tex")
-    mktex(round(best_synthetic_real_classification_results[3], 2),
-          "gen/best_avg_synthetic_real_classification_speedup.tex")
-    mktex(int(round(db.biggest_synthetic_real_classification_performance_drop)),
-          "gen/biggest_synthetic_real_classification_performance_drop.tex")
+    # mktex(int(round(best_synthetic_real_classification_results[2])),
+    #       "gen/best_avg_synthetic_real_classification_performance.tex")
+    # mktex(round(best_synthetic_real_classification_results[3], 2),
+    #       "gen/best_avg_synthetic_real_classification_speedup.tex")
+    # mktex(int(round(db.biggest_synthetic_real_classification_performance_drop)),
+    #       "gen/biggest_synthetic_real_classification_performance_drop.tex")
 
-    mktex(round(db.ratio_refused_params * 100, 1),
-          "gen/ratio_refused_params.tex")
-    mktex(round(db.ratio_refused_test_cases * 100, 1),
-          "gen/ratio_refused_test_cases.tex")
+    # mktex(round(db.ratio_refused_params * 100, 1),
+    #       "gen/ratio_refused_params.tex")
+    # mktex(round(db.ratio_refused_test_cases * 100, 1),
+    #       "gen/ratio_refused_test_cases.tex")
 
-    # Tables.
-    create_hosts_table()
-    create_heuristics_table()
-    create_stencil_runtime_components_table()
+    # # Tables.
+    # create_hosts_table()
+    # create_heuristics_table()
+    # create_stencil_runtime_components_table()
 
-    create_devices_table(db)
-    create_kernels_table(db)
-    create_datasets_table(db)
-    create_features_table(db, "gen/tab/")
-    create_results_tables(db)
-    create_refused_params_tables(db)
+    # create_devices_table(db)
+    # create_kernels_table(db)
+    # create_datasets_table(db)
+    # create_features_table(db, "gen/tab/")
+    # create_results_tables(db)
+    # create_refused_params_tables(db)
 
-    ################
-    # Export plots #
-    ################
+    # ################
+    # # Export plots #
+    # ################
 
-    # Variance trends
-    num_samples_vs_variance(db)
+    # # Variance trends
+    # num_samples_vs_variance(db)
 
-    # Runtime histograms
-    fine_grained_runtime_histograms()
+    # # Runtime histograms
+    # fine_grained_runtime_histograms()
 
-    # Heatmaps
-    figsize=(5, 4)
-    visualise.oracle_wgsizes(db, "gen/img/oracle_param_space.pdf",
-                             figsize=figsize, trisurf=True, clip=50,
-                             title=None, rotation=45,
-    )
-    visualise.coverage(db, "gen/img/coverage_space.pdf",
-                       figsize=figsize, clip=100, trisurf=True,
-                       title=None, rotation=45,
-    )
-    visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf", trisurf=True,
-                          figsize=figsize, rotation=45, title=None)
-
-    # figsize=(2.5, 2.5)
-    # visualise.oracle_wgsizes(db, "gen/img/1.pdf",
-    #                          figsize=figsize, clip=50,
-    #                          title=None
+    # # Heatmaps
+    # figsize=(5, 4)
+    # visualise.oracle_wgsizes(db, "gen/img/oracle_param_space.pdf",
+    #                          figsize=figsize, trisurf=True, clip=50,
+    #                          title=None, rotation=45,
     # )
-    # visualise.performance(db, "gen/img/2.pdf",
-    #                       figsize=figsize, clip=100,
-    #                       title=None,
+    # visualise.coverage(db, "gen/img/coverage_space.pdf",
+    #                    figsize=figsize, clip=100, trisurf=True,
+    #                    title=None, rotation=45,
     # )
-    # visualise.coverage(db, "gen/img/3.pdf",
-    #                    figsize=figsize, clip=100,
-    #                    title=None,
-    # )
-    # visualise.max_wgsizes(db, "gen/img/4.pdf",
-    #                       figsize=figsize, title=None
-    # )
+    # visualise.max_wgsizes(db, "gen/img/max_wgsizes.pdf", trisurf=True,
+    #                       figsize=figsize, rotation=45, title=None)
 
-    figsize=(3, 2)
-    visualise.num_samples(db, "gen/img/num_samples.pdf", title="",
-                          figsize=figsize)
-    visualise.num_params(db, "gen/img/num_params.pdf", title="",
-                         figsize=figsize)
+    # # figsize=(2.5, 2.5)
+    # # visualise.oracle_wgsizes(db, "gen/img/1.pdf",
+    # #                          figsize=figsize, clip=50,
+    # #                          title=None
+    # # )
+    # # visualise.performance(db, "gen/img/2.pdf",
+    # #                       figsize=figsize, clip=100,
+    # #                       title=None,
+    # # )
+    # # visualise.coverage(db, "gen/img/3.pdf",
+    # #                    figsize=figsize, clip=100,
+    # #                    title=None,
+    # # )
+    # # visualise.max_wgsizes(db, "gen/img/4.pdf",
+    # #                       figsize=figsize, title=None
+    # # )
 
-    figsize=(3, 3)
-    visualise.refused_params_by_device(db,
-                                       "gen/img/refused_params_by_device.pdf",
-                                       figsize=figsize)
-    visualise.refused_params_by_vendor(db,
-                                       "gen/img/refused_params_by_vendor.pdf",
-                                       figsize=figsize)
-    visualise.refused_param_space(db,
-                                  "gen/img/refused_param_space.pdf",
-                                  figsize=figsize)
+    # figsize=(3, 2)
+    # visualise.num_samples(db, "gen/img/num_samples.pdf", title="",
+    #                       figsize=figsize)
+    # visualise.num_params(db, "gen/img/num_params.pdf", title="",
+    #                      figsize=figsize)
 
-    # Trend plots
-    figsize=(5.8,3.5)
-    visualise.max_speedups(db, "gen/img/max_speedups.pdf", title="",
-                           figsize=figsize)
-    figsize=(5.8,2)
-    visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.pdf",
-                                     title="", figsize=figsize)
+    # figsize=(3, 3)
+    # visualise.refused_params_by_device(db,
+    #                                    "gen/img/refused_params_by_device.pdf",
+    #                                    figsize=figsize)
+    # visualise.refused_params_by_vendor(db,
+    #                                    "gen/img/refused_params_by_vendor.pdf",
+    #                                    figsize=figsize)
+    # visualise.refused_param_space(db,
+    #                               "gen/img/refused_param_space.pdf",
+    #                               figsize=figsize)
 
-    figsize=(4.5,4)
-    visualise.performance_vs_coverage(db, "gen/img/params_summary.pdf",
-                                      figsize=figsize)
+    # # Trend plots
+    # figsize=(5.8,3.5)
+    # visualise.max_speedups(db, "gen/img/max_speedups.pdf", title="",
+    #                        figsize=figsize)
+    # figsize=(5.8,2)
+    # visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.pdf",
+    #                                  title="", figsize=figsize)
 
-    # Boxplots grouped by kernel,device,dataset
-    boxplot_height = 3.5
+    # figsize=(4.5,4)
+    # visualise.performance_vs_coverage(db, "gen/img/params_summary.pdf",
+    #                                   figsize=figsize)
 
-    figsize=(5.8, boxplot_height) # Full page width
-    visualise.kernel_performance(db, "gen/img/performance_kernels.pdf",
-                                 title="", figsize=figsize)
-    figsize=(5.8/2, boxplot_height) # Half-width
-    visualise.device_performance(db, "gen/img/performance_devices.pdf",
-                                 title="", figsize=figsize)
-    visualise.dataset_performance(db, "gen/img/performance_datasets.pdf",
-                                  title="", figsize=figsize)
+    # # Boxplots grouped by kernel,device,dataset
+    # boxplot_height = 3.5
 
-    # Boxplots grouped by wgsize
-    figsize=(5.8, boxplot_height)
-    ratios = [np.array(l) for l in
-              json.load(open(fs.path(
-                  "~/data/msc-thesis/performance_wgsize.json"
-              )))]
-    visualise.performance_vs_max_wgsize(ratios,
-                                        "gen/img/performance_max_wgsize.pdf",
-                                        xlabel="Workgroup size (\\% max)",
-                                        figsize=figsize,
-                                        color=sns.color_palette("Greens"))
+    # figsize=(5.8, boxplot_height) # Full page width
+    # visualise.kernel_performance(db, "gen/img/performance_kernels.pdf",
+    #                              title="", figsize=figsize)
+    # figsize=(5.8/2, boxplot_height) # Half-width
+    # visualise.device_performance(db, "gen/img/performance_devices.pdf",
+    #                              title="", figsize=figsize)
+    # visualise.dataset_performance(db, "gen/img/performance_datasets.pdf",
+    #                               title="", figsize=figsize)
 
-    figsize=(5.8/2, boxplot_height) # Half-width
-    ratios = [np.array(l) for l in
-              json.load(open(fs.path(
-                  "~/data/msc-thesis/performance_c.json"
-              )))]
-    visualise.performance_vs_max_wgsize(ratios,
-                                        "gen/img/performance_max_c.pdf",
-                                        xlabel="Workgroup columns (\\% max)",
-                                        figsize=figsize,
-                                        color=sns.color_palette("Blues"))
+    # # Boxplots grouped by wgsize
+    # figsize=(5.8, boxplot_height)
+    # ratios = [np.array(l) for l in
+    #           json.load(open(fs.path(
+    #               "~/data/msc-thesis/performance_wgsize.json"
+    #           )))]
+    # visualise.performance_vs_max_wgsize(ratios,
+    #                                     "gen/img/performance_max_wgsize.pdf",
+    #                                     xlabel="Workgroup size (\\% max)",
+    #                                     figsize=figsize,
+    #                                     color=sns.color_palette("Greens"))
 
-    ratios = [np.array(l) for l in
-              json.load(open(fs.path(
-                  "~/data/msc-thesis/performance_r.json"
-              )))]
-    visualise.performance_vs_max_wgsize(ratios,
-                                        "gen/img/performance_max_r.pdf",
-                                        xlabel="Workgroup rows (\\% max)",
-                                        figsize=figsize,
-                                        color=sns.color_palette("Reds"))
+    # figsize=(5.8/2, boxplot_height) # Half-width
+    # ratios = [np.array(l) for l in
+    #           json.load(open(fs.path(
+    #               "~/data/msc-thesis/performance_c.json"
+    #           )))]
+    # visualise.performance_vs_max_wgsize(ratios,
+    #                                     "gen/img/performance_max_c.pdf",
+    #                                     xlabel="Workgroup columns (\\% max)",
+    #                                     figsize=figsize,
+    #                                     color=sns.color_palette("Blues"))
 
-    # Motivating example plots
-    motivating_examples(db)
+    # ratios = [np.array(l) for l in
+    #           json.load(open(fs.path(
+    #               "~/data/msc-thesis/performance_r.json"
+    #           )))]
+    # visualise.performance_vs_max_wgsize(ratios,
+    #                                     "gen/img/performance_max_r.pdf",
+    #                                     xlabel="Workgroup rows (\\% max)",
+    #                                     figsize=figsize,
+    #                                     color=sns.color_palette("Reds"))
+
+    # # Motivating example plots
+    # motivating_examples(db)
 
     # Ml Visualisations
-    figsize=(5.8,4)
+    figsize=(5.8,8)
     visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
                              title="", figsize=figsize)
+    visualise.classification(db, "gen/img/classification-syn-real.pdf", job="synthetic_real",
+                             title="", figsize=figsize)
+
+    visualise.classification(db, "gen/img/classification-arch.pdf", job="arch",
+                             title="", figsize=figsize)
+
+    visualise.classification(db, "gen/img/classification-kern.pdf", job="kern",
+                             title="", figsize=figsize)
+
+    visualise.classification(db, "gen/img/classification-data.pdf", job="data",
+                             title="", figsize=figsize)
+
+
     visualise.runtime_regression(db, "gen/img/runtime-regression-xval.pdf",
                                  job="xval", title="", figsize=figsize)
     visualise.err_fn_speedups(db, "random_fn",

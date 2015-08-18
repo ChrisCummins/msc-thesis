@@ -18,32 +18,30 @@ $d$.
 \item[] % line break
 
 \Procedure{Random}{s}
-\Comment Select a random $w$ from $W_{legal}(s)$.
+\Comment Select a random workgroup size.
 \State $w \leftarrow \text{classify}(f(s))$
-\If{$w \in W_{legal}(s)$}
-    \State \textbf{return} $w$
-\Else
-  \State \textbf{return} random choice $w \in W_{legal}(s)$
-\EndIf
+\While{$w \not\in W_{legal}(s)$}
+  \State $w \leftarrow $ random choice $w \in \left\{ w | w < W_{max}(s), w \not\in W_{refused}(s) \right\}$
+\EndWhile
+\State \textbf{return} $w$
 \EndProcedure
 \item[] % line break
 
 \Procedure{NearestNeighbour}{s}
-\Comment Select the closest $w$ from $W_{legal}(s)$.
+\Comment Select the closest workgroup size to prediction.
 \State $w \leftarrow \text{classify}(f(s))$
-\If{$w \in W_{legal}(s)$}
-    \State \textbf{return} $w$
-\Else
+\While{$w \not\in W_{legal}(s)$}
   \State $d_{min} \leftarrow \infty$
   \State $w_{closest} \leftarrow \text{null}$
-  \For{$c \in W_{legal}$}
+  \For{$c \in \left\{ w | w < W_{\max}(s), w \not\in W_{refused}(s) \right\}$}
     \State $d \leftarrow \sqrt{\left(c_r - w_r\right)^2 + \left(c_c - w_c\right)^2}$
     \If{$d < d_{min}$}
       \State $d_{min} \leftarrow d$
       \State $w_{closest} \leftarrow c$
     \EndIf
   \EndFor
-  \State \textbf{return} $w_{closest}$
-\EndIf
+  \State $w \leftarrow w_{closest}$
+\EndWhile
+\State \textbf{return} $w$
 \EndProcedure
 \end{algorithmic}
