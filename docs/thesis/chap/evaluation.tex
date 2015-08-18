@@ -40,10 +40,10 @@ measured. The average sample size of runtimes for each test case is
   the plots, the distribution of runtimes is bimodal, and skewed to
   the lower end of the runtimes range. The long tail in some
   distributions suggests delays in program execution caused by other
-  processes on the test systems. The similarity between arithmetic
-  mean runtimes and peak density estimates suggests that a
-  sufficiently accurate estimation of the true mean can be found using
-  the arithmetic mean of a large number of observations.%
+  processes on the test systems. The similarity between sample means
+  and peak density estimates suggests that a sufficiently accurate
+  estimation of the true mean can be made using the arithmetic mean of
+  a large number of observations.%
 }
 \label{fig:runtime-histograms}
 \end{figure}
@@ -87,9 +87,9 @@ from 30 to 50 results in only a 25\% reduction.
 \caption{%
   % FIXME: Check against \input{gen/max_ci} and \input{gen/mean_ci}
   Ratio of confidence interval to mean as a function of sample
-  count. The two dashed lines indicate the confidence interval at the
-  minimum sample count (\fixme{3.7}\%), and mean sample count
-  (\fixme{2.5}\%).%
+  count. Two dashed lines indicate the confidence intervals at the
+  minimum (3.7\%) and mean (2.5\%) number of samples used in the
+  experimental dataset.%
 }
 \label{fig:ci-trends}
 \end{figure}
@@ -110,29 +110,99 @@ performance of different configurations. \FIXME{justify\ldots}
 In this section we explore the impact that the workgroup size
 optimisation space has on the performance of stencil codes.
 
+\subsection{Oracle Workgroup Sizes}
+
 \begin{figure}
 \centering
-\includegraphics{gen/img/max_wgsizes.pdf}
-\vspace{-1.5em} % Shrink vertical padding
+\includegraphics{gen/img/num_params_oracle.pdf}
 \caption{%
-  A subset of the workgroup size optimisation space,
-  $w_c \le 100, w_r \le 100$, showing, for each workgroup size, the
-  ratio of scenarios for which the workgroup size satisfies
-  architecture and kernel enforced constraints ($W_{\max}(s)$).
-  Workgroup sizes with a coverage of $< 1$ fail to satisfy these
-  constraints in one or more scenarios.  For static tuning, only
-  workgroup sizes with a coverage of 1 are acceptable.%
+  Accuracy compared to the oracle as a function of the number of
+  workgroup sizes used. The best accuracy that can be achieved using a
+  single statically chosen workgroup size is
+  \protect\input{gen/max_oracle_param_frequency}. Achieving 50\%
+  oracle accuracy requires \protect\input{gen/num_wgsizes_50_accuracy}
+  distinct workgroup sizes.%
 }
+\label{fig:oracle-accuracy}
+\end{figure}
+
+For each scenario $s$, the oracle workgroup size $\Omega(s)$ is the
+workgroup size which resulted in the lowest mean runtime. If the
+performance of stencils were independent of workgroup size, we would
+expect that the oracle workgroup size would remain constant across all
+scenarios $s \in S$. Instead, we find that there are
+\input{gen/num_oracle_params} unique oracle workgroup sizes, with
+\input{gen/oracle_params_per_scenario_perc}\% of scenarios having a
+unique workgroup size. This demonstrates that tuning for optimal
+workgroup size is a non-trivial task, requiring
+\input{gen/num_wgsizes_50_accuracy} distinct workgroup sizes to
+achieve 50\% oracle accuracy (Figure~\ref{fig:oracle-accuracy}).
+
+Figure~\ref{fig:oracle-wgsizes} shows the distribution of oracle
+workgroup sizes, demonstrating that there is clearly no ``silver
+bullet'' workgroup size which works for all scenarios, and that the
+space of oracle workgroup sizes is non linear and complex. The
+workgroup size which is most frequently optimal is
+\input{gen/max_oracle_param}, which is optimal for
+\input{gen/max_oracle_param_frequency} of scenarios. Note that this is
+not adequate to use as a baseline for static tuning, as it does not
+respect legality constraints, that is
+$\input{gen/max_oracle_param_w} \not\in W_{safe}$.
+
+
+\subsection{Workgroup Size Legality}\label{subsec:legality}
+
+\begin{figure}
+  \centering
+  \includegraphics{gen/img/max_wgsizes.pdf}
+  \vspace{-1.5em} % Shrink vertical padding
+  \caption{%
+    A subset of the workgroup size optimisation space,
+    $w_c \le 100, w_r \le 100$, showing the \emph{coverage} of each
+    workgroup size, i.e.\ the ratio of scenarios for which a workgroup
+    size satisfies architecture and kernel enforced constraints
+    ($W_{\max}(s)$). Workgroup sizes with a coverage of $< 1$ fail to
+    satisfy these constraints for one or more scenarios. Only
+    workgroup sizes with a coverage of 1 may be used for static
+    tuning, which greatly reduces the size of the optimisation space.%
+  }
 \label{fig:max-wgsizes}
 \end{figure}
 
-\subsection{Workgroup Size Legality}
+\begin{figure}
+\begin{subfigure}[t]{0.98\textwidth}
+\centering
+\includegraphics{gen/img/coverage_space.pdf}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:coverage}
+\end{subfigure}
+\\
+\begin{subfigure}[t]{0.98\textwidth}
+\centering
+\includegraphics{gen/img/oracle_param_space.pdf}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:oracle-wgsizes}
+\end{subfigure}
+\caption{%
+  Log frequency counts for: (\subref{fig:coverage}) legality, and
+  (\subref{fig:oracle-wgsizes}) optimality, for a subset of the
+  workgroup size optimisation space, $w_c \le 100, w_r \le 100$.
+  Legality frequencies are highest for smaller row and column counts
+  (where $w < W_{\max}(s) \forall S$), and $w_c$ and $w_r$ values
+  which are multiples of 8. The space of oracle workgroup size
+  frequencies is highly irregular and uneven, with a peak frequency of
+  $w_{(64 \times 4)}$.%
+}
+\label{fig:heatmaps}
+\end{figure}
 
 As explained in Section~\ref{sec:op-params}, the space of legal
 workgroup sizes $W_{legal}(s)$ for a given scenario $s$ comprises all
-workgroup sizes which neither: exceed the maximum allowed by the
-OpenCL device and kernel $W_{\max}(s)$, and are not refused by the
-OpenCL runtime.
+workgroup sizes which: do not exceed the maximum allowed by the OpenCL
+device and kernel $W_{\max}(s)$, and are not refused by the OpenCL
+runtime.
 
 \subsubsection{Maximum workgroup sizes}
 
@@ -151,7 +221,7 @@ space to the smallest $W_{\max}(s)$ value, i.e.\ only the workgroup
 sizes with a coverage of 1. The observed $W_{\max}(s)$ values range
 from 256--8192, which results in up to a 97\% reduction in the size of
 the optimisation space when $W_{\max}(s) = 8192$, even though only
-14\% of scenarios have this minimum value of $W_{\max}(s) = 256$.
+14\% of scenarios have the minimum value of $W_{\max}(s) = 256$.
 
 % Size of optimisation space for Wmax =  256: 273
 % Size of optimisation space for Wmax = 8192: 15925
@@ -182,7 +252,7 @@ the optimisation space when $W_{\max}(s) = 8192$, even though only
 \caption{%
   The thirty most refused parameters, ranked in descending
   order. There is little correlation between the size of workgroup and the
-  likelihood that is refused, suggesting that the cause of refused
+  likelihood that it is refused, suggesting that the cause of refused
   parameters is not a resource constraint, but a behavioural issue.%
 }
 \label{tab:top-refused-params}
@@ -227,9 +297,9 @@ exposed by OpenCL, but still lead to a \texttt{CL\_OUT\_OF\_RESOURCES}
 error when the kernel is enqueued. Table~\ref{tab:top-refused-params}
 lists the most frequently refused parameters, and the percentage of
 test cases for which they were refused. While uncommon, a refused
-parameters is an obvious inconvenience to the user, as one would
-expect that any workgroup size within the specified maximum should
-behave \emph{correctly}, if not efficiently. Figure~\ref{fig:coverage}
+parameter is an obvious inconvenience to the user, as one would expect
+that any workgroup size within the specified maximum should behave
+\emph{correctly}, if not efficiently. Figure~\ref{fig:coverage}
 visualises the space of legal workgroup sizes by showing the frequency
 counts that a workgroup size is legal. Smaller workgroup sizes are
 legal most frequently due to the $W_{\max}(s)$ constraints. Beyond
@@ -242,9 +312,9 @@ device and vendor, we see a much greater quantity of refused
 parameters for test cases on Intel CPU devices than any other type,
 while no workgroup sizes were refused by the AMD
 GPU. Figure~\ref{fig:refused-params-by-dev-vendor} shows these
-groupings. The underlying cause for these refused parameters is
-unknown, but can likely by explained by inconsistencies or errors in
-specific OpenCL driver implementations. As these OpenCL
+groupings. The exact underlying cause for these refused parameters
+cannot be determined, but can likely by explained by inconsistencies
+or errors in specific OpenCL driver implementations. As these OpenCL
 implementations are still in active development, it is anticipated
 that errors caused by unexpected behaviour will become more infrequent
 as the technology matures. For now, it is imperative that any
@@ -254,96 +324,58 @@ by suggesting alternatives when they occur.
 % \TODO{Bug reports\ldots}
 
 
-\subsection{Oracle Workgroup Sizes}
+\subsection{Baseline Parameter}\label{subsec:baseline}
 
-\begin{figure}
-\begin{subfigure}[t]{0.98\textwidth}
-\centering
-\includegraphics{gen/img/coverage_space.pdf}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{}
-\label{fig:coverage}
-\end{subfigure}
-\\
-\begin{subfigure}[t]{0.98\textwidth}
-\centering
-\includegraphics{gen/img/oracle_param_space.pdf}
-\vspace{-1.5em} % Shrink vertical padding
-\caption{}
-\label{fig:oracle-wgsizes}
-\end{subfigure}
-\caption{%
-  Log frequency counts for (\subref{fig:coverage}) legality, and
-  (\subref{fig:oracle-wgsizes}) optimality, for a subset of the
-  workgroup size optimisation space, $w_c \le 100, w_r \le 100$.
-  Legality frequencies are highest for smaller row and column counts
-  (where $w < W_{\max}(s) \forall S$), and $w_c$ and $w_r$ values
-  which are multiples of 8. The space of oracle workgroup size
-  frequencies is highly irregular and uneven.%
-}
-\label{fig:heatmaps}
-\end{figure}
+The baseline parameter $\bar{w}$ is the workgroup size which provides
+the best overall performance while being legal for all scenarios. It
+is the workgroup size $w \in W_{safe}$ which maximises the output of
+the performance function $\bar{p}(w)$. As shown in
+Table~\ref{tab:highest-legality}, only a \emph{single} workgroup size
+$w_{(4 \times 4)}$ from the set of experimental results is found to
+have a legality of 100\%, suggesting that an adaptive approach to
+setting workgroup size is necessary not just for the sake of
+maximising performance, but also for guaranteeing program correctness.
 
-For each scenario $s$, the oracle workgroup size $\Omega(s)$ is the
-workgroup size which resulted in the lowest mean runtime. If the
-performance of stencils were independent of workgroup size, we would
-expect that the oracle workgroup size would remain constant across all
-scenarios $s \in S$. Instead, we find that there are
-\input{gen/num_oracle_params} unique oracle workgroup sizes, with
-\input{gen/oracle_params_per_scenario_perc}\% of scenarios having a
-unique workgroup size. This indicates that tuning for optimal
-workgroup size is a non-trivial task. Figure~\ref{fig:oracle-wgsizes}
-shows the distribution of oracle workgroup sizes, demonstrating that
-there is clearly no ``silver bullet'' workgroup size which works for
-all scenarios, and that the space of oracle workgroup sizes is non
-linear and complex. As Figure~\ref{fig:oracle-accuracy} shows,
-\input{gen/num_wgsizes_50_accuracy} unique workgroup sizes are
-required in order to achieve oracle performance just 50\% of the time.
+The utility of the baseline parameter is that it represents the best
+performance that can be achieved through static tuning of the
+workgroup size parameter. We can evaluate the performance of
+suboptimal workgroup sizes by calculating the geometric mean of their
+\emph{performance} for a particular scenario $p(s, w)$ across all
+scenarios, $\bar{p}(w)$. The geometric mean performance
+$\bar{p}(\bar{w})$ of the baseline parameter is
+\input{gen/one_r_perf}. Figure~\ref{fig:performance-legality} plots
+workgroup size \emph{legality} and \emph{performance}, showing that
+there is no clear correlation between the two. In fact, the workgroup
+sizes with the highest mean performance are legal for less than 1\% of
+all scenarios, which reinforces the claim for autotuning. The
+workgroup sizes with the highest legality are listed in
+Table~\ref{tab:highest-legality}, and the workgroup sizes with the
+highest performance are listed in Table~\ref{tab:highest-performance}.
 
-The workgroup size which is most frequently optimal is
-\input{gen/max_oracle_param}, which is optimal for
-\input{gen/max_oracle_param_frequency} of scenarios. Note that this is
-not adequate to use as a baseline for comparing relative performance,
-as it does not respect legality constraints that, that is
-$\input{gen/max_oracle_param_w} \not\in W_{safe}$.
-Figure~\ref{fig:performance-legality} illustrates this point by
-plotting the legality of different workgroup sizes and their mean
-performance relative to the oracle.
+Figure~\ref{fig:speedups} shows the speedup of the oracle workgroup
+size over the baseline parameter $w_{(4 \times 4)}$ for all
+scenarios. If we assume that sufficiently pragmatic developer with
+enough time would eventually find this static optimal, then this
+provides a reasonable comparison for calculating speedups of an
+autotuner for workgroup size. Comparing the performance of workgroup
+sizes relative to the oracle allows us to calculate upper bounds on
+the possible performance which can be expected from autotuning.
 
-
-\begin{figure}
-\centering
-\includegraphics{gen/img/num_params_oracle.pdf}
-\caption{%
-  Accuracy compared to the oracle as a function of the number of
-  workgroup sizes used. The best accuracy that is achievable using a
-  single statically chosen value is
-  \protect\input{gen/max_oracle_param_frequency}.%
-}
-\label{fig:oracle-accuracy}
-\end{figure}
 
 \begin{figure}
 \centering
 \includegraphics{gen/img/params_summary.pdf}
 \caption{%
-  The dashed line shows the \emph{legality} of workgroup sizes, i.e.\
-  the ratio of scenarios for which that workgroup size is legal. The
-  solid line shows the geometric mean of performance relative to the
-  oracle for all scenarios for which the workgroup size is legal.%
+  Average legality and performance of all workgroup sizes. Clearly,
+  the relationship between legality and performance is not
+  linear. Distinct vertical ``bands'' appear between regions of
+  legality caused by the different $W_{\max}(s)$ values of
+  devices. The irregular jitter between these vertical bands is caused
+  by refused parameters.%
 }
 \label{fig:performance-legality}
 \end{figure}
 
-
-% To begin to get a feel for the
-%
-% Figure~\ref{fig:performance-wgsizes}. Furthermore, the performance of
-% workgroup sizes is shown in Figure~\ref{fig:performances} to be vary
-% greatly across architectures, kernels, and datasets.
-
-\TODO{What is the distribution of relative performance across
-  architectures, programs, and datasets?}
 
 \begin{table}
   \parbox{.45\linewidth}{
@@ -351,7 +383,10 @@ performance relative to the oracle.
     \scriptsize
     \rowcolors{2}{white}{gray!25}
     \input{gen/tab/top_params_coverage}
-    \caption{The 25 workgroup sizes with the greatest legality.}
+    \caption{%
+      The 25 workgroup sizes with the greatest legality.%
+    }
+\label{tab:highest-legality}
   }
   \hfill
   \parbox{.45\linewidth}{
@@ -359,7 +394,11 @@ performance relative to the oracle.
     \scriptsize
     \rowcolors{2}{white}{gray!25}
     \input{gen/tab/top_params_perf}
-    \caption{The 25 workgroup sizes with the greatest performance.}
+    \caption{%
+      The 25 workgroup sizes with the greatest mean
+      performance.%
+    }
+\label{tab:highest-performance}
   }
 \end{table}
 
@@ -367,12 +406,15 @@ performance relative to the oracle.
 \subsection{Performance Upper Bounds}
 
 \begin{figure}
-\includegraphics{gen/img/max_speedups}
-\caption{%
-  Speedup of oracle workgroup size over the worst workgroup size for
-  each scenario, and the statically chosen workgroup size that
-  provides the best overall performance.%
-}
+  \includegraphics{gen/img/max_speedups}
+  \caption{%
+    Speedup of oracle workgroup size over: the worst performing
+    workgroup size for each scenario (\emph{Max}), the statically
+    chosen workgroup size that provides the best overall performance
+    ($w_{(4 \times 4)}$), and the human expert selected parameter
+    ($w_{(32 \times 4)}$). Note that the human expert parameter is not
+    legal for all scenarios.%
+  }
 \label{fig:speedups}
 \end{figure}
 
@@ -385,75 +427,98 @@ influence of workgroup size:
 r_{max}(s) = r(s, \argmax_{w \in W_{legal}(s)} t(s,w), \Omega(s))
 \end{equation}
 
-When applied to each scenario $s \in S$ from the experimental results,
-the average performance upper bound is found to be
-$\input{gen/avg_possible_speedup}\times$ (range:
-$\input{gen/min_possible_speedup}\times$ -
-$\input{gen/max_possible_speedup}\times$).
-
-\TODO{T-test to demonstrate confidence in differences between best and
-  worst params.}
-
-
-\cleardoublepage
-\begin{figure}
-\input{fig/performance-wgsizes}
-\caption{%
-  Comparing workgroup performance relative to the oracle as function
-  of: (\subref{fig:performance-max-wgsize})~maximum legal size,
-  (\subref{fig:performance-wg-c})~number of columns, and
-  (\subref{fig:performance-wg-r})~ number of rows.%
-}
-\label{fig:performance-wgsizes}
-\end{figure}
-\newpage
-\begin{figure}
-\input{fig/performances}
-\caption{%
-  Performance relative to the oracle of workgroup sizes across all
-  test cases, grouped by: (\subref{fig:performance-kernels})~kernels,
-  (\subref{fig:performance-devices})~devices, and
-  (\subref{fig:performance-datasets})~datasets.%
-}
-\label{fig:performances}
-\end{figure}
-
-
-\subsection{Baseline Parameters}
-
-From the experimental results, the baseline workgroup size $\bar{w}$
-is found to be \input{gen/one_r}, with a geometric mean performance
-$\bar{p}(\bar{w})$ of
-\input{gen/one_r_perf}. Figure~\ref{fig:speedups} shows the speedup of
-the oracle over this baseline parameter for all scenarios. If we
-assume that a pragmatic developer with enough time would eventually
-find this static optimal, then this provides a reasonable upper bound
-on the attainable improvements of an autotuner for workgroup size over
-that of a static choice.
+When applied to each scenario $s \in S$ of the experimental results,
+we find the average of performance upper bounds to be
+$\input{gen/avg_possible_speedup}\times$ (min
+$\input{gen/min_possible_speedup}\times$, max
+$\input{gen/max_possible_speedup}\times$). This demonstrates the
+importance of tuning stencil workgroup sizes --- if chosen
+incorrectly, the runtime of stencil programs can be extended by up to
+$\input{gen/max_possible_speedup}\times$. Note too that for 5 of the
+scenarios, the speedup of the best over worst workgroup sizes is
+$\le 5\%$.
+% TODO: t-test for this!
+For these scenarios, there is little benefit to autotuning; however,
+this represents only 1.1\% of the tested scenarios. For 50\% of the
+scenarios, the speedup of the best over worst workgroup sizes is
+$\ge 6.19\times$.
 
 
 \subsection{Human Expert}
 
+% SCENARIOS IN WHICH 32x4 WAS NOT LEGAL:
+%
+% sqlite> select distinct name,kernels.north,kernels.south,kernels.east,kernels.west,device,dataset,name from runtime_stats left join scenarios on runtime_stats.scenario=scenarios.id left join kernel_names on scenarios.kernel=kernel_names.id left join kernels on scenarios.kernel=kernels.id where scenario NOT IN (select scenario from runtime_stats where params="32x4");
+% name        north       south       east        west        device                                     dataset                name
+% ----------  ----------  ----------  ----------  ----------  -----------------------------------------  ---------------------  ----------
+% complex     30          30          30          30          1xIntel(R) Core(TM) i5-4570 CPU @ 3.20GHz  1024.1024.float.float  complex
+% simple      0           0           0           0           1xIntel(R) Core(TM) i5-2430M CPU @ 2.40GH  1024.1024.float.float  simple
+% complex     30          30          30          30          1xIntel(R) Core(TM) i5-2430M CPU @ 2.40GH  2048.2048.float.float  complex
+% complex     1           10          30          30          1xIntel(R) Core(TM) i5-4570 CPU @ 3.20GHz  512.512.float.float    complex
+% simple      30          30          30          30          1xIntel(R) Core(TM) i5-2430M CPU @ 2.40GH  512.512.float.float    simple
+% complex     30          30          30          30          1xGeForce GTX 690                          512.512.float.float    complex
+% simple      20          10          20          10          1xIntel(R) Core(TM) i5-2430M CPU @ 2.40GH  4096.4096.float.float  simple
+% simple      1           10          30          30          1xIntel(R) Core(TM) i5-2430M CPU @ 2.40GH  2048.2048.float.float  simple
+% complex     30          30          30          30          1xGeForce GTX 690                          1024.1024.float.float  complex
+% complex     1           10          30          30          1xIntel(R) Core(TM) i5-2430M CPU @ 2.40GH  2048.2048.float.float  complex
+% simple      30          30          30          30          1xGeForce GTX 690                          512.512.float.float    simple
 
-The stencil workgroup size as chosen by a human expert is
-$32 \times 4$.
+In the original implementation of the SkelCL stencil
+skeleton~\cite{Breuer2013}, \citeauthor{Breuer2013} selected a
+workgroup size of $w_{(32 \times 4)}$ in an evaluation of 4 stencil
+operations on a Tesla S1070 system. We can use this as an additional
+parameter to compare the relative performance of workgroup sizes
+against. However, the $w_{(32 \times 4)}$ workgroup size is invalid
+for 2.6\% of scenarios, as it is refused by 11 scenarios. By device,
+those are: 3 on the GTX 690, 6 on the i5-2430M, and 2 on the i5-4570.
+For the scenarios where it \emph{is} legal, the human expert chosen
+workgroup size achieves an impressive geometric mean of 79.2\% of the
+oracle performance. The average speedup of oracle workgroup sizes over
+the workgroup size selected by a human expert is $1.37\times$ (min
+$1.0\times$, max $5.17\times$). Since the workgroup size selected by
+the human expert is not legal for all scenarios, we will examine the
+effectiveness of heuristics for tuning workgroup size.
 
-\TODO{How often does this parameter fail?}
 
-\TODO{When it is legal, how much of the available performance does
-  this attain?}
+\subsection{Heuristics}\label{subsec:heuristics}
 
+Clearly\TODO{\ldots}. In this section we will consider the
+effectiveness of instead selecting workgroup size using two types of
+heuristics. The first, per-device heuristics, in which the workgroup
+size is selected based on the type or specific architecture that a
+stencil is operating on. The second, using the maximum workgroup size
+returned by the OpenCL device and kernel APIs to select the workgroup
+size adaptively.
 
-\subsection{Heuristics}
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/heuristics-dev}
+\caption{%
+  Selecting workgroup size using a per-device heuristic. The mode
+  optimal workgroup size for each device type $\bar{w}$ is evaluated
+  based on legality, and relative performance to the oracle (minimum
+  and average) when legal.%
+}
+\label{tab:hosts}
+\end{table}
 
 \subsubsection{Per-device workgroup sizes}
 
-\TODO{%
-  What is the performance of picking one value per: architecture,
-  dataset, and program?%
-}
+Figure~\ref{fig:performances} shows the performance of workgroup sizes
+relative to the oracle across scenarios grouped by: kernel, device,
+and dataset. This allows us to identify correlations between workgroup
+size performance and these broad features. Of these, device is most
+suitable for use as a heuristic, since it is mos
+
 
 \subsubsection{Using maximum legal size}
+
+Figure~\ref{fig:performance-wgsizes} shows the performance of
+workgroup sizes relative to the oracle across scenarios grouped by the
+workgroup size, either as a percentage of $W_{max}(s)$, or by number
+of rows or columns.
 
 A common approach taken by application developers is to set the
 workgroup size for a kernel based on the maximum legal workgroup size,
@@ -461,6 +526,7 @@ for example to use the square root of the maximum to set the number of
 columns and rows.
 
 \TODO{What is the perforamnce of always picking the max legal value?}
+
 
 \subsubsection{Scaling with maximum legal size}
 
@@ -472,19 +538,46 @@ columns and rows.
 % of a particular workgroup size to the maximum legal workgroup and
 % the observed performance.
 
+\cleardoublepage%
+\begin{figure}
+\input{fig/performances}
+\caption{%
+  Performance relative to the oracle of workgroup sizes across all
+  test cases, grouped by: (\subref{fig:performance-kernels})~kernels,
+  (\subref{fig:performance-devices})~devices, and
+  (\subref{fig:performance-datasets})~datasets.%
+}
+\label{fig:performances}
+\end{figure}
+\newpage
+\begin{figure}
+\input{fig/performance-wgsizes}
+\caption{%
+  Comparing workgroup performance relative to the oracle as function
+  of: (\subref{fig:performance-max-wgsize})~maximum legal size,
+  (\subref{fig:performance-wg-c})~number of columns, and
+  (\subref{fig:performance-wg-r})~ number of rows.%
+}
+\label{fig:performance-wgsizes}
+\end{figure}
+
+
 \subsection{Summary}
 
-By comparing the relative performance of an average of
-\input{gen/avg_num_params} workgroup sizes for each workload, the
-following conclusions can be drawn:
+In this section we have explored the performance impact of the
+workgroup size optimisation space. By comparing the relative
+performance of an average of \input{gen/avg_num_params} workgroup
+sizes across \input{gen/num_scenarios} scenarios, the following
+conclusions can be drawn:
 
 \begin{enumerate}
 \item The performance of a workgroup size for a particular workload
-  depends properties of the hardware, software, and dataset. The
-  performance gap between different workgroup sizes for a single
-  workload is up to $\input{gen/max_possible_speedup}\times$.
-\item Not all workgroup sizes are legal, and we can only test if a
-  value \emph{is} legal at runtime.
+  depends properties of the hardware, software, and dataset.
+\item The performance gap between the best and workgroup sizes for a
+  particular combination of hardware, software, and dataset is up to
+  $\input{gen/max_possible_speedup}\times$.
+\item Not all workgroup sizes are legal, and the space of legal
+  workgroup sizes cannot statically be determined.
 \item Differing workloads have wildly different optimal workgroup
   sizes, and the best performance can be achieved using static tuning
   is optimal for only \input{gen/max_oracle_param_frequency} of
@@ -493,6 +586,9 @@ following conclusions can be drawn:
 
 % I believe this presents a compelling case for the development of an
 % autotuner which can select the optimal workgroup size at runtime.
+
+In the following section, we will evaluate the performance of OmniTune
+for selecting workgroup sizes.
 
 
 \section{Predicting Optimal Workgroup Sizes}
@@ -552,6 +648,9 @@ seTODO{What is the average speedup achieved using different
 \TODO{What is the costs of auto-tuning?}
 
 \TODO{How many iterations do we need to do before we ``break even''?}
+
+\subsection{Summary}
+
 
 \section{Predicting Stencil Runtime}
 

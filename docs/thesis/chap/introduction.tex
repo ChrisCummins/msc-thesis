@@ -11,14 +11,14 @@ an intimate knowledge of both the parallel programming semantics of
 the language and performance characteristics of the underlying
 hardware. In recent years, general purpose programming with GPUs
 promises even greater data parallel throughput, but is a significantly
-greater challenge to tame, forcing developers to master an entirely
-alien programming model (such as provided by CUDA or OpenCL) and
+greater challenge to tame, forcing developers to master an alien
+programming model (such as provided by CUDA or OpenCL) and
 architecture (SIMD with a multi-level memory hierarchy). As such,
-GPGPU programming is often considered beyond the realm of all but the
-most power demanding of expert programmers. If steps are not taken to
-increase the accessibility of such parallelism, this will only serve
-to widen the gap between available and utilised performance as the
-core counts of hardware continue to increase.
+GPGPU programming is often considered beyond the realm of all but
+power-demanding expert programmers. If steps are not taken to increase
+the accessibility of such parallelism, this will only serve to widen
+the gap between available and utilised performance as the core counts
+of hardware continue to increase.
 
 One possible solution for this \emph{programmability challenge} comes
 in the form of Algorithmic Skeletons, which offer to simplify parallel
@@ -32,14 +32,14 @@ structure their problem solving logic sequentially, while offloading
 the cognitive cost of parallel coordination to the skeleton author.
 
 
-\section{The Problem}
+\section{Sacrificing Performance for Ease of Use}
 
 Unfortunately, when tuning parallel programs, one size \emph{cannot}
 fit all, as the parameters which affect the performance of a parallel
 program are sensitive to the underlying hardware, to the program being
 executed, and even to the \emph{dataset} that is operated upon. This
 is especially problematic for Algorithmic Skeletons, as skeleton
-author cannot tune the performance of an implementation across the
+authors cannot tune the performance of an implementation across the
 breadth of these three dimensions, and this results in programs which
 forgo the performance advantages that can be achieved with the low
 level tuning of hand written parallel code.
@@ -58,10 +58,12 @@ these autotuning systems share the unified goal of improving the
 performance of their respective optimisation targets, the range of
 competing approaches and implementations has resulted in a fragmented
 state in which no one system has been able to gain the critical mass
-to achieve mainstream traction. This is the first aim of this thesis:
-to tackle the issue of providing a unified interface for autotuning
-which reduces the amount of redundant and overlapping work needed to
-implement autotuning for different optimisation targets.
+to achieve mainstream traction.
+
+This is the first aim of this thesis: to tackle the issue of providing
+a unified interface for autotuning which reduces the amount of
+redundant and overlapping work needed to implement autotuning for
+different optimisation targets.
 
 % Second prong: machine learning to cut down cost
 

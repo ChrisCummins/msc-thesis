@@ -67,6 +67,14 @@ def create_hosts_table(output=None):
     latex.table(rows, output=output, columns=header, escape=False)
 
 
+def create_heuristics_table(output=None):
+    output = output or "gen/tab/heuristics-dev.tex"
+    reader = csv.reader(open("dat/heuristics-dev.csv"), delimiter="\t")
+    header = reader.next()
+    rows = [row for row in reader]
+    latex.table(rows, output=output, columns=header, escape=False)
+
+
 def create_stencil_runtime_components_table(output=None):
     output = output or "gen/tab/stencil-runtime-components.tex"
     reader = csv.reader(open("dat/stencil-runtime-components.csv"),
@@ -438,16 +446,16 @@ def main():
 
     # Max speedups
     max_speedups = sorted(db.max_speedups().values(), reverse=True)
-    mktex(round(max_speedups[0], 1),
+    mktex(round(max_speedups[0], 2),
           "gen/max_possible_speedup.tex")
     mktex(int(round((1 - 1 / max_speedups[0]) * 100)),
           "gen/max_possible_speedup_perc.tex")
-    mktex(round(max_speedups[-1], 1),
+    mktex(round(max_speedups[-1], 2),
           "gen/min_possible_speedup.tex")
     mktex(int(round((1 - 1 / max_speedups[-1]) * 100)),
           "gen/min_possible_speedup_perc.tex")
     mean_possible_speedup = labmath.mean(max_speedups)
-    mktex(round(mean_possible_speedup, 1),
+    mktex(round(mean_possible_speedup, 2),
           "gen/avg_possible_speedup.tex")
     mktex(int(round((1 - 1 / mean_possible_speedup) * 100)),
           "gen/avg_possible_speedup_perc.tex")
@@ -479,6 +487,7 @@ def main():
 
     # Tables.
     create_hosts_table()
+    create_heuristics_table()
     create_stencil_runtime_components_table()
 
     create_devices_table(db)
@@ -546,13 +555,16 @@ def main():
                                   figsize=figsize)
 
     # Trend plots
-    figsize=(5.8,2)
+    figsize=(5.8,3.5)
     visualise.max_speedups(db, "gen/img/max_speedups.pdf", title="",
                            figsize=figsize)
+    figsize=(5.8,2)
     visualise.num_params_vs_accuracy(db, "gen/img/num_params_oracle.pdf",
                                      title="", figsize=figsize)
+
+    figsize=(4.5,4)
     visualise.performance_vs_coverage(db, "gen/img/params_summary.pdf",
-                                      title="", figsize=figsize)
+                                      figsize=figsize)
 
     # Boxplots grouped by kernel,device,dataset
     boxplot_height = 3.5
@@ -574,7 +586,7 @@ def main():
               )))]
     visualise.performance_vs_max_wgsize(ratios,
                                         "gen/img/performance_max_wgsize.pdf",
-                                        xlabel="Workgroup size (% max)",
+                                        xlabel="Workgroup size (\\% max)",
                                         figsize=figsize,
                                         color=sns.color_palette("Greens"))
 
@@ -585,7 +597,7 @@ def main():
               )))]
     visualise.performance_vs_max_wgsize(ratios,
                                         "gen/img/performance_max_c.pdf",
-                                        xlabel="Workgroup columns (% max)",
+                                        xlabel="Workgroup columns (\\% max)",
                                         figsize=figsize,
                                         color=sns.color_palette("Blues"))
 
@@ -595,7 +607,7 @@ def main():
               )))]
     visualise.performance_vs_max_wgsize(ratios,
                                         "gen/img/performance_max_r.pdf",
-                                        xlabel="Workgroup rows (% max)",
+                                        xlabel="Workgroup rows (\\% max)",
                                         figsize=figsize,
                                         color=sns.color_palette("Reds"))
 
