@@ -373,6 +373,75 @@ def motivating_examples(db):
         viz.finalise(output)
 
 
+def classification_heatmaps(db, classifier, job, output):
+    predictions = {
+        row[0]: row[1] for row in
+        db.execute(
+            "SELECT predicted,Count(*) FROM classification_results "
+            "WHERE classifier=? AND err_fn=? AND job=? "
+            "GROUP BY predicted",
+            (classifier, "reshape_fn", job)
+        )
+    }
+    actual = {
+        row[0]: row[1] for row in
+        db.execute(
+            "SELECT actual,Count(*) FROM classification_results "
+            "WHERE classifier=? AND err_fn=? AND job=? "
+            "GROUP BY actual",
+            (classifier, "reshape_fn", job)
+        )
+    }
+    space = _space.ParamSpace(range(20, 81, 2), range(0, 61, 2))
+
+    for param,val in predictions.iteritems():
+        if space.inspace(param):
+            space[param] = val
+
+    # Offset by real
+    for param,val in actual.iteritems():
+        if space.inspace(param):
+            space[param] -= val
+
+    space.heatmap(output=output, title=ml.classifier_basename(classifier),
+                  figsize=(2.5,3), vmin=-4, vmax=4, cbar=False)
+
+
+def regression_heatmaps(db, job, output, table="runtime_classification_results",
+                        title="Runtime Regression"):
+    predictions = {
+        row[0]: row[1] for row in
+        db.execute(
+            "SELECT predicted,Count(*) FROM {} "
+            "WHERE job=? "
+            "GROUP BY predicted".format(table),
+            (job,)
+        )
+    }
+    actual = {
+        row[0]: row[1] for row in
+        db.execute(
+            "SELECT actual,Count(*) FROM classification_results "
+            "WHERE job=? "
+            "GROUP BY actual".format(table),
+            (job,)
+        )
+    }
+    space = _space.ParamSpace(range(20, 81, 2), range(0, 61, 2))
+
+    for param,val in predictions.iteritems():
+        if space.inspace(param):
+            space[param] = val
+
+    # Offset by real
+    for param,val in actual.iteritems():
+        if space.inspace(param):
+            space[param] -= val
+
+    space.heatmap(output=output, title=title,
+                  figsize=(2.5,3), vmin=-100, vmax=100, cbar=False)
+
+
 def main():
     ml.start()
     db = migrate(_db.Database("/usr/share/omnitune/db/skelcl.db"))
@@ -615,27 +684,41 @@ def main():
     # motivating_examples(db)
 
     # Ml Visualisations
-    figsize=(5.8,8)
-    visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
-                             title="", figsize=figsize)
-    visualise.classification(db, "gen/img/classification-syn-real.pdf", job="synthetic_real",
-                             title="", figsize=figsize)
+    # figsize=(5.8,8)
+    # # visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
+    # #                          title="", figsize=figsize)
+    # visualise.classification(db, "gen/img/classification-syn-real.pdf", job="synthetic_real",
+    #                          title="", figsize=figsize)
+    # visualise.classification(db, "gen/img/classification-arch.pdf", job="arch",
+    #                          title="", figsize=figsize)
+    # # visualise.classification(db, "gen/img/classification-kern.pdf", job="kern",
+    # #                          title="", figsize=figsize)
+    # # visualise.classification(db, "gen/img/classification-data.pdf", job="data",
+    # #                          title="", figsize=figsize)
 
-    visualise.classification(db, "gen/img/classification-arch.pdf", job="arch",
-                             title="", figsize=figsize)
+    figsize=(2.8,7.5)
+    visualise.regression_classification(db, "gen/img/runtime-class-xval.pdf",
+                                        figsize=figsize)
 
-    visualise.classification(db, "gen/img/classification-kern.pdf", job="kern",
-                             title="", figsize=figsize)
+    visualise.regression_classification(db, "gen/img/speedup-class-xval.pdf",
+                                        table="speedup_classification_results",
+                                        figsize=figsize)
 
-    visualise.classification(db, "gen/img/classification-data.pdf", job="data",
-                             title="", figsize=figsize)
+    # # CLASSIFICATION ERROR HEATMAPS
+    # for i,classifier in enumerate(db.classification_classifiers):
+    #     classification_heatmaps(db, classifier, "xval",
+    #                             "gen/img/heatmap_{}.pdf".format(i+1))
+    # regression_heatmaps(db, "xval", "gen/img/reg_runtime_heatmap.pdf")
+    # regression_heatmaps(db, "xval", "gen/img/reg_speedup_heatmap.pdf",
+    #                     table="speedup_classification_results",
+    #                     title="Speedup Regression")
 
 
-    visualise.runtime_regression(db, "gen/img/runtime-regression-xval.pdf",
-                                 job="xval", title="", figsize=figsize)
-    visualise.err_fn_speedups(db, "random_fn",
-                              "gen/img/classification-xval-random.pdf",
-                              job="xval", sort=True, title="", figsize=figsize)
+    # figsize=(5.8,2.5)
+
+    # visualise.err_fn_speedups(db, "default_fn",
+    #                           "gen/img/speedups-classification-xval-default.pdf",
+    #                           job="xval", sort=True, title="", figsize=figsize)
 
     ml.stop()
 

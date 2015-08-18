@@ -85,7 +85,8 @@ responsibility of providing performant, optimised implementations for
 these patterns on the skeleton author.
 
 
-\section{Iterative Compilation}\label{sec:iterative-compilation}
+\section{Iterative Compilation \& Machine
+  Learning}\label{sec:iterative-compilation}
 
 Iterative compilation is the method of performance tuning in which a
 program is compiled and profiled using multiple different
@@ -95,13 +96,14 @@ in \citeyear{Bodin1998}, iterative compilation has been demonstrated
 to be a highly effective form of empirical performance tuning for
 selecting compiler optimisations~\cite{Bodin1998}.
 
-Given the huge number of possible compiler optimisations (as many as
-207 as of GCC v4.9), it is often unfeasible to perform an exhaustive
-search of the entire optimisation space, leading to the development
-methods for reducing the cost of evaluating configurations. These
-methods reduce evaluation costs either by shrinking the dimensionality
-or size of the optimisation space, or by guiding a directed search to
-traverse a subset of the space.
+Given the huge number of possible compiler optimisations (there are
+207 flags and parameters to control optimisations in GCC v4.9), it is
+often unfeasible to perform an exhaustive search of the entire
+optimisation space, leading to the development of methods for reducing
+the cost of evaluating configurations. These methods reduce evaluation
+costs either by shrinking the dimensionality or size of the
+optimisation space, or by guiding a directed search to traverse a
+subset of the space.
 
 Machine learning has been successful applied to this problem,
 in~\cite{Stephenson2003}, using ``meta optimisation'' to tune compiler

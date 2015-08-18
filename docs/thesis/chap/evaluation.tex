@@ -609,7 +609,7 @@ conclusions can be drawn:
 \item Differing scenarios have wildly different optimal workgroup
   sizes, and the best performance can be achieved using static tuning
   is optimal for only \input{gen/max_oracle_param_frequency} of
-  workloads.
+  scenarios.
 \end{enumerate}
 
 % I believe this presents a compelling case for the development of an
@@ -619,14 +619,17 @@ In the following section, we will evaluate the performance of OmniTune
 for selecting workgroup sizes.
 
 
-\section{Predicting Optimal Workgroup Sizes}
+\section{Predicting Workgroup Sizes}
 
 In this section we evaluate the performance of OmniTune at predicting
-the oracle workgroup size of scenarios. To evaluate the performance of
-a classifier, a subset of scenarios $S_{training} \subset S$ are
-labelled with the workgroup size which gave the best performance for
-each. The classifier is trained on this labelled training data, and
-tested using a set of unseen scenarios
+the oracle workgroup size of scenarios.
+
+\subsection{Classification}
+
+To evaluate the performance of a classifier, a subset of scenarios
+$S_{training} \subset S$ are labelled with the workgroup size which
+gave the best performance for each. The classifier is trained on this
+labelled training data, and tested using a set of unseen scenarios
 $S_{testing} = S - S_{training}$. Each classifier is evaluated using
 the three different classification techniques: \textsc{Baseline},
 \textsc{Random}, and \textsc{NearestNeighbour}, which differ in the
@@ -674,83 +677,67 @@ cross-validation
 
 \begin{figure}
 \centering
-\includegraphics{gen/img/classification-xval.pdf}
+\includegraphics{gen/img/classification-syn-real}
 \caption{%
-  Classification performance using cross-validation.%
+  Classification results using synthetic benchmarks. Each classifier
+  is trained on data from synthetic stencils, and tested for
+  prediction quality using 6 real world benchmarks. SMO provides the
+  most accurate predictions, but takes longer to perform
+  classification than J48.%
 }
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics{gen/img/classification-syn-real.pdf}
+\includegraphics{gen/img/classification-arch}
 \caption{%
-  Classification performance using synthetic-real.%
+  Classification results of cross-device testing. Each classifier is
+  trained on data from $n-1$ devices and tested for prediction quality
+  using benchmarks on the $n^{th}$ device. Each classifier suffers
+  reduced accuracy.%
 }
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics{gen/img/classification-arch.pdf}
+\includegraphics{gen/img/speedups-classification-xval-default}
 \caption{%
-  Classification performance using cross-arch.%
+  Speedup results from 10-fold classification using the
+  \textsc{Default} fallback handler. Speedups range from $0.47\times$
+  (RandomForest) to $41.5\times$ (J48, RandomForest, SimpleLogistic,
+  and SMO).%
 }
 \end{figure}
+
+\subsection{Classification using Regression}
 
 \begin{figure}
 \centering
-\includegraphics{gen/img/classification-kern.pdf}
-\caption{%
-  Classification performance using cross-kern.%
-}
-\end{figure}
-
-\begin{figure}
+\begin{subfigure}[h]{.45\textwidth}
 \centering
-\includegraphics{gen/img/classification-data.pdf}
-\caption{%
-  Classification performance using cross-data.%
-}
-\end{figure}
-
-\begin{figure}
+\includegraphics{gen/img/runtime-class-xval}
+\caption{}
+\label{fig:runtime-class-xval}
+\end{subfigure}
+~%
+\begin{subfigure}[h]{.45\textwidth}
 \centering
-\includegraphics{gen/img/classification-xval-random.pdf}
+\includegraphics{gen/img/speedup-class-xval}
+\caption{}
+\label{fig:speedup-class-xval}
+\end{subfigure}
 \caption{%
-  Per-instance performances of classification using cross-validation
-  and the ``random'' error handler.%
+  Evaluating the effectiveness of classification using regressors, by
+  predicting: (\subref{fig:runtime-class-xval}) the runtime of
+  different workgroup sizes, and (\subref{fig:speedup-class-xval})
+  speedup of workgroup sizes over a baseline.%
 }
+\label{fig:regression-class}
 \end{figure}
-
-
-\TODO{Rank eigenvectors of PCA on features.}
-
-\TODO{Evaluate the effectiveness of training with synthetic
-  benchmarks.}
-
-\subsection{Selection of Features}
-
-\TODO{How does the selection of features affect performance? Show a
-  plot of performance vs number of features.}
-
-
-\subsection{Effectiveness of Synthetic Benchmarks}
-
-\TODO{How well does classification perform when trained solely on
-  synthetic benchmarks, and tested soley on real benchmarks?}
-
-\TODO{Repeat the above, but with incremtally fewere benchmarks.}
-
-
-\subsection{Autotuning Overheads}
 
 \TODO{What is the costs of auto-tuning?}
 
 \TODO{How many iterations do we need to do before we ``break even''?}
-
-\subsection{Summary}
-
-
-\section{Predicting Stencil Runtime}
 
 \begin{enumerate}
 \item How accurately does it predict the runtime of a stencil?
@@ -759,29 +746,77 @@ cross-validation
   predicted runtime is inaccurate?
 \end{enumerate}
 
+
+\subsection{Prediction errors}
+
 \begin{figure}
 \centering
-\includegraphics{gen/img/runtime-regression-xval.pdf}
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+\includegraphics{gen/img/heatmap_1}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:coverage}
+\end{subfigure}
+~%
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+\includegraphics{gen/img/heatmap_2}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:coverage}
+\end{subfigure}
+\\
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+\includegraphics{gen/img/heatmap_3}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:coverage}
+\end{subfigure}
+~%
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+\includegraphics{gen/img/heatmap_5}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:coverage}
+\end{subfigure}
+\\
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+\includegraphics{gen/img/reg_runtime_heatmap}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:coverage}
+\end{subfigure}
+~%
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+\includegraphics{gen/img/reg_speedup_heatmap}
+\vspace{-1.5em} % Shrink vertical padding
+\caption{}
+\label{fig:coverage}
+\end{subfigure}
 \caption{%
-  Performance of regressors at predicting program runtime.%
+  Heatmaps of classification errors for 10-fold cross-validation,
+  showing a subset of the optimisation space. The shading in each
+  cells indicates if it is predicted less frequently (blue), ore more
+  frequently (red) than it is optimal. Colour gradients are normalised
+  across plots.%
 }
+\label{fig:class-hmaps}
 \end{figure}
 
-\subsection{Summary}
 
+\subsection{Autotuning Costs}
 
-\section{Predicting Relative Performance}
-
-\subsection{Summary}
-
-
-
-% \section{Comparison with hand tuned implementations}
-
-% \TODO{%
-%   Compare performance against some hand-crafted implementation of one
-%   of the real benchmarks.%
-% }
+Prediction costs using regression are significantly greater than using
+classifiers. This is because, while a classifier makes a single
+prediction, the number of predictions required of a regressor grows
+with the size of $W_{\max}(s)$, since classification with regression
+requires making predictions for all
+$w \in \left\{ w | w < W_{\max}(s) \right\}$.
 
 
 \section{Summary}
