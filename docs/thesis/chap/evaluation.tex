@@ -611,34 +611,84 @@ conclusions can be drawn:
   is optimal for only \input{gen/max_oracle_param_frequency} of
   scenarios.
 \end{enumerate}
-
+%
 % I believe this presents a compelling case for the development of an
 % autotuner which can select the optimal workgroup size at runtime.
-
+%
 In the following section, we will evaluate the performance of OmniTune
 for selecting workgroup sizes.
 
 
 \section{Predicting Workgroup Sizes}
 
-In this section we evaluate the performance of OmniTune at predicting
-the oracle workgroup size of scenarios.
+In this section, we evaluate the performance of OmniTune for
+predicting workgroup sizes of SkelCL skeletons, using the prediction
+techniques described in Section~\ref{sec:omnitune-ml}. For each
+technique, we partition the experimental data into training and
+testing sets, $S_{training} \subset S$ and
+$S_{testing} = S - S_{training}$. A set of labelled training data
+$D_{training}$ is derived from $S_{training}$, and the prediction
+quality is testing using the validation set $D_{testing}$ derived from
+$S_{training}$. We use multiple approaches to partition the data, to
+test the prediction quality under different scenarios. The processes
+for generating validation sets are:
+%
+\begin{itemize}
+\item 10-fold --- shuffle the set of all training and divide into 10
+  validation sets, each containing 10\% of the training data. This
+  process is repeated for 10 rounds, resulting in 100 validations.
+\item Synthetic --- divide the training data such that it consists
+  solely of data collected from synthetic benchmarks, and use data
+  collected from real-world benchmarks to test.
+\item Device --- partition the training data into $n$ sets, one for
+  each device. Use $n-1$ sets for training, repeating until partition
+  has been used for testing.
+\item Kernel --- partition the training data into $n$ sets, one for
+  each kernel. Use $n-1$ sets for training, repeating until partition
+  has been used for testing.
+\item Dataset --- partition the training data into $n$ sets, one for
+  each type of dataset. Use $n-1$ sets for training, repeating until
+  partition has been used for testing.
+\end{itemize}
+%
+For each autotuning technique, the results of testing using the
+different validation set are reported separately. The autotuning
+techniques evaluated are: using classifiers to predict the optimal
+workgroup size of a stencil, with fallback strategies to handle
+illegal predictions; using regressors to predict the runtime of a
+stencil using different workgroup sizes, and selecting the legal
+workgroup size which has the lowest predicted runtime; and using
+regressors to predict the relative performance of workgroup sizes over
+a baseline, and selecting the workgroup size which has the highest
+predicted relative performance.
+
 
 \subsection{Classification}
 
-To evaluate the performance of a classifier, a subset of scenarios
-$S_{training} \subset S$ are labelled with the workgroup size which
-gave the best performance for each. The classifier is trained on this
-labelled training data, and tested using a set of unseen scenarios
-$S_{testing} = S - S_{training}$. Each classifier is evaluated using
-the three different classification techniques: \textsc{Baseline},
-\textsc{Random}, and \textsc{NearestNeighbour}, which differ in the
-way in which they handle illegal predictions, either because the
-classifier has suggested a parameter which does not satisfy the
-maximum workgroup size constraints, or because the workgroup size is
-refused by OpenCL. Workgroup sizes are predicted for each scenario in
-the testing set, and the quality of the prediction is evaluated using
-the following metrics:
+The methodology for selecting workgroup size using classifiers is
+described in Section~\ref{subsec:omnitune-ml-class}. Training data
+consists of pairs of feature vectors $f(s)$ and oracle workgroup sizes
+$\Omega(s)$:
+%
+\begin{equation}
+  D_{training} = \left\{ (f(s),\Omega(s)) | s \in S_{training} \right\}
+\end{equation}
+%
+Testing data are not labelled with oracle workgroup sizes:
+%
+\begin{equation}
+  D_{testing} = \left\{ f(s) | s \in S_{testing} \right\}
+\end{equation}
+%
+Each classifier is evaluated using the three different classification
+techniques: \textsc{Baseline}, \textsc{Random}, and
+\textsc{NearestNeighbour}, which differ in the way in which they
+handle illegal predictions, either because the classifier has
+suggested a parameter which does not satisfy the maximum workgroup
+size constraints $w > W_{\max}(s)$, or because the workgroup size is
+refused by OpenCL $w \in W_{refused}(s)$. Workgroup sizes are
+predicted for each scenario in the testing set, and the quality of the
+predicted workgroup size is evaluated using the following metrics:
 
 \begin{itemize}
 \item accuracy (binary) --- whether the predicted workgroup size is the
@@ -654,19 +704,12 @@ the following metrics:
   workgroup size relative to the baseline workgroup size
   $w_{(4 \times 4)}$, and human expert workgroup size
   $w_{(32 \times 4)}$ (where applicable).
-\item attempts (integer) --- the number of attempts which are made
-  before predicting a workgroup is legal, $w \in W_{legal}(s)$.
-  Repeated attempts are caused by predictions which exceed
-  $W_{\max}(s)$, or refused parameters.
-\item time (real) --- the round trip time (measured by the OmniTune
-  client) between requesting a workgroup size and receiving a valid
-  response. This include the cost of classification, communication
-  overheads, and the cost of repeated attempts.
+\item time (real) --- the wall-time required to make the prediction,
+  as measured by the OmniTune server. Note that this excludes round
+  trip communications costs between the client and server. These will
+  be examined in Section~\ref{subsec:autotune-costs}
 \end{itemize}
 
-The
-
-cross-validation
 
 \TODO{%
   What is the average speedup achieved using different classifiers?%
@@ -675,26 +718,24 @@ cross-validation
 \TODO{What percentage of the maximum performance do the classifiers
   achieve?}
 
+\cleardoublepage
 \begin{figure}
 \centering
 \includegraphics{gen/img/classification-syn-real}
 \caption{%
-  Classification results using synthetic benchmarks. Each classifier
-  is trained on data from synthetic stencils, and tested for
-  prediction quality using 6 real world benchmarks. SMO provides the
-  most accurate predictions, but takes longer to perform
-  classification than J48.%
+  Classification results for synthetic benchmarks. Each classifier is
+  trained on data from synthetic stencils, and tested for prediction
+  quality using data from 6 real world benchmarks.%
 }
 \end{figure}
-
+\newpage
 \begin{figure}
 \centering
 \includegraphics{gen/img/classification-arch}
 \caption{%
-  Classification results of cross-device testing. Each classifier is
-  trained on data from $n-1$ devices and tested for prediction quality
-  using benchmarks on the $n^{th}$ device. Each classifier suffers
-  reduced accuracy.%
+  Classification results of cross-device evaluation. Each classifier
+  is trained using data from $n-1$ devices, and tested for prediction
+  quality using data for the $n^{th}$ device.%
 }
 \end{figure}
 
@@ -709,7 +750,7 @@ cross-validation
 }
 \end{figure}
 
-\subsection{Classification using Regression}
+\subsection{Classification using Regressors}
 
 \begin{figure}
 \centering
@@ -747,7 +788,9 @@ cross-validation
 \end{enumerate}
 
 
-\subsection{Prediction errors}
+\subsection{Prediction Performance}
+
+\subsection{Visualising Prediction Errors}
 
 \begin{figure}
 \centering
@@ -809,7 +852,7 @@ cross-validation
 \end{figure}
 
 
-\subsection{Autotuning Costs}
+\subsection{Autotuning Costs}\label{subsec:autotune-costs}
 
 Prediction costs using regression are significantly greater than using
 classifiers. This is because, while a classifier makes a single
