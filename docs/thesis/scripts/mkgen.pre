@@ -684,19 +684,19 @@ def main():
     # motivating_examples(db)
 
     # Ml Visualisations
-    # figsize=(5.8,8)
-    # # visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
-    # #                          title="", figsize=figsize)
-    # visualise.classification(db, "gen/img/classification-syn-real.pdf", job="synthetic_real",
+    figsize=(5.8,6.5)
+    # visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
     #                          title="", figsize=figsize)
-    # visualise.classification(db, "gen/img/classification-arch.pdf", job="arch",
+    visualise.classification(db, "gen/img/classification-syn-real.pdf", job="synthetic_real",
+                             title="", figsize=figsize)
+    visualise.classification(db, "gen/img/classification-arch.pdf", job="arch",
+                             title="", figsize=figsize)
+    # visualise.classification(db, "gen/img/classification-kern.pdf", job="kern",
     #                          title="", figsize=figsize)
-    # # visualise.classification(db, "gen/img/classification-kern.pdf", job="kern",
-    # #                          title="", figsize=figsize)
-    # # visualise.classification(db, "gen/img/classification-data.pdf", job="data",
-    # #                          title="", figsize=figsize)
+    # visualise.classification(db, "gen/img/classification-data.pdf", job="data",
+    #                          title="", figsize=figsize)
 
-    figsize=(2.8,7.5)
+    figsize=(2.8,8)
     visualise.regression_classification(db, "gen/img/runtime-class-xval.pdf",
                                         figsize=figsize)
 
@@ -712,13 +712,6 @@ def main():
     # regression_heatmaps(db, "xval", "gen/img/reg_speedup_heatmap.pdf",
     #                     table="speedup_classification_results",
     #                     title="Speedup Regression")
-
-
-    # figsize=(5.8,2.5)
-
-    # visualise.err_fn_speedups(db, "default_fn",
-    #                           "gen/img/speedups-classification-xval-default.pdf",
-    #                           job="xval", sort=True, title="", figsize=figsize)
 
     ml.stop()
 
