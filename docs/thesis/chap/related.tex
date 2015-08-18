@@ -200,6 +200,8 @@ in-between SkelCL program executions.
 \TODO{Offline ML for partitioning streaming applications:
 \cite{Wang2010}}
 
+\TODO{Synthetic benchmarks\cite{Chiu2015}}
+
 An interesting related tangent to iterative compilation is the
 development of so-called ``superoptimisers''. In~\cite{Massalin1987},
 the smallest possible program which performs a specific function is
@@ -267,13 +269,15 @@ this using a machine learning model to predict optimal thread
 coarsening factors based on the static features of kernels, and an
 LLVM function pass to perform the required code transformations.
 
-Automatic generation of OpenCL kernels from high-level programming
-concepts is explored in~\cite{Steuwer2015}. A set of rewrite rules is
-used to transform high-level expressions to OpenCL code, creating a
-space of possible implementations. The authors report performance on a
-par with that of hand written OpenCL kernels. The optimisation of low
-level implementations of high-level expressions presents similar
-challenges to that of autotuning algorithmic skeletons.
+A framework for the automatic generation of OpenCL kernels from
+high-level programming concepts is described in~\cite{Steuwer2015}. A
+set of rewrite rules is used to transform high-level expressions to
+OpenCL code, creating a space of possible implementations. This
+approach is ideologically similar to that of PetaBricks, in that
+optimisations are made through algorithmic choice, although in this
+case the transformations are performed at the compiler level. The
+authors report performance on a par with that of hand written OpenCL
+kernels.
 
 
 \section{Autotuning Algorithmic Skeletons}

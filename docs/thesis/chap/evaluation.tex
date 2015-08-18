@@ -7,8 +7,8 @@ used to accommodate for it. Then I examine the observed effect that
 workgroup size has on the performance of SkelCL stencils. The
 effectiveness of each of the autotuning techniques described in the
 previous chapters are evaluated using multiple different machine
-learning algorithms, and the prediction quality is scrutinised for
-portability across programs, devices, and datasets.
+learning algorithms. The prediction quality of OmniTune is scrutinised
+for portability across programs, devices, and datasets.
 
 
 \subsubsection{Overview of Experimental Results}
@@ -304,7 +304,8 @@ visualises the space of legal workgroup sizes by showing the frequency
 counts that a workgroup size is legal. Smaller workgroup sizes are
 legal most frequently due to the $W_{\max}(s)$ constraints. Beyond
 that, workgroup sizes which contain $w_c$ and $w_r$ values which are
-multiples of 8 are more frequently legal.
+multiples of eight are more frequently legal, which is a common width
+of SIMD vector operations~\cite{IntelCorporation2012}.
 
 Experimental results suggest that the problem is vendor --- or at
 least device --- specific. By grouping the refused test cases by
@@ -312,14 +313,15 @@ device and vendor, we see a much greater quantity of refused
 parameters for test cases on Intel CPU devices than any other type,
 while no workgroup sizes were refused by the AMD
 GPU. Figure~\ref{fig:refused-params-by-dev-vendor} shows these
-groupings. The exact underlying cause for these refused parameters
-cannot be determined, but can likely by explained by inconsistencies
-or errors in specific OpenCL driver implementations. As these OpenCL
-implementations are still in active development, it is anticipated
-that errors caused by unexpected behaviour will become more infrequent
-as the technology matures. For now, it is imperative that any
-autotuning system is capable of adapting to these refused parameters
-by suggesting alternatives when they occur.
+groupings. The exact underlying cause for these refused parameters is
+unknown, but can likely by explained by inconsistencies or errors in
+specific OpenCL driver implementations.
+
+As these OpenCL implementations are still in active development, it is
+anticipated that errors caused by unexpected behaviour will become
+more infrequent as the technology matures. For now, it is imperative
+that any autotuning system is capable of adapting to these refused
+parameters by suggesting alternatives when they occur.
 
 % \TODO{Bug reports\ldots}
 
@@ -469,26 +471,48 @@ workgroup size of $w_{(32 \times 4)}$ in an evaluation of 4 stencil
 operations on a Tesla S1070 system. We can use this as an additional
 parameter to compare the relative performance of workgroup sizes
 against. However, the $w_{(32 \times 4)}$ workgroup size is invalid
-for 2.6\% of scenarios, as it is refused by 11 scenarios. By device,
+for 2.6\% of scenarios, as it is refused in 11 test cases. By device,
 those are: 3 on the GTX 690, 6 on the i5-2430M, and 2 on the i5-4570.
-For the scenarios where it \emph{is} legal, the human expert chosen
-workgroup size achieves an impressive geometric mean of 79.2\% of the
-oracle performance. The average speedup of oracle workgroup sizes over
-the workgroup size selected by a human expert is $1.37\times$ (min
-$1.0\times$, max $5.17\times$). Since the workgroup size selected by
-the human expert is not legal for all scenarios, we will examine the
-effectiveness of heuristics for tuning workgroup size.
+For the scenarios where $w_{(32 \times 4)}$ \emph{is} legal, the human
+expert chosen workgroup size achieves an impressive geometric mean of
+79.2\% of the oracle performance. The average speedup of oracle
+workgroup sizes over the workgroup size selected by a human expert is
+$1.37\times$ (min $1.0\times$, max $5.17\times$). Since the workgroup
+size selected by the human expert is not legal for all scenarios, we
+will examine the effectiveness of heuristics for tuning workgroup
+size.
 
 
 \subsection{Heuristics}\label{subsec:heuristics}
 
-Clearly\TODO{\ldots}. In this section we will consider the
-effectiveness of instead selecting workgroup size using two types of
-heuristics. The first, per-device heuristics, in which the workgroup
-size is selected based on the type or specific architecture that a
-stencil is operating on. The second, using the maximum workgroup size
-returned by the OpenCL device and kernel APIs to select the workgroup
-size adaptively.
+In this section we will consider the effectiveness of instead
+selecting workgroup size using two types of heuristics. The first,
+using the maximum workgroup size returned by the OpenCL device and
+kernel APIs to select the workgroup size adaptively. The second, using
+per-device heuristics, in which the workgroup size is selected based
+on the specific architecture that a stencil is operating on.
+
+\subsubsection{Using maximum legal size}
+
+A common approach taken by OpenCL developers is to set the workgroup
+size for a kernel based on the maximum legal workgroup size queried
+from the OpenCL APIs. For example, to use the square root of the
+maximum to set the number of columns and rows for a 2D NDRange. To
+consider the effectiveness of this approach, we group the workgroup
+size performances based on the ratio of the maximum allowed for each
+scenario. We can also perform this for each of the two components ---
+rows and columns --- of the stencil workgroup
+size.
+
+Figure~\ref{fig:performance-wgsizes} the distribution of runtimes when
+grouped this way, demonstrating that the performance of (legal)
+workgroup sizes are not correlated with the maximum workgroup sizes
+$W_{\max}(s)$. However, when considering individual components, we
+observe that the best median workgroup size performances are achieved
+with a number of columns that is between 10\% and 20\% of the maximum,
+and a number of rows that is between 0\% and 10\% of the maximum.
+
+\subsubsection{Per-device workgroup sizes}
 
 \begin{table}
 \scriptsize
@@ -501,55 +525,47 @@ size adaptively.
   based on legality, and relative performance to the oracle (minimum
   and average) when legal.%
 }
-\label{tab:hosts}
+\label{tab:heuristic-dev}
 \end{table}
 
-\subsubsection{Per-device workgroup sizes}
+One possible approach to selecting workgroup size is to tune
+particular values for each execution device. While this approach
+scales poorly and is impractically expensive for widespread use, it is
+sometimes adopted for cases with particularly high requirements for
+performance on a single platform, so it produces an interesting
+contrast to evaluating a machine learning approach.
 
 Figure~\ref{fig:performances} shows the performance of workgroup sizes
 relative to the oracle across scenarios grouped by: kernel, device,
-and dataset. This allows us to identify correlations between workgroup
-size performance and these broad features. Of these, device is most
-suitable for use as a heuristic, since it is mos
+and dataset. When grouped like this, a number of observations can
+made. First is that not all of the kernels are sensitive to tuning
+workgroup size to the same degree. The \emph{sobel} kernel has the
+lowest median performance, indicating that it is the most profitable
+to tune, while the \emph{threshold} kernel is the least
+profitable. Similarly, the Intel i7-3820 is far less amenable to
+tuning than the other devices, while the Intel i5-4570 is the most
+sensitive to the workgroup size parameter. Such variances in the
+distributions of workgroup sizes suggest that properties underlying
+the architecture, kernel, and dataset all contribute towards the
+proper selection of workgroup size.
+
+To test the performance of a per-device heuristic for selecting
+workgroup size, we group the scenarios by device, and compare the
+relative performance of all workgroup sizes for each group of
+scenarios. The most frequently optimal workgroup size $\bar{w}$ for
+each device is selected, and the legality and performance of each
+scenario using that workgroup size is evaluated.
+Table~\ref{tab:heuristic-dev} shows the results of this evaluation.
+The GTX 690 and GTX TITAN share the same $\bar{w}_{(64 \times 4)}$
+value, while every other device has a unique optimum. The general case
+performance of these per-device parameters is very good, although
+legality is only assured for the GTX TITAN and AMD 7970 (which did not
+refuse any parameters). However, the worst case performance of
+per-device workgroup sizes is poor for all except the i7-3820 (which
+is least sensitive to tuning), suggesting that device alone is not
+capable to reliably inform the choice of workgroup size.
 
 
-\subsubsection{Using maximum legal size}
-
-Figure~\ref{fig:performance-wgsizes} shows the performance of
-workgroup sizes relative to the oracle across scenarios grouped by the
-workgroup size, either as a percentage of $W_{max}(s)$, or by number
-of rows or columns.
-
-A common approach taken by application developers is to set the
-workgroup size for a kernel based on the maximum legal workgroup size,
-for example to use the square root of the maximum to set the number of
-columns and rows.
-
-\TODO{What is the perforamnce of always picking the max legal value?}
-
-
-\subsubsection{Scaling with maximum legal size}
-
-% \TODO{Partial baseline. How much performance could we get if we lock
-%   one of the parameters and twiddle the other?}
-
-% While the reasoning for this approach is perfectly intuitive, these
-% results indicate that there no useful correlation between the ratio
-% of a particular workgroup size to the maximum legal workgroup and
-% the observed performance.
-
-\cleardoublepage%
-\begin{figure}
-\input{fig/performances}
-\caption{%
-  Performance relative to the oracle of workgroup sizes across all
-  test cases, grouped by: (\subref{fig:performance-kernels})~kernels,
-  (\subref{fig:performance-devices})~devices, and
-  (\subref{fig:performance-datasets})~datasets.%
-}
-\label{fig:performances}
-\end{figure}
-\newpage
 \begin{figure}
 \input{fig/performance-wgsizes}
 \caption{%
@@ -559,6 +575,17 @@ columns and rows.
   (\subref{fig:performance-wg-r})~ number of rows.%
 }
 \label{fig:performance-wgsizes}
+\end{figure}
+\newpage
+\begin{figure}t
+\input{fig/performances}
+\caption{%
+  Performance relative to the oracle of workgroup sizes across all
+  test cases, grouped by: (\subref{fig:performance-kernels})~kernels,
+  (\subref{fig:performance-devices})~devices, and
+  (\subref{fig:performance-datasets})~datasets.%
+}
+\label{fig:performances}
 \end{figure}
 
 
@@ -571,14 +598,15 @@ sizes across \input{gen/num_scenarios} scenarios, the following
 conclusions can be drawn:
 
 \begin{enumerate}
-\item The performance of a workgroup size for a particular workload
+\item The performance of a workgroup size for a particular scenario
   depends properties of the hardware, software, and dataset.
 \item The performance gap between the best and workgroup sizes for a
   particular combination of hardware, software, and dataset is up to
   $\input{gen/max_possible_speedup}\times$.
 \item Not all workgroup sizes are legal, and the space of legal
-  workgroup sizes cannot statically be determined.
-\item Differing workloads have wildly different optimal workgroup
+  workgroup sizes cannot statically be determined. Adaptive tuning of
+  workgroup size is required to ensure reliable performance.
+\item Differing scenarios have wildly different optimal workgroup
   sizes, and the best performance can be achieved using static tuning
   is optimal for only \input{gen/max_oracle_param_frequency} of
   workloads.
