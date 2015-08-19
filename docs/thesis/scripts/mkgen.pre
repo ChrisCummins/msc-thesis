@@ -47,6 +47,14 @@ def mktex(string, path):
     io.info("Wrote", path)
 
 
+def mktable(name, delimiter=",", escape=False):
+    output = "gen/tab/{}.tex".format(name)
+    reader = csv.reader(open("dat/{}.csv".format(name)), delimiter=delimiter)
+    header = reader.next()
+    rows = [row for row in reader]
+    latex.table(rows, output=output, columns=header, escape=escape)
+
+
 def print_params(params):
     wg_c, wg_r = unhash_params(params)
     return "${c} \\times {r}$".format(c=wg_c, r=wg_r)
@@ -491,6 +499,8 @@ def main():
     #                        .format(num_oracle_params)).fetchone()[0], 1),
     #       "gen/oracle_params_per_scenario_perc.tex")
 
+    mktable("class")
+
     # # Oracle param frequencies
     # oracle_params = sorted(db.oracle_param_frequencies(normalise=True).items(),
     #                        reverse=True, key=lambda x: x[1])
@@ -684,7 +694,7 @@ def main():
     # motivating_examples(db)
 
     # Ml Visualisations
-    figsize=(5.8,6.5)
+    figsize=(5.8,8)
     # visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
     #                          title="", figsize=figsize)
     visualise.classification(db, "gen/img/classification-syn-real.pdf", job="synthetic_real",
@@ -696,7 +706,7 @@ def main():
     # visualise.classification(db, "gen/img/classification-data.pdf", job="data",
     #                          title="", figsize=figsize)
 
-    figsize=(2.8,8)
+    figsize=(2.7,9)
     visualise.regression_classification(db, "gen/img/runtime-class-xval.pdf",
                                         figsize=figsize)
 

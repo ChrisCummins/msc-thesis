@@ -689,27 +689,55 @@ size constraints $w > W_{\max}(s)$, or because the workgroup size is
 refused by OpenCL $w \in W_{refused}(s)$. Workgroup sizes are
 predicted for each scenario in the testing set, and the quality of the
 predicted workgroup size is evaluated using the following metrics:
-
+%
 \begin{itemize}
-\item accuracy (binary) --- whether the predicted workgroup size is the
-  true oracle, $p(f(s)) = \Omega(s)$.
-\item validity (binary) --- whether the classifier predicted a workgroup
-  size which satisfies the workgroup size constraints constraints,
-  $p(f(s)) < W_{\max}(s)$.
-\item refused (binary) --- whether the classifier predicted a workgroup
-  size which is refused, $p(f(s)) \in W_{refused}(s)$.
+\item accuracy (binary) --- whether the predicted workgroup size is
+  the true oracle, $p(f(s)) = \Omega(s)$.
+\item validity (binary) --- whether the classifier predicted a
+  workgroup size which satisfies the workgroup size constraints
+  constraints, $p(f(s)) < W_{\max}(s)$.
+\item refused (binary) --- whether the classifier predicted a
+  workgroup size which is refused, $p(f(s)) \in W_{refused}(s)$.
 \item performance (real) --- the relative performance of the predicted
-  workgroup size relative to the oracle, $r(p(f(s)), \Omega(s))$.
+  workgroup size relative to the oracle,
+  $0 \le r(p(f(s)), \Omega(s)) \le 1$.
 \item speedups (real) --- the relative performance of the predicted
   workgroup size relative to the baseline workgroup size
   $w_{(4 \times 4)}$, and human expert workgroup size
   $w_{(32 \times 4)}$ (where applicable).
-\item time (real) --- the wall-time required to make the prediction,
-  as measured by the OmniTune server. Note that this excludes round
-  trip communications costs between the client and server. These will
-  be examined in Section~\ref{subsec:autotune-costs}
+\item time (real) --- the round trip required to make the prediction,
+  as measured by the OmniTune client. This includes classification
+  time and inter-process communication overheads between the client
+  and server.
 \end{itemize}
+%
+The \emph{validty} and \emph{refused} metrics measure how often
+fallback strategies are required to select a legal workgroup size
+$w \in W_{legal}(s)$.
 
+\subsubsection{Results}
+
+Figures~\ref{fig:class-syn} and~\ref{fig:class-arch} show overviews of
+the experimental results for 10-fold and device validation,
+respectively.
+
+Table~\ref{tab:class} shows performance and speedups for the J48
+classifier using the \textsc{NearestNeighour} fallback strategy.
+
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/class}
+\caption{%
+  Performance relative to the oracle, speedup over baseline, and
+  speedup over human expert of the J48 decision tree classifier using
+  the \textsc{NearestNeighbour} fallback strategy. Note that speedups
+  over human expert exclude scenarios for where the human expert
+  prediction is invalid.%
+}
+\label{tab:class}
+\end{table}
 
 \TODO{%
   What is the average speedup achieved using different classifiers?%
@@ -727,6 +755,7 @@ predicted workgroup size is evaluated using the following metrics:
   trained on data from synthetic stencils, and tested for prediction
   quality using data from 6 real world benchmarks.%
 }
+\label{fig:class-syn}
 \end{figure}
 \newpage
 \begin{figure}
@@ -737,6 +766,7 @@ predicted workgroup size is evaluated using the following metrics:
   is trained using data from $n-1$ devices, and tested for prediction
   quality using data for the $n^{th}$ device.%
 }
+\label{fig:class-arch}
 \end{figure}
 
 \begin{figure}
@@ -769,9 +799,9 @@ predicted workgroup size is evaluated using the following metrics:
 \end{subfigure}
 \caption{%
   Evaluating the effectiveness of classification using regressors, by
-  predicting: (\subref{fig:runtime-class-xval}) the runtime of
-  different workgroup sizes, and (\subref{fig:speedup-class-xval})
-  speedup of workgroup sizes over a baseline.%
+  predicting: (\subref{fig:runtime-class-xval}) the workgroup size
+  with the minimal runtime, and (\subref{fig:speedup-class-xval}) the
+  workgroup size with the greatest speedup over a baseline.%
 }
 \label{fig:regression-class}
 \end{figure}
@@ -787,8 +817,6 @@ predicted workgroup size is evaluated using the following metrics:
   predicted runtime is inaccurate?
 \end{enumerate}
 
-
-\subsection{Prediction Performance}
 
 \subsection{Visualising Prediction Errors}
 
