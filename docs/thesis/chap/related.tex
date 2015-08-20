@@ -91,10 +91,11 @@ these patterns on the skeleton author.
 Iterative compilation is the method of performance tuning in which a
 program is compiled and profiled using multiple different
 configurations of optimisations in order to find the configuration
-which maximises performance. First presented by \citeauthor{Bodin1998}
-in \citeyear{Bodin1998}, iterative compilation has been demonstrated
-to be a highly effective form of empirical performance tuning for
-selecting compiler optimisations~\cite{Bodin1998}.
+which maximises performance. The first formalised publication of the
+technique appeared in \citeyear{Bodin1998} by
+\citeauthor{Bodin1998}~\cite{Bodin1998}.  Iterative compilation has
+been demonstrated to be a highly effective form of empirical
+performance tuning for selecting compiler optimisations.
 
 Given the huge number of possible compiler optimisations (there are
 207 flags and parameters to control optimisations in GCC v4.9), it is
@@ -373,22 +374,21 @@ multicore stencil codes in~\cite{Ganapathi2009}, drawing upon the
 successes of statistical machine learning techniques in the compiler
 community, as discussed in
 Section~\ref{sec:iterative-compilation}. They present an autotuner
-which can achieve performance within 1\% or up to 18\% better than
-that of a human expert. From a space of 10 million configurations,
-they evaluate the performance of a randomly selected 1500
-combinations, using Kernel Canonical Correlation Analysis to build
-correlations between tunable parameter values and measured performance
-targets. Performance targets are L1 cache misses, TLB misses, cycles
-per thread, and power consumption. The use of KCAA restricts the
-scalability of their system as the complexity of model building grows
-exponentially with the number of features. In their evaluation, the
-system requires two hours of compute time to build the KCAA model for
-only 400 seconds of benchmark data. They present a compelling argument
-for the use of energy efficiency as an optimisation target in addition
-to runtime, citing that it was the power wall that lead to the
-multicore revolution in the first place. Their choice of only 2
-benchmarks and 2 platforms makes the evaluation of their autotuner
-somewhat limited.
+which can achieve performance up to 18\% better than that of a human
+expert. From a space of 10 million configurations, they evaluate the
+performance of a randomly selected 1500 combinations, using Kernel
+Canonical Correlation Analysis to build correlations between tunable
+parameter values and measured performance targets. Performance targets
+are L1 cache misses, TLB misses, cycles per thread, and power
+consumption. The use of KCAA restricts the scalability of their system
+as the complexity of model building grows exponentially with the
+number of features. In their evaluation, the system requires two hours
+of compute time to build the KCAA model for only 400 seconds of
+benchmark data. They present a compelling argument for the use of
+energy efficiency as an optimisation target in addition to runtime,
+citing that it was the power wall that lead to the multicore
+revolution in the first place. Their choice of only 2 benchmarks and 2
+platforms makes the evaluation of their autotuner somewhat limited.
 
 \citeauthor{Berkeley2009} targeted 3D stencils code performance
 in~\cite{Berkeley2009}. Stencils are decomposed into core blocks,
@@ -401,7 +401,7 @@ registers. Data allocation is optimised on NUMA systems. The
 performance evaluation considers speedups of various optimisations
 with and without consideration for host/device transfer overhead.
 
-\citeauthor{Kamil2010} presents an autotuning framework
+\citeauthor{Kamil2010} present an autotuning framework
 in~\cite{Kamil2010} which accepts as input a Fortran 95 stencil
 expression and generates tuned shared-memory parallel implementations
 in Fortan, C, or CUDA. The system uses an IR to explore autotuning
@@ -494,7 +494,7 @@ optimisation space but then fail to develop a system which can
 properly exploit this (for example, by using machine learning to
 predict optimal values across programs), or they present an autotuner
 which targets too specific of a class of optimisations to be widely
-applicable. This projects attempts to address both of those
+applicable. This project attempts to address both of those
 shortcomings by expending great effort to deliver a working
 implementation which users can download and use without any setup
 costs, and by providing a modular and extensible framework which

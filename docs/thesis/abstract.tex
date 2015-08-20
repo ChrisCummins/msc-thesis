@@ -17,21 +17,18 @@ To address this, I present OmniTune --- an extensible and distributed
 framework for runtime autotuning of optimisation parameters. Targeting
 the workgroup size of OpenCL kernels, I demonstrate an implementation
 of OmniTune for stencil codes on CPUs and multi-GPU systems. I show in
-a comprehensive evaluation of \input{gen/num_runtime_stats} test cases
-that simple heuristics cannot provide portable performance across the
-range of architectures, kernels, and datasets which Algorithmic
-Skeletons must target.
+a comprehensive evaluation of $2.7\times 10^5$ test cases that simple
+heuristics cannot provide portable performance across the range of
+architectures, kernels, and datasets which Algorithmic Skeletons must
+target.
 
 OmniTune uses procedurally generated synthetic benchmarks and machine
 learning to predict workgroup sizes for unseen programs. In an
-evaluation of \input{gen/num_scenarios} combinations of programs,
-architectures, and datasets, with up to \input{gen/max_num_params}
-parameter values for each, OmniTune is able to achieve
-$\input{gen/best_avg_classification_performance}\%$ of the available
-performance, an improvement of
-$\input{gen/best_avg_classification_speedup_he_perc}\%$ over the
-values selected by human experts, without requiring any user
-intervention. This adaptive tuning provides an average speedup of
-$\input{gen/best_avg_classification_speedup}\times$ (max
-$\input{gen/best_max_classification_speedup}\times$) over the best
-possible performance which can be achieved without adaptive tuning.
+evaluation of 429 combinations of programs, architectures, and
+datasets, with up to $7.3\times 10^3$ parameter values for each,
+OmniTune is able to achieve a median $94\%$ of the available
+performance, providing a $1.33\times$ speedup over the values selected
+by human experts, without requiring any user intervention. This
+adaptive tuning provides a median speedup of $3.79\times$ (max
+$74.0\times$) over the best possible performance which can be achieved
+without adaptive tuning.

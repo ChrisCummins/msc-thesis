@@ -23,12 +23,12 @@ address these challenges.
 
 One challenge of performing empirical performance evaluations is
 gathering enough applications to ensure meaningful
-comparisons. Synthetic benchmarks are a popular method for
-circumventing this problem. The automatic generation of such
-benchmarks has clear benefits for reducing evaluation costs; however,
-creating meaningful benchmark programs is a difficult problem if we
-are to avoid the problems of redundant computation and produce
-provable halting benchmarks.
+comparisons. Synthetic benchmarks are one technique for circumventing
+this problem. The automatic generation of such benchmarks has clear
+benefits for reducing evaluation costs; however, creating meaningful
+benchmark programs is a difficult problem if we are to avoid the
+problems of redundant computation and produce provable halting
+benchmarks.
 
 In practise, stencil codes exhibit many common traits: they have a
 tightly constrained interface, predictable memory access patterns, and
@@ -285,7 +285,15 @@ execution units for each type of instructions in a kernel.
 
 \subsubsection{Refused parameters}
 
-\TODO{\ldots}
+In addition to satisfying the constraints of the device and kernel,
+not all points in the workgroup size optimisation space are guaranteed
+to provide working programs. A refused parameter is a workgroup size
+which satisfies the kernel and architectural constraints, yet causes a
+\texttt{CL\_OUT\_OF\_RESOURCES} error to be thrown when the kernel is
+enqueued. Note that in many OpenCL implementations, this error type
+acts as a generic placeholder and may not necessarily indicate that
+the underlying cause of the error was due to finite resources
+constraints.
 
 
 \subsubsection{Legality}
@@ -303,17 +311,16 @@ then:
 %
 Where $W_{\max}(s)$ can be determined at runtime prior to the kernels
 execution, but the set $W_{refused}(s)$ can only be determined
-experimentally. Exceeding either of these constraints will cause an
-\texttt{CL\_OUT\_OF\_RESOURCES} error when the OpenCL kernel is
-enqueued.
+experimentally.
 
 
 \subsection{Assessing Relative Performance}
 
-Given a set of observations of observed runtime for $(s,w)$ pairs, and
-a function $t(s,w)$ which returns the arithmetic mean of the observed
-runtimes for a pair, we can calculate the speedup $r(s, w_1, w_2)$ of
-competing workgroup sizes $w_1$ over $w_2$ using:
+Given a set of observations, where an observation is a scenario,
+workgroup size tuple $(s,w)$; a function $t(s,w)$ which returns the
+arithmetic mean of the runtimes for a set of observations; we can
+calculate the speedup $r(s, w_1, w_2)$ of competing workgroup sizes
+$w_1$ over $w_2$ using:
 %
 \begin{equation}
   r(s, w_1, w_2) = \frac{t(s,w_2)}{t(s,w_1)}\\
@@ -397,15 +404,15 @@ guarantee that the set of workgroup sizes which may be predicted is
 within the set of legal workgroup sizes for future scenarios:
 %
 \begin{equation}
-  \cup \{ W_{legal}(s) | s \in S_{testing} \} \nsubseteq W_{training}
+  \bigcup_{\forall s \in S_{testing}} W_{legal}(s) \nsubseteq W_{training}
 \end{equation}
 %
 This may result in a classifier predicting a workgroup size which is
 not legal for a scenario, $w \not\in W_{legal}(s)$, either because it
 exceeds $W_{\max}(s)$, or because the parameter is refused. For these
-cases, I evaluate the effective of three fallback strategies to select
-a legal workgroup size:
-
+cases, I evaluate the effectiveness of three fallback strategies to
+select a legal workgroup size:
+%
 \begin{enumerate}
 \item \emph{Baseline} --- select the workgroup size which is known to
   be safe $w < W_{safe}$, and provides the highest average case
@@ -416,7 +423,7 @@ a legal workgroup size:
   from prior observations is known to be legal, and has the lowest
   Euclidian distance to the prediction.
 \end{enumerate}
-
+%
 See Algorithm~\ref{alg:autotune-classification} for definitions.
 
 \begin{algorithm}
@@ -425,14 +432,29 @@ See Algorithm~\ref{alg:autotune-classification} for definitions.
 \label{alg:autotune-classification}
 \end{algorithm}
 
-% \begin{algorithm}
-% \input{alg/autotune-classification2}
-% \caption{Select optimal workgroup size using multiple classifiers}
-% \label{alg:autotune-classification2}
-% \end{algorithm}
-
-
 \subsection{Predicting Stencil Code Runtime}\label{subsec:omnitune-ml-runtime}
+
+\begin{algorithm}
+\begin{algorithmic}[1]
+\Require kernel features $k$, hardware features $h$, dataset features
+$d$.
+\Ensure workgroup size $w$
+
+\State $W \leftarrow \left\{ w | w < W_{\max}(s) \right\} - W_{refused}(s)$
+\Comment Set of possible workgroup sizes.
+\State $w \leftarrow \underset{w \in W}{\argmin} g(f(s), w)$
+\Comment Predict candidate workgroup size.
+\While{$w \not\in W_{legal}(s)$}
+  \State $W \leftarrow W - \left\{ w \right\}$
+  \Comment Remove candidate from set.
+  \State $w \leftarrow \underset{w \in W}{\argmin} g(f(s), w)$
+  \Comment Select next candidate workgroup size.
+\EndWhile
+\State \textbf{return} $w$
+\end{algorithmic}
+\caption{Selecting workgroup sizes by predicting program runtimes}
+\label{alg:autotune-runtime-regression}
+\end{algorithm}
 
 A problem of predicting oracle workgroup sizes is that it requires
 each training point to be labelled with the oracle workgroup size
@@ -440,30 +462,49 @@ which can be only be evaluated using an exhaustive search. An
 alternative approach is to build a model to attempt to predict the
 \emph{runtime} of a stencil given a specific workgroup size. This
 allows for training on data for which the oracle workgroup size is
-unknown. Given training data consisting of $(f(s),w,t)$ tuples, where
-$s$ is scenario, $w$ is the workgroup size, and $t$ is the observered
-mean runtime, we can train a regressor $g(f(s), w)$ which predicts the
-mean runtime of an unseen scenario. The predicted oracle workgroup
-size $\bar{\Omega}(s)$ is then $w$ value which minimises the output of
-the regressor:
+unknown, and has the secondary advantage that this allows for an
+additional training data point to be gathered each time a stencil is
+evaluated. Given training data consisting of $(f(s),w,t)$ tuples,
+where $s$ is a scenario, $w$ is the workgroup size, and $t$ is the
+observed mean runtime, we can train a regressor $g(f(s), w)$ which
+predicts the mean runtime of an unseen scenario. The predicted oracle
+workgroup size $\bar{\Omega}(s)$ is then the $w$ value which minimises
+the output of the regressor:
 %
 \begin{equation}
   \bar{\Omega}(s) = \underset{w \in W_{legal}(s)}{\argmin} g(f(s), w)
 \end{equation}
 %
-By predicting the runtimes of only the workgroup sizes from within
-$W_{legal}(s)$, we overcome the issue of predicting workgroup sizes
-which exceed $W_{\max}(s)$, although note that since $W_{refused}(s)$
-is immergent, it may still be possible predict invalid workgroup sizes
-unseen programs.
+Note that since we cannot know in advance which workgroup sizes will
+be refused, that is, $W_{refused}(s)$ cannot be statically determined,
+this process must be iterated until a workgroup size which not refused
+is selected. Algorithm~\ref{alg:autotune-runtime-regression} shows
+this process.
 
-% \begin{algorithm}
-% \input{alg/autotune-runtime-regression}
-% \caption{Selecting workgroup size using runtime regression}
-% \label{alg:autotune-runtime-regression}
-% \end{algorithm}
 
 \subsection{Predicting Relative Performance of Workgroup Sizes}\label{subsec:omnitune-ml-speedup}
+
+\begin{algorithm}
+\begin{algorithmic}[1]
+\Require kernel features $k$, hardware features $h$, dataset features
+$d$, baseline $w_b$.
+\Ensure workgroup size $w$
+
+\State $W \leftarrow \left\{ w | w < W_{\max}(s) \right\} - W_{refused}(s)$
+\Comment Set of possible workgroup sizes.
+\State $w \leftarrow \underset{w \in W}{\argmax} g(f(s), w,w_b)$
+\Comment Predict candidate workgroup size.
+\While{$w \not\in W_{legal}(s)$}
+  \State $W \leftarrow W - \left\{ w \right\}$
+  \Comment Remove candidate from set.
+  \State $w \leftarrow \underset{w \in W}{\argmax} g(f(s), w,w_b)$
+  \Comment Select next candidate workgroup size.
+\EndWhile
+\State \textbf{return} $w$
+\end{algorithmic}
+\caption{Selecting workgroup sizes by predicting relative performance}
+\label{alg:autotune-speedup-regression}
+\end{algorithm}
 
 Accurately predicting the runtime of an arbitrary program is a
 difficult problem due to the impacts of flow control. In such cases,
@@ -478,12 +519,10 @@ optimal workgroup requires maximising the output of the regressor:
   \bar{\Omega}(s) = \underset{w \in W_{legal}(s)}{\argmax} g(f(s),w,w_b)
 \end{equation}
 %
-
-% \begin{algorithm}
-% \input{alg/autotune-speedup-regression}
-% \caption{Selecting workgroup size using speedup regression}
-% \label{alg:autotune-speedup-regression}
-% \end{algorithm}
+As with predicting runtimes, this process must be iterated to
+accommodate for the emergent properties of $W_{legal}(s)$. See
+Algorithm~\ref{alg:autotune-speedup-regression} for a description of
+this process.
 
 
 \section{Implementation}
@@ -506,7 +545,8 @@ instance running MySQL.
 \centering
 \includegraphics[width=.75\textwidth]{img/omnitune-data-schema.pdf}
 \caption[Database schema for OmniTune remote]{%
-  OmniTune SkelCL schema.%
+  Database schema for storing SkelCL stencil runtimes on an OmniTune
+  remote.%
 }
 \label{fig:omnitune-system-flow}
 \end{figure}

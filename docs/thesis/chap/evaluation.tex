@@ -729,8 +729,8 @@ labelled with the mean observed runtime $t(s,w)$ for all legal
 workgroup sizes:
 %
 \begin{equation}
-  D_{training} = \cup \left\{ f(s),t(s,w) | w \in W_{legal}(s)
-  \right\} \forall s \in S_{training}
+  D_{training} = \bigcup_{\forall s \in S_{training}} \left\{ f(s),t(s,w) | w \in W_{legal}(s)
+  \right\}
 \end{equation}
 For predicting speedups, the features vectors are labelled with
 observed speedup over the baseline parameter $\bar{w}$ (see
@@ -773,14 +773,13 @@ metrics are not used.
 
 \subsection{Results}
 
-Figures~\ref{fig:class-syn} and~\ref{fig:class-arch} show
-classification results for 10-fold cross-validation and cross-device
-validation, respectively.
+The purpose of this evaluation is to test the effectiveness of machine
+learning-enabled autotuning for predicting workgroup sizes of SkelCL
+stencils codes. First, we consider the prediction performance of
+classifiers.
 
-Table~\ref{tab:class} shows performance and speedups for the J48
-classifier using the \textsc{NearestNeighour} fallback strategy.
 
-\cleardoublepage
+% \cleardoublepage
 \begin{figure}
 \centering
 \includegraphics{gen/img/classification-syn-real}
@@ -802,51 +801,6 @@ classifier using the \textsc{NearestNeighour} fallback strategy.
 }
 \label{fig:class-arch}
 \end{figure}
-
-
-\TODO{%
-  What is the average speedup achieved using different classifiers?%
-}
-
-\TODO{What percentage of the maximum performance do the classifiers
-  achieve?}
-
-\begin{figure}
-\centering
-\includegraphics{gen/img/speedups-classification-xval-default}
-\caption[Stencil speedups using classification]{%
-  Speedup results from 10-fold classification using the
-  \textsc{Default} fallback handler. Speedups range from $0.47\times$
-  (RandomForest) to $41.5\times$ (J48, RandomForest, SimpleLogistic,
-  and SMO).%
-}
-\end{figure}
-
-\begin{table}
-\scriptsize
-\centering
-\rowcolors{2}{white}{gray!25}
-\input{gen/tab/class}
-\caption{J48 and \textsc{NearestNeighbour} classification}
-\end{table}
-\begin{table}
-\scriptsize
-\centering
-\rowcolors{2}{white}{gray!25}
-\input{gen/tab/class-runtime}
-\caption{Runtime regression}
-\end{table}
-\begin{table}
-\scriptsize
-\centering
-\rowcolors{2}{white}{gray!25}
-\input{gen/tab/class-speedup}
-\caption{Speedup regression}
-\end{table}
-
-
-Much greater variance in prediction times than with the classifiers,
-
 \begin{figure}
 \centering
 \begin{subfigure}[h]{.45\textwidth}
@@ -871,16 +825,108 @@ Much greater variance in prediction times than with the classifiers,
 \label{fig:regression-class}
 \end{figure}
 
-\TODO{What is the costs of autotuning?}
+With the exception of the ZeroR, which predicts \emph{only} the
+baseline workgroup size $w_{\left( 4 \times 4 \right)}$, the
+classifiers achieve good speedups over the baseline. Average
+classification speedups across all validations range between
+$4.61\times$ and $5.05\times$. Figures~\ref{fig:class-syn}
+and~\ref{fig:class-arch} show a summary of results using 10-fold
+cross-validation and cross-device validation, respectively.  The
+highest average speedup is achieved by SMO, and the lowest by Naive
+Bayes. The difference between average speedups is not significant
+between the types of classifier, with the exception of SimpleLogistic,
+which performs poorly when trained with synthetic benchmarks and
+tested against real-world programs. This suggests the model
+over-fitting to features of the synthetic benchmarks which are not
+shared by the real-world
+tests. Figure~\ref{fig:classification-speedups} shows the distribution
+of predictions speedups for each prediction technique.
 
-\TODO{How many iterations do we need to do before we ``break even''?}
+\begin{figure}
+\centering
+\includegraphics{gen/img/fallback_speedups}
+\caption[Comparison of fallback handler speedups]{%
+  Comparison of fallback handlers, showing the speedup over baseline
+  parameter for all test cases where a classifier predicted an illegal
+  workgroup size.%
+}
+\label{fig:fallback-speedups}
+\end{figure}
 
-\begin{enumerate}
-\item How accurately does it predict the runtime of a stencil?
-\item What is the relationship between \emph{classification} accuracy,
-  and the accuracy of predicted runtimes? Does it really matter if the
-  predicted runtime is inaccurate?
-\end{enumerate}
+By isolating the test cases where classifiers predicted an illegal or
+refused parameter, we can directly compare the relative effectiveness
+of each fallback handler. The fallback handler with the best average
+case performance is \textsc{NearestNeighbour}, with an average speedup
+across all classifiers and validation sets of $5.26\times$. The
+speedup of \textsc{Random} fallback handler is $3.69\times$, and
+$1.0\times$ for \textsc{Baseline}. Figure~\ref{fig:fallback-speedups}
+plots the speedups of each fallback handler for all of these isolated
+test cases. Interestingly, both the lowest and highest speedups are
+achieved by the \textsc{Random} fallback handler, since it essentially
+performs a random exploration of the optimisation space. However, the
+\textsc{NearestNeighbour} fallback handler provides consistently
+greater speedups for the majority of test cases, indicating that it
+successfully exploits the structure of the optimisation spaces.
+
+Figures~\ref{fig:runtime-class-xval} and ~\ref{fig:speedup-class-xval}
+show a summary of results for classification using regressors to
+predict program runtimes and speedups, respectively. Of the two
+regression techniques, predicting the \emph{speedup} of workgroup
+sizes is much more successful than predicting the \emph{runtime}. This
+is most likely caused by the inherent difficulty in predicting the
+runtime of arbitrary programs, where dynamic factors such as flow
+control and loop bounds are not captured by the kernel features used
+in OmniTune, which instead use simple static static instruction counts
+and densities. The average speedup achieved by predicting runtimes is
+$4.14\times$. For predicting speedups, the average is $5.57\times$.
+
+\begin{figure}
+\centering
+\includegraphics{gen/img/speedup-distributions}
+\caption[Speedup results over human expert]{%
+  Distributions of speedups over \emph{human expert}, ignoring cases
+  where human expert prediction is invalid. Classifiers are using
+  \textsc{NearestNeighbour} fallback handlers. The speedup axis is
+  fixed to the range 0--2.5 to highlight the IQRs, which results in
+  some outliers > 2.5 being clipped.%
+}
+\label{fig:speedup-distributions}
+\end{figure}
+
+If we eliminate the 2.6\% of test cases for which the workgroup size
+of $w_{(32 \times 4)}$ is illegal, we can compare the performance of
+OmniTune directly against the human expert chosen workgroup size.
+
+The lower average speedup attained by speedup regression over the J48
+classifier belies the fact that the \emph{median} speedup is much
+greater, at $1.33 \times$.
+
+Table~\ref{tab:class} shows performance and speedups for the J48
+classifier using the \textsc{NearestNeighour} fallback strategy.
+
+
+
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/class}
+\caption{Validation results for J48 and \textsc{NearestNeighbour} classification.}
+\end{table}
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/class-runtime}
+\caption{Validation results for runtime regression.}
+\end{table}
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/class-speedup}
+\caption{Validation results for speedup regression.}
+\end{table}
 
 
 \subsection{Visualising Prediction Errors}
@@ -957,6 +1003,10 @@ prediction, the number of predictions required of a regressor grows
 with the size of $W_{\max}(s)$, since classification with regression
 requires making predictions for all
 $w \in \left\{ w | w < W_{\max}(s) \right\}$.
+
+\TODO{What is the costs of autotuning?}
+
+\TODO{How many iterations do we need to do before we ``break even''?}
 
 
 \subsection{Summary}

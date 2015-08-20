@@ -24,12 +24,12 @@ ease of use by automating the coordination of parallel resources.
 \subsection{Abstracting Task and Data Parallelism}
 
 Algorithmic Skeletons are categorised as either \emph{data} parallel
-or \emph{task} parallel. In data parallel skeletons, data is
+or \emph{task} parallel. In data parallel skeletons, data are
 distributed across nodes for parallel processing across multiple
-devices executing a single task. That is, each parallel node executes
-the same code, on a unique subset of the data. Examples of data
-parallel Algorithmic Skeletons include \emph{map}, \emph{zip}, and
-\emph{reduce}. The data parallel operations provided by SkelCL are
+devices, each performing the same task. That is, each parallel node
+executes the same code, on a unique subset of the data. Examples of
+data parallel Algorithmic Skeletons include \emph{map}, \emph{zip},
+and \emph{reduce}. The data parallel operations provided by SkelCL are
 described in detail in Section~\ref{sec:skelcl-intro}.
 
 Task parallel skeletons treat the data as a singular object and
@@ -169,14 +169,14 @@ sometimes counter-intuitive~\cite{Ryoo2008}.
 The overhead introduced by memory transfers between host and compute
 devices further complicates comparisons of OpenCL performance on
 different devices. The conclusion of~\cite{Gregg2011} is that this
-overhead can account for $2\times-50\times$ difference of GPU program
-runtime. In~\cite{Lee2010}, \citeauthor{Lee2010} present a performance
-analysis of optimised throughput computing applications for GPUs and
-CPUs. Of the 14 applications tested, they found GPU performance to be
-$0.7\times$-$14.9\times$ that of multi-threaded CPU code, with an
-average of only 2.5$\times$. This is much lower than the
-$100\times$-$1000\times$ values reported by other studies, a fact that
-they attribute to uneven comparison of optimised GPU code to
+overhead can account for a $2\times$ to $50\times$ difference of GPU
+program runtime. In~\cite{Lee2010}, \citeauthor{Lee2010} present a
+performance analysis of optimised throughput computing applications
+for GPUs and CPUs. Of the 14 applications tested, they found GPU
+performance to be $0.7\times$ to $14.9\times$ that of multi-threaded
+CPU code, with an average of only 2.5$\times$. This is much lower than
+the $100\times$ to $1000\times$ values reported by other studies, a
+fact that they attribute to uneven comparison of optimised GPU code to
 unoptimised CPU code, or vice versa. \citeauthor{Lee2010} found that
 multithreading, cache blocking, reordering of memory accesses and use
 of SIMD instructions to contribute most to CPU performance. For GPUs,
@@ -186,11 +186,12 @@ optimised and hand-tuned by programmers with expert knowledge of the
 target architectures. It is unclear whether their performance results
 still hold for subsequent generations of devices.
 
-The potential for high performance coupled with the complexity and low
-levels of abstraction provided by OpenCL make it an ideal target for
-skeletal abstractions. SkelCL and SkePU are two such examples which
-add a layer of abstraction above OpenCL and CUDA respectively in order
-to simplify GPGPU programming~\cite{Enmyren2010}.
+Despite the concerns of over-represented speedups, the potential for
+high performance coupled with the complexity and low levels of
+abstraction provided by OpenCL make it an ideal target for skeletal
+abstractions. SkelCL and SkePU are two such examples which add a layer
+of abstraction above OpenCL and CUDA respectively in order to simplify
+GPGPU programming~\cite{Enmyren2010}.
 
 \section{High-Level GPU Programming with
   SkelCL}\label{sec:skelcl-intro}
@@ -225,8 +226,10 @@ distributed under dual GPL and academic licenses.
 \subsection{Pattern definitions}
 
 SkelCL provides six skeletons for data parallel operations: $\map$,
-$\zip$, $\reduce$, $\scan$, $\allpairs$, and $\stencil$. This
-subsection gives a brief overview of their behaviour.
+$\zip$, $\reduce$, $\scan$, $\allpairs$, and $\stencil$. The focus of
+this thesis is on tuning the $\stencil$ skeleton, but for the sake of
+completeness I provide here a brief overview of the behaviour of all
+six.
 
 
 \subsubsection{Map}
@@ -487,16 +490,16 @@ operations are performed as a sequence.
 \subsection{Implementation Details}
 
 Each skeleton is represented by a template class, declared in a header
-file detailing the public API. A private header file contains the
-template definition. E.g.\ \texttt{SkelCL/Stencil.h} contains the
-template class declaration of the $\stencil$ skeleton, and
-\texttt{SkelCL/detail/StencilDef.h} contains the template
-definition. Small OpenCL kernels are stored as inline strings inside
-the definition headers. Non-trivial OpenCL kernels are stored in
-separate source files,
-e.g. \texttt{SkelCL/detail/StencilKernel.cl}. Muscle functions are
-passed as OpenCL strings to the skeleton template classes, and the
-LLVM API is used to perform argument and function name substitution.
+file detailing the public API, e.g.\ \texttt{SkelCL/Stencil.h}. A
+private header file contains the template class declaration, e.g.\
+\texttt{SkelCL/detail/StencilDef.h}. Small OpenCL kernels are stored
+as inline strings inside the definition headers. Non-trivial OpenCL
+kernels are stored in separate source files, e.g.\
+\texttt{SkelCL/detail/StencilKernel.cl}. Muscle functions are passed
+as OpenCL strings to the skeleton template classes, and the LLVM API
+is used to perform argument and function name substitution.
+
+\subsubsection{Stencil Implementation}
 
 For the stencil skeleton, each cell maps to a single work item; and
 this collection of work items is then divided into \emph{workgroups}
@@ -624,26 +627,64 @@ vectors of features $x$ are labelled with a class $y$:
 
 \section{Statistics}
 
-A number of statistical tools are used throughout this thesis to
-ensure.
+This section describes a number of the statistical tools used
+throughout this thesis.
 
-\subsubsection{Statistical Testing}
+% \subsubsection{Statistical Testing}
 
-Student's \emph{t}-test
+% Student's \emph{t}-test
+
+
+\subsubsection{Interquartile Range}
+
+For a given set of ordered data values, the quartiles are the three
+points that divide the data set into four groups of equal size. The
+first quartile is the point which $Q_1$ divides the data equally
+between the lowest value and the median, $Q_2$. The third quartile
+$Q_3$ is the point which divides the data between the median and the
+highest value. The interquartile range (IQR) measures the dispersion
+of a data set, and is the difference between the third and first
+quartiles, $Q_3 - Q_1$.
 
 
 \subsubsection{Confidence Intervals}
 
-95\% confidence intervals are calculated assuming a Gaussian
-distribution of runtimes (given our sample size of
-$n \ge 30$~\cite{Georges2007}):
-
+Confidence intervals estimate the interval for the true range of a
+population parameter. Given a set of samples of a population with
+estimates of a parameter value for each, the confidence interval
+$(c_1,c_2)$ estimates the frequency that the true parameter value will
+fall between the per-sample confidence interval. Given a sample $x$
+with sample size $n$, the confidence interval for a confidence
+$\alpha$ is found using:
+%
 \begin{align}
-\bar{x} &= \frac{1}{n}\sum_{i=1}^{n} x_i\\
-\sigma &= \sqrt{\frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{n - 1}}\\
-c_1 &= \bar{x} - z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}\\
-c_2 &= \bar{x} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
+  \bar{x} &= \frac{1}{n}\sum_{i=1}^{n} x_i\\
+  \sigma &= \sqrt{\frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{n - 1}}\\
+  c_1 &= \bar{x} - z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}\\
+  c_2 &= \bar{x} + z_{1-\alpha/2}\frac{\sigma}{\sqrt{n}}
 \end{align}
+%
+Where the value $z_{1-\alpha/2}$ assumes a Gaussian distribution of
+the underlying data, and the values for popular $\alpha$ values are
+typically found using pre-computed ``Z-tables''. To calculate
+confidence intervals for the ratio of two means, $\bar{x}_1$ and
+$\bar{x}_2$ with sample sizes $n_1$ and $n_2$, and respective standard
+deviations $\sigma_1$ and $\sigma_2$:
+%
+\begin{align}
+  \sigma_x &= \sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}\\
+  c_1 &= \bar{x}_1 - \bar{x}_2 - z_{1-\alpha/2}\sigma_x\\
+  c_2 &= \bar{x}_1 - \bar{x}_2 + z_{1-\alpha/2}\sigma_x
+\end{align}
+%
+The above calculations assumes that the sample variance ($\sigma^2$)
+is an accurate estimation of the true population variance. This relies
+on the assumption of an underlying Gaussian distribution, which,
+according to the central limit theorem, is true of large sample sizes
+(typically $n \ge 30$).  In cases of smaller sample sizes, the sample
+and population variances can differ significantly, so one must instead
+use a Student's $t$-distribution, $t_{1-\alpha/2}$, in place of
+$z_{1-\alpha/2}$.
 
 
 \subsubsection{Histogram}
@@ -673,7 +714,7 @@ $\hat{f}_h(x)$ can be found using:
 \end{equation}
 %
 Using a smooth kernel such as a Gaussian distribution for the kernel
-produced a smooth density estimated, unlike histograms. However, like
+produces a smooth density estimated, unlike histograms. However, like
 histograms, the appearance of a Kernel Density Estimate plot is
 dependent on the value of the bandwidth parameter $h$ (equivalent to
 binwidth in histograms), so care must be taken to select a value to
@@ -701,10 +742,6 @@ extends the box plot with a fitted Kernel Density Estimate plot to
 show the probability \emph{density} of data at different values. To
 construct a violin plot, KDEs for each group are rotated and mirrored
 to generate a smoothed visualisation of the distribution.
-
-
-\section{Software}
-\TODO{Weka, python}
 
 
 \section{Summary}

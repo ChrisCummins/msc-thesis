@@ -392,6 +392,90 @@ def regression_heatmaps(db, job, output, table="runtime_classification_results",
                   figsize=(2.5,3), vmin=-100, vmax=100, cbar=False)
 
 
+def speedup_distributions(db):
+    jobs = {
+        "xval": "10-fold",
+        "synthetic_real": "Synthetic",
+        "arch": "Device",
+        "kern": "Kernel",
+        "data": "Dataset",
+    }
+
+    escaped_jobs = ",".join('"' + x + '"' for x in jobs.keys())
+
+    results = []
+    for classifier in db.classification_classifiers:
+        results.append([
+            row[0] for row in
+            db.execute("SELECT speedup_he FROM classification_results "
+                       "WHERE err_fn='reshape_fn' AND speedup_he > 0 "
+                       "AND classifier=?", (classifier,))
+        ])
+    results.append([
+        row[0] for row in
+        db.execute("SELECT speedup_he FROM runtime_classification_results "
+                   "WHERE speedup_he > 0")
+    ])
+    results.append([
+        row[0] for row in
+        db.execute("SELECT speedup_he FROM speedup_classification_results "
+                   "WHERE speedup_he > 0")
+    ])
+
+    labels = [
+        ml.classifier_basename(classifier)
+        for classifier in db.classification_classifiers
+    ] + [
+        "Runtime Regression",
+        "Speedup Regression",
+    ]
+
+    # results = [
+    #     row for row in
+    #     db.execute("SELECT speedup,speedup_he FROM classification_results "
+    #                "WHERE err_fn='reshape_fn' AND speedup_he > 0")
+    # ]
+
+    # data = zip(*results)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    # sns.boxplot(data=results, linewidth=1, fliersize=2)
+    sns.violinplot(data=results, inner="quartile", linewidth=.5)
+    ax.set_xticklabels(labels, rotation=90)
+    plt.ylim(ymin=0, ymax=2.5)
+    plt.ylabel("Speedup over human expert")
+
+    output = "gen/img/speedup-distributions.pdf"
+    kwargs = { "figsize": (5.8, 3.5) }
+    viz.finalise(output, **kwargs)
+
+
+def fallback_speedups(db):
+    output = "gen/img/fallback_speedups.pdf"
+    figsize=(5.8,2)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_yscale("log")
+
+    for err_fn in db.err_fns:
+        performances = [row for row in
+                        db.execute("SELECT speedup\n"
+                                   "FROM classification_results\n"
+                                   "WHERE (refused=1 OR illegal=1) "
+                                   "AND err_fn=?",
+                                   (err_fn,))]
+        performances = sorted(performances, reverse=True)
+        plt.plot(performances, "-", label=visualise.errfn2label(err_fn))
+    plt.ylabel("Speedup (log)")
+    plt.xlabel(r'Test instances where $p(f(s)) \not\in W_{legal}(s)$')
+    plt.xlim(xmin=0, xmax=len(performances))
+    plt.legend()
+    kwargs = {"figsize": figsize}
+    viz.finalise(output, **kwargs)
+
+
 def main():
     ml.start()
     db = migrate(_db.Database("/usr/share/omnitune/db/skelcl.db"))
@@ -441,9 +525,9 @@ def main():
     #                        .format(num_oracle_params)).fetchone()[0], 1),
     #       "gen/oracle_params_per_scenario_perc.tex")
 
-    mktable("class")
-    mktable("class-runtime")
-    mktable("class-speedup")
+    # mktable("class")
+    # mktable("class-runtime")
+    # mktable("class-speedup")
 
     # # Oracle param frequencies
     # oracle_params = sorted(db.oracle_param_frequencies(normalise=True).items(),
@@ -656,6 +740,8 @@ def main():
     #                                     table="speedup_classification_results",
     #                                     figsize=figsize)
 
+    fallback_speedups(db)
+
     # # CLASSIFICATION ERROR HEATMAPS
     # for i,classifier in enumerate(db.classification_classifiers):
     #     classification_heatmaps(db, classifier, "xval",
@@ -664,6 +750,8 @@ def main():
     # regression_heatmaps(db, "xval", "gen/img/reg_speedup_heatmap.pdf",
     #                     table="speedup_classification_results",
     #                     title="Speedup Regression")
+
+    speedup_distributions(db)
 
     ml.stop()
 

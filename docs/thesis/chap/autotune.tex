@@ -17,7 +17,8 @@ set of interfaces exposed by Omnitune.
 \centering
 \includegraphics[width=\textwidth]{img/omnitune-system-flow.pdf}
 \caption[Optimisation parameter selection with OmniTune]{%
-  Selecting optimisation parameter values with OmniTune.%
+  The process of selecting optimisation parameter values for a given
+  user program with OmniTune.%
 }
 \label{fig:omnitune-system-flow}
 \end{figure}
@@ -29,7 +30,7 @@ observations. The prediction quality is influenced by the number of
 prior observations. OmniTune supports both prediction of parameters
 based on prior observations, and a method for collecting these
 observations. When a client program requests parameter values, it
-indicates whether the request for training or performance purposes,
+indicates whether the request is for training or performance purposes,
 and uses a different backend to select parameter values for each. New
 observations can then be added once parameters have been evaluated.
 Figure~\ref{fig:omnitune-system-flow} shows this process.
@@ -41,12 +42,12 @@ Figure~\ref{fig:omnitune-system-flow} shows this process.
 \centering
 \includegraphics[width=.9\textwidth]{img/omnitune-system-overview.pdf}
 \caption[OmniTune system diagram]{%
-  High level overview of OmniTune.%
+  High level overview of OmniTune components.%
 }
 \label{fig:omnitune-system-overview}
 \end{figure}
 
-As discussed in Chapter~\ref{chap:related}, common implementations of
+\FIXME{As discussed in Chapter~\ref{chap:related}}, common implementations of
 autotuning in the literature either: embed the autotuning logic within
 the each target application, or take a standalone approach in which
 the autotuner is a program which must be invoked by the user to tune a
@@ -134,14 +135,19 @@ target.
 
 The server is implemented as a standalone Python program, and contains
 a library of machine learning tools to perform parameter prediction,
-interfacing with Weka\footnote{http://www.cs.waikato.ac.nz/ml/weka/}
-using the JNI. Servers may perform additional feature extraction of
-explanatory variables supplied by incoming client requests. The reason
-for performing feature extraction on the server as opposed to on the
+interfacing with Weka using the JNI. Weka is a suite of data mining
+software developed by the University of Waikato, freely available
+under the GNU GPL
+license~\footnote{http://www.cs.waikato.ac.nz/ml/weka/}. OmniTune
+servers may perform additional feature extraction of explanatory
+variables supplied by incoming client requests. The reason for
+performing feature extraction on the server as opposed to on the
 client side is that this allows the results of expensive operations
 (for example, analysing source code of target applications) to be
-cached for use across the lifespan of client applications. These
-caches are synced with the remote to
+cached for use across the lifespan of client applications. The
+contents of these local caches are periodically and asynchronously
+synced with the remote, to maintain a global store of lookup tables
+for expensive operations.
 
 On launch, the server requests the latest training data from the
 remote, which it uses to build the relevant models for performing
