@@ -175,31 +175,6 @@ def create_datasets_table(db, output=None):
     ))
 
 
-def create_features_table(db, path):
-    def _attribute_type(attribute):
-        if attribute.type == 0:
-            return "numeric"
-        else:
-            return "categorical"
-
-    def _format_name_col(name):
-        return "\\texttt{{{}}}".format(latex.escape(name))
-
-    def _table(rows, output):
-        latex.table(rows, output=output, columns=("Name", "Type"),
-                    escape=False, formatters=(_format_name_col, None))
-
-    dataset = Dataset.load("~/data/msc-thesis/csv/oracle_params.csv", db)
-
-    attributes = [[attribute.name, _attribute_type(attribute)]
-                  for attribute in dataset.instances.attributes()]
-    features = attributes[1:-1]
-    half = labmath.ceil(len(features) / 2)
-
-    _table(features[:half], fs.path(path, "features.1.tex"))
-    _table(features[half:], fs.path(path, "features.2.tex"))
-
-
 def create_results_tables(db):
     # Number of rows to include in tables.
     num_rows = 25
@@ -500,6 +475,8 @@ def main():
     #       "gen/oracle_params_per_scenario_perc.tex")
 
     mktable("class")
+    mktable("class-runtime")
+    mktable("class-speedup")
 
     # # Oracle param frequencies
     # oracle_params = sorted(db.oracle_param_frequencies(normalise=True).items(),
@@ -572,7 +549,6 @@ def main():
     # create_devices_table(db)
     # create_kernels_table(db)
     # create_datasets_table(db)
-    # create_features_table(db, "gen/tab/")
     # create_results_tables(db)
     # create_refused_params_tables(db)
 
@@ -693,26 +669,26 @@ def main():
     # # Motivating example plots
     # motivating_examples(db)
 
-    # Ml Visualisations
-    figsize=(5.8,8)
-    # visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
+    # # Ml Visualisations
+    # figsize=(5.8,8)
+    # # visualise.classification(db, "gen/img/classification-xval.pdf", job="xval",
+    # #                          title="", figsize=figsize)
+    # visualise.classification(db, "gen/img/classification-syn-real.pdf", job="synthetic_real",
     #                          title="", figsize=figsize)
-    visualise.classification(db, "gen/img/classification-syn-real.pdf", job="synthetic_real",
-                             title="", figsize=figsize)
-    visualise.classification(db, "gen/img/classification-arch.pdf", job="arch",
-                             title="", figsize=figsize)
-    # visualise.classification(db, "gen/img/classification-kern.pdf", job="kern",
+    # visualise.classification(db, "gen/img/classification-arch.pdf", job="arch",
     #                          title="", figsize=figsize)
-    # visualise.classification(db, "gen/img/classification-data.pdf", job="data",
-    #                          title="", figsize=figsize)
+    # # visualise.classification(db, "gen/img/classification-kern.pdf", job="kern",
+    # #                          title="", figsize=figsize)
+    # # visualise.classification(db, "gen/img/classification-data.pdf", job="data",
+    # #                          title="", figsize=figsize)
 
-    figsize=(2.7,9)
-    visualise.regression_classification(db, "gen/img/runtime-class-xval.pdf",
-                                        figsize=figsize)
+    # figsize=(2.7,9)
+    # visualise.regression_classification(db, "gen/img/runtime-class-xval.pdf",
+    #                                     figsize=figsize)
 
-    visualise.regression_classification(db, "gen/img/speedup-class-xval.pdf",
-                                        table="speedup_classification_results",
-                                        figsize=figsize)
+    # visualise.regression_classification(db, "gen/img/speedup-class-xval.pdf",
+    #                                     table="speedup_classification_results",
+    #                                     figsize=figsize)
 
     # # CLASSIFICATION ERROR HEATMAPS
     # for i,classifier in enumerate(db.classification_classifiers):

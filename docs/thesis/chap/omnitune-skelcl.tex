@@ -66,10 +66,136 @@ reducing the risk of overfitting to particular program features.
 
 
 \begin{table}
-\input{tab/features}
-\caption[OmniTune stencil features]{%
-  Stencil features and their types, describing the dataset, kernel,
-  and device.%
+\begin{multicols}{2}
+  \scriptsize
+  \centering
+  \rowcolors{2}{white}{gray!25}
+  \begin{tabular}{p{4.5cm}p{1.3cm}}
+    \toprule
+    \textbf{Dataset Features} &         \textbf{Type} \\
+    \midrule
+    Number of columns in matrix & numeric \\
+    Number of rows in matrix & numeric \\
+    Input data type & categorical \\
+    Output data type & categorical \\
+    \bottomrule
+  \end{tabular}
+  \vskip 2.75em
+  \begin{tabular}{p{4.5cm}p{1.3cm}}
+    \toprule
+    \textbf{Kernel Features} &         \textbf{Type} \\
+    \midrule
+    Border region north &      numeric \\
+    Border region south &      numeric \\
+    Border region east &      numeric \\
+    Border region west &      numeric \\
+    Static instruction count &      numeric \\
+    \texttt{AShr} instruction density &      numeric \\
+    \texttt{Add} instruction density &      numeric \\
+    \texttt{Alloca} instruction density &      numeric \\
+    \texttt{And} instruction density &      numeric \\
+    \texttt{Br} instruction density &      numeric \\
+    \texttt{Call} instruction density &      numeric \\
+    \texttt{FAdd} instruction density &      numeric \\
+    \texttt{FCmp} instruction density &      numeric \\
+    \texttt{FDiv} instruction density &      numeric \\
+    \texttt{FMul} instruction density &      numeric \\
+    \texttt{FPExt} instruction density &      numeric \\
+    \texttt{FPToSI} instruction density &      numeric \\
+    \texttt{FSub} instruction density &      numeric \\
+    \texttt{GetElementPtr} instruction density  &      numeric \\
+    \texttt{ICmp} instruction density &      numeric \\
+    \texttt{InsertValue} instruction density &      numeric \\
+    \texttt{Load} instruction density &      numeric \\
+    \texttt{Mul} instruction density &      numeric \\
+    \texttt{Or} instruction density &      numeric \\
+    \texttt{PHI} instruction density &      numeric \\
+    \texttt{Ret} instruction density &      numeric \\
+    \texttt{SDiv} instruction density &      numeric \\
+    \texttt{SExt} instruction density &      numeric \\
+    \texttt{SIToFP} instruction density &      numeric \\
+    \texttt{SRem} instruction density &      numeric \\
+    \texttt{Select} instruction density &      numeric \\
+    \texttt{Shl} instruction density &      numeric \\
+    \texttt{Store} instruction density &      numeric \\
+    \texttt{Sub} instruction density &      numeric \\
+    \texttt{Trunc} instruction density &      numeric \\
+    \texttt{UDiv} instruction density &      numeric \\
+    \texttt{Xor} instruction density &      numeric \\
+    \texttt{ZExt} instruction density &      numeric \\
+    Basic block density & numeric \\
+    Memory instruction density & numeric \\
+    Non external functions density &      numeric \\
+    Kernel max workgroup size &      numeric \\
+    \bottomrule
+  \end{tabular}
+  \vfill
+  \columnbreak
+  \rowcolors{2}{white}{gray!25}
+  \begin{tabular}{p{4.5cm}p{1.3cm}}
+    \toprule
+    \textbf{Device Features} &         \textbf{Type} \\
+    \midrule
+    SkelCL device count &      numeric \\
+    Device address width &  categorical \\
+    Double precision fp.\ configuration &  categorical \\
+    Big endian? &  categorical \\
+    Execution capabilities &  categorical \\
+    Supported extensions &  categorical \\
+    Global memory cache size &  numeric \\
+    Global memory cache size &      categorical \\
+    Global memory cacheline size &      numeric \\
+    Global memory size &  numeric \\
+    Host unified memory? &      categorical \\
+    2D image max height &      numeric \\
+    2D image max width &      numeric \\
+    3D image max depth &      numeric \\
+    3D image max height &      numeric \\
+    3D image max width &  numeric \\
+    Image support &      categorical \\
+    Local memory size &  numeric \\
+    Local memory type &      categorical \\
+    Max clock frequency &      numeric \\
+    Number of compute units &      numeric \\
+    Max kernel constant args &      numeric \\
+    Max constant buffer size &      numeric \\
+    Max memory allocation size &      numeric \\
+    Max parameter size &      numeric \\
+    Max read image arguments &      numeric \\
+    Max samplers &      numeric \\
+    Max device workgroup size &      numeric \\
+    Max workitem dimensions &      numeric \\
+    Max work item sizes width &      numeric \\
+    Max work item sizes height &      numeric \\
+    Max work item sizes depth &      numeric \\
+    Max write image arguments &      numeric \\
+    Mem base address align &      numeric \\
+    Min data type align size &      numeric \\
+    Native vector width \texttt{char} &      numeric \\
+    Native vector width \texttt{double} &      numeric \\
+    Native vector width \texttt{float} &      numeric \\
+    Native vector width \texttt{half} &      numeric \\
+    Native vector width \texttt{int} &      numeric \\
+    Native vector width \texttt{long} &      numeric \\
+    Native vector width \texttt{short} &      numeric \\
+    Preferred vector width \texttt{char} &      numeric \\
+    Preferred vector width \texttt{double} &      numeric \\
+    Preferred vector width \texttt{float} &      numeric \\
+    Preferred vector width \texttt{half} &      numeric \\
+    Preferred vector width \texttt{int} &      numeric \\
+    Preferred vector width \texttt{long} &      numeric \\
+    Preferred vector width \texttt{short} &  categorical \\
+    Queue properties &  categorical \\
+    Single precision fp.\ configuration &  categorical \\
+    Device type &      categorical \\
+    OpenCL vendor &  categorical \\
+    OpenCL vendor ID &  categorical \\
+    OpenCL version &  categorical \\
+    \bottomrule
+  \end{tabular}
+\end{multicols}
+\caption[OmniTune SkelCL Stencil features]{%
+  OmniTune SkelCL Stencil features for dataset, kernel, and device.%
 }
 \label{tab:features}
 \end{table}
@@ -79,13 +205,10 @@ Properties of the architecture, program, and dataset all contribute to
 the performance of a workgroup size. The success of a machine learning
 system depends on the ability to translate these properties into
 meaningful explanatory variables --- \emph{features}. To capture this
-in OmniTune, requests for paramters are packed with a copy of the
-OpenCL kernel and attributes of the dataset and device to extract
-vectors of 102 features describing hte architecture, kernel, and
-dataset. Table~\ref{tab:features} includes a full list of features and
-types.
-
-
+in OmniTune, parameter requests are packed with a copy of the OpenCL
+kernel and attributes of the dataset and device to extract vectors of
+102 features describing hte architecture, kernel, and dataset:
+%
 \begin{itemize}
 \item \textbf{Device} --- OmniTune uses the OpenCL
   \texttt{clGetDeviceInfo()} API to query a number of properties about
@@ -103,6 +226,8 @@ types.
 \item \textbf{Dataset} --- The SkelCL container type is used to
   extract the input and output data types, and the 2D grid size.
 \end{itemize}
+%
+See Table~\ref{tab:features} for a list of feature names and types.
 
 
 \subsection{Reducing Feature Extraction Overhead}
@@ -296,7 +421,7 @@ See Algorithm~\ref{alg:autotune-classification} for definitions.
 
 \begin{algorithm}
 \input{alg/autotune-classification}
-\caption{Select optimal workgroup size using classification}
+\caption{Selecting optimal workgroup sizes using classification}
 \label{alg:autotune-classification}
 \end{algorithm}
 
@@ -307,7 +432,7 @@ See Algorithm~\ref{alg:autotune-classification} for definitions.
 % \end{algorithm}
 
 
-\subsection{Predicting Stencil Code Runtime}
+\subsection{Predicting Stencil Code Runtime}\label{subsec:omnitune-ml-runtime}
 
 A problem of predicting oracle workgroup sizes is that it requires
 each training point to be labelled with the oracle workgroup size
@@ -338,7 +463,7 @@ unseen programs.
 % \label{alg:autotune-runtime-regression}
 % \end{algorithm}
 
-\subsection{Predicting Relative Performance of Workgroup Sizes}
+\subsection{Predicting Relative Performance of Workgroup Sizes}\label{subsec:omnitune-ml-speedup}
 
 Accurately predicting the runtime of an arbitrary program is a
 difficult problem due to the impacts of flow control. In such cases,

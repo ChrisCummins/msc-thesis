@@ -249,7 +249,7 @@ the optimisation space when $W_{\max}(s) = 8192$, even though only
   \rowcolors{2}{white}{gray!25}
   \input{gen/tab/top_refused_params_3}
 }
-\caption[30 most refused parameters]{%
+\caption[Workgroup sizes most frequently refused]{%
   The thirty most refused parameters, ranked in descending
   order. There is little correlation between the size of workgroup and the
   likelihood that it is refused, suggesting that the cause of refused
@@ -627,9 +627,9 @@ testing sets, $S_{training} \subset S$ and
 $S_{testing} = S - S_{training}$. A set of labelled training data
 $D_{training}$ is derived from $S_{training}$, and the prediction
 quality is testing using the validation set $D_{testing}$ derived from
-$S_{training}$. We use multiple approaches to partition the data, to
-test the prediction quality under different scenarios. The processes
-for generating validation sets are:
+$S_{training}$. We use multiple approaches to partitioning test data,
+to evaluate the prediction quality under different scenarios. The
+processes for generating validation sets are:
 %
 \begin{itemize}
 \item 10-fold --- shuffle the set of all training and divide into 10
@@ -658,10 +658,12 @@ stencil using different workgroup sizes, and selecting the legal
 workgroup size which has the lowest predicted runtime; and using
 regressors to predict the relative performance of workgroup sizes over
 a baseline, and selecting the workgroup size which has the highest
-predicted relative performance.
+predicted relative performance. We first describe the evaluation
+strategies for each technique, before presenting experimental results
+and analysis.
 
 
-\subsection{Using Classifiers}
+\subsection{Evaluating Classifiers}
 
 The methodology for selecting workgroup size using classifiers is
 described in Section~\ref{subsec:omnitune-ml-class}. Training data
@@ -681,12 +683,13 @@ Testing data are not labelled with oracle workgroup sizes:
 Each classifier is evaluated using the three different classification
 techniques: \textsc{Baseline}, \textsc{Random}, and
 \textsc{NearestNeighbour}, which differ in the way in which they
-handle illegal predictions, either because the classifier has
-suggested a parameter which does not satisfy the maximum workgroup
-size constraints $w > W_{\max}(s)$, or because the workgroup size is
-refused by OpenCL $w \in W_{refused}(s)$. Workgroup sizes are
-predicted for each scenario in the testing set, and the quality of the
-predicted workgroup size is evaluated using the following metrics:
+handle illegal predictions. Illegal predictions occur either because
+the classifier has suggested a parameter which does not satisfy the
+maximum workgroup size constraints $w > W_{\max}(s)$, or because the
+workgroup size is refused by OpenCL $w \in W_{refused}(s)$. Workgroup
+sizes are predicted for each scenario in the testing set, and the
+quality of the predicted workgroup size is evaluated using the
+following metrics:
 %
 \begin{itemize}
 \item accuracy (binary) --- whether the predicted workgroup size is
@@ -713,7 +716,62 @@ The \emph{validty} and \emph{refused} metrics measure how often
 fallback strategies are required to select a legal workgroup size
 $w \in W_{legal}(s)$.
 
-\subsubsection{Results}
+
+\subsection{Evaluting Regressors}
+
+Sections~\ref{subsec:omnitune-ml-runtime}
+and~\ref{subsec:omnitune-ml-speedup} describe methodologies for
+selecting workgroup sizes by predicting program runtimes or relative
+performance, respectively. The evaluation approach for both
+methodologies is the same, only the training data differs. For
+predicting runtimes, training data consists of feature vectors,
+labelled with the mean observed runtime $t(s,w)$ for all legal
+workgroup sizes:
+%
+\begin{equation}
+  D_{training} = \cup \left\{ f(s),t(s,w) | w \in W_{legal}(s)
+  \right\} \forall s \in S_{training}
+\end{equation}
+For predicting speedups, the features vectors are labelled with
+observed speedup over the baseline parameter $\bar{w}$ (see
+Section~\ref{subsec:baseline}) for all legal workgroup sizes:
+\begin{equation}
+  D_{training} = \cup \left\{ f(s),r(s,w,\bar{w}) | w \in W_{legal}(s)
+  \right\} \forall s \in S_{training}
+\end{equation}
+%
+Test data consists of unlabelled feature vectors:
+%
+\begin{equation}
+  D_{testing} = \left\{ f(s) | s \in S_{testing} \right\}
+\end{equation}
+%
+The quality of predicted workgroup sizes is evaluated using the
+following metrics:
+%
+\begin{itemize}
+\item accuracy (binary) --- whether the predicted workgroup size is
+  the true oracle, $p(f(s)) = \Omega(s)$.
+\item performance (real) --- the relative performance of the predicted
+  workgroup size relative to the oracle,
+  $0 \le r(p(f(s)), \Omega(s)) \le 1$.
+\item speedups (real) --- the relative performance of the predicted
+  workgroup size relative to the baseline workgroup size
+  $w_{(4 \times 4)}$, and human expert workgroup size
+  $w_{(32 \times 4)}$ (where applicable).
+\item time (real) --- the round trip required to make the prediction,
+  as measured by the OmniTune client. This includes classification
+  time and inter-process communication overheads between the client
+  and server.
+\end{itemize}
+%
+Unlike with classifiers, the process of selecting workgroup sizes
+using regressors always results in a legal prediction, so no fallback
+strategies are required, and the \emph{validity} and \emph{refused}
+metrics are not required.
+
+
+\subsection{Results}
 
 Figures~\ref{fig:class-syn} and~\ref{fig:class-arch} show overviews of
 the experimental results for 10-fold and device validation,
@@ -727,15 +785,34 @@ classifier using the \textsc{NearestNeighour} fallback strategy.
 \centering
 \rowcolors{2}{white}{gray!25}
 \input{gen/tab/class}
-\caption[Classification results using J48 and \textsc{NearestNeighbour}]{%
-  Performance relative to the oracle, speedup over baseline, and
-  speedup over human expert of the J48 decision tree classifier using
-  the \textsc{NearestNeighbour} fallback strategy. Note that speedups
-  over human expert exclude scenarios for where the human expert
-  prediction is invalid.%
-}
-\label{tab:class}
+\caption{J48 and \textsc{NearestNeighbour} classification}
 \end{table}
+
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/class-runtime}
+\caption{Runtime regression}
+\end{table}
+
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/class-speedup}
+\caption{Speedup regression}
+\end{table}
+
+% \caption[Classification results using J48 and \textsc{NearestNeighbour}]{%
+%   Performance relative to the oracle, speedup over baseline, and
+%   speedup over human expert of the J48 decision tree classifier using
+%   the \textsc{NearestNeighbour} fallback strategy. Note that speedups
+%   over human expert exclude scenarios for where the human expert
+%   prediction is invalid.%
+% }
+% \label{tab:class}
+% \end{table}
 
 \TODO{%
   What is the average speedup achieved using different classifiers?%
@@ -770,7 +847,7 @@ classifier using the \textsc{NearestNeighour} fallback strategy.
 \begin{figure}
 \centering
 \includegraphics{gen/img/speedups-classification-xval-default}
-\caption[Classification speedups using 10-fold classification]{%
+\caption[Stencil speedups using classification]{%
   Speedup results from 10-fold classification using the
   \textsc{Default} fallback handler. Speedups range from $0.47\times$
   (RandomForest) to $41.5\times$ (J48, RandomForest, SimpleLogistic,
@@ -779,7 +856,10 @@ classifier using the \textsc{NearestNeighour} fallback strategy.
 \end{figure}
 
 
-\subsection{Using Regressors}
+
+
+
+Much greater variance in prediction times than with the classifiers,
 
 \begin{figure}
 \centering
@@ -796,7 +876,7 @@ classifier using the \textsc{NearestNeighour} fallback strategy.
 \caption{}
 \label{fig:speedup-class-xval}
 \end{subfigure}
-\caption[Classification with regressors results]{%
+\caption[Autotuning performance using regressors]{%
   Evaluating the effectiveness of classification using regressors, by
   predicting: (\subref{fig:runtime-class-xval}) the workgroup size
   with the minimal runtime, and (\subref{fig:speedup-class-xval}) the
@@ -868,7 +948,7 @@ classifier using the \textsc{NearestNeighour} fallback strategy.
 \caption{}
 \label{fig:coverage}
 \end{subfigure}
-\caption[Classification errors for 10-fold cross-validation]{%
+\caption[Prediction errors across classification techniques]{%
   Heatmaps of classification errors for 10-fold cross-validation,
   showing a subset of the optimisation space. The shading in each
   cells indicates if it is predicted less frequently (blue), ore more
@@ -878,6 +958,10 @@ classifier using the \textsc{NearestNeighour} fallback strategy.
 \label{fig:class-hmaps}
 \end{figure}
 
+
+Only the NaiveBayes and RandomForest classifiers predicted the human
+expert workgroup size $w_{(32 \times 4)}$ as frequently, or more
+frequently, than it was optimal.
 
 \subsection{Autotuning Costs}\label{subsec:autotune-costs}
 
@@ -890,6 +974,20 @@ $w \in \left\{ w | w < W_{\max}(s) \right\}$.
 
 
 \subsection{Summary}
+
+\begin{itemize}
+\item In the case of classifiers predicting illegal workgroup sizes,
+  the best fallback strategy is to select the closest legal workgroup
+  size.
+\item The performance of predicted workgroup sizes for unseen devices
+  is within 8\% of the performance for known devices.
+\item Predicting the \emph{runtime} of stencils is the least effective
+  of the evaluated autotuning techniques, achieving an average of only
+  68\% of the available performance.
+\item Classification using regression costs an order of magnitude more
+  time than using classifiers. The J48 classifier has the lowest
+  overhead.
+\end{itemize}
 
 
 \section{Summary}
