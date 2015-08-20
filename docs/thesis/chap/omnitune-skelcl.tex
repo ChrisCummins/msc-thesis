@@ -50,7 +50,7 @@ or double precision floating points), and \emph{complexity} --- a
 simple boolean metric for indicating the desired number of memory
 accesses and instructions per iteration, reflecting the relatively
 bi-modal nature of the reference stencil codes, either compute
-intensive (e.g. FDTD simulation), or lightweight (e.g. Game of Life).
+intensive (e.g. FDTD simulations), or lightweight (e.g. Game of Life).
 
 Using a large number of synthetic benchmarks helps adress the ``small
 $n$, large $P$'' problem, which describes the difficulty of
@@ -486,17 +486,6 @@ optimal workgroup requires maximising the output of the regressor:
 % \end{algorithm}
 
 
-\subsection{Meta-tuning: a Hybrid Approach}
-
-\TODO{Implement and test. See Algorithm~\ref{alg:autotune-hybrid}.}
-
-\begin{algorithm}
-\input{alg/autotune-hybrid}
-\caption{Selecting workgroup size using a hybrid approach}
-\label{alg:autotune-hybrid}
-\end{algorithm}
-
-
 \section{Implementation}
 
 By design, the client-server model minimises the impact of number of
@@ -510,6 +499,8 @@ sqlite to maintain local data caches. See
 Figure~\ref{fig:omnitune-system-flow} for a sectino of the database
 schema. The OmniTune remote is an Amazon Web Services virtual machine
 instance running MySQL.
+
+\todo{8987 lines of Python, 976 for the SkelCL front-end}
 
 \begin{figure}
 \centering

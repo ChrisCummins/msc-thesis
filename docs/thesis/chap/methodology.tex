@@ -44,82 +44,52 @@ available on the experimental platforms.
 \subsection{Benchmark Applications}
 
 In addition to the synthetic stencil benchmarks described in
-Section~\ref{sec:training}, five reference implementations of standard
-stencil applications from the fields of image processing, cellular
-automata, and partial differential equation solvers are used:
-
-% \begin{table}
-% \footnotesize
-% \centering
-% \begin{tabular}{| l | l | l | l | l |}
-% \hline
-% \textbf{Name} & \textbf{Application} & \textbf{Skeletons used} & \textbf{Iterative?} & \textbf{LOC}\\
-% \hline
-% CannyEdgeDetection & Image processing & Stencil & - & 225 / 61\\
-% DotProduct & Linear algebra & Zip, Reduce & - & 143 / 2\\
-% FDTD & Scientific simulation & Map, Stencil & Y & 375 / 127\\
-% GameOfLife & Cellular automata & Stencil & Y & 92 / 12\\
-% GaussianBlur & Image processing & Stencil & - & 262 / 47\\
-% HeatSimulation & Scientific simulation & Stencil & Y & 180 / 13\\
-% MandelbrotSet & Fractal computation & Map & Y & 133 / 78\\
-% MatrixMultiply & Linear algebra & AllPairs & - & 267 / 8\\
-% SAXPY & Linear algebra & Zip & - & 149 / 3\\
-% \hline
-% \end{tabular}
-% \caption{Benchmark applications. The LOC column shows lines of code, split between host (C++) and device (OpenCL).}
-% \label{tab:benchmarks}
-% \end{table}
-
-\TODO{Descriptions (with diagrams) for each application:}
-
+Section~\ref{sec:training}, six stencil kernels taken from four
+reference implementations of standard stencil applications from the
+fields of image processing, cellular automata, and partial
+differential equation solvers are used:
+%
 \begin{itemize}
-\item \textbf{Finite Difference Time Domain}
-\item \textbf{Heat Equation}
-\item \textbf{Gaussian Blur} \TODO{Reword this to be more clear} The
-  Gaussian blur is a common image processing algorithm, used to reduce
-  noise and detail in an image. A two dimensional Gaussian blur
-  defines a function to compute a pixel value $f(x,y)$ using a
-  standard deviation $\sigma$ using:
-  %
-  \begin{equation}
-    f(x,y) = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2 + y^2}{2\sigma^2}}
-  \end{equation}
-  %
-  Gaussian blurs are parameterised by a radius $r$ which define
-  symmetric, square stencil regions about the centre
-  pixel. \TODO{Describe the range of blur radius' used.} Unlike the
-  previous two applications, the Gaussian blur is not an iterative
-  stencil.
 \item \textbf{Game of Life} Conway's Game of Life~\cite{Conway1970} is
   a cellular automaton which models the evolution of a regular grid of
   cells over discrete time steps. At each time step, each cell value
   is updated to be either \emph{live} or \emph{dead} based on it's
-  current value and the value of the nearest neighbouring elements
-  (Algorithm~\ref{alg:gol}). The stencil shape for Game of Life is
-  always 1 in each direction.
+  current state and the state of the one immediately neighbouring cell
+  to the north, south, east, and west.
+\item \textbf{Heat Equation} The heat equation is a partial
+  differential equation which describes the distribution of heat in a
+  given region over time. Each iteration of the stencil represents a
+  discrete time step, and the value of each cell (i.e.\ the
+  temperature) is smoothed based on the temperatures of surrounding
+  cells and the thermal conductivity of the material being simulated.
+\item \textbf{Gaussian Blur} The Gaussian blur is a common image
+  processing algorithm, used to reduce noise and detail in an image. A
+  two dimensional Gaussian blur defines a function to compute a pixel
+  value based on the value of neighbouring pixels. Gaussian blurs are
+  parameterised by a radius which define symmetric, square stencil
+  regions about the centre pixel. Unlike the previous two
+  applications, the Gaussian blur is not an iterative stencil.
 \item \textbf{Canny Edge Detection} The Canny edge detection algorithm
-  consists of four distinct stages: \TODO{4 separate stencils, with
-    different behaviours.}
+  is a multi-stage approach to detecting edges in
+  images~\cite{Canny1986}. It consists of four distinct stages: a
+  noise reduction operation, an edge detection operation, a
+  non-maximum suppression, and a threshold operation. Each step is
+  implemented as a separate SkelCL stencil and combined into a SkelCL
+  StencilSequence.
 \end{itemize}
-
-\begin{algorithm}[b]
-\caption{Conway's Game of Life}
-\label{alg:gol}
-\input{alg/gol}
-\end{algorithm}
+%
+Table~\ref{tab:kernels} shows details of the stencils kernels for
+these reference applications, and the synthetic training benchmarks
+used.
 
 \begin{table}
 \input{tab/kernels}
 \caption[Description of stencil kernels]{%
   Stencil kernels, border sizes (north, south, east, and west),
-  and static instruction counts. \FIXME{Tidy up the duplicate entries\ldots}
+  and static instruction counts.
 }
 \label{tab:kernels}
 \end{table}
-
-Table~\ref{tab:kernels} shows the details of the stencils kernels for
-these reference implementations, and the synthetic training benchmarks
-used.
 
 
 \subsection{Datasets}
@@ -130,7 +100,7 @@ table~\ref{tab:datasets}.
 \begin{table}
 \input{tab/datasets}
 \caption[Description of experimental datasets]{%
-  Datasets used.%
+  Description of experimental datasets.%
 }
 \label{tab:datasets}
 \end{table}
@@ -160,7 +130,7 @@ collecting data.
 
 The execution of a SkelCL stencil application can be divided into 6
 distinct phases, shown in Table~\ref{tab:stencil-runtime-components}.
-
+%
 \begin{itemize}
 \item \textbf{Kernel compilation times} Upon invocation, template
   substitution is performed of the user code into the stencil skeleton
@@ -184,7 +154,7 @@ distinct phases, shown in Table~\ref{tab:stencil-runtime-components}.
   transfer to host memory, since device to device memory is not
   currently supported by OpenCL.
 \end{itemize}
-
+%
 For each of the six distinct phases of execution, accurate runtime
 information can be gathered either through timers embedded in the host
 code, or using the OpenCL \texttt{clGetEventProfilingInfo()} API for

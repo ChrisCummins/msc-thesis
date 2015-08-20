@@ -127,39 +127,6 @@ def create_devices_table(db, output=None):
     ))
 
 
-def create_kernels_table(db, output=None):
-    def _process_row(row):
-        def _process_kernel(kernel):
-            north,south,east,west = db.execute("SELECT north,south,east,west "
-                                               "FROM kernels WHERE id=?",
-                                               (kernel,)).fetchone()
-            instcount = db.execute("SELECT instruction_count FROM "
-                                   "kernels where id=?",
-                                   (kernel,)).fetchone()[0]
-            return name, north, south, east, west, instcount
-
-        name = row[0]
-        kernels = db.execute("SELECT id from kernel_names where name=?", (name,)).fetchall()
-        return [_process_kernel(row[0]) for row in kernels]
-
-    output = output or "gen/tab/kernels.tex"
-    synthetics, real = set(), set()
-    for row in db.execute("SELECT DISTINCT name FROM kernel_names WHERE synthetic=1"):
-        [synthetics.add(entry) for entry in _process_row(row)]
-    for row in db.execute("SELECT DISTINCT name FROM kernel_names WHERE synthetic=0"):
-        [real.add(entry) for entry in _process_row(row)]
-
-    synthetics = list(sorted(synthetics, key=lambda x: x[0]))
-    real = list(sorted(real, key=lambda x: x[0]))
-
-    latex.table(synthetics + real, output=output, columns=(
-        "Name",
-        "North",
-        "South",
-        "East",
-        "West",
-        "Instruction Count"
-    ))
 
 def create_datasets_table(db, output=None):
     output = output or "gen/tab/datasets.tex"
@@ -547,7 +514,6 @@ def main():
     # create_stencil_runtime_components_table()
 
     # create_devices_table(db)
-    # create_kernels_table(db)
     # create_datasets_table(db)
     # create_results_tables(db)
     # create_refused_params_tables(db)

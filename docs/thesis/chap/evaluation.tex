@@ -773,53 +773,12 @@ metrics are not required.
 
 \subsection{Results}
 
-Figures~\ref{fig:class-syn} and~\ref{fig:class-arch} show overviews of
-the experimental results for 10-fold and device validation,
-respectively.
+Figures~\ref{fig:class-syn} and~\ref{fig:class-arch} show
+classification results for 10-fold cross-validation and cross-device
+validation, respectively.
 
 Table~\ref{tab:class} shows performance and speedups for the J48
 classifier using the \textsc{NearestNeighour} fallback strategy.
-
-\begin{table}
-\scriptsize
-\centering
-\rowcolors{2}{white}{gray!25}
-\input{gen/tab/class}
-\caption{J48 and \textsc{NearestNeighbour} classification}
-\end{table}
-
-\begin{table}
-\scriptsize
-\centering
-\rowcolors{2}{white}{gray!25}
-\input{gen/tab/class-runtime}
-\caption{Runtime regression}
-\end{table}
-
-\begin{table}
-\scriptsize
-\centering
-\rowcolors{2}{white}{gray!25}
-\input{gen/tab/class-speedup}
-\caption{Speedup regression}
-\end{table}
-
-% \caption[Classification results using J48 and \textsc{NearestNeighbour}]{%
-%   Performance relative to the oracle, speedup over baseline, and
-%   speedup over human expert of the J48 decision tree classifier using
-%   the \textsc{NearestNeighbour} fallback strategy. Note that speedups
-%   over human expert exclude scenarios for where the human expert
-%   prediction is invalid.%
-% }
-% \label{tab:class}
-% \end{table}
-
-\TODO{%
-  What is the average speedup achieved using different classifiers?%
-}
-
-\TODO{What percentage of the maximum performance do the classifiers
-  achieve?}
 
 \cleardoublepage
 \begin{figure}
@@ -844,6 +803,14 @@ classifier using the \textsc{NearestNeighour} fallback strategy.
 \label{fig:class-arch}
 \end{figure}
 
+
+\TODO{%
+  What is the average speedup achieved using different classifiers?%
+}
+
+\TODO{What percentage of the maximum performance do the classifiers
+  achieve?}
+
 \begin{figure}
 \centering
 \includegraphics{gen/img/speedups-classification-xval-default}
@@ -855,8 +822,27 @@ classifier using the \textsc{NearestNeighour} fallback strategy.
 }
 \end{figure}
 
-
-
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/class}
+\caption{J48 and \textsc{NearestNeighbour} classification}
+\end{table}
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/class-runtime}
+\caption{Runtime regression}
+\end{table}
+\begin{table}
+\scriptsize
+\centering
+\rowcolors{2}{white}{gray!25}
+\input{gen/tab/class-speedup}
+\caption{Speedup regression}
+\end{table}
 
 
 Much greater variance in prediction times than with the classifiers,
@@ -975,6 +961,7 @@ $w \in \left\{ w | w < W_{\max}(s) \right\}$.
 
 \subsection{Summary}
 
+%
 \begin{itemize}
 \item In the case of classifiers predicting illegal workgroup sizes,
   the best fallback strategy is to select the closest legal workgroup
@@ -988,7 +975,7 @@ $w \in \left\{ w | w < W_{\max}(s) \right\}$.
   time than using classifiers. The J48 classifier has the lowest
   overhead.
 \end{itemize}
-
+%
 
 \section{Summary}
 
