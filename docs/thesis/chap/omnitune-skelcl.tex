@@ -56,10 +56,10 @@ Using a large number of synthetic benchmarks helps adress the ``small
 $n$, large $P$'' problem, which describes the difficulty of
 statistical inference in spaces for which the set of possible
 hypotheses $P$ is significantly larger than the number of observations
-$n$\CitationNeeded{}. By creating parameterised, synthetic benchmarks,
-it is possible to explore a much larger set of the space of possible
-stencil codes than if relying solely on reference applications,
-reducing the risk of overfitting to particular program features.
+$n$. By creating parameterised, synthetic benchmarks, it is possible
+to explore a much larger set of the space of possible stencil codes
+than if relying solely on reference applications, reducing the risk of
+overfitting to particular program features.
 
 
 \section{Stencil Features}
@@ -527,26 +527,31 @@ this process.
 
 \section{Implementation}
 
-By design, the client-server model minimises the impact of number of
+The OmniTune framework is implemented as a set of Python classes and
+interfaces, which are inherited from or implemented to target specific
+autotuning cases. The entire framework consists of 8987 lines of
+Python code, of which 976 is dedicated to the SkelCL frontend. By
+design, the client-server model minimises the impact of number of
 modifications that are required to enable autotuning in client
 applications. The only modification required is to replace the
 hardcoded values for workgroup size with a subroutine to request a
-workgroup size from the OmniTune server over a DBUS connection.
-
-The server is implemented as a standalone Python program, and uses
-sqlite to maintain local data caches. See
-Figure~\ref{fig:omnitune-system-flow} for a sectino of the database
-schema. The OmniTune remote is an Amazon Web Services virtual machine
-instance running MySQL.
-
-\todo{8987 lines of Python, 976 for the SkelCL front-end}
+workgroup size from the OmniTune server over a DBUS connection. The
+server is implemented as a standalone Python program, and uses sqlite
+to maintain local data caches. The OmniTune remote is an Amazon Web
+Services virtual machine instance, using MySQL as the relational data
+store. Figure~\ref{fig:omnitune-system-flow} shows the relational
+database schema used to store stencil runtime information. Additional
+tables store data in coalesced forms for use as machine learning
+training data.
 
 \begin{figure}
 \centering
-\includegraphics[width=.75\textwidth]{img/omnitune-data-schema.pdf}
+\includegraphics[width=.95\textwidth]{img/omnitune-data-schema.pdf}
 \caption[Database schema for OmniTune remote]{%
-  Database schema for storing SkelCL stencil runtimes on an OmniTune
-  remote.%
+  Database schema for storing SkelCL stencil runtimes. Feature lookup
+  tables and normalisation are used to provide extremely compact
+  storage, requiring only 56 bytes for each additional runtime of a
+  known stencil program.%
 }
 \label{fig:omnitune-system-flow}
 \end{figure}
@@ -554,4 +559,15 @@ instance running MySQL.
 
 \section{Summary}
 
-\TODO{\ldots}
+This section has described has the application of OmniTune for
+predicting workgroup sizes of SkelCL stencil programs, using three
+different machine learning approaches. The first approach is to
+predict the optimal workgroup size for a given program based on
+training data which included the optimal workgroup sizes for other
+stencils. The second approach is to select a workgroup sizex by
+sweeping the space of possible workgroup sizes, predicting the runtime
+a program with each. The third approach is to select a workgroup size
+by sweeping the space of possible workgroup sizes, predicting the
+relative gain of each compared to a known baseline. In the next
+section, we will describe the process for collecting empirical
+performance data.
