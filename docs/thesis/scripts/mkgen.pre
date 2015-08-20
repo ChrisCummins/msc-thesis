@@ -217,22 +217,24 @@ def fine_grained_runtime_histograms():
 
     # Found by hand:
     indicies = [
-        601, # 2.0406245600000004
-        895, # 25.012451818
-        480, # 51.718092256000006
-        590, # 75.140274775
-        941, # 100.372847552
-        939, # 100.9115374
-        312, # 119.245880346
-        437, # 143.98754486299998
-        156, # 195.44022449400003
+        (895, sns.color_palette("Blues")[4]), # 25.012451818
+        (480, sns.color_palette("Blues")[4]), # 51.718092256000006
+        (590, sns.color_palette("Blues")[4]), # 75.140274775
+        (601, sns.color_palette("Oranges")[4]), # 2.0406245600000004
+        (941, sns.color_palette("Oranges")[4]), # 100.372847552
+        (156, sns.color_palette("Oranges")[4]), # 195.44022449400003
+        (939, sns.color_palette("Greens")[5]), # 100.9115374
+        (312, sns.color_palette("Greens")[5]), # 119.245880346
+        (437, sns.color_palette("Greens")[5]), # 143.98754486299998
     ]
 
-    for i,index in enumerate(indicies):
+    for i,row in enumerate(indicies):
+        index, color = row
         runtimes = sample_runtimes[index]
         output = "gen/img/runtimes_histogram_{}.pdf".format(i+1)
         figsize=(2, 2)
-        visualise.runtimes_histogram(runtimes, output=output, figsize=figsize)
+        visualise.runtimes_histogram(runtimes, output=output, figsize=figsize,
+                                     color=color)
 
 
 def num_samples_vs_variance(db):
@@ -609,8 +611,8 @@ def main():
     # # Variance trends
     # num_samples_vs_variance(db)
 
-    # # Runtime histograms
-    # fine_grained_runtime_histograms()
+    # Runtime histograms
+    fine_grained_runtime_histograms()
 
     # # Heatmaps
     # figsize=(5, 4)
@@ -740,7 +742,7 @@ def main():
     #                                     table="speedup_classification_results",
     #                                     figsize=figsize)
 
-    fallback_speedups(db)
+    # fallback_speedups(db)
 
     # # CLASSIFICATION ERROR HEATMAPS
     # for i,classifier in enumerate(db.classification_classifiers):
@@ -751,7 +753,7 @@ def main():
     #                     table="speedup_classification_results",
     #                     title="Speedup Regression")
 
-    speedup_distributions(db)
+    # speedup_distributions(db)
 
     ml.stop()
 

@@ -1,11 +1,11 @@
 \section{Introduction}
 
 This chapter describes an exhaustive enumeration of the workgroup size
-optimisation space for \input{gen/num_scenarios} combinations of
-architecture, program, and dataset. It contains the methodology used
-to achieve statistically sound comparisons of competing programs using
-different configurations, and the steps necessary to obtain repeatable
-results.
+optimisation space for 429 combinations of architecture, program, and
+dataset. It contains the methodology used to achieve empirical
+performance data with which to base performance comparisons of
+different workgroup sizes, and the steps necessary to obtain
+repeatable results.
 
 
 \section{Experimental Setup}
@@ -136,19 +136,20 @@ distinct phases, shown in Table~\ref{tab:stencil-runtime-components}.
   substitution is performed of the user code into the stencil skeleton
   implementation, then compiled into an OpenCL program. Once compiled,
   the program binary is cached for the lifetime of the host program.
-\item \textbf{Skeleton prepare times} Before a kernel is executed, a
-  preparation phase is required to allocate buffers for the input and
-  output data on each execution device.
+\item \textbf{Skeleton preparation times} Before a kernel is executed,
+  a preparation phase is required to allocate buffers for the input
+  and output data on each execution device.
 \item \textbf{Host $\rightarrow$ Device and Device $\rightarrow$ Host
-    transfers} Data must be copied to and from the execution devices
-  before and after execution of the stencils, respectively. Note that
-  this is performed lazily, so iterative stencils do not require
-  repeated transfers between host and device memory.
+    transfer times} Data must be copied to and from the execution
+  devices before and after execution of the stencils,
+  respectively. Note that this is performed lazily, so iterative
+  stencils do not require repeated transfers between host and device
+  memory.
 \item \textbf{Kernel execution times} This is the time elapsed
   executing the stencil kernel, and is representative of ``work
   done''.
-\item \textbf{Devices $\leftrightarrow$ Host (sync) transfers} For
-  iterative stencils on multiple execution devices, an overlapping
+\item \textbf{Devices $\leftrightarrow$ Host (sync) transfer times}
+  For iterative stencils on multiple execution devices, an overlapping
   halo region is shared at the border between the devices' grids. This
   must be synchronised between iterations, requiring an intermediate
   transfer to host memory, since device to device memory is not
@@ -163,7 +164,7 @@ total time $t$ of a SkelCL stencil application is simply the sum of
 all times recorded for each distinct phase:
 %
 \begin{equation}
-t = \bm{1c} + \bm{1p} + \bm{1u} + \bm{1k} + \bm{1d}
+t = \bm{1c^T} + \bm{1p^T} + \bm{1u^T} + \bm{1k^T} + \bm{1d^T}
 \end{equation}
 %
 Note that there are no synchronisation costs $s$. For applications
@@ -172,8 +173,8 @@ of the sequential host-side phases, and the sum of the device-side
 phases divided by the number of devices:
 %
 \begin{equation}
-t \approx \sum_{i=1}^n{(\bm{1c}_{i})} + \bm{1p} + \bm{1s} +
-  \frac{\sum_{i=1}^n{\bm{1u}_{i} + \bm{1k}_{i} + \bm{1d}_{i}}}{n}
+t \approx \sum_{i=1}^n{(\bm{1c^T}_{i})} + \bm{1p^T} + \bm{1s^T} +
+  \frac{\sum_{i=1}^n{\bm{1u^T}_{i} + \bm{1k^T}_{i} + \bm{1d^T}_{i}}}{n}
 \end{equation}
 %
 The purpose of tuning workgroup size is to maximise the throughput of
@@ -202,3 +203,5 @@ the execution time of a stencil kernel.
 This section describes the methodology for collecting relative
 performance data of SkelCL stencil benchmarks under different
 combinations of architecture, program, dataset, and workgroup size.
+The next chapter evaluates these performance results, and analyses the
+performance of OmniTune at predicting workgroup sizes.
