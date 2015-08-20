@@ -202,8 +202,6 @@ in-between SkelCL program executions.
 \TODO{Offline ML for partitioning streaming applications:
 \cite{Wang2010}}
 
-\TODO{Synthetic benchmarks\cite{Chiu2015}}
-
 In~\cite{Saclay2010,Memon2013,Fursin2014}, \citeauthor{Fursin2014}
 advocate a collaborative and ``big data'' driven approach to
 autotuning, arguing that the challenges facing the widespread adoption
@@ -251,21 +249,49 @@ instructions. If the conjecture cannot be disproved, the size of $n$
 is increased and the process repeats.
 
 
+\subsection{Training with Synthetic Benchmarks}
+
+The use of synthetic benchmarks for providing empirical performance
+evaluations dates back to as early as 1974~\cite{Curnow1976}. The
+\emph{automatic generation} of such synthetic benchmarks is a more
+recent innovation, serving the purpose initially of stress-testing
+increasingly complex software systems for behaviour validation and
+automatic bug detection~\cite{Verplaetse2000,Godefroid2008}. A range
+of techniques have been developed for these purposes, ranging from
+applying random mutations to a known dataset to generate test stimuli,
+to so-called ``whitebox fuzz testing'' which analyses program traces
+to explore the space of a program's control flow. Csmith is one such
+tool which generates randomised C source code for automatically
+detecting compiler bugs~\cite{Yang2012}.
+
+A method for the automatic generation of synthetic benchmarks for the
+purpose of \emph{performance} tuning is presented
+in~\cite{Chiu2015}. \citeauthor{Chiu2015} use template substitution
+over a user-defined range of values to generate programs training
+programs with a statistically controlled range of features. A Perl
+preprocessor generates output source codes from an input description
+using a custom input language Genesis. Genesis is more flexible than
+the system presented in this thesis, supporting substitution of
+arbitrary sources. The authors describe an application of their tool
+for generating OpenCL stencil kernels, but do not report any
+performance results.
+
+
 \section{Performance Tuning for Heterogeneous Parallelism}
 
 As briefly discussed in Section~\ref{sec:gpgpu}, the complex
 interactions between optimisations and heterogeneous hardware makes
-performance tuning a difficult task. Performant GPGPU programs require
-careful attention from the developer to properly manage data layout in
-DRAM, caching, diverging control flow, and thread communication. The
-performance of programs depends heavily on fully utilising
-zero-overhead thread scheduling, memory bandwidth, and thread
-grouping. \citeauthor{Ryoo2008a} illustrate the importance of these
-factors by demonstrating speedups of up to $432\times$ for matrix
-multiplication in CUDA by appropriate use of tiling and loop
-unrolling~\cite{Ryoo2008a}. The importance of proper exploitation of
-local shared memory and synchronisation costs is explored
-in~\cite{Lee2010}.
+performance tuning for heterogeneous parallelism a difficult
+task. Performant GPGPU programs require careful attention from the
+developer to properly manage data layout in DRAM, caching, diverging
+control flow, and thread communication. The performance of programs
+depends heavily on fully utilising zero-overhead thread scheduling,
+memory bandwidth, and thread grouping. \citeauthor{Ryoo2008a}
+illustrate the importance of these factors by demonstrating speedups
+of up to $432\times$ for matrix multiplication in CUDA by appropriate
+use of tiling and loop unrolling~\cite{Ryoo2008a}. The importance of
+proper exploitation of local shared memory and synchronisation costs
+is explored in~\cite{Lee2010}.
 
 In~\cite{Chen2014}, data locality optimisations are automated using a
 description of the hardware and a memory-placement-agnostic
