@@ -204,6 +204,29 @@ in-between SkelCL program executions.
 
 \TODO{Synthetic benchmarks\cite{Chiu2015}}
 
+In~\cite{Saclay2010,Memon2013,Fursin2014}, \citeauthor{Fursin2014}
+advocate a collaborative and ``big data'' driven approach to
+autotuning, arguing that the challenges facing the widespread adoption
+of autotuning and machine learning methodologies can be attributed to:
+a lack of common, diverse benchmarks and datasets; a lack of common
+experimental methodology; problems with continuously changing hardware
+and software stacks; and the difficulty to validate techniques due to
+a lack of sharing in publications. They propose a system for
+addressing these concerns, the Collective Mind knowledge system,
+which, while in early stages of ongoing development, is intended to
+provide a modular infrastructure for sharing autotuning performance
+data and related artifacts across the internet. In addition to sharing
+performance data, the approach taken in this thesis emphasises the
+collective \emph{exploitation} of such performance data, so that data
+gathered from one device may be used to inform the autotuning
+decisions of another. This requires each device to maintain local
+caches of shared data to remove the network overhead that would be
+present from querying a single centralised data store during a
+program's runtime. The current implementation of Collective Mind uses
+a NoSQL JSON format for storing performance data. The relational
+schema used in this thesis offers greater scaling performance as the
+amount of performance data from collective tuning grows.
+
 An interesting related tangent to iterative compilation is the
 development of so-called ``superoptimisers''. In~\cite{Massalin1987},
 the smallest possible program which performs a specific function is
@@ -392,30 +415,19 @@ for an expensive tuning phase for each program and architecture.
 % The majority of applications tested are memory bound. Does this
 % transfer to computer bound?
 
-In~\cite{Christen2011}, \citeauthor{Christen2011} presents a DSL for
+In~\cite{Christen2011}, \citeauthor{Christen2011} presentf a DSL for
 expressing stencil codes, a C code generator, and an autotuner for
 exploring the optimisation space of blocking and vectorisation
-strategies. \TODO{Pro: Supports arbitrarily high dimensional
-  grids. They introduce *2* new DSLs without comment on why they were
-  needed. This is a huge price of entry for anyone who actually wants
-  to *use* PATUS to solve problems, and a decision that I think they
-  could have justified better. They provide nice and concise
-  explanations of stencil codes and the types of optimisation methods
-  used by other autotuners (ATLAS, FLAME, FFTW, SPIRAL). However, they
-  *barely* explain their own, saying only that they perform *either*
-  an exhaustive, multi-run Powell, Nelder Mead, or evolutionary
-  algorithms.  Their evaluation uses 6 benchmarks, and 3
-  architectures. Only 1 of those is a GPU. It would have been nice to
-  shown performance across GPU architectures. From the perspective of
-  autotuning, the paper comes as across quite weak: They do not
-  present an "oracle" performance, so we can't compare the quality of
-  their autotuner compared to it. They don't show how the optimal
-  tunable parameter values vary across results, so they don't
-  demonstrate how autotuning is *necessary* (maybe there's one single
-  value which works well for all results?). They do not give any
-  indication of convergence time of their autotuner. They do not
-  report the number of different combinations that their autotuner
-  tries.}
+strategies. The DSL supports stencil operations on arbitrarily
+high-dimensional grids. The autotuner performs either an exhaustive,
+multi-run Powell search, Nelder Mead, or evolutionary search to find
+optimal parameter values. They evaluate their system on two CPUS and
+one GPU using 6 benchmarks. A comparison of tuning results between
+different GPU architectures would have been welcome, as the results
+presented in this thesis show that devices have different responses to
+optimisation parameters. The authors do not present a ratio of the
+available performance that their system achieves, or how the
+performance of optimisations vary across benchmarks or devices.
 
 A stencil grid can be decomposed into smaller subsections so that
 multiple GPUs can operate on each subsection independently. This
