@@ -535,42 +535,86 @@ appropriate workgroup size to use.
 \section{Machine Learning}
 
 
+Multiple machine learning methods are used in this thesis to perform
+classification and regression tasks. Classification is the task of
+predicting the correct category --- or class --- for a new instance,
+based on ``labelled'' training data, i.e.\ instances whose categories
+are known. The properties describing instances are called
+\emph{features}. The purpose of regression is to predict the
+relationship between a dependent variable, and the value of one or
+more independent variables. Unlike with classification, the predicted
+dependent variable can be continuous, rather than categorical. This
+section briefly describes the properties of classifiers and regressors
+used in this thesis.
+
+
 \subsubsection{ZeroR}
 
-
-\subsection{Classification}
+A ``ZeroR'' classifier represents the simplest approach to
+classification, in that it ignores all features, and simply predicts
+the mode of the training data labels. This is useful for providing a
+baseline to evaluate the performance of more complex classifiers
+against, since a ZeroR classifier has no power of prediction.
 
 
 \subsubsection{Naive Bayes}
 
-% assume strong independence between features
-
-Given a prior probability for each class $P(y)$, a class-conditional
-model $P(x|y)$, and a normalizer $P(x) = \sum_{y'}P(x|y')P(y')$:
-
+Naive Bayes classifiers are probabilistic classifiers which assume
+strong independence between features. That is, the value of one
+feature is considered independently of another, and is what lends the
+\emph{Naive} portion of the name. The goal of Naive Bayes is to
+predict the probability of a class $y$, given a set of $d$ independent
+variables $x = x_1, x_2, \ldots x_d$. Naive Bayes applies Bayes
+theorem, which states that given a \emph{prior} (i.e.\ unconditional)
+probability for each class $P(y)$, a class-\emph{conditional} model
+$P(x|y)$, and a normaliser $P(x) = \sum_{y'}P(x|y')P(y')$, the
+probability of a class $y$ given variables $x$ is equal to the
+probability of $x$ given $y$, multiplied by the probability of $y$:
+%
 \begin{equation}
-P(y|x) = \frac{P(x|y)P(y)}{\sum_{y'}P(x|y')P(y')}
+  P(y|x) = \frac{P(x|y)P(y)}{\sum_{y'}P(x|y')P(y')}
 \end{equation}
-
-Note that the normaliser $P(x)$ does not affect the class which is
-most likely.
+%
+The class which has the highest probability from the set of possible
+classes $Y$ is the prediction. Note that the normaliser $P(x)$ does
+not affect the class which is most likely. The class conditional model
+uses ``counts'' for each observation based on training data:
+%
+\begin{equation}
+  P(x|y) = \prod_{i=1}^{d} P(x_i|y)
+\end{equation}
+%
+The simplicity of Naive Bayes makes it attractive for various purposes
+such as text classification (using word frequency as features), but
+the assumption of independence means that it is not universally
+successful.
 
 
 \subsubsection{Decision Trees}
 
-Given a set of examples $S$, and $p_{(+)}$ and $p_{(-)}$ are the
-number of positive and negative examples in $S$:
+Decision trees are an intuitive form of classification in which a set
+of
+
+Given a set of examples $D$, and $p_{(+)}$ and $p_{(-)}$ are the
+number of positive and negative examples in $D$:
 
 \begin{equation}
-  H(S) = - p_{(+)}\log_2p_{(+)} - p_{(-)}\log_2p_{(-)}
+  H(D) = - p_{(+)}\log_2p_{(+)} - p_{(-)}\log_2p_{(-)}
 \end{equation}
 
 \begin{equation}
-  \gain(S, A) = H(S) - \sum_{V \in \text{Values}(A)}\frac{|S_V|}{|S|}H(S_V)
+  \gain(D, A) = H(D) - \sum_{V \in \text{Values}(A)}\frac{|D_V|}{|D|}H(D_V)
 \end{equation}
 
 
 \subsubsection{Random Forest}
+
+Random Forests are an ensemble technique which attempt to overcome the
+tendency of decision trees to overfit training by training multiple
+decision trees and using the mode of each tree to select
+predictions~\cite{Breiman1999}. If trained using regression trees,
+Random Forests are capable of regression, in which the predicted
+values are the mean of all trees.
 
 
 \subsubsection{Support Vector Machines}
@@ -592,28 +636,6 @@ vectors of features $x$ are labelled with a class $y$:
 
 
 \subsection{Regression}
-
-
-\subsubsection{Linear Regression}
-
-\begin{equation}
-  f(\bm{x}; \bm{w}) = w_0 + w_1x_1 + \ldots + w_Dx_D = \phi(\bm{x})\bm{w}
-\end{equation}
-
-\begin{equation}
-  \phi(\bm{x}) = (1, x_1, \ldots, x_D) = (1, \bm{x}^T)
-\end{equation}
-
-
-\subsubsection{Logistic Regression}
-
-\begin{equation}
-  f(\bm{x}; \bm{w}) = \bm{w}^{T}\bm{x} + w_0
-\end{equation}
-
-\begin{equation}
-  \left\{ \bm{x} | \bm{w}^T\bm{x} + w_0 = 0 \right\}
-\end{equation}
 
 
 \subsubsection{Random Forest}
