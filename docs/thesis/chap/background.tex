@@ -2,20 +2,20 @@
 
 This chapter provides a detailed though non-exhaustive description of
 the theory and techniques used in this thesis. First is an overview of
-Algorithmic Skeletons, GPGPU programming, and the combination of the
-two in SkelCL. Second is a description of the machine learning
-techniques used in this thesis, followed by the tools and
-methodologies used in the evaluation.
+algorithmic skeletons, GPGPU programming, and the combination of the
+two in SkelCL. Second is an overview of the machine learning
+techniques used in this thesis, followed by a description of the
+Statistical tools tools and methodologies used in the evaluation.
 
 
-\section{Parallel Programming with Algorithmic Skeletons}
+\section{Algorithmic Skeletons}
 
 Introduced by \citeauthor{Cole1989} in \citeyear{Cole1989},
-Algorithmic Skeletons simplify the task of parallel programming by
+algorithmic skeletons simplify the task of parallel programming by
 abstracting common patterns of communication, providing parallel
 implementations of higher order functions~\cite{Cole1989}. The
-interfaces to generic parallel algorithms exposed by Algorithmic
-Skeletons are parameterised by the user with \emph{muscle functions}
+interfaces to generic parallel algorithms exposed by algorithmic
+skeletons are parameterised by the user with \emph{muscle functions}
 that implement problem specific logic. The idea is that this allows
 the user to focus on solving the problem at hand, affording greater
 ease of use by automating the coordination of parallel resources.
@@ -23,19 +23,18 @@ ease of use by automating the coordination of parallel resources.
 
 \subsection{Abstracting Task and Data Parallelism}
 
-Algorithmic Skeletons are categorised as either \emph{data} parallel
+Algorithmic skeletons are categorised as either \emph{data} parallel
 or \emph{task} parallel. In data parallel skeletons, data are
-distributed across nodes for parallel processing across multiple
-devices, each performing the same task. That is, each parallel node
-executes the same code, on a unique subset of the data. Examples of
-data parallel Algorithmic Skeletons include \emph{map}, \emph{zip},
+distributed across nodes for parallel processing, where each parallel
+node executes the same code on a unique subset of the data. Examples
+of data parallel algorithmic skeletons include \emph{map}, \emph{zip},
 and \emph{reduce}. The data parallel operations provided by SkelCL are
 described in detail in Section~\ref{sec:skelcl-intro}.
 
 Task parallel skeletons treat the data as a singular object and
 instead parallelise the execution of multiple tasks. Tasks are
 assigned to threads, which can communicate with each other by passing
-data between threads. Examples of task parallel Algorithmic Skeletons
+data between threads. Examples of task parallel algorithmic skeletons
 include \emph{pipe}, \emph{task farm}, and \emph{for loops}.
 
 
@@ -46,7 +45,7 @@ include \emph{pipe}, \emph{task farm}, and \emph{for loops}.
 \includegraphics[width=0.99\textwidth]{img/askf}
 \caption[Overview of an Algorithmic Skeleton Framework]{%
   Typical usage of a library based Algorithmic Skeleton
-  Framework. Other approaches to Algorithmic Skeletons involve
+  Framework. Other approaches to algorithmic skeletons involve
   embedding the API into the core language itself, or using template
   and macro substitution to remove the need for linking with a
   library.%
@@ -55,23 +54,23 @@ include \emph{pipe}, \emph{task farm}, and \emph{for loops}.
 \end{figure}
 
 Algorithmic Skeleton Frameworks (ASkFs) provide concrete parallel
-implementations of a set of parallel patterns, which are parameterised
-by the user to generate specific problem solving programs. The
-interfaces exposed by frameworks must be sufficiently generic to allow
-users to express a range of problems.
+implementations of parallel patterns, which are parameterised by the
+user to generate specific problem solving programs. The interfaces
+exposed by frameworks must be sufficiently generic to allow users to
+express a range of problems.
 
-Implementations of Algorithmic Skeletons abound, targeting a range of
+Implementations of algorithmic skeletons abound, targeting a range of
 different use cases and host languages. Notable examples include:
 eSkel~\cite{Benoit2005a}, Skandium~\cite{Leyton2010}, and
-FastFlow~\cite{Aldinucci2011}. The most prevalent form of ASkF is as a
-standalone library built within a host library, which exposes a set of
-APIs, shown in Figure~\ref{fig:askf}. See~\cite{Gonzalez2010} for a
-more exhaustive review of ASkFs in the research literature.
+FastFlow~\cite{Aldinucci2011}. The most prevalent form of ASkF is that
+of the standalone library which exposes a set of public APIs, shown in
+Figure~\ref{fig:askf}. See~\cite{Gonzalez2010} for a more exhaustive
+review of ASkFs in the research literature.
 
 In industry, Google's MapReduce~\cite{Dean2008} and Intel's Thread
 Building Blocks~\cite{IntelTBB} have utilised a similar approach to
-abstracting the coordination of parallel resources as in Algorithmic
-Skeletons, to great commercial success, although they do not advertise
+abstracting the coordination of parallel resources as in algorithmic
+skeletons, to great commercial success, although they do not advertise
 themselves as such.
 
 
@@ -108,7 +107,7 @@ made by hand or by the compiler~\cite{Komatsu2010,Karimi2010}.
 \centering
 \includegraphics[width=0.5
 \textwidth]{img/opencl-memory}
-\caption[OpenCL memory model]{%
+\caption[The OpenCL memory model]{%
   The OpenCL memory model. The host communicates with each device
   through transfers between global memory spaces. The capacity of each
   type of memory is dependent on the device hardware. In general,
@@ -128,20 +127,21 @@ runtime, an OpenCL \emph{platform} is selected and a \emph{context}
 object is created which exposes access to each supported compute
 device through \emph{command queues}.  When a kernel is executed, each
 unit of computation is referred to as a \emph{workitem}, and these
-work items are grouped into \emph{workgroups}. The sum of all
-workgroup dimensions defines the \emph{global size}. For GPUs,
-workgroups execute on the Single Instruction Multiple Data (SIMD)
-processing units in lockstep. This can cause a severe performance
-penalty for flow control across workgroups, as ``thread masks'' must
-be used to stall the execution of workitems across diverging branches.
+workitems are grouped into \emph{workgroups}. The sum of all workgroup
+dimensions defines the \emph{global size}. For GPUs, workgroups
+execute on the Single Instruction Multiple Data (SIMD) processing
+units in lockstep. This is very different from the behaviour of
+traditional CPUs, and can cause severe performance penalties in the
+presence of flow control, as workitems must be stalled across divering
+flow paths.
 
 
 \subsubsection{Memory Model}
 
-Unlike the flat memory model of CPUs, OpenCL uses a hierarchical
-memory model. The host and each OpenCL device has a single global
-memory address space. Each workgroup has a local memory space, and
-each workitem has a region of private memory.
+Unlike the flat model of CPUs, OpenCL uses a hierarchical memory
+model. The host and each OpenCL device has a single global memory
+address space. Each workgroup has a local memory space, and each
+workitem has a region of private memory.
 
 Workgroups cannot access the memory of neighbouring workgroups, nor
 can workitems access the private memory of other workitems. OpenCL
@@ -153,7 +153,7 @@ heterogeneous devices, these transfers must occur over the connection
 bus between the CPU and device (e.g.\ PCIe for discrete GPUs), which
 typically creates a performance bottleneck by introducing a
 performance overhead to transfer data to the device for processing,
-than back to the device afterwards. Direct transfers of data between
+then back to the device afterwards. Direct transfers of data between
 devices is not supported, requiring an intermediate transfer to the
 host memory.
 
@@ -161,7 +161,7 @@ host memory.
 \subsubsection{Performance Optimisations}
 
 The wide range of supported execution devices and differing
-standard-compliant implementations makes portable performance tuning
+standards-compliant implementations makes portable performance tuning
 of OpenCL programs a difficult task~\cite{Rul2010}, and the
 interactions between optimisations and the hardware are complex and
 sometimes counter-intuitive~\cite{Ryoo2008}.
@@ -209,18 +209,17 @@ knowledgeable of the concepts unique to OpenCL programming, such as
 the memory or execution model~\cite{Steuwer2012}. SkelCL has been
 shown to reduce programmer effort for developing real applications
 through the use of robust pattern implementations and automated memory
-management, with performance is within 5\% of equivalent
-implementations hand written in OpenCL~\cite{Steuwer2013}.
+management, maintaining performance within 5\% of that of equivalent
+hand-written implementations in OpenCL~\cite{Steuwer2013}.
 
-OpenCL skeletons are parameterised with muscle functions by the user,
-which are compiled into kernels for execution on device
+SkelCL skeletons are parameterised with muscle functions by the user,
+which are compiled into OpenCL kernels for execution on device
 hardware. SkelCL supports operations on one or two dimensional arrays
 of data, with the Vector and Matrix container types transparently
-handling communication between the host and device memory, and
-supporting partitioning for multi-GPU
-execution~\cite{Steuwer2013a}. SkelCL is freely
-available\footnote{\url{http://skelcl.uni-muenster.de}} and
-distributed under dual GPL and academic licenses.
+handling lazy transfers between host and device memory, and supporting
+partitioning for multi-GPU execution~\cite{Steuwer2013a}. SkelCL is
+freely available and distributed under dual GPL and academic
+licenses\footnote{\url{http://skelcl.uni-muenster.de}}.
 
 
 \subsection{Pattern definitions}
@@ -229,7 +228,7 @@ SkelCL provides six skeletons for data parallel operations: $\map$,
 $\zip$, $\reduce$, $\scan$, $\allpairs$, and $\stencil$. The focus of
 this thesis is on tuning the $\stencil$ skeleton, but for the sake of
 completeness I provide here a brief overview of the behaviour of all
-six.
+six patterns.
 
 
 \subsubsection{Map}
@@ -237,7 +236,8 @@ six.
 The $\map$ operation is a basic building block of data parallel
 algorithms. Given a customising function $f$ and a vector $x$ of $n$
 elements, the $\map$ operation applies the function $f$ to each
-element $x_1, x_2, \ldots, x_n$, return a vector of the same length:
+element $x_1, x_2, \ldots, x_n$, returning a vector of the same
+length:
 %
 \begin{equation}
 \map\left(f, [x_1,x_2,\ldots,x_n]\right) \to [f(x_1),f(x_2),\ldots,f(x_n)]
@@ -260,8 +260,9 @@ The process is the same for an $n \times m$ matrix:
 \end{bmatrix}
 \end{equation}
 %
-Execution of the customising function can be parallelised as each are
-independent of each. There is no guarantees on execution on ordering.
+Execution of the customising function can be parallelised as each
+element is processed independently. There are no guarantees on
+execution ordering.
 
 
 \subsubsection{Zip}
@@ -300,7 +301,7 @@ For two matrices of $n \times m$ elements each:
 \end{split}
 \end{equation}
 %
-It is parallelised in the same manner as $\map$.
+The $\zip$ operation is parallelised in the same manner as $\map$.
 
 
 \subsubsection{Reduce}
@@ -328,9 +329,9 @@ For a $n \times m$ matrix:
 x_{11} \oplus x_{12} \oplus \ldots \oplus x_{nm}
 \end{equation}
 %
-Reduction operates recursively combines elements, storing intermediate
-results in fast local memory. No guarantee is made on execution
-ordering, so the binary operator must be associative.
+Reduction operates by recursively combining elements, storing
+intermediate results in fast local memory. No guarantee is made on
+execution ordering, so the binary operator must be associative.
 
 
 \subsubsection{Scan}
@@ -342,7 +343,7 @@ elements $x_1,x_2, \ldots x_{i-1}$. For the first element $x_i$, the
 value is the identify $\bm{i}$ of the $\oplus$ operator:
 %
 \begin{equation}
-  \scan \left( \oplus, i, [x_1,x_2,\ldots,x_n] \right)
+  \scan \left( \oplus, \bm{i}, [x_1,x_2,\ldots,x_n] \right)
   \to
   \left[ \bm{i}, x_1, x_1 \oplus x_2, \ldots, x_1 \oplus x_2 \oplus \ldots \oplus x_n \right]
 \end{equation}
@@ -354,7 +355,7 @@ local memory, based on the design from~\cite{Harris2007a}.
 \subsubsection{AllPairs}
 
 The AllPairs skeleton is a specialised pattern for Matrix Matrix
-operations, introduced in~\cite{Steuwer2014}. Given an two matrices of
+operations, introduced in~\cite{Steuwer2014}. Given two matrices of
 size $n \times d$ and $n \times m$, a binary operator $\oplus$:
 %
 \begin{equation}
@@ -418,7 +419,7 @@ data, where the value of each cell is updated based on its current
 value and the value of one or more neighbouring elements, called the
 \emph{border region}. Introduced in~\cite{Breuer2014}, SkelCL provides
 a 2D stencil skeleton which allows users to provide a function which
-updates a cell's value; while SkelCL orchestrates the parallel
+updates a cell's value, while SkelCL orchestrates the parallel
 execution of this function across all cells.
 
 The border region is described by a \emph{stencil shape}, which
@@ -426,10 +427,8 @@ defines an $i \times j$ rectangular region about each cell which is
 used to update the cell value. Stencil shapes may be asymmetrical, and
 are defined in terms of the number of cells in the border region to
 the north, east, south, and west of each cell, shown in
-Figure~\ref{fig:stencil-shape}.
-
-Given a customising function $f$, a stencil shape $S$, and an
-$n \times m$ matrix:
+Figure~\ref{fig:stencil-shape}. Given a customising function $f$, a
+stencil shape $S$, and an $n \times m$ matrix:
 %
 \begin{equation}
 \stencil \left( f, S,
@@ -459,17 +458,17 @@ z_{ij} = f \left(
 %
 Note that a stencil operation in which the size of the stencil shape
 $S$ is zero in every direction is functionally equivalent to a $\map$
-operation. Where the a border region includes elements outside of the
+operation. Where the border region includes elements outside of the
 matrix, values are substituted from either a predefined padding value,
-or the value of the nearest cell within the matrix. The choice of
-which is determined by the user.
+or the value of the nearest cell within the matrix, depending on user
+preference.
 
 A popular usage of Stencil codes is for solving problems iteratively,
 whereby a stencil operation is repeated over a range of discrete time
 steps $0 \le t \le t_{max}$, and $t \in \mathbb{Z}$. An iterative
 stencil operation $g$ accepts a customising function $f$, a Stencil
-shape $S$, and a matrix $M$ with initial values $M_{init}$. The
-iterative stencil can be defined recursively as:
+shape $S$, and a matrix $M$ with initial values $M_{init}$. The value
+of an iterative stencil can be defined recursively as:
 %
 \begin{equation}
 g(f, S, M, t) =
@@ -541,8 +540,8 @@ predicting the correct category --- or class --- for a new instance,
 based on ``labelled'' training data, i.e.\ instances whose categories
 are known. The properties describing instances are called
 \emph{features}. The purpose of regression is to predict the
-relationship between a dependent variable, and the value of one or
-more independent variables. Unlike with classification, the predicted
+relationship between a dependent variable and the value of one or more
+independent variables. Unlike with classification, the predicted
 dependent variable can be continuous, rather than categorical. This
 section briefly describes the properties of classifiers and regressors
 used in this thesis.
@@ -567,9 +566,10 @@ predict the probability of a class $y$, given a set of $d$ independent
 variables $x = x_1, x_2, \ldots x_d$. Naive Bayes applies Bayes
 theorem, which states that given a \emph{prior} (i.e.\ unconditional)
 probability for each class $P(y)$, a class-\emph{conditional} model
-$P(x|y)$, and a normaliser $P(x) = \sum_{y'}P(x|y')P(y')$, the
-probability of a class $y$ given variables $x$ is equal to the
-probability of $x$ given $y$, multiplied by the probability of $y$:
+$P(x|y)$, and a normaliser across all classes
+$P(x) = \sum_{y'}P(x|y')P(y')$: the probability of a class $y$ given
+dependent variables $x$ is equal to the probability of $x$ given $y$,
+multiplied by the probability of $y$:
 %
 \begin{equation}
   P(y|x) = \frac{P(x|y)P(y)}{\sum_{y'}P(x|y')P(y')}
@@ -586,48 +586,56 @@ uses ``counts'' for each observation based on training data:
 %
 The simplicity of Naive Bayes makes it attractive for various purposes
 such as text classification (using word frequency as features), but
-the assumption of independence means that it is not universally
-successful.
+the assumption of independence makes it unsuitable for certain use
+cases.
 
 
 \subsubsection{Decision Trees}
 
 Decision trees are an intuitive form of classification in which a tree
 structure of decision nodes are used to predict the class for a given
-set of features.
-
-Given a set of examples $D$, and $p_{(+)}$ and $p_{(-)}$ are the
-number of positive and negative examples in $D$:
-
+set of features. Decision trees are built using binary recursive
+partitioning: by creating a decision node for the feature which
+provides the highest gain, creating new child nodes for each possible
+outcome, splitting dividing the data amongst these child nodes, and
+recursing. To find the gain of an feature, we first compute the
+entropy of the data set. Given a set of data points $D$, and $p_{(+)}$
+and $p_{(-)}$ are the number of positive and negative examples in $D$:
+%
 \begin{equation}
   H(D) = - p_{(+)}\log_2p_{(+)} - p_{(-)}\log_2p_{(-)}
 \end{equation}
-
+%
+The gain of an feature $x$ is then found using:
+%
 \begin{equation}
-  \gain(D, A) = H(D) - \sum_{V \in \text{Values}(A)}\frac{|D_V|}{|D|}H(D_V)
+  \gain(D, x) = H(D) - \sum_{V \in \text{Values}(x)}\frac{|D_V|}{|D|}H(D_V)
 \end{equation}
-
+%
 Decision trees are very popular and low overhead form of
 classification, as they can be implemented using a nested set of
-\texttt{if}/\texttt{else} statements. However, they often have an
-issue of overfitting to the training data, if preventative action is
-not taken.
+\texttt{if}/\texttt{else} statements. However, they can often overfit
+to the training data.
 
 
 \subsubsection{Random Forest}
 
 Random Forests are an ensemble technique which attempt to overcome the
-tendency of decision trees to overfit training by training multiple
-decision trees and using the mode of each tree to select
-predictions~\cite{Breiman1999}. If trained using regression trees,
-Random Forests are capable of regression, in which the predicted
-values are the mean of all trees.
-
-\subsubsection{Logistic Regression}
+tendency of decision trees to overfit to training data by training
+multiple decision trees and using the mode of each tree to select
+predictions~\cite{Breiman1999}. Alternatively they can be trained
+using regression trees, in which case the predicted value is the mean
+output of all trees.
 
 
-\subsubsection{SMO}
+% \subsubsection{Logistic Regression}
 
+% A logistic regressor is a set of linear weights and a bias fitted with
+% a logistic squashing function in order to generate a sigmoid shape
+% decision boundary.
+
+
+% \subsubsection{SMO}
 
 
 \section{Statistics}

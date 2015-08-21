@@ -1,7 +1,7 @@
 This chapter begins with a brief survey of the broad field of
-literature that is relevant to Algorithmic Skeletons. This is followed
+literature that is relevant to algorithmic skeletons. This is followed
 by a review of the current state of the art in autotuning research,
-focusing on heterogeneous parallelism, Algorithmic Skeletons, and
+focusing on heterogeneous parallelism, algorithmic skeletons, and
 stencil codes. It presents the context and rationale for the research
 undertaken for this thesis.
 
@@ -81,7 +81,7 @@ Algorithmic skeletons contrast the goals of automatic parallelisation
 by removing the challenge of identifying potential parallelism from
 compilers or users, instead allowing users to frame their problems in
 terms of well defined patterns of computation. This places the
-responsibility of providing performant, optimised implementations for
+responsibility of providing performant, well tuned implementations for
 these patterns on the skeleton author.
 
 
@@ -91,10 +91,10 @@ these patterns on the skeleton author.
 Iterative compilation is the method of performance tuning in which a
 program is compiled and profiled using multiple different
 configurations of optimisations in order to find the configuration
-which maximises performance. The first formalised publication of the
-technique appeared in \citeyear{Bodin1998} by
+which maximises performance. One of the the first formalised
+publications of the technique appeared in \citeyear{Bodin1998} by
 \citeauthor{Bodin1998}~\cite{Bodin1998}.  Iterative compilation has
-been demonstrated to be a highly effective form of empirical
+since been demonstrated to be a highly effective form of empirical
 performance tuning for selecting compiler optimisations.
 
 Given the huge number of possible compiler optimisations (there are
@@ -114,8 +114,8 @@ Milepost GCC, the first machine learning-enabled self-tuning
 compiler~\cite{Fursin2011}. A recent survey of the use of machine
 learning to improve heuristics quality by \citeauthor{Burke2013}
 concludes that the automatic \emph{generation} of these self-tuning
-heuristics provides the greatest level of generalisation, but is an
-ongoing research challenge~\cite{Burke2013}.
+heuristics but is an ongoing research challenge that offers the
+greatest generalisation benefits~\cite{Burke2013}.
 
 % An approach to online tuning of parallel programs is presented
 % in~\cite{Ansel2012} which partitions the available parallel resources
@@ -178,11 +178,11 @@ collective \emph{exploitation} of such performance data, so that data
 gathered from one device may be used to inform the autotuning
 decisions of another. This requires each device to maintain local
 caches of shared data to remove the network overhead that would be
-present from querying a single centralised data store during a
-program's runtime. The current implementation of Collective Mind uses
-a NoSQL JSON format for storing performance data. The relational
-schema used in this thesis offers greater scaling performance as the
-amount of performance data from collective tuning grows.
+present from querying a single centralised data store during execution
+of a hot path. The current implementation of Collective Mind uses a
+NoSQL JSON format for storing performance data. The relational schema
+used in this thesis offers greater scaling performance and lower
+storage overhead as the amount of performance data grows.
 
 Whereas iterative compilation requires an expensive offline training
 phase to search an optimisation space, dynamic optimisers perform this
@@ -213,16 +213,16 @@ superoptimiser tests to see if any possible instruction passes a set
 of conformity tests. If not, the program length is increased by a
 single instruction and the process repeats. The exponential growth in
 the size of the search space is far too expensive for all but the
-smallest of hot path codes, typically less than 13 instructions. The
+smallest of hot paths, typically less than 13 instructions. The
 optimiser is limited to register to register memory transfers, with no
 support for pointers, a limitation which is addressed
 in~\cite{Joshi2002}. Denali is a superoptimiser which uses constraint
 satisfaction and rewrite rules to generate programs which are
-\emph{provably} optimal, instead of \emph{searching} for the optimal
-program through empirical testing. Denali first translate a low level
-machine code into guarded multi-assignment form, then uses a matching
-algorithm to build a graph of all of a set of logical axioms which
-match parts of the graph, before using boolean satisfiability to
+\emph{provably} optimal, instead of searching for the optimal
+configuration through empirical testing. Denali first translates a low
+level machine code into guarded multi-assignment form, then uses a
+matching algorithm to build a graph of all of a set of logical axioms
+which match parts of the graph, before using boolean satisfiability to
 disprove the conjecture that a program cannot be written in $n$
 instructions. If the conjecture cannot be disproved, the size of $n$
 is increased and the process repeats.
@@ -240,20 +240,20 @@ of techniques have been developed for these purposes, ranging from
 applying random mutations to a known dataset to generate test stimuli,
 to so-called ``whitebox fuzz testing'' which analyses program traces
 to explore the space of a program's control flow. Csmith is one such
-tool which generates randomised C source code for automatically
-detecting compiler bugs~\cite{Yang2012}.
+tool which generates randomised C source programs for the purpose of
+automatically detecting compiler bugs~\cite{Yang2012}.
 
 A method for the automatic generation of synthetic benchmarks for the
 purpose of \emph{performance} tuning is presented
 in~\cite{Chiu2015}. \citeauthor{Chiu2015} use template substitution
-over a user-defined range of values to generate programs training
-programs with a statistically controlled range of features. A Perl
-preprocessor generates output source codes from an input description
-using a custom input language Genesis. Genesis is more flexible than
-the system presented in this thesis, supporting substitution of
-arbitrary sources. The authors describe an application of their tool
-for generating OpenCL stencil kernels, but do not report any
-performance results.
+over a user-defined range of values to generate training programs with
+a statistically controlled range of features. A Perl preprocessor
+generates output source codes from an input description using a custom
+input language Genesis. Genesis is more flexible than the system
+presented in this thesis, supporting substitution of arbitrary
+sources. The authors describe an application of their tool for
+generating OpenCL stencil kernels, but do not report any performance
+results.
 
 
 \section{Performance Tuning for Heterogeneous Parallelism}
@@ -286,11 +286,11 @@ skeletons on GPUs, which uses a custom intermediate representation and
 a CUDA code generator, achieving $1.24\times$ speedup over hand
 optimised code on 7 of 8 Rodinia benchmarks.
 
-Reduction of the xGPGPU optimisation space is demonstrated
+Reduction of the GPGPU optimisation space is demonstrated
 in~\cite{Ryoo2008}, using the common subset of optimal configurations
 across a set of training examples. This technique reduces the search
 space by 98\%, although it does not guarantee that for a new program,
-the search space will include the optimal configuration.
+the reduced search space will include the optimal configuration.
 
 \citeauthor{Magni2014} demonstrated that thread coarsening of OpenCL
 kernels can lead to speedups in program performance between
@@ -305,9 +305,9 @@ set of rewrite rules is used to transform high-level expressions to
 OpenCL code, creating a space of possible implementations. This
 approach is ideologically similar to that of PetaBricks, in that
 optimisations are made through algorithmic choice, although in this
-case the transformations are performed at the compiler level. The
-authors report performance on a par with that of hand written OpenCL
-kernels.
+case the transformations are performed automatically at the compiler
+level. The authors report performance on a par with that of hand
+written OpenCL kernels.
 
 
 \section{Autotuning Algorithmic Skeletons}

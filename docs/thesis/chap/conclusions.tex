@@ -26,11 +26,11 @@ dataset, and underlying architecture. The challenge is increased even
 more so by inconsistencies in the underlying system which cause some
 workgroup sizes to fail completely. Of the 269813 combinations of
 workgroup size, device, program, and dataset tested; only a
-\emph{single} workgroup size valid programs throughout, and achieved
-only 24\% of the available performance. The value selected by human
-experts was invalid for 2.6\% of test cases. Autotuning in this space
-requires a system which is resilient these challenges, and several
-techniques were implemented to address them.
+\emph{single} workgroup size was valid for all test cases, and
+achieved only 24\% of the available performance. The value selected by
+human experts was invalid for 2.6\% of test cases. Autotuning in this
+space requires a system which is resilient these challenges, and
+several techniques were implemented to address them.
 
 Runtime performance of autotuned stencil kernels is very promising,
 achieving an average 90\% of the available performance with only a 3ms
@@ -68,14 +68,14 @@ The OmniTune SkelCL frontend provides a template substitution engine
 for generating synthetic stencil benchmarks. The implementation of
 this generator is rigidly tied to the SkelCL stencil format. It would
 be preferred if this template engine was made more flexible, to
-support generation of arbitrary test programs. Additionally, I did not
-explore how the number of synthetic benchmarks in machine learning
-test data sets affects classification performance due to time
-constraints.
+support generation of arbitrary test programs. Additionally, due to
+time constraints, I did not have the opportunity to explore how the
+number of synthetic benchmarks in machine learning test data sets
+affects classification performance.
 
-A further benefit of the synthetic stencil benchmark generator could
-be for creating minimal test cases of refused OpenCL parameters, so
-that bug reports could be filed with the relevant implementation
+One possible use of the synthetic stencil benchmark generator could be
+for creating minimal test cases of refused OpenCL parameters so that
+bug reports could be filed with the relevant implementation
 vendor. However, this would have added a great level of complexity to
 the the generator, as it would have to isolate and remove the
 dependency on SkelCL to generate minimal programs, requiring

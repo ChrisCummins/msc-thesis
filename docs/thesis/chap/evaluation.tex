@@ -32,7 +32,7 @@ measured. The average sample size of runtimes for each test case is
 
 \begin{figure}
 \input{fig/runtime-histograms}
-\caption[Distribution of runtimes]{%
+\caption[Distribution of stencil code runtimes]{%
   Distribution of runtime samples for test cases from three
   devices. Each plot contains a 35-bin histogram of 1000 samples, and
   a fitted kernel density estimate with bandwidth 0.3. The sample mean
@@ -322,7 +322,7 @@ more infrequent as the technology
 matures. Figure~\ref{fig:refused-params-by-device} shows that the
 ratio of refused parameters decreases across the three generations of
 Nvidia GPUs: GTX 590 (2011), GTX 690 (2012), and GTX TITAN (2013). The
-same is trend is apparent for the two Intel i5s: i5-2430M (2011), and
+same trend is apparent for the two Intel i5s: i5-2430M (2011), and
 i5-4570 (2013), although not for the i7-3820 (2012). For now, it is
 imperative that any autotuning system is capable of adapting to these
 refused parameters by suggesting alternatives when they occur.
@@ -382,7 +382,7 @@ possible performance which can be expected from autotuning.
 \end{figure}
 
 
-\begin{table}
+\begin{table}[t]
   \parbox{.45\linewidth}{
     \centering
     \scriptsize
@@ -410,7 +410,7 @@ possible performance which can be expected from autotuning.
 
 \subsection{Speedup Upper Bounds}
 
-\begin{figure}
+\begin{figure}[t]
   \includegraphics{gen/img/max_speedups}
   \caption[Workgroup size speedups]{%
     Speedup of oracle workgroup size over: the worst performing
@@ -569,6 +569,7 @@ is least sensitive to tuning), suggesting that device alone is not
 capable of reliably informing the choice of workgroup size.
 
 
+\cleardoublepage
 \begin{figure}
 \input{fig/performance-wgsizes}
 \caption[Workgroup size performances vs.\ size]{%
@@ -580,8 +581,7 @@ capable of reliably informing the choice of workgroup size.
 }
 \label{fig:performance-wgsizes}
 \end{figure}
-\newpage
-\begin{figure}t
+\begin{figure}
 \input{fig/performances}
 \caption[Workgroup size performances across device, kernel, and dataset]{%
   Performance relative to the oracle of workgroup sizes across all
@@ -624,37 +624,38 @@ for selecting workgroup sizes.
 \section{Autotuning Workgroup Sizes}
 
 In this section, we evaluate the performance of OmniTune for
-predicting workgroup sizes of SkelCL skeletons, using the prediction
+predicting workgroup sizes of SkelCL skeletons using the prediction
 techniques described in Section~\ref{sec:omnitune-ml}. For each
 technique, we partition the experimental data into training and
 testing sets, $S_{training} \subset S$ and
 $S_{testing} = S - S_{training}$. A set of labelled training data
 $D_{training}$ is derived from $S_{training}$, and the prediction
 quality is testing using the validation set $D_{testing}$ derived from
-$S_{training}$. We use multiple approaches to partitioning test data,
+$S_{training}$. We use multiple approaches to partitioning test data
 to evaluate the prediction quality under different scenarios. The
 processes for generating validation sets are:
 %
 \begin{itemize}
-\item 10-fold --- shuffle the set of all training and divide into 10
-  validation sets, each containing 10\% of the training data. This
-  process is repeated for 10 rounds, resulting in 100 validations.
+\item 10-fold --- shuffle the set of all data and divide into 10
+  validation sets, each containing 10\% of the data. This process is
+  repeated for 10 rounds, resulting in 100 validations of 10
+  permutations of the data.
 \item Synthetic --- divide the training data such that it consists
   solely of data collected from synthetic benchmarks, and use data
   collected from real-world benchmarks to test.
 \item Device --- partition the training data into $n$ sets, one for
-  each device. Use $n-1$ sets for training, repeating until partition
-  has been used for testing.
+  each device. Use $n-1$ sets for training, repeating until every
+  partition has been used for testing once.
 \item Kernel --- partition the training data into $n$ sets, one for
-  each kernel. Use $n-1$ sets for training, repeating until partition
-  has been used for testing.
+  each kernel. Use $n-1$ sets for training, repeating until every
+  partition has been used for testing once.
 \item Dataset --- partition the training data into $n$ sets, one for
   each type of dataset. Use $n-1$ sets for training, repeating until
-  partition has been used for testing.
+  every partition has been used for testing once.
 \end{itemize}
 %
 For each autotuning technique, the results of testing using the
-different validation set are reported separately. The autotuning
+different validation sets are reported separately. The autotuning
 techniques evaluated are: using classifiers to predict the optimal
 workgroup size of a stencil, with fallback strategies to handle
 illegal predictions; using regressors to predict the runtime of a
@@ -689,7 +690,7 @@ techniques: \textsc{Baseline}, \textsc{Random}, and
 \textsc{NearestNeighbour}, which differ in the way in which they
 handle illegal predictions. Illegal predictions occur either because
 the classifier has suggested a parameter which does not satisfy the
-maximum workgroup size constraints $w > W_{\max}(s)$, or because the
+maximum workgroup size constraints $w < W_{\max}(s)$, or because the
 workgroup size is refused by OpenCL $w \in W_{refused}(s)$. Workgroup
 sizes are predicted for each scenario in the testing set, and the
 quality of the predicted workgroup size is evaluated using the
@@ -710,7 +711,7 @@ following metrics:
   workgroup size relative to the baseline workgroup size
   $w_{(4 \times 4)}$, and human expert workgroup size
   $w_{(32 \times 4)}$ (where applicable).
-\item time (real) --- the round trip required to make the prediction,
+\item time (real) --- the round trip time required to make the prediction,
   as measured by the OmniTune client. This includes classification
   time and inter-process communication overheads between the client
   and server.
@@ -763,10 +764,10 @@ following metrics:
   workgroup size relative to the baseline workgroup size
   $w_{(4 \times 4)}$, and human expert workgroup size
   $w_{(32 \times 4)}$ (where applicable).
-\item time (real) --- the round trip required to make the prediction,
-  as measured by the OmniTune client. This includes classification
-  time and inter-process communication overheads between the client
-  and server.
+\item time (real) --- the round trip time required to make the
+  prediction, as measured by the OmniTune client. This includes
+  classification time and inter-process communication overheads
+  between the client and server.
 \end{itemize}
 %
 Unlike with classifiers, the process of selecting workgroup sizes
@@ -783,7 +784,7 @@ stencils codes. First, we consider the prediction performance of
 classifiers.
 
 
-% \cleardoublepage
+\cleardoublepage
 \begin{figure}
 \centering
 \includegraphics{gen/img/classification-syn-real}
@@ -832,7 +833,7 @@ classifiers.
 With the exception of the ZeroR, which predicts \emph{only} the
 baseline workgroup size $w_{\left( 4 \times 4 \right)}$, the
 classifiers achieve good speedups over the baseline. Average
-classification speedups across all validations range between
+classification speedups across all validation sets range between
 $4.61\times$ and $5.05\times$. Figures~\ref{fig:class-syn}
 and~\ref{fig:class-arch} show a summary of results using 10-fold
 cross-validation and cross-device validation, respectively.  The
@@ -843,8 +844,7 @@ which performs poorly when trained with synthetic benchmarks and
 tested against real-world programs. This suggests the model
 over-fitting to features of the synthetic benchmarks which are not
 shared by the real-world
-tests. Figure~\ref{fig:classification-speedups} shows the distribution
-of predictions speedups for each prediction technique.
+tests.
 
 \begin{figure}
 \centering
@@ -931,6 +931,7 @@ the human expert selected workgroup size.
 
 
 
+
 \begin{table}
 \scriptsize
 \centering
@@ -1009,7 +1010,7 @@ the human expert selected workgroup size.
 \caption{}
 \label{fig:class-hmaps-6}
 \end{subfigure}
-\caption[Prediction errors across classification techniques]{%
+\caption[Classification error heatmaps]{%
   Heatmaps of classification errors for 10-fold cross-validation,
   showing a subset of the optimisation space. The shading in each
   cells indicates if it is predicted less frequently (blue), ore more
@@ -1020,22 +1021,23 @@ the human expert selected workgroup size.
 \end{figure}
 
 
-Only the NaiveBayes and RandomForest classifiers predicted the human
-expert selected workgroup size of $w_{(32 \times 4)}$ as frequently,
-or more frequently, than it was optimal.
-
-% \subsection{Autotuning Costs}\label{subsec:autotune-costs}
-
-Prediction costs using regression are significantly greater than using
-classifiers. This is because, while a classifier makes a single
+The prediction costs using regression are significantly greater than
+using classifiers. This is because, while a classifier makes a single
 prediction, the number of predictions required of a regressor grows
 with the size of $W_{\max}(s)$, since classification with regression
 requires making predictions for all
-$w \in \left\{ w | w < W_{\max}(s) \right\}$.
+$w \in \left\{ w | w < W_{\max}(s) \right\}$. The fastest classifier
+is J48, due to the it's simplicity (it can be implemented as a
+sequence of nested \texttt{if}/\texttt{else} statements).
 
-\TODO{What is the costs of autotuning?}
-
-\TODO{How many iterations do we need to do before we ``break even''?}
+Figure~\ref{fig:class-hmaps} visualises the classification errors of
+each of the autotuning techniques. It shows that while the performance
+of all of the classifiers is comparable, the distribution of
+predictions is not. Only the NaiveBayes and RandomForest classifiers
+predicted the human expert selected workgroup size of
+$w_{(32 \times 4)}$ as frequently, or more frequently, than it was
+optimal. The two regression techniques were the least accurate of all
+of the autotuning techniques.
 
 
 \subsection{Summary}
@@ -1053,10 +1055,10 @@ autotuning performance can be drawn:
 \item Predicting the \emph{runtime} of stencils is the least effective
   of the evaluated autotuning techniques, achieving an average of only
   68\% of the available performance.
+\item Predicting the \emph{speedup} of workgroup sizes provides the
+  highest median speedup, but more frequently predicts a poorly
+  performing workgroup size then the classifiers.
 \item Classification using regression costs an order of magnitude more
   time than using classifiers. The J48 classifier has the lowest
   overhead.
 \end{itemize}
-%
-
-% \section{Summary}

@@ -206,8 +206,9 @@ the performance of a workgroup size. The success of a machine learning
 system depends on the ability to translate these properties into
 meaningful explanatory variables --- \emph{features}. To capture this
 in OmniTune, parameter requests are packed with a copy of the OpenCL
-kernel and attributes of the dataset and device to extract vectors of
-102 features describing hte architecture, kernel, and dataset:
+kernel and attributes of the dataset and device. The OmniTune server
+extracts 102 features describing hte architecture, kernel, and dataset
+from the message:
 %
 \begin{itemize}
 \item \textbf{Device} --- OmniTune uses the OpenCL
@@ -548,12 +549,12 @@ For classification, five classifiers are supported, chosen for their
 contrasting properties: Naive Bayes, SMO, Logistic Regression, J48
 Decision tree, and Random Forest. For regression, a Random Forest with
 regression trees is used, chosen because of its efficient handling of
-large feature sets.
+large feature sets, compared to linear models.
 
 \begin{figure}
 \centering
 \includegraphics[width=.95\textwidth]{img/omnitune-data-schema.pdf}
-\caption[Database schema for OmniTune remote]{%
+\caption[Database schema for storing performance results]{%
   Database schema for storing SkelCL stencil runtimes. Feature lookup
   tables and normalisation are used to provide extremely compact
   storage, requiring only 56 bytes for each additional runtime of a

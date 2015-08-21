@@ -47,19 +47,19 @@ Figure~\ref{fig:omnitune-system-flow} shows this process.
 \label{fig:omnitune-system-overview}
 \end{figure}
 
-\FIXME{As discussed in Chapter~\ref{chap:related}}, common implementations of
-autotuning in the literature either: embed the autotuning logic within
-the each target application, or take a standalone approach in which
-the autotuner is a program which must be invoked by the user to tune a
-target application. Embedding the autotuner within each target
-application has the advantage of providing ``always-on'' behaviour,
-but is infeasible for complex systems in which the cost of building
-machine learning models must be added to each program run. The
-standalone approach separates the autotuning logic, at the expense of
-adding one additional step to the build process. The approach taken in
-OmniTune aims to capture the advantages of both techniques by
-implementing a autotuning \emph{as a service}, with only the
-lightweight communication logic embedded in the target applications.
+Common implementations of autotuning in the literature either: embed
+the autotuning logic within the each target application, or take a
+standalone approach in which the autotuner is a program which must be
+invoked by the user to tune a target application. Embedding the
+autotuner within each target application has the advantage of
+providing ``always-on'' behaviour, but is infeasible for complex
+systems in which the cost of building machine learning models must be
+added to each program run. The standalone approach separates the
+autotuning logic, at the expense of adding one additional step to the
+build process. The approach taken in OmniTune aims to capture the
+advantages of both techniques by implementing a autotuning \emph{as a
+  service}, with only the lightweight communication logic embedded in
+the target applications.
 
 Omnitune is built around a three tier client-server model. The
 applications which are to be autotuned are the \emph{clients}. These
@@ -88,7 +88,7 @@ training phase is enforced only by the client. The following sections
 describe the interfaces between the three components.
 
 
-\begin{figure}
+\begin{figure}[b]
 \centering
 \includegraphics[width=.7\textwidth]{img/omnitune-comms}
 \caption[Communication pattern between OmniTune components]{%
@@ -167,8 +167,8 @@ two operations:
 
 The role of the remote is to provide bookkeeping of training data for
 machine learning. Using the interface described in the previous
-section, remotes allow shared access to data using a transactional
-communication pattern from multiple servers.
+section, remotes allow shared access to data from multiple servers
+using a transactional communication pattern.
 
 
 \section{Summary}
