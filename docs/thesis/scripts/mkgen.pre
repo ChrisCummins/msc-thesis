@@ -673,8 +673,8 @@ def main():
     # visualise.performance_vs_coverage(db, "gen/img/params_summary.pdf",
     #                                   figsize=figsize)
 
-    # Boxplots grouped by kernel,device,dataset
-    boxplot_height = 3.5
+    # # Boxplots grouped by kernel,device,dataset
+    # boxplot_height = 3.5
 
     # figsize=(5.8, boxplot_height) # Full page width
     # visualise.kernel_performance(db, "gen/img/performance_kernels.pdf",
@@ -685,38 +685,38 @@ def main():
     # visualise.dataset_performance(db, "gen/img/performance_datasets.pdf",
     #                               title="", figsize=figsize)
 
-    # Boxplots grouped by wgsize
-    figsize=(5.8, boxplot_height)
-    ratios = [np.array(l) for l in
-              json.load(open(fs.path(
-                  "~/data/msc-thesis/performance_wgsize.json"
-              )))]
-    visualise.performance_vs_max_wgsize(ratios,
-                                        "gen/img/performance_max_wgsize.pdf",
-                                        xlabel="Workgroup size (as a \\% of $W_{\max}(s)$)",
-                                        figsize=figsize,
-                                        color=sns.color_palette("Greens"))
+    # # Boxplots grouped by wgsize
+    # figsize=(5.8, boxplot_height)
+    # ratios = [np.array(l) for l in
+    #           json.load(open(fs.path(
+    #               "~/data/msc-thesis/performance_wgsize.json"
+    #           )))]
+    # visualise.performance_vs_max_wgsize(ratios,
+    #                                     "gen/img/performance_max_wgsize.pdf",
+    #                                     xlabel="Workgroup size (as a \\% of $W_{\max}(s)$)",
+    #                                     figsize=figsize,
+    #                                     color=sns.color_palette("Greens"))
 
-    figsize=(5.8/2, boxplot_height) # Half-width
-    ratios = [np.array(l) for l in
-              json.load(open(fs.path(
-                  "~/data/msc-thesis/performance_c.json"
-              )))]
-    visualise.performance_vs_max_wgsize(ratios,
-                                        "gen/img/performance_max_c.pdf",
-                                        xlabel="Workgroup columns (as a \\% of $W_{\max}(s)$)",
-                                        figsize=figsize,
-                                        color=sns.color_palette("Blues"))
+    # figsize=(5.8/2, boxplot_height) # Half-width
+    # ratios = [np.array(l) for l in
+    #           json.load(open(fs.path(
+    #               "~/data/msc-thesis/performance_c.json"
+    #           )))]
+    # visualise.performance_vs_max_wgsize(ratios,
+    #                                     "gen/img/performance_max_c.pdf",
+    #                                     xlabel="Workgroup columns (as a \\% of $W_{\max}(s)$)",
+    #                                     figsize=figsize,
+    #                                     color=sns.color_palette("Blues"))
 
-    ratios = [np.array(l) for l in
-              json.load(open(fs.path(
-                  "~/data/msc-thesis/performance_r.json"
-              )))]
-    visualise.performance_vs_max_wgsize(ratios,
-                                        "gen/img/performance_max_r.pdf",
-                                        xlabel="Workgroup rows (as a \\% of $W_{\max}(s)$)",
-                                        figsize=figsize,
-                                        color=sns.color_palette("Reds"))
+    # ratios = [np.array(l) for l in
+    #           json.load(open(fs.path(
+    #               "~/data/msc-thesis/performance_r.json"
+    #           )))]
+    # visualise.performance_vs_max_wgsize(ratios,
+    #                                     "gen/img/performance_max_r.pdf",
+    #                                     xlabel="Workgroup rows (as a \\% of $W_{\max}(s)$)",
+    #                                     figsize=figsize,
+    #                                     color=sns.color_palette("Reds"))
 
     # # Motivating example plots
     # motivating_examples(db)

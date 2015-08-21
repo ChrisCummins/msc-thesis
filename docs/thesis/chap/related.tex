@@ -110,98 +110,56 @@ Machine learning has been successful applied to this problem,
 in~\cite{Stephenson2003}, using ``meta optimisation'' to tune compiler
 heuristics through an evolutionary algorithm to automate the search of
 the optimisation space. \citeauthor{Fursin2011} continued this with
-Milepost GCC, the first machine learning enabled self-tuning
-compiler~\cite{Fursin2011}.
+Milepost GCC, the first machine learning-enabled self-tuning
+compiler~\cite{Fursin2011}. A recent survey of the use of machine
+learning to improve heuristics quality by \citeauthor{Burke2013}
+concludes that the automatic \emph{generation} of these self-tuning
+heuristics provides the greatest level of generalisation, but is an
+ongoing research challenge~\cite{Burke2013}.
 
-Static analysis combined with iterative compilation~\cite{Runciman2014}.
+% An approach to online tuning of parallel programs is presented
+% in~\cite{Ansel2012} which partitions the available parallel resources
+% of a device in to two partitions and then executes two different
+% configurations simultaneously using each partition. The configuration
+% used for one of the configuration is guaranteed to be ``safe'', and
+% the performance
 
-A recent survey by \citeauthor{Burke2013} surveys the state of the
-start in said hyper-heuristics, concluding that the generation of
-heuristics XXX generalisation~\cite{Burke2013}.
+% % Eastep, J., Wingate, D., & Agarwal, A. (2011). Smart Data
+% % Structures: An Online Machine Learning Approach to Multicore Data
+% % Structures. In Proceedings of the 8th ACM International Conference
+% % on Autonomic Computing (pp. 11–20). New York, NY, USA:
+% % ACM. doi:10.1145/1998582.1998587
+% \TODO{Online reinforcement learning for optimising data structures
+%   online, \cite{Tesauro2005}}
 
-%
-% TOWARDS ONLINE TUNING:
-%
+% % Tesauro, G. (2005). Online Resource Allocation Using Decompositional
+% % Reinforcement Learning. In AAAI (pp. 886–891).
+% \TODO{Reinforcement learning for resource allocation~\cite{Eastep2011}}
 
-Whereas iterative compilation requires an expensive offline training
-phase to search an optimisation space, dynamic optimisers perform this
-optimisation space exploration at runtime, allowing programs to
-respond to dynamic features ``online''. This is a challenging task, as
-a random search of the optimisation space will result in many
-configurations with vastly suboptimal performance. In a real world
-system, evaluating many suboptimal configurations will cause a
-significant slowdown of the program. Thus a requirement of dynamic
-optimisers is that convergence time towards optimal parameters is
-minimal.
-
-Existing dynamic optimisation research has typically taken a low level
-approach to performing optimisations. Dynamo is a dynamic optimiser
-which performs binary level transformations of programs using
-information gathered from runtime profiling and tracing. While this
-provides the ability to respond to dynamic features, it restricts the
-range of optimisations that can be applied to binary
-transformations. These low level transformations cannot match the
-performance gains that higher level parameter tuning produces.
-
-One of the biggest challenges facing the implementation of dynamic
-optimisers is to minimise the runtime overhead so that it does not
-outweigh the performance advantages of the optimisations. A
-significant contributor to this runtime overhead is the requirement to
-compile code dynamically. Previous research has negated this cost by
-compiling multiple versions of a target subroutine ahead of time. At
-runtime, execution switches between the available versions, selecting
-the version with the best performance. In practice, this technique
-massively reduces the optimisation space which can be searched as it
-is unfeasible to insert the thousands of different versions of a
-subroutine that are tested using offline autotuning.
-
-The novelty of the approach taken in this thesis is to combine the
-advantages of offline training phases and online parameter tuning by
-implementing a dynamic autotuner which maintains persistent data
-in-between SkelCL program executions.
-
-% Ansel, J., & Reilly, U. O. (2012). SiblingRivalry: Online Autotuning
-% Through Local Competitions. In Proceedings of the 2012 International
-% Conference on Compilers, Architectures and Synthesis for Embedded
-% Systems (pp. 91–100). ACM. doi:10.1145/2380403.2380425
-\TODO{\cite{Ansel2012}}
-
-% Eastep, J., Wingate, D., & Agarwal, A. (2011). Smart Data
-% Structures: An Online Machine Learning Approach to Multicore Data
-% Structures. In Proceedings of the 8th ACM International Conference
-% on Autonomic Computing (pp. 11–20). New York, NY, USA:
-% ACM. doi:10.1145/1998582.1998587
-\TODO{Online reinforcement learning for optimising data structures
-  online, \cite{Tesauro2005}}
-
-% Tesauro, G. (2005). Online Resource Allocation Using Decompositional
-% Reinforcement Learning. In AAAI (pp. 886–891).
-\TODO{Reinforcement learning for resource allocation~\cite{Eastep2011}}
-
-% W. F. Ogilvie, P. Petoumenos, Z. Wang, and H. Leather, “Intelligent
-% Heuristic Construction with Active Learning,” in 18th International
-% Workshop on Compilers for Parallel Computing, 2015.
-\TODO{Using Active Learning to speed up the learning of compiler
-  heuristics~\cite{Ogilvie2015}. Towards online autotuning, albeit
-  only with binary optimisation parameter.}
+% % W. F. Ogilvie, P. Petoumenos, Z. Wang, and H. Leather, “Intelligent
+% % Heuristic Construction with Active Learning,” in 18th International
+% % Workshop on Compilers for Parallel Computing, 2015.
+% \TODO{Using Active Learning to speed up the learning of compiler
+%   heuristics~\cite{Ogilvie2015}. Towards online autotuning, albeit
+%   only with binary optimisation parameter.}
 
 %
 % SOME EXAMPLES OF ML IN THE WILD:
 %
 
-% R. Bitirgen, E. Ipek, and J. F. Martinez, “Coordinated Management of
-% Multiple Interacting Resources in Chip Multiprocessors: A Machine
-% Learning Approach,” in 2008 41st IEEE/ACM International Symposium on
-% Microarchitecture, 2008, pp. 318–329.
-\TODO{Artificial Neural Networks for resource allocation of CMPS:
-\cite{Bitirgen2008}}
+% % R. Bitirgen, E. Ipek, and J. F. Martinez, “Coordinated Management of
+% % Multiple Interacting Resources in Chip Multiprocessors: A Machine
+% % Learning Approach,” in 2008 41st IEEE/ACM International Symposium on
+% % Microarchitecture, 2008, pp. 318–329.
+% \TODO{Artificial Neural Networks for resource allocation of CMPS:
+% \cite{Bitirgen2008}}
 
-% Z. Wang and M. F. P. O. Boyle, “Partitioning Streaming Parallelism
-% for Multi-cores: A Machine Learning Based Approach,” in Proceedings
-% of the 19th international conference on Parallel architectures and
-% compilation techniques, 2010, pp. 307–318.
-\TODO{Offline ML for partitioning streaming applications:
-\cite{Wang2010}}
+% % Z. Wang and M. F. P. O. Boyle, “Partitioning Streaming Parallelism
+% % for Multi-cores: A Machine Learning Based Approach,” in Proceedings
+% % of the 19th international conference on Parallel architectures and
+% % compilation techniques, 2010, pp. 307–318.
+% \TODO{Offline ML for partitioning streaming applications:
+% \cite{Wang2010}}
 
 In~\cite{Saclay2010,Memon2013,Fursin2014}, \citeauthor{Fursin2014}
 advocate a collaborative and ``big data'' driven approach to
@@ -225,6 +183,26 @@ program's runtime. The current implementation of Collective Mind uses
 a NoSQL JSON format for storing performance data. The relational
 schema used in this thesis offers greater scaling performance as the
 amount of performance data from collective tuning grows.
+
+Whereas iterative compilation requires an expensive offline training
+phase to search an optimisation space, dynamic optimisers perform this
+optimisation space exploration at runtime, allowing programs to
+respond to dynamic features ``online''. This is a challenging task, as
+a random search of an optimisation space may result in configurations
+with vastly suboptimal performance. In a real world system, evaluating
+many suboptimal configurations will cause a significant slowdown of
+the program. Thus a requirement of dynamic optimisers is that
+convergence time towards optimal parameters is minimised.
+
+Existing dynamic optimisation research has typically taken a low level
+approach to performing optimisations. Dynamo is a dynamic optimiser
+which performs binary level transformations of programs using
+information gathered from runtime profiling and
+tracing~\cite{Bala2000}. While this provides the ability to respond to
+dynamic features, it restricts the range of optimisations that can be
+applied to binary transformations. These low level transformations
+cannot match the performance gains that higher level parameter tuning
+produces.
 
 An interesting related tangent to iterative compilation is the
 development of so-called ``superoptimisers''. In~\cite{Massalin1987},

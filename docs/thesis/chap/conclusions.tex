@@ -36,9 +36,13 @@ Runtime performance of autotuned stencil kernels is very promising,
 achieving an average 90\% of the available performance with only a 3ms
 autotuning overhead. Even ignoring the cases for which the human
 expert selected workgroup size is invalid, this provides a
-$1.33\times$ speedup.
-
-\TODO{}
+$1.33\times$ speedup, or a $5.57\times$ speedup over the best
+performance that can be achieved using static tuning. Classification
+performance is comparable when predicting workgroup sizes for both
+unseen programs and unseen devices. I believe that the combination of
+performance improvements and the collaborative nature of OmniTune
+makes for a compelling case for the use of autotuning as a key
+component for enabling performant, high level parallel programming.
 
 
 \section{Critical Analysis}
@@ -103,8 +107,7 @@ benchmarks and datasets.
 \section{Future Work}
 
 Future work can be divided into two categories: continued development
-of OmniTune, and extending the behaviour of the SkelCL
-autotuner. Future development of OmniTune could include
+of OmniTune, and extending the behaviour of the SkelCL autotuner.
 
 The cost of offline training with OmniTune could be reduced by
 exploring the use of adaptive sampling plans, such as presented
@@ -112,12 +115,16 @@ in~\cite{Leather2009}. This could reduce the number of runtime samples
 required to distinguish good from bad optimisation parameter values.
 
 Algorithm~\ref{alg:autotune-hybrid} proposes the behaviour of a hybrid
-approach to selecting the workgroup size of SkelCL stencils. This
-approach attempts to exploit the advantages of all of the techniques
-presented in this thesis. Such a hybrid approach would enable online
-leaning through the continued acquisition of runtime and speedup
-performance, which would compliment the collaborative aspirations of
-OmniTune, and the existing server-remote infrastructure.
+approach to selecting the workgroup size of iterative SkelCL
+stencils. This approach attempts to exploit the advantages of all of
+the techniques presented in this thesis. First, runtime regression is
+used to predict the minimum runtime and a candidate workgroup
+size. If, after evaluating this workgroup size, the predicted runtime
+turned out to be inaccurate, then a prediction is made using speedup
+regression. Such a hybrid approach would enable online tuning through
+the continued acquisition of runtime and speedup performance, which
+would compliment the collaborative aspirations of OmniTune, and the
+existing server-remote infrastructure.
 
 Other skeleton optimisation parameters could be autotuned by SkelCL,
 including higher level optimisations such as the selection of border

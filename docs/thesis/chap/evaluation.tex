@@ -618,7 +618,7 @@ In the following section, we will evaluate the performance of OmniTune
 for selecting workgroup sizes.
 
 
-\section{Predicting Workgroup Sizes}
+\section{Autotuning Workgroup Sizes}
 
 In this section, we evaluate the performance of OmniTune for
 predicting workgroup sizes of SkelCL skeletons, using the prediction
@@ -718,7 +718,7 @@ fallback strategies are required to select a legal workgroup size
 $w \in W_{legal}(s)$.
 
 
-\subsection{Evaluting Regressors}
+\subsection{Evaluating Regressors}
 
 Sections~\ref{subsec:omnitune-ml-runtime}
 and~\ref{subsec:omnitune-ml-speedup} describe methodologies for
@@ -730,14 +730,14 @@ labelled with the mean observed runtime $t(s,w)$ for all legal
 workgroup sizes:
 %
 \begin{equation}
-  D_{training} = \bigcup_{\forall s \in S_{training}} \left\{ f(s),t(s,w) | w \in W_{legal}(s)
+  D_{training} = \bigcup_{\forall s \in S_{training}} \left\{ (f(s),t(s,w)) | w \in W_{legal}(s)
   \right\}
 \end{equation}
 For predicting speedups, the features vectors are labelled with
 observed speedup over the baseline parameter $\bar{w}$ (see
 Section~\ref{subsec:baseline}) for all legal workgroup sizes:
 \begin{equation}
-  D_{training} = \cup \left\{ f(s),r(s,w,\bar{w}) | w \in W_{legal}(s)
+  D_{training} = \cup \left\{ (f(s),r(s,w,\bar{w})) | w \in W_{legal}(s)
   \right\} \forall s \in S_{training}
 \end{equation}
 %
@@ -772,7 +772,7 @@ strategies are required, and the \emph{validity} and \emph{refused}
 metrics are not used.
 
 
-\subsection{Results}
+\subsection{Results and Analysis}
 
 The purpose of this evaluation is to test the effectiveness of machine
 learning-enabled autotuning for predicting workgroup sizes of SkelCL
@@ -880,6 +880,31 @@ control and loop bounds are not captured by the kernel features used
 in OmniTune, which instead use simple static static instruction counts
 and densities. The average speedup achieved by predicting runtimes is
 $4.14\times$. For predicting speedups, the average is $5.57\times$.
+Tables~\ref{tab:class}, \ref{tab:runtime-class},
+and~\ref{tab:speedup-class} show mean performances and speedups for:
+J48 classifier using the \textsc{NearestNeighour} fallback strategy,
+classification using runtime regression, and classification using
+speedup regression, respectively.
+
+If we eliminate the 2.6\% of test cases for which the workgroup size
+of $w_{(32 \times 4)}$ is illegal, we can compare the performance of
+OmniTune directly against the human expert chosen workgroup
+size. Figure~\ref{fig:speedup-distributions} compares the speedups of
+all such validation instances over the human expert parameter, for
+each autotuning technique. The speedup distributions show consistent
+classification results for the five classification techniques, with
+the speedup at the lower quartile for all classifiers being
+$\ge 1.0\times$. The IQR for all classifiers is $< 0.5$, but there are
+outliers with speedups both well below $1.0\times$ and well above
+$2.0\times$. In contrast, the speedups achieved using runtime
+regression have a lower range, but also a lower median and a larger
+IQR. Clearly, runtime regression is the least effective of the
+evaluated autotuning techniques.
+
+% The lower average speedup attained by speedup regression over the
+% J48 classifier belies the fact that the \emph{median} speedup is
+% much greater, at $1.33 \times$.
+
 
 \begin{figure}
 \centering
@@ -894,17 +919,7 @@ $4.14\times$. For predicting speedups, the average is $5.57\times$.
 \label{fig:speedup-distributions}
 \end{figure}
 
-If we eliminate the 2.6\% of test cases for which the workgroup size
-of $w_{(32 \times 4)}$ is illegal, we can compare the performance of
-OmniTune directly against the human expert chosen workgroup size.
 
-The lower average speedup attained by speedup regression over the J48
-classifier belies the fact that the \emph{median} speedup is much
-greater, at $1.33 \times$.
-
-Table~\ref{tab:class} shows performance and speedups for the J48
-classifier using the \textsc{NearestNeighour} fallback
-strategy. % Table~\ref{tab:runtime-class}
 
 
 
@@ -935,7 +950,7 @@ strategy. % Table~\ref{tab:runtime-class}
 \end{table}
 
 
-\subsection{Visualising Prediction Errors}
+% \subsection{Visualising Prediction Errors}
 
 \begin{figure}
 \centering
@@ -998,10 +1013,10 @@ strategy. % Table~\ref{tab:runtime-class}
 
 
 Only the NaiveBayes and RandomForest classifiers predicted the human
-expert workgroup size $w_{(32 \times 4)}$ as frequently, or more
-frequently, than it was optimal.
+expert selected workgroup size of $w_{(32 \times 4)}$ as frequently,
+or more frequently, than it was optimal.
 
-\subsection{Autotuning Costs}\label{subsec:autotune-costs}
+% \subsection{Autotuning Costs}\label{subsec:autotune-costs}
 
 Prediction costs using regression are significantly greater than using
 classifiers. This is because, while a classifier makes a single
@@ -1017,6 +1032,9 @@ $w \in \left\{ w | w < W_{\max}(s) \right\}$.
 
 \subsection{Summary}
 
+From an evaluation of 17 different autotuning techniques using 5
+different types of validation sets, the following conclusions about
+autotuning performance can be drawn:
 %
 \begin{itemize}
 \item In the case of classifiers predicting illegal workgroup sizes,
@@ -1033,17 +1051,4 @@ $w \in \left\{ w | w < W_{\max}(s) \right\}$.
 \end{itemize}
 %
 
-\section{Summary}
-
-% \begin{table}
-% \scriptsize
-% \input{\DataDir/tab/xval.tex}
-% \caption{Results of 10 fold cross-validation.}
-% \end{table}
-
-% \begin{table}
-% \scriptsize
-% \input{\DataDir/tab/synthetic_real.tex}
-% \caption{Results of training using synthetic benchmarks and testing on
-%   real.}
-% \end{table}
+% \section{Summary}
