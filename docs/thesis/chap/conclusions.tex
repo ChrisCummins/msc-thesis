@@ -24,33 +24,108 @@ slowdown if an improper value is picked. Selecting the correct
 workgroup size is difficult --- requiring a knowledge of the kernel,
 dataset, and underlying architecture. The challenge is increased even
 more so by inconsistencies in the underlying system which cause some
-workgroup sizes to fail completely. Autotuning in this space requires
-a system which is resilient this challenging in the space, and several
-techniques were proposed to address this.
+workgroup sizes to fail completely. Of the 269813 combinations of
+workgroup size, device, program, and dataset tested; only a
+\emph{single} workgroup size valid programs throughout, and achieved
+only 24\% of the available performance. The value selected by human
+experts was invalid for 2.6\% of test cases. Autotuning in this space
+requires a system which is resilient these challenges, and several
+techniques were implemented to address them.
 
+Runtime performance of autotuned stencil kernels is very promising,
+achieving an average 90\% of the available performance with only a 3ms
+autotuning overhead. Even ignoring the cases for which the human
+expert selected workgroup size is invalid, this provides a
+$1.33\times$ speedup.
 
-33\% over that of a human expert, while .
+\TODO{}
+
 
 \section{Critical Analysis}
 
-% TODO: Review against project plan.
+This section contains a critical analysis of the work presented in
+previous chapters.
 
-% Achievements:
-%
-% Understanding a large code base (SkelCL)
+\subsubsection{OmniTune Framework}
 
-% Things I could have done
-%
-% How many features are required?
-% How many synthetic benchmarks are required?
-% Compare against hand-crafted stencils
+The purpose of the OmniTune framework is to provide a generic
+interface for runtime autotuning. This is demonstrated through the
+implementation of a SkelCL frontend; however, to truly evaluate the
+ease of use of this framework, it would have been preferable to
+implement one or more additional autotuning frontends, to target
+different optimisation spaces. This could expose any leakages in the
+abstractions between the SkelCL-specific and generic autotuning
+components.
+
+
+\subsubsection{Synthetic Benchmarks}
+
+The OmniTune SkelCL frontend provides a template substitution engine
+for generating synthetic stencil benchmarks. The implementation of
+this generator is rigidly tied to the SkelCL stencil format. It would
+be preferred if this template engine was made more flexible, to
+support generation of arbitrary test programs. Additionally, I did not
+explore how the number of synthetic benchmarks in machine learning
+test data sets affects classification performance due to time
+constraints.
+
+
+\subsubsection{Use of Machine Learning}
+
+The evaluation of OmniTune in this thesis uses multiple classifiers
+and regressors to predict workgroup sizes. The behaviour of these
+classifiers and regressors is provided by the Weka data mining
+suite. Many of these classifiers have parameters which affect their
+prediction behaviour. The quality of the evaluation could have been
+improved by exploring the effects that changing the values of these
+parameters has on the OmniTune classification performance. It would
+also have been informative to dedicate a portion of the evaluation to
+feature engineering, evaluating the information gain of each feature
+and exploring the effects of feature transformations on classification
+performance.
+
+
+\subsubsection{Evaluation Methodology}
+
+The evaluation compares autotuning performance against the best
+possible performance that can be achieved using static tuning, a
+simple heuristic to tune workgroup size on a per-device basis, and
+against the workgroup size chosen by human experts. It would have been
+beneficial to also include a comparison of the performance of these
+autotuned stencils against hand-crafted equivalent programs in pure
+OpenCL, without using the SkelCL framework. This would allow a direct
+comparison between the performance of stencil kernels using high level
+and low level abstractions, but could not be completed due to time
+constraints and difficulties in acquiring suitable comparison
+benchmarks and datasets.
 
 
 \section{Future Work}
 
-% \TODO{Write an experiment for which static instruction counts fall
-% down. For example, two programs with similar instruction counts, one
-% with a huge loop, the other with straight line code.}
+Future work can be divided into two categories: continued development
+of OmniTune, and extending the behaviour of the SkelCL
+autotuner. Future development of OmniTune could include
+
+The cost of offline training with OmniTune could be reduced by
+exploring the use of adaptive sampling plans, such as presented
+in~\cite{Leather2009}. This could reduce the number of runtime samples
+required to distinguish good from bad optimisation parameter values.
+
+Algorithm~\ref{alg:autotune-hybrid} proposes the behaviour of a hybrid
+approach to selecting the workgroup size of SkelCL stencils. This
+approach attempts to exploit the advantages of all of the techniques
+presented in this thesis. Such a hybrid approach would enable online
+leaning through the continued acquisition of runtime and speedup
+performance, which would compliment the collaborative aspirations of
+OmniTune, and the existing server-remote infrastructure.
+
+Other skeleton optimisation parameters could be autotuned by SkelCL,
+including higher level optimisations such as the selection of border
+region loading strategy, or selecting the optimal execution device(s)
+for multi-device systems. Optimisation parameters of additional
+skeletons could be autotuned, or the interaction of multiple related
+optimisation parameters could be explored. Power consumption could be
+used as an additional optimisation cotarget.
 
 \begin{algorithm}
 \input{alg/autotune-hybrid}
@@ -60,36 +135,3 @@ techniques were proposed to address this.
 }
 \label{alg:autotune-hybrid}
 \end{algorithm}
-
-% TODO: Auto-discovery of errors & bug reports
-
-% TODO: Extensions to SkelCL: Cluster parallelism, multi-dimensional
-% stencils, stencil specialisations for specific memory access
-% patterns.
-
-% TODO: Additional optimisation parameters, e.g. which device to
-% execute on.
-
-% TODO: Apply to additional skeleton libraries.
-
-% TODO: energy as an optimisation cotarget.
-
-
-% Leather, H., O’Boyle, M., & Worton, B. (2009). Raced Profiles:
-% Efficient Selection of Competing Compiler Optimizations. In LCTES
-% ’09: Proceedings of the ACM SIGPLAN/SIGBED 2009 Conference on
-% Languages, Compilers, and Tools for Embedded Systems
-% (pp. 1–10). Dublin.
-\TODO{%
-  Consider using adaptive sampling plans and some sort of global
-  mechanism for performing cooperative exploration across multiple
-  devices, while reducing the number of samples required to
-  distinguish good from bad workgroup sizes~\cite{Leather2009}.%
-}
-
-\TODO{%
-  Make the remote active. Rather than simply fetching from remote SQL
-  tables, the remote could be a webserver with a REST api for HTTP
-  GET/PUT of training data, and could analyse the data and build
-  models asynchronously.%
-}
