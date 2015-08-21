@@ -94,36 +94,28 @@ The key contributions of this thesis are:
   parameters across the life cycle of programs.
 \item The application of OmniTune for tuning of the SkelCL Algorithmic
   Skeleton library. When tasked with predicting the workgroup sizes of
-  Stencil skeletons on both GPUs and CPUs, OmniTune achieves
-  $\input{gen/best_avg_classification_performance}\%$ of the available
-  performance, providing an average speedup of
-  $\input{gen/best_avg_classification_speedup}\times$ over the best
-  possible statically chosen parameter values.
+  Stencil skeletons on both GPUs and CPUs, OmniTune achieves 90\% of
+  the available performance, providing an average speedup of
+  $1.33\times$ over values predicted by human experts, or $5.57\times$
+  over the best possible statically chosen parameter values.
 \item The novel application of procedurally generated benchmark
   programs for training machine learning-enabled autotuners. This
   reduces the cost of training while increasing the size of the space
   which can be explored. The effectiveness of this approach is
   demonstrated by testing the OmniTune SkelCL autotuner trained using
-  synthetic benchmarks against \input{gen/num_real_kernels} real world
-  stencil codes, achieving a worst case
-  $\input{gen/biggest_synthetic_real_classification_performance_drop}\%$
-  loss in achieved performance.
+  synthetic benchmarks against 68 configurations of real world stencil
+  kernels, achieving comparable autotuning performance with that of
+  cross-validation.
 \item An empirical evaluation of the performance of workgroup size to
   parameterise high-level parallel patterns. I enumerate the
   optimisation space of workgroup sizes for SkelCL stencil kernels
-  across \input{gen/num_runtime_stats} test cases, demonstrating an
-  average performance loss of up to
-  $\input{gen/avg_possible_speedup_perc}\%$ if workgroup size is not
-  correctly tuned. % \TODO{Unexpected results. By exploring a much
-    % larger space than is traditionally used, we find that workgroup
-    % sizes outside the expected norm (i.e. not a multiple of 32) can
-    % bring huge performance bonuses.}
-\item A comparison of multiple approaches to minimise the cost of
-  effective autotuning. \TODO{flesh out: compare cost of full
-    enumeration with that of classification and regression.}
-\item An evaluation of several approaches to performing machine
-  learning classification in which the hypothesis space has hard
-  constraints on legality. \TODO{flesh out: why is this important?}
+  across 269813 test cases, demonstrating an average performance loss
+  of up to $15.14\times$ if workgroup size is not correctly tuned.
+\item A comparison of multiple approaches for runtime autotuning:
+  using classifiers to predict optimal parameter values, using
+  regressors to predict the absolute runtime of programs, using
+  regressors to predict the relative performance of different
+  parameter values.
 \end{itemize}
 
 
@@ -218,9 +210,9 @@ domain specific knowledge does not transfer to the device shown
 in~\ref{fig:motivation-2}, where the relatively simple optimisation
 space is more amenable to a stochastic hill climbing search.
 
-Similarly, the optimisation space of two different stencils for the
+Similarly, the optimisation space of two different stencils on the
 same device is shown in~\ref{fig:motivation-prog}, demonstrating that
-\TODO{\ldots}
+the optimisation space is dependent on the program being executed.
 
 The optimal workgroup size is different for each of the four examples,
 and the difference between the maximum and minimum performance
@@ -239,17 +231,18 @@ individual programs to match the target problem and underlying
 hardware.
 
 Given the important role that stencil codes play in many fields of
-computer science and simulation, and their computationally intensive
-nature, I believe that there is a compelling case for the development
-of an autotuner which can accommodate for these differences of
-workgroup size performance between devices and programs. It is my
-hypothesis that the performance of algorithmic skeletons will be
-improved by developing an autotuner which considers dynamic features
-which cannot be determined at compile time. The premise is that the
-optimisation spaces of algorithmic skeletons such as stencils are
-shaped by features which can only be determined at runtime. Effective
-searching of these spaces can only be performed by collecting
-empirical data rather than building predictive models.
+computer science and simulation, and the difficulties in selecting
+workgroup sizes for portable performance, I believe that there is a
+compelling case for the development of an autotuner which can
+accommodate for these differences of workgroup size performance
+between devices and programs. It is my hypothesis that the performance
+of algorithmic skeletons will be improved by developing an autotuner
+which considers dynamic features which cannot be determined at compile
+time. The premise is that the optimisation spaces of algorithmic
+skeletons such as stencils are shaped by features which can only be
+determined at runtime. Effective searching of these spaces can only be
+performed by collecting empirical data rather than building predictive
+models.
 
 The ambition of this thesis is to demonstrate that, using machine
 learning, we can develop predictive tuning systems which closely

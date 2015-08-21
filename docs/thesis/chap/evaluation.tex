@@ -97,9 +97,12 @@ counts against the full experiment results of 269813 test cases, we
 can assert with 95\% confidence that the true mean for each test case
 is within 2.5\% of the sample mean (given the average number of
 samples per test case), or 3.7\% in the worst case (at the minimum
-number of samples). \FIXME{This demonstrates a sufficiently low level
-  of noise that meaningful comparisons can be made between the
-  performance of different configurations.}
+number of samples). Since the differences between baseline and optimal
+workgroup sizes is often well in excess of 100\%, there is no overlap
+of confidence intervals between competing workgroup sizes.
+% \FIXME{This demonstrates a sufficiently low level of noise that
+% meaningful comparisons can be made between the performance of
+% different configurations.}
 
 
 \section{Workgroup Size Optimisation Space}
@@ -899,7 +902,12 @@ outliers with speedups both well below $1.0\times$ and well above
 $2.0\times$. In contrast, the speedups achieved using runtime
 regression have a lower range, but also a lower median and a larger
 IQR. Clearly, runtime regression is the least effective of the
-evaluated autotuning techniques.
+evaluated autotuning techniques. Speedup regression is more
+successful, with the highest median speedup of all the
+techniques. However, it also has a large IQR and the lower quartile
+has a speedup value well below 1, meaning that for more than 25\% of
+test instances, the workgroup size selected did not perform as well as
+the human expert selected workgroup size.
 
 % The lower average speedup attained by speedup regression over the
 % J48 classifier belies the fact that the \emph{median} speedup is

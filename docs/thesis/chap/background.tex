@@ -592,8 +592,9 @@ successful.
 
 \subsubsection{Decision Trees}
 
-Decision trees are an intuitive form of classification in which a set
-of
+Decision trees are an intuitive form of classification in which a tree
+structure of decision nodes are used to predict the class for a given
+set of features.
 
 Given a set of examples $D$, and $p_{(+)}$ and $p_{(-)}$ are the
 number of positive and negative examples in $D$:
@@ -606,6 +607,12 @@ number of positive and negative examples in $D$:
   \gain(D, A) = H(D) - \sum_{V \in \text{Values}(A)}\frac{|D_V|}{|D|}H(D_V)
 \end{equation}
 
+Decision trees are very popular and low overhead form of
+classification, as they can be implemented using a nested set of
+\texttt{if}/\texttt{else} statements. However, they often have an
+issue of overfitting to the training data, if preventative action is
+not taken.
+
 
 \subsubsection{Random Forest}
 
@@ -616,35 +623,11 @@ predictions~\cite{Breiman1999}. If trained using regression trees,
 Random Forests are capable of regression, in which the predicted
 values are the mean of all trees.
 
-
-\subsubsection{Support Vector Machines}
-
-Given a set of training data $S$ of size $n$, where $p$-dimensionality
-vectors of features $x$ are labelled with a class $y$:
-
-\begin{equation}
-  S = \left\{ (x_i,y_i) | x_i \in \mathbb{R}^p, y_i \in \left\{ -1, 1 \right\} \right\}_{i=1}^{n}
-\end{equation}
-
-\begin{equation}
-  \min_{\bm{w}} || w^2 ||
-\end{equation}
-
-\begin{equation}
-  y_i(\bm{w}^T\bm{x}_i + w_0) \ge +1 \forall i
-\end{equation}
+\subsubsection{Logistic Regression}
 
 
-\subsection{Regression}
+\subsubsection{SMO}
 
-
-\subsubsection{Random Forest}
-
-
-\section{Validation and Testing}
-
-
-\subsubsection{Cross-validation}
 
 
 \section{Statistics}
